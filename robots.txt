@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow:
 
-Sitemap: https://collaborativeconcepts.vercel.app/sitemap.xml
+Sitemap: https://collaborativeconceptsfl.com/sitemap.xml
