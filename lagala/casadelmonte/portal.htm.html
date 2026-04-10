@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Gala Construction — Owner Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a2332;--navy2:#243040;--navy3:#2d3d52;
+  --blue:#3d7eaa;--blue2:#5596c0;--blue3:#eef4f9;
+  --white:#fff;--off:#f4f6f8;--muted:#7a8fa6;
+  --border:rgba(255,255,255,0.08);--border2:#dde4ea;
+  --red:#c0392b;--green:#1a6b40;--green2:#e8f8f0;
+  --gold:#c9a84c;--gold2:#fdf7e8;
+  --warn:#e67e22;--warn2:#fef3e2;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Barlow',Arial,sans-serif;background:var(--off);color:var(--navy);overflow-x:hidden;font-size:15px}
+
+/* ── SIDEBAR ── */
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:260px;flex-shrink:0;
+  background:var(--navy);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;
+  overflow-y:auto;z-index:50;
+  transition:transform .3s;
+}
+.sidebar-logo{
+  padding:24px 20px 20px;
+  border-bottom:1px solid var(--border);
+}
+.logo-mark{
+  width:40px;height:40px;border-radius:8px;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:12px;
+}
+.logo-mark svg{width:22px;height:22px}
+.logo-name{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:18px;font-weight:800;color:var(--white);
+  letter-spacing:.5px;
+}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:2px}
+
+.sidebar-user{
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,.04);
+}
+.user-lot{font-size:11px;color:var(--blue2);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.user-name{font-size:15px;font-weight:600;color:var(--white)}
+.user-status{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:6px;font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:1px;
+  padding:3px 10px;border-radius:100px;
+}
+.status-phase1{background:rgba(201,168,76,.15);color:var(--gold)}
+.status-phase2a{background:rgba(26,107,64,.15);color:#4ade80}
+.status-phase2b{background:rgba(192,57,43,.15);color:#fc8181}
+.status-complete{background:rgba(61,126,170,.15);color:var(--blue2)}
+
+.nav-section{padding:12px 12px 4px;font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;font-weight:600}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 20px;margin:2px 8px;
+  border-radius:8px;cursor:pointer;
+  color:rgba(255,255,255,.6);font-size:14px;
+  transition:all .15s;
+}
+.nav-item:hover{background:rgba(255,255,255,.06);color:var(--white)}
+.nav-item.active{background:var(--blue);color:var(--white)}
+.nav-item .ni{font-size:16px;width:20px;text-align:center}
+.nav-badge{
+  margin-left:auto;background:var(--red);color:var(--white);
+  font-size:10px;font-weight:700;min-width:18px;height:18px;
+  border-radius:9px;display:flex;align-items:center;justify-content:center;
+  padding:0 5px;
+}
+.sidebar-bottom{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.sidebar-bottom p{font-size:11px;color:var(--muted);line-height:1.6}
+.sidebar-bottom a{color:var(--blue2);text-decoration:none;font-size:11px}
+
+/* ── MAIN ── */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column}
+.topbar{
+  background:var(--white);border-bottom:1px solid var(--border2);
+  padding:0 32px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:40;
+}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--navy)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-deadline{
+  display:flex;align-items:center;gap:8px;
+  background:#fef2f2;border:1px solid rgba(192,57,43,.2);
+  border-radius:8px;padding:6px 14px;
+  font-size:12px;font-weight:600;color:var(--red);
+}
+.ham-btn{display:none;background:none;border:none;cursor:pointer;padding:4px}
+.content{padding:32px;flex:1}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--border2);border-radius:16px;padding:24px}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.card-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+
+/* ── STAT CARDS ── */
+.stat-card{background:var(--white);border:1px solid var(--border2);border-radius:14px;padding:20px}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:8px}
+.stat-val{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:var(--navy);line-height:1}
+.stat-note{font-size:12px;color:var(--muted);margin-top:6px}
+.stat-card.blue{border-left:3px solid var(--blue)}
+.stat-card.green{border-left:3px solid var(--green)}
+.stat-card.red{border-left:3px solid var(--red)}
+.stat-card.gold{border-left:3px solid var(--gold)}
+
+/* ── PHASE TRACKER ── */
+.phase-track{display:flex;gap:0;margin-bottom:28px;overflow:hidden;border-radius:12px;border:1px solid var(--border2)}
+.pt-item{
+  flex:1;padding:16px 18px;
+  background:var(--white);border-right:1px solid var(--border2);
+  position:relative;
+}
+.pt-item:last-child{border-right:none}
+.pt-item.done{background:var(--green2)}
+.pt-item.active{background:var(--blue3)}
+.pt-item.locked{background:var(--off)}
+.pt-step{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.pt-item.done .pt-step{color:var(--green)}
+.pt-item.active .pt-step{color:var(--blue)}
+.pt-item.locked .pt-step{color:var(--muted)}
+.pt-name{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:2px}
+.pt-item.locked .pt-name{color:var(--muted)}
+.pt-status{font-size:11px}
+.pt-item.done .pt-status{color:var(--green)}
+.pt-item.active .pt-status{color:var(--blue)}
+.pt-item.locked .pt-status{color:var(--muted)}
+.pt-icon{font-size:18px;float:right;margin-top:-2px}
+
+/* ── CHECKLIST ── */
+.checklist{display:flex;flex-direction:column;gap:0}
+.cl-row{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:14px 0;border-bottom:1px solid var(--border2);
+}
+.cl-row:last-child{border:none}
+.cl-check{
+  width:22px;height:22px;border-radius:6px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;margin-top:1px;cursor:pointer;border:2px solid var(--border2);
+  transition:all .15s;
+}
+.cl-check.done{background:var(--green);border-color:var(--green);color:var(--white)}
+.cl-check.req{background:var(--blue);border-color:var(--blue);color:var(--white)}
+.cl-body{flex:1}
+.cl-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:3px}
+.cl-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.cl-badge{
+  display:inline-block;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;
+  padding:2px 8px;border-radius:4px;margin-left:8px;
+}
+.badge-req{background:rgba(192,57,43,.1);color:var(--red)}
+.badge-opt{background:rgba(61,126,170,.1);color:var(--blue)}
+.badge-done{background:rgba(26,107,64,.1);color:var(--green)}
+.cl-action{flex-shrink:0}
+.btn-upload{
+  background:var(--blue3);color:var(--blue);
+  border:1px solid rgba(61,126,170,.2);
+  padding:6px 14px;border-radius:6px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  font-family:'Barlow',sans-serif;white-space:nowrap;
+}
+.btn-upload:hover{background:var(--blue);color:var(--white)}
+.btn-sm{
+  padding:6px 14px;border-radius:6px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  font-family:'Barlow',sans-serif;border:none;
+}
+.btn-primary{background:var(--blue);color:var(--white)}
+.btn-green{background:var(--green);color:var(--white)}
+.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--blue)}
+
+/* ── PRICING CALC ── */
+.calc-section{background:var(--navy);border-radius:16px;padding:28px;margin-bottom:24px}
+.calc-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--white);margin-bottom:4px}
+.calc-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.calc-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;display:block;margin-bottom:6px}
+.calc-field input,.calc-field select{
+  width:100%;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;padding:11px 14px;
+  color:var(--white);font-size:14px;
+  font-family:'Barlow',sans-serif;
+}
+.calc-field input:focus,.calc-field select:focus{outline:none;border-color:var(--blue)}
+.calc-field select option{background:var(--navy2)}
+.calc-toggle{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);margin-bottom:4px}
+.calc-toggle label{font-size:13px;color:rgba(255,255,255,.7);flex:1;cursor:pointer}
+.toggle-sw{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle-sw input{opacity:0;width:0;height:0}
+.toggle-slider{
+  position:absolute;inset:0;cursor:pointer;
+  background:rgba(255,255,255,.15);border-radius:11px;transition:.3s;
+}
+.toggle-slider::before{
+  content:'';position:absolute;height:16px;width:16px;
+  left:3px;bottom:3px;background:var(--white);border-radius:50%;transition:.3s;
+}
+.toggle-sw input:checked + .toggle-slider{background:var(--blue)}
+.toggle-sw input:checked + .toggle-slider::before{transform:translateX(18px)}
+.calc-result{
+  background:rgba(61,126,170,.15);border:1px solid rgba(61,126,170,.3);
+  border-radius:12px;padding:20px;margin-top:20px;
+}
+.calc-result-title{font-size:12px;color:var(--blue2);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:14px}
+.calc-line{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
+.calc-line:last-of-type{border:none}
+.calc-line span:first-child{color:rgba(255,255,255,.6)}
+.calc-line span:last-child{font-weight:600;color:var(--white)}
+.calc-total{
+  display:flex;justify-content:space-between;
+  padding-top:14px;border-top:2px solid rgba(61,126,170,.3);
+  margin-top:8px;
+}
+.calc-total span:first-child{font-size:14px;font-weight:600;color:var(--white)}
+.calc-total span:last-child{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:28px;font-weight:800;color:var(--blue2);
+}
+
+/* ── PAYMENT ── */
+.pay-options{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.pay-card{
+  border:2px solid var(--border2);border-radius:12px;padding:20px;
+  cursor:pointer;transition:all .2s;
+}
+.pay-card:hover,.pay-card.selected{border-color:var(--blue);background:var(--blue3)}
+.pay-card-icon{font-size:28px;margin-bottom:8px}
+.pay-card-name{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.pay-card-desc{font-size:12px;color:var(--muted)}
+.pay-amount-box{
+  background:var(--navy);border-radius:12px;padding:20px;
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;
+}
+.pay-amount-label{font-size:12px;color:var(--muted)}
+.pay-amount-val{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:var(--blue2)}
+.pay-btn{
+  width:100%;background:var(--blue);color:var(--white);border:none;
+  padding:14px;border-radius:10px;font-size:15px;font-weight:700;
+  cursor:pointer;font-family:'Barlow',sans-serif;margin-bottom:12px;
+}
+.pay-btn:hover{background:var(--blue2)}
+.financing-strip{
+  background:var(--gold2);border:1px solid rgba(201,168,76,.3);
+  border-radius:10px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.financing-strip-icon{font-size:22px}
+.financing-strip-text{flex:1}
+.financing-strip-text strong{font-size:13px;font-weight:600;color:var(--navy);display:block}
+.financing-strip-text span{font-size:12px;color:var(--muted)}
+.financing-link{
+  background:var(--gold);color:var(--white);border:none;
+  padding:8px 16px;border-radius:7px;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:'Barlow',sans-serif;white-space:nowrap;
+}
+
+/* ── DOCS ── */
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.doc-card{
+  border:1px solid var(--border2);border-radius:12px;padding:16px;
+  background:var(--white);cursor:pointer;transition:all .2s;
+}
+.doc-card:hover{border-color:var(--blue);background:var(--blue3)}
+.doc-icon{font-size:28px;margin-bottom:8px}
+.doc-name{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.doc-meta{font-size:11px;color:var(--muted)}
+.doc-status{
+  display:inline-block;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:4px;margin-top:6px;
+  text-transform:uppercase;letter-spacing:1px;
+}
+.doc-ready{background:rgba(26,107,64,.1);color:var(--green)}
+.doc-needed{background:rgba(192,57,43,.1);color:var(--red)}
+.doc-pending{background:rgba(201,168,76,.1);color:var(--gold)}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone{
+  border:2px dashed var(--border2);border-radius:12px;padding:32px;
+  text-align:center;cursor:pointer;transition:all .2s;margin-bottom:20px;
+}
+.upload-zone:hover{border-color:var(--blue);background:var(--blue3)}
+.upload-icon{font-size:36px;margin-bottom:10px}
+.upload-title{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.upload-sub{font-size:13px;color:var(--muted)}
+.upload-btn{
+  margin-top:12px;background:var(--blue);color:var(--white);border:none;
+  padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:'Barlow',sans-serif;
+}
+
+/* ── COMPANY CAM ── */
+.ccam-strip{
+  background:linear-gradient(135deg,var(--navy2),var(--navy3));
+  border-radius:12px;padding:20px 24px;
+  display:flex;align-items:center;gap:16px;margin-bottom:20px;
+  border:1px solid rgba(61,126,170,.2);
+}
+.ccam-icon{font-size:32px}
+.ccam-text h4{font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px}
+.ccam-text p{font-size:12px;color:var(--muted);line-height:1.5}
+.ccam-btn{
+  margin-left:auto;background:var(--blue);color:var(--white);border:none;
+  padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:'Barlow',sans-serif;white-space:nowrap;
+}
+
+/* ── PHOTO GRID ── */
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.photo-thumb{
+  border-radius:10px;overflow:hidden;position:relative;
+  aspect-ratio:1;background:var(--navy2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;border:1px solid var(--border2);
+}
+.photo-thumb .photo-icon{font-size:28px;color:var(--muted)}
+.photo-thumb .photo-date{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);font-size:10px;color:rgba(255,255,255,.7);padding:4px 8px;text-align:center}
+.photo-add{border:2px dashed var(--border2);background:var(--off)}
+.photo-add .photo-icon{color:var(--blue)}
+
+/* ── MEP TABLE ── */
+.mep-table{width:100%;border-collapse:collapse;font-size:14px}
+.mep-table th{padding:10px 14px;text-align:left;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:2px solid var(--border2)}
+.mep-table td{padding:12px 14px;border-bottom:1px solid var(--border2);vertical-align:top}
+.mep-table tr:last-child td{border:none}
+.mep-table tr:hover td{background:var(--off)}
+.trade-name{font-weight:600;color:var(--navy)}
+.trade-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.rate-range{font-weight:700;color:var(--navy)}
+.rate-bulk{font-size:11px;color:var(--green);font-weight:600}
+.rate-note{font-size:11px;color:var(--muted)}
+
+/* ── BATCH TABLE ── */
+.batch-table{width:100%;border-collapse:collapse;font-size:14px}
+.batch-table th{padding:10px 14px;text-align:left;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:2px solid var(--border2)}
+.batch-table td{padding:12px 14px;border-bottom:1px solid var(--border2)}
+.batch-num{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--navy)}
+.batch-date{font-size:12px;color:var(--muted);margin-top:2px}
+.batch-slots{
+  display:flex;gap:4px;flex-wrap:wrap;
+}
+.batch-slot{
+  width:28px;height:28px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;
+}
+.slot-filled{background:var(--blue);color:var(--white)}
+.slot-yours{background:var(--green);color:var(--white)}
+.slot-open{background:var(--off);color:var(--muted);border:1px dashed var(--border2)}
+
+/* ── OWNER DIRECTORY ── */
+.owner-table{width:100%;border-collapse:collapse;font-size:14px}
+.owner-table th{padding:10px 14px;text-align:left;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:2px solid var(--border2)}
+.owner-table td{padding:11px 14px;border-bottom:1px solid var(--border2);vertical-align:middle}
+.owner-table tr:hover td{background:var(--off)}
+.owner-lot{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--navy)}
+.owner-name{font-weight:500;color:var(--navy)}
+.owner-addr{font-size:11px;color:var(--muted)}
+.phase-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;
+  text-transform:uppercase;letter-spacing:1px;
+}
+.pill-1{background:rgba(201,168,76,.12);color:var(--gold)}
+.pill-2a{background:rgba(26,107,64,.12);color:#22a06b}
+.pill-2b{background:rgba(192,57,43,.12);color:var(--red)}
+.pill-ok{background:rgba(61,126,170,.12);color:var(--blue)}
+.pill-none{background:var(--off);color:var(--muted)}
+.search-bar{
+  width:100%;padding:10px 14px;border:1px solid var(--border2);
+  border-radius:8px;font-size:14px;font-family:'Barlow',sans-serif;
+  margin-bottom:16px;color:var(--navy);
+}
+.search-bar:focus{outline:none;border-color:var(--blue)}
+
+/* ── PAGES ── */
+.page{display:none}
+.page.active{display:block}
+
+/* ── ALEX FIELD ── */
+.alex-card{
+  background:linear-gradient(135deg,var(--navy),var(--navy3));
+  border:1px solid rgba(61,126,170,.25);
+  border-radius:16px;padding:24px;
+  display:flex;align-items:center;gap:20px;margin-bottom:24px;
+}
+.alex-avatar{
+  width:64px;height:64px;border-radius:50%;
+  background:var(--blue);display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:var(--white);
+  flex-shrink:0;
+}
+.alex-info h3{font-size:18px;font-weight:700;color:var(--white);margin-bottom:2px}
+.alex-info .alex-title{font-size:11px;color:var(--blue2);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.alex-info p{font-size:13px;color:rgba(255,255,255,.6);line-height:1.6}
+.alex-contact{margin-left:auto;text-align:right;flex-shrink:0}
+.alex-contact a{
+  display:block;text-decoration:none;color:var(--white);
+  font-size:14px;font-weight:600;margin-bottom:6px;
+}
+.alex-contact a span{color:var(--blue2)}
+
+/* ── INSPECTIONS ── */
+.insp-timeline{display:flex;flex-direction:column;gap:0}
+.insp-item{display:flex;gap:16px;padding-bottom:20px;position:relative}
+.insp-item:last-child{padding-bottom:0}
+.insp-dot-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:36px}
+.insp-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.insp-dot.done{background:var(--green);color:var(--white)}
+.insp-dot.active{background:var(--blue);color:var(--white)}
+.insp-dot.pending{background:var(--off);color:var(--muted);border:2px dashed var(--border2)}
+.insp-line{flex:1;width:2px;background:var(--border2);margin-top:4px;min-height:20px}
+.insp-item:last-child .insp-line{display:none}
+.insp-content{padding-top:6px;flex:1}
+.insp-name{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:2px}
+.insp-meta{font-size:12px;color:var(--muted)}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .ham-btn{display:block}
+  .content{padding:16px}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .phase-track{flex-direction:column}
+  .pt-item{border-right:none;border-bottom:1px solid var(--border2)}
+  .pt-item:last-child{border-bottom:none}
+  .calc-grid{grid-template-columns:1fr}
+  .pay-options{grid-template-columns:1fr}
+  .pay-amount-box{flex-direction:column;gap:8px;text-align:center}
+  .ccam-strip{flex-wrap:wrap}
+  .ccam-btn{width:100%;margin-left:0}
+  .overlay{display:block!important}
+  .topbar{padding:0 16px}
+}
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.5);z-index:49;
+}
+.alert-box{
+  display:flex;align-items:flex-start;gap:12px;
+  border-radius:10px;padding:14px 16px;margin-bottom:16px;
+}
+.alert-box.info{background:var(--blue3);border:1px solid rgba(61,126,170,.2)}
+.alert-box.warn{background:var(--warn2);border:1px solid rgba(230,126,34,.2)}
+.alert-box.success{background:var(--green2);border:1px solid rgba(26,107,64,.2)}
+.alert-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.alert-text{font-size:13px;color:var(--navy);line-height:1.5}
+.alert-text strong{font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div class="layout">
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M4 4L4 20L12 20" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M20 7 A8 8 0 0 0 12 4 A8 8 0 0 0 12 20 A8 8 0 0 0 20 17" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="logo-name">LA GALA</div>
+    <div class="logo-sub">Owner Portal · CGC 059211</div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="user-lot">Lot 2020 · Casa Del Monte</div>
+    <div class="user-name">Sonia Garcia Godoy</div>
+    <div class="user-status status-phase1">● Phase 1 — Active</div>
+  </div>
+
+  <div class="nav-section">My Case</div>
+  <div class="nav-item active" onclick="showPage('dashboard')"><span class="ni">🏠</span> Dashboard</div>
+  <div class="nav-item" onclick="showPage('checklist')"><span class="ni">☑️</span> My Checklist <span class="nav-badge">4</span></div>
+  <div class="nav-item" onclick="showPage('documents')"><span class="ni">📁</span> Documents</div>
+  <div class="nav-item" onclick="showPage('photos')"><span class="ni">📷</span> Photos</div>
+  <div class="nav-item" onclick="showPage('payment')"><span class="ni">💳</span> Payments</div>
+  <div class="nav-item" onclick="showPage('inspections')"><span class="ni">🔍</span> Inspections</div>
+
+  <div class="nav-section">Resources</div>
+  <div class="nav-item" onclick="showPage('pricing')"><span class="ni">💰</span> Price Calculator</div>
+  <div class="nav-item" onclick="showPage('batches')"><span class="ni">📅</span> Batch Schedule</div>
+  <div class="nav-item" onclick="showPage('financing')"><span class="ni">🏦</span> Financing Options</div>
+
+  <div class="nav-section">Admin</div>
+  <div class="nav-item" onclick="showPage('owners')"><span class="ni">👥</span> Owner Directory</div>
+  <div class="nav-item" onclick="showPage('mep')"><span class="ni">🔧</span> MEP Rate Sheet</div>
+  <div class="nav-item" onclick="showPage('alex')"><span class="ni">👷</span> Field Operations</div>
+
+  <div class="sidebar-bottom">
+    <p>Questions? Call Daniel:<br><strong><a href="tel:5614758615">(561) 475-8615</a></strong></p>
+    <p style="margin-top:8px">Or Keith:<br><strong><a href="tel:9545535535">(954) 553-5535</a></strong></p>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="ham-btn" onclick="toggleSidebar()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-deadline">⚠ Deadline: June 10, 2026 · <strong id="daysLeft"></strong></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="alert-box info" style="margin-bottom:20px">
+        <span class="alert-icon">ℹ️</span>
+        <div class="alert-text"><strong>Case C-2025-10220114</strong> is active. Your Phase 1 investigation has been initiated. Daniel Bivins will contact you within 24 hours to confirm your survey appointment.</div>
+      </div>
+
+      <div class="phase-track">
+        <div class="pt-item active">
+          <span class="pt-icon">🔍</span>
+          <div class="pt-step">Phase 1</div>
+          <div class="pt-name">P&Z Investigation</div>
+          <div class="pt-status">● In Progress</div>
+        </div>
+        <div class="pt-item locked">
+          <span class="pt-icon">🔒</span>
+          <div class="pt-step">Phase 2A or 2B</div>
+          <div class="pt-name">Permit or Demo</div>
+          <div class="pt-status">Awaiting P&Z result</div>
+        </div>
+        <div class="pt-item locked">
+          <span class="pt-icon">🔒</span>
+          <div class="pt-step">Phase 3</div>
+          <div class="pt-name">Corrections (if needed)</div>
+          <div class="pt-status">Inspector determines</div>
+        </div>
+        <div class="pt-item locked">
+          <span class="pt-icon">🔒</span>
+          <div class="pt-step">Final</div>
+          <div class="pt-name">Case Closed</div>
+          <div class="pt-status">Declaration of Compliance</div>
+        </div>
+      </div>
+
+      <div class="grid-4">
+        <div class="stat-card blue"><div class="stat-label">Case Number</div><div class="stat-val" style="font-size:18px">C-2025-10220114</div><div class="stat-note">PBC Code Compliance</div></div>
+        <div class="stat-card gold"><div class="stat-label">Phase 1 Fee Paid</div><div class="stat-val">$750</div><div class="stat-note">Paid Apr 9, 2026</div></div>
+        <div class="stat-card red"><div class="stat-label">Days to Deadline</div><div class="stat-val" id="daysNum">—</div><div class="stat-note">June 10, 2026</div></div>
+        <div class="stat-card green"><div class="stat-label">Documents Uploaded</div><div class="stat-val">2/6</div><div class="stat-note">4 still needed</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Your Violations</div>
+          <div class="card-sub">From Notice of Violation · March 9, 2026</div>
+          <div class="checklist">
+            <div class="cl-row">
+              <div class="cl-check req">⚠</div>
+              <div class="cl-body"><div class="cl-title">Section 105.1 — Unpermitted Porch/Addition <span class="cl-badge badge-req">Active</span></div><div class="cl-desc">PBC Amendments to FBC 8th Edition (2023) — structure added without permit</div></div>
+            </div>
+            <div class="cl-row">
+              <div class="cl-check req">⚠</div>
+              <div class="cl-body"><div class="cl-title">Section 105.1 — Unpermitted A/C Unit <span class="cl-badge badge-req">Active</span></div><div class="cl-desc">Mechanical unit installed without required mechanical permit</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Next Steps</div>
+          <div class="card-sub">Action required from you</div>
+          <div class="checklist">
+            <div class="cl-row">
+              <div class="cl-check done">✓</div>
+              <div class="cl-body"><div class="cl-title">Phase 1 payment confirmed</div><div class="cl-desc">$750 received Apr 9, 2026</div></div>
+            </div>
+            <div class="cl-row">
+              <div class="cl-check">2</div>
+              <div class="cl-body"><div class="cl-title">Upload your Notice of Violation</div><div class="cl-desc">Original PBC letter with case number</div></div>
+              <div class="cl-action"><button class="btn-upload" onclick="showPage('documents')">Upload</button></div>
+            </div>
+            <div class="cl-row">
+              <div class="cl-check">3</div>
+              <div class="cl-body"><div class="cl-title">Upload proof of ownership</div><div class="cl-desc">Title, deed, or bill of sale for your mobile home</div></div>
+              <div class="cl-action"><button class="btn-upload" onclick="showPage('documents')">Upload</button></div>
+            </div>
+            <div class="cl-row">
+              <div class="cl-check">4</div>
+              <div class="cl-body"><div class="cl-title">Send 4 photos of your addition</div><div class="cl-desc">Front, back, both sides + interior if enclosed</div></div>
+              <div class="cl-action"><button class="btn-upload" onclick="showPage('photos')">Photos</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Your La Gala Team</div>
+        <div class="card-sub">These are your direct contacts — not a call center</div>
+        <div class="grid-3">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:44px;height:44px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--white);flex-shrink:0">DB</div>
+            <div><div style="font-size:14px;font-weight:700;color:var(--navy)">Daniel Bivins</div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">Client Relations — Your main contact</div><a href="tel:5614758615" style="font-size:13px;color:var(--blue);font-weight:600;text-decoration:none">📞 (561) 475-8615</a></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:44px;height:44px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--white);flex-shrink:0">KL</div>
+            <div><div style="font-size:14px;font-weight:700;color:var(--navy)">Keith La Gala</div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">Founder & CEO · CGC 059211</div><a href="tel:9545535535" style="font-size:13px;color:var(--blue);font-weight:600;text-decoration:none">📞 (954) 553-5535</a></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:44px;height:44px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--white);flex-shrink:0">AT</div>
+            <div><div style="font-size:14px;font-weight:700;color:var(--navy)">Alex Torres</div><div style="font-size:11px;color:var(--muted);margin-bottom:6px">Field Operations · Site & Inspections</div><a href="tel:7542423636" style="font-size:13px;color:var(--blue);font-weight:600;text-decoration:none">📞 (754) 242-3636</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHECKLIST ── -->
+    <div class="page" id="page-checklist">
+      <div class="alert-box warn"><span class="alert-icon">⚠️</span><div class="alert-text"><strong>4 items still needed.</strong> Complete your checklist to keep your case on schedule for the next batch submission.</div></div>
+      <div class="card">
+        <div class="card-title">Complete Your Case Checklist</div>
+        <div class="card-sub">All items required before we can submit to PBC. Check off each item as you complete it.</div>
+        <div class="checklist">
+          <div class="cl-row"><div class="cl-check done" onclick="toggleCheck(this)">✓</div><div class="cl-body"><div class="cl-title">Phase 1 payment <span class="cl-badge badge-done">Done</span></div><div class="cl-desc">$750 paid · Apr 9, 2026 · Confirmation #LGC-2020-001</div></div></div>
+          <div class="cl-row"><div class="cl-check done" onclick="toggleCheck(this)">✓</div><div class="cl-body"><div class="cl-title">Park authorization letter obtained <span class="cl-badge badge-done">Done</span></div><div class="cl-desc">James Bellinson signed Mar 30, 2026 · On file with La Gala</div></div></div>
+          <div class="cl-row"><div class="cl-check" onclick="toggleCheck(this)"></div><div class="cl-body"><div class="cl-title">Notice of Violation uploaded <span class="cl-badge badge-req">Required</span></div><div class="cl-desc">Original PBC letter — Case C-2025-10220114 with all violation codes visible</div></div><div class="cl-action"><button class="btn-upload">Upload PDF</button></div></div>
+          <div class="cl-row"><div class="cl-check" onclick="toggleCheck(this)"></div><div class="cl-body"><div class="cl-title">Proof of ownership <span class="cl-badge badge-req">Required</span></div><div class="cl-desc">Title, deed, bill of sale, or registration for your mobile home</div></div><div class="cl-action"><button class="btn-upload">Upload</button></div></div>
+          <div class="cl-row"><div class="cl-check" onclick="toggleCheck(this)"></div><div class="cl-body"><div class="cl-title">Photos of your addition <span class="cl-badge badge-req">Required</span></div><div class="cl-desc">Minimum 4 angles: front, back, both sides. Interior if enclosed. Text to Daniel (561) 475-8615 or upload here.</div></div><div class="cl-action"><button class="btn-upload" onclick="showPage('photos')">Add Photos</button></div></div>
+          <div class="cl-row"><div class="cl-check" onclick="toggleCheck(this)"></div><div class="cl-body"><div class="cl-title">Sign Hold Harmless Agreement <span class="cl-badge badge-req">Required before Phase 2</span></div><div class="cl-desc">Required before we submit any permit applications on your behalf. Kelly Grogan (notary) can assist remotely.</div></div><div class="cl-action"><button class="btn-sm btn-primary">Sign Now</button></div></div>
+          <div class="cl-row"><div class="cl-check" onclick="toggleCheck(this)"></div><div class="cl-body"><div class="cl-title">Existing permits or drawings <span class="cl-badge badge-opt">Optional</span></div><div class="cl-desc">If you have any old permits, surveys, or drawings for the property — even old ones help us</div></div><div class="cl-action"><button class="btn-upload">Upload</button></div></div>
+          <div class="cl-row"><div class="cl-check" onclick="toggleCheck(this)"></div><div class="cl-body"><div class="cl-title">Updated property survey <span class="cl-badge badge-req">Required</span></div><div class="cl-desc">La Gala will coordinate your survey through our licensed surveyor at bulk pricing (~$350–$550/unit). Must be within 6 months and show your addition.</div></div><div class="cl-action"><button class="btn-sm btn-outline">Request Survey</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DOCUMENTS ── -->
+    <div class="page" id="page-documents">
+      <div class="upload-zone">
+        <div class="upload-icon">📤</div>
+        <div class="upload-title">Upload Documents</div>
+        <div class="upload-sub">PDF, JPG, PNG accepted · Max 25MB per file</div>
+        <button class="upload-btn">Choose Files</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Your Documents</div>
+        <div class="card-sub">All files stored securely and shared with your La Gala team</div>
+        <div class="doc-grid">
+          <div class="doc-card"><div class="doc-icon">📄</div><div class="doc-name">Notice of Violation</div><div class="doc-meta">PBC · March 9, 2026</div><span class="doc-status doc-needed">Upload Needed</span></div>
+          <div class="doc-card"><div class="doc-icon">🏠</div><div class="doc-name">Proof of Ownership</div><div class="doc-meta">Title / Deed / Bill of Sale</div><span class="doc-status doc-needed">Upload Needed</span></div>
+          <div class="doc-card"><div class="doc-icon">✉️</div><div class="doc-name">Park Authorization Letter</div><div class="doc-meta">Signed Mar 30, 2026</div><span class="doc-status doc-ready">On File</span></div>
+          <div class="doc-card"><div class="doc-icon">📐</div><div class="doc-name">Property Survey</div><div class="doc-meta">Must include addition</div><span class="doc-status doc-needed">Survey Pending</span></div>
+          <div class="doc-card"><div class="doc-icon">✍️</div><div class="doc-name">Hold Harmless Agreement</div><div class="doc-meta">Required before Phase 2</div><span class="doc-status doc-pending">Signature Needed</span></div>
+          <div class="doc-card"><div class="doc-icon">📋</div><div class="doc-name">Engineer As-Built Drawings</div><div class="doc-meta">Provided by La Gala</div><span class="doc-status doc-pending">Phase 2 Item</span></div>
+          <div class="doc-card"><div class="doc-icon">🏛️</div><div class="doc-name">PBC Permit Application</div><div class="doc-meta">Submitted by La Gala</div><span class="doc-status doc-pending">Phase 2 Item</span></div>
+          <div class="doc-card"><div class="doc-icon">✅</div><div class="doc-name">Declaration of Compliance</div><div class="doc-meta">Final document — case closed</div><span class="doc-status doc-pending">Phase 3 Item</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PHOTOS ── -->
+    <div class="page" id="page-photos">
+      <div class="ccam-strip">
+        <div class="ccam-icon">📸</div>
+        <div class="ccam-text">
+          <h4>CompanyCam Integration</h4>
+          <p>All photos taken by La Gala field crew are automatically synced to your lot (Lot 2020 · 1539 63rd Ave S). You can also upload your own photos below. Every photo is tagged, timestamped, and linked to your case number.</p>
+        </div>
+        <button class="ccam-btn">View in CompanyCam</button>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Your Photos — Lot 2020</div>
+        <div class="card-sub">Upload at least 4 angles of your addition. Text to Daniel (561) 475-8615 or add here.</div>
+        <div class="photo-grid">
+          <div class="photo-thumb photo-add"><div class="photo-icon">+</div></div>
+          <div class="photo-thumb photo-add"><div class="photo-icon">+</div></div>
+          <div class="photo-thumb photo-add"><div class="photo-icon">+</div></div>
+          <div class="photo-thumb photo-add"><div class="photo-icon">+</div></div>
+        </div>
+        <div style="margin-top:16px">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px">📌 <strong>Required angles:</strong> Front exterior · Back exterior · Left side · Right side · Interior (if enclosed) · A/C unit location</p>
+          <button class="upload-btn" style="background:var(--blue);color:var(--white);border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif">Upload Photos</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Field Photos — by Alex Torres</div>
+        <div class="card-sub">Photos taken by La Gala during site visits — auto-synced via CompanyCam</div>
+        <div style="text-align:center;padding:32px;color:var(--muted)">
+          <div style="font-size:32px;margin-bottom:8px">📷</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px">No field photos yet</div>
+          <div style="font-size:12px">Photos will appear here after Alex's first site visit</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PAYMENT ── -->
+    <div class="page" id="page-payment">
+      <div class="pay-amount-box">
+        <div><div class="pay-amount-label">Phase 1 — Paid</div><div class="pay-amount-val" style="color:#4ade80">$750 ✓</div></div>
+        <div style="text-align:right"><div class="pay-amount-label">Next Payment Due</div><div class="pay-amount-val">$0 now</div></div>
+      </div>
+
+      <div class="alert-box success" style="margin-bottom:20px">
+        <span class="alert-icon">✅</span>
+        <div class="alert-text"><strong>Phase 1 payment confirmed.</strong> Your P&Z investigation is in progress. Your next payment will be due when we have your Phase 1 result and are ready to move to Phase 2.</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Payment History</div>
+          <div class="card-sub">All transactions for your case</div>
+          <table class="mep-table">
+            <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Apr 9, 2026</td><td><div class="trade-name">Phase 1 — P&Z Investigation</div><div class="trade-sub">Ref: LGC-2020-001</div></td><td><strong>$750</strong></td><td><span class="cl-badge badge-done">Paid</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Pay for Next Phase</div>
+          <div class="card-sub">Phase 2 payment will be calculated after P&Z result</div>
+          <div class="pay-options">
+            <div class="pay-card selected" onclick="selectPay(this)"><div class="pay-card-icon">💳</div><div class="pay-card-name">Credit / Debit Card</div><div class="pay-card-desc">Visa, MC, Amex accepted</div></div>
+            <div class="pay-card" onclick="selectPay(this)"><div class="pay-card-icon">📱</div><div class="pay-card-name">Zelle</div><div class="pay-card-desc">Send to Keith@lagalacon.com</div></div>
+            <div class="pay-card" onclick="selectPay(this)"><div class="pay-card-icon">🏦</div><div class="pay-card-name">ACH / Check</div><div class="pay-card-desc">Business check accepted</div></div>
+            <div class="pay-card" onclick="selectPay(this)"><div class="pay-card-icon">💵</div><div class="pay-card-name">Money Order</div><div class="pay-card-desc">Drop off at Deerfield office</div></div>
+          </div>
+          <button class="pay-btn" disabled style="opacity:.5;cursor:not-allowed">Awaiting Phase 2 Quote</button>
+        </div>
+      </div>
+
+      <div class="financing-strip">
+        <div class="financing-strip-icon">🏦</div>
+        <div class="financing-strip-text">
+          <strong>Need financing? We work with GreenSky & Hearth.</strong>
+          <span>Up to $100,000 · Approvals in seconds · Monthly payments from ~$150/mo · Soft credit check · No prepayment penalty</span>
+        </div>
+        <button class="financing-link" onclick="showPage('financing')">See Options →</button>
+      </div>
+    </div>
+
+    <!-- ── INSPECTIONS ── -->
+    <div class="page" id="page-inspections">
+      <div class="card">
+        <div class="card-title">Inspection Timeline</div>
+        <div class="card-sub">La Gala manages all inspections. You'll be notified 48 hours before each one.</div>
+        <div class="insp-timeline" style="margin-top:20px">
+          <div class="insp-item"><div class="insp-dot-wrap"><div class="insp-dot done">✓</div><div class="insp-line"></div></div><div class="insp-content"><div class="insp-name">Phase 1 — P&Z Submittal</div><div class="insp-meta">Submitted Apr 10, 2026 · Response expected within 10 business days</div></div></div>
+          <div class="insp-item"><div class="insp-dot-wrap"><div class="insp-dot active">●</div><div class="insp-line"></div></div><div class="insp-content"><div class="insp-name">Site Survey Appointment</div><div class="insp-meta">Being scheduled · Surveyor will contact you directly</div></div></div>
+          <div class="insp-item"><div class="insp-dot-wrap"><div class="insp-dot pending">3</div><div class="insp-line"></div></div><div class="insp-content"><div class="insp-name">Engineer Site Visit (if Phase 2A)</div><div class="insp-meta">Pending P&Z approval · Mark LeBlanc PE will measure your addition</div></div></div>
+          <div class="insp-item"><div class="insp-dot-wrap"><div class="insp-dot pending">4</div><div class="insp-line"></div></div><div class="insp-content"><div class="insp-name">PBC Building Division Inspection</div><div class="insp-meta">Alex Torres attends on your behalf · You do not need to be present</div></div></div>
+          <div class="insp-item"><div class="insp-dot-wrap"><div class="insp-dot pending">5</div></div><div class="insp-content"><div class="insp-name">Code Compliance Final Inspection</div><div class="insp-meta">Final step · Declaration of Compliance issued · Case closed</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PRICE CALCULATOR ── -->
+    <div class="page" id="page-pricing">
+      <div class="calc-section">
+        <div class="calc-title">Estimate Your Total Cost</div>
+        <div class="calc-sub">Plug in your numbers to get a real-time estimate. All prices are based on current PBC fee schedules and South Florida market rates.</div>
+
+        <div class="calc-grid">
+          <div class="calc-field"><label>Estimated Size of Addition (SF)</label><input type="number" id="calcSF" value="150" oninput="calcPrice()"></div>
+          <div class="calc-field"><label>Load Bearing Wall to Rebuild (LF)</label><input type="number" id="calcLF" value="0" oninput="calcPrice()"></div>
+        </div>
+
+        <div class="calc-field" style="margin-bottom:16px"><label>Which path are you on?</label>
+          <select id="calcPath" onchange="calcPrice()">
+            <option value="2a">Phase 2A — After-the-Fact Permit (keep your addition)</option>
+            <option value="2b">Phase 2B — Demo Track (remove the addition)</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:8px;font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:2px;font-weight:600">MEP — Select what applies to your addition</div>
+        <div class="calc-toggle"><label onclick="">🔌 Electrical work in addition</label><label class="toggle-sw"><input type="checkbox" id="hasElec" onchange="calcPrice()"><span class="toggle-slider"></span></label></div>
+        <div class="calc-toggle"><label>🚿 Plumbing in addition</label><label class="toggle-sw"><input type="checkbox" id="hasPlumb" onchange="calcPrice()"><span class="toggle-slider"></span></label></div>
+        <div class="calc-toggle"><label>❄️ A/C / HVAC in addition</label><label class="toggle-sw"><input type="checkbox" id="hasHVAC" onchange="calcPrice()" checked><span class="toggle-slider"></span></label></div>
+        <div class="calc-toggle"><label>📐 Updated survey needed</label><label class="toggle-sw"><input type="checkbox" id="needsSurvey" onchange="calcPrice()" checked><span class="toggle-slider"></span></label></div>
+
+        <div class="calc-result" id="calcResult">
+          <div class="calc-result-title">Cost Breakdown</div>
+          <div id="calcLines"></div>
+          <div class="calc-total"><span>Estimated Total</span><span id="calcTotal">—</span></div>
+        </div>
+        <p style="margin-top:12px;font-size:11px;color:rgba(255,255,255,.3);font-style:italic">* Estimate only. Final pricing in written proposal after free site assessment. Numbers for planning purposes — not for contract.</p>
+      </div>
+    </div>
+
+    <!-- ── BATCHES ── -->
+    <div class="page" id="page-batches">
+      <div class="alert-box info"><span class="alert-icon">📅</span><div class="alert-text"><strong>Submissions happen every 1st and 15th of the month.</strong> Pay your Phase 1 fee to reserve a slot. Early payers go first. Once your slot is confirmed, La Gala handles everything with the city.</div></div>
+
+      <div class="card">
+        <div class="card-title">Upcoming Submission Batches</div>
+        <div class="card-sub">10 units per batch · First come, first served · Your slot is reserved when payment is confirmed</div>
+        <table class="batch-table" style="width:100%">
+          <thead><tr><th>Batch</th><th>Submission Date</th><th>Slots (10 total)</th><th>Your Status</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div class="batch-num">#1</div><div class="batch-date">P&Z Investigation</div></td>
+              <td><strong>April 15, 2026</strong><div style="font-size:11px;color:var(--muted)">56 days before deadline</div></td>
+              <td><div class="batch-slots">
+                <div class="batch-slot slot-filled">✓</div><div class="batch-slot slot-filled">✓</div>
+                <div class="batch-slot slot-yours">★</div>
+                <div class="batch-slot slot-filled">✓</div><div class="batch-slot slot-filled">✓</div>
+                <div class="batch-slot slot-open">6</div><div class="batch-slot slot-open">7</div>
+                <div class="batch-slot slot-open">8</div><div class="batch-slot slot-open">9</div><div class="batch-slot slot-open">10</div>
+              </div><div style="font-size:11px;color:var(--muted);margin-top:6px">★ = You · 4 open slots remaining</div></td>
+              <td><span class="cl-badge badge-done">Confirmed — Lot 2020</span></td>
+            </tr>
+            <tr>
+              <td><div class="batch-num">#2</div><div class="batch-date">P&Z Investigation</div></td>
+              <td><strong>May 1, 2026</strong><div style="font-size:11px;color:var(--muted)">40 days before deadline</div></td>
+              <td><div class="batch-slots">
+                <div class="batch-slot slot-filled">✓</div><div class="batch-slot slot-filled">✓</div>
+                <div class="batch-slot slot-open">3</div><div class="batch-slot slot-open">4</div><div class="batch-slot slot-open">5</div>
+                <div class="batch-slot slot-open">6</div><div class="batch-slot slot-open">7</div>
+                <div class="batch-slot slot-open">8</div><div class="batch-slot slot-open">9</div><div class="batch-slot slot-open">10</div>
+              </div></td>
+              <td><span class="cl-badge badge-opt">8 slots open</span></td>
+            </tr>
+            <tr>
+              <td><div class="batch-num">#3</div><div class="batch-date">P&Z Investigation</div></td>
+              <td><strong>May 15, 2026</strong><div style="font-size:11px;color:var(--red)">26 days before deadline — last batch</div></td>
+              <td><div class="batch-slots">
+                <div class="batch-slot slot-open">1</div><div class="batch-slot slot-open">2</div><div class="batch-slot slot-open">3</div>
+                <div class="batch-slot slot-open">4</div><div class="batch-slot slot-open">5</div><div class="batch-slot slot-open">6</div>
+                <div class="batch-slot slot-open">7</div><div class="batch-slot slot-open">8</div><div class="batch-slot slot-open">9</div><div class="batch-slot slot-open">10</div>
+              </div></td>
+              <td><span class="cl-badge badge-req">Last chance</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── FINANCING ── -->
+    <div class="page" id="page-financing">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Financing Options for Homeowners</div>
+        <div class="card-sub">Don't let cost be a reason to miss the deadline. All options below are available to Casa Del Monte residents.</div>
+
+        <div class="grid-3" style="margin-top:20px">
+          <div style="border:1px solid var(--border2);border-radius:12px;padding:20px">
+            <div style="font-size:24px;margin-bottom:8px">🏦</div>
+            <div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px">GreenSky</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Most widely used · Goldman Sachs backed</div>
+            <div style="font-size:13px;color:var(--navy);line-height:1.6;margin-bottom:12px">Up to <strong>$100,000</strong> · Instant approval · 0% promo periods available · 6 mo–12 yr terms · No prepayment penalty</div>
+            <a href="https://www.greensky.com" target="_blank" style="display:block;background:var(--blue);color:var(--white);text-align:center;padding:9px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">Apply with GreenSky →</a>
+          </div>
+          <div style="border:1px solid var(--border2);border-radius:12px;padding:20px">
+            <div style="font-size:24px;margin-bottom:8px">💳</div>
+            <div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px">Hearth</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Multiple lender options · Best for higher approval</div>
+            <div style="font-size:13px;color:var(--navy);line-height:1.6;margin-bottom:12px">Up to <strong>$250,000</strong> · Soft credit check · Multiple lender offers · 2–12 yr terms · Starting ~4.99% APR</div>
+            <a href="https://www.gethearth.com" target="_blank" style="display:block;background:var(--blue);color:var(--white);text-align:center;padding:9px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">Apply with Hearth →</a>
+          </div>
+          <div style="border:1px solid var(--border2);border-radius:12px;padding:20px">
+            <div style="font-size:24px;margin-bottom:8px">⚡</div>
+            <div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px">Enhancify</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Real-time pre-approvals · Multiple lenders</div>
+            <div style="font-size:13px;color:var(--navy);line-height:1.6;margin-bottom:12px">Instant pre-qualification · Low monthly payments · Designed specifically for home improvement · Flexible terms</div>
+            <a href="https://www.enhancify.com" target="_blank" style="display:block;background:var(--blue);color:var(--white);text-align:center;padding:9px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">Apply with Enhancify →</a>
+          </div>
+        </div>
+
+        <div class="alert-box info" style="margin-top:20px">
+          <span class="alert-icon">💡</span>
+          <div class="alert-text"><strong>Example:</strong> A $10,000 project through GreenSky at 9.99% over 5 years = <strong>~$212/month</strong>. Ask Daniel about which lender is best for your situation before you apply.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── OWNER DIRECTORY (Admin) ── -->
+    <div class="page" id="page-owners">
+      <div class="card">
+        <div class="card-title">Casa Del Monte — Owner Directory</div>
+        <div class="card-sub">PBC Property Appraiser records · Parcel 00-42-44-10-00-000-XXXX · For internal use only</div>
+        <input type="text" class="search-bar" placeholder="Search by lot number, name, or status..." oninput="filterOwners(this.value)">
+        <div style="overflow-x:auto">
+          <table class="owner-table" id="ownerTable">
+            <thead><tr><th>Lot</th><th>Owner Name</th><th>Address</th><th>Violation</th><th>Phase</th><th>Balance</th></tr></thead>
+            <tbody>
+              <tr><td><div class="owner-lot">2020</div></td><td><div class="owner-name">Sonia E. Garcia Godoy</div></td><td><div class="owner-addr">1539 63rd Ave S #2020<br>WPB FL 33415</div></td><td><span class="cl-badge badge-req">Porch + A/C</span></td><td><span class="phase-pill pill-1">Phase 1</span></td><td><strong>$750 paid</strong></td></tr>
+              <tr><td><div class="owner-lot">1045</div></td><td><div class="owner-name">Miguel & Rosa Fernandez</div></td><td><div class="owner-addr">1539 63rd Ave S #1045</div></td><td><span class="cl-badge badge-req">Porch</span></td><td><span class="phase-pill pill-none">Not Started</span></td><td>—</td></tr>
+              <tr><td><div class="owner-lot">1112</div></td><td><div class="owner-name">Carmen Delgado</div></td><td><div class="owner-addr">1539 63rd Ave S #1112</div></td><td><span class="cl-badge badge-req">A/C + Shed</span></td><td><span class="phase-pill pill-none">Not Started</span></td><td>—</td></tr>
+              <tr><td><div class="owner-lot">1388</div></td><td><div class="owner-name">Jose Luis Martinez</div></td><td><div class="owner-addr">1539 63rd Ave S #1388</div></td><td><span class="cl-badge badge-req">Porch + A/C</span></td><td><span class="phase-pill pill-1">Phase 1</span></td><td><strong>$750 paid</strong></td></tr>
+              <tr><td><div class="owner-lot">1550</div></td><td><div class="owner-name">Ana Beatriz Herrera</div></td><td><div class="owner-addr">1539 63rd Ave S #1550</div></td><td><span class="cl-badge badge-req">Porch</span></td><td><span class="phase-pill pill-none">Not Started</span></td><td>—</td></tr>
+              <tr><td><div class="owner-lot">1621</div></td><td><div class="owner-name">Roberto & Maria Santos</div></td><td><div class="owner-addr">1539 63rd Ave S #1621</div></td><td><span class="cl-badge badge-req">A/C</span></td><td><span class="phase-pill pill-none">Not Started</span></td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-top:12px">⚠ Admin only. Full parcel data pulled from PBC Property Appraiser (pbcpao.gov). Lot numbers and owner names are public record.</p>
+      </div>
+    </div>
+
+    <!-- ── MEP RATE SHEET ── -->
+    <div class="page" id="page-mep">
+      <div class="card">
+        <div class="card-title">MEP Rate Sheet — South Florida Market 2025–2026</div>
+        <div class="card-sub">Researched rates for budgeting. Negotiate bulk pricing when doing 10+ units at once. All rates are per licensed, insured subcontractor — not employee rates.</div>
+
+        <table class="mep-table" style="margin-top:16px">
+          <thead><tr><th>Trade</th><th>Scope — Mobile Home Demo/Repair</th><th>Standard Rate</th><th>Bulk Rate (10+ units)</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><div class="trade-name">Electrician</div><div class="trade-sub">Licensed EC · PBC</div></td><td>Demo + cap off: outlets, fixtures, breakers. Reconnect/inspect for after-the-fact. Minor corrections per inspector.</td><td class="rate-range">$85–$130/hr<br><span style="font-size:11px;color:var(--muted)">Min 2hr call · $150 service fee</span></td><td><div class="rate-bulk">~$1,200–$1,800/unit lump</div></td><td class="rate-note">Permit required for any new circuits or panel work · PBC mech permit $150–$400</td></tr>
+            <tr><td><div class="trade-name">Plumber</div><div class="trade-sub">Licensed PC · PBC</div></td><td>Demo + cap supply/drain lines. Fixture removal. Reconnect if keeping. Separate plumbing permit required.</td><td class="rate-range">$100–$150/hr<br><span style="font-size:11px;color:var(--muted)">Min 2hr call · $200 service fee</span></td><td><div class="rate-bulk">~$1,800–$2,500/unit lump</div></td><td class="rate-note">Many mobile home additions have NO plumbing — verify before budgeting. Separate permit pull required.</td></tr>
+            <tr><td><div class="trade-name">HVAC Tech</div><div class="trade-sub">CAC Licensed · PBC</div></td><td>Refrigerant recovery (EPA 608 required), disconnect + cap lines, equipment removal. Ductwork extension if keeping.</td><td class="rate-range">$75–$150/hr<br><span style="font-size:11px;color:var(--muted)">$100 service fee typical</span></td><td><div class="rate-bulk">~$1,200–$1,800/unit lump</div></td><td class="rate-note">EPA 608 cert required for refrigerant recovery. A/C permit separate from building permit.</td></tr>
+            <tr><td><div class="trade-name">Surveyor</div><div class="trade-sub">Licensed LS · FL</div></td><td>Boundary + improvement survey showing addition. Must be within 6 months. Must show all improvements.</td><td class="rate-range">$500–$750/unit<br><span style="font-size:11px;color:var(--muted)">Retail price</span></td><td><div class="rate-bulk">~$300–$450/unit<br>(10 same-day)</div></td><td class="rate-note">Negotiate same-day pricing for 10+ on same property. Survey MUST include addition per PBC requirement.</td></tr>
+            <tr><td><div class="trade-name">Engineer (Seth/Mark LeBlanc)</div><div class="trade-sub">PE · FL Licensed</div></td><td>As-built drawings for after-the-fact, OR demo drawings showing removal. Signed & sealed.</td><td class="rate-range">$800–$1,500/unit<br><span style="font-size:11px;color:var(--muted)">Standard rate</span></td><td><div class="rate-bulk">~$400–$700/unit<br>(template/batch)</div></td><td class="rate-note">After first 10 units, drawings become templated. Batch pricing drops significantly. Demo drawings simpler than as-built.</td></tr>
+            <tr><td><div class="trade-name">Permit Expeditor</div><div class="trade-sub">Permit Runner</div></td><td>Submit applications, NOC filing, pick up permits, manage ePZB portal, track all inspections.</td><td class="rate-range">$500–$700/permit<br><span style="font-size:11px;color:var(--muted)">Standard rate</span></td><td><div class="rate-bulk">~$150–$250/permit<br>(10 at once)</div></td><td class="rate-note">All PBC permits are in same building. 10 at once = $1,500–$2,500 vs $5,000–$7,000 retail. Kelly or dedicated runner.</td></tr>
+            <tr><td><div class="trade-name">General Demo Labor</div><div class="trade-sub">Alex Torres crew</div></td><td>Physical demolition, debris removal, haul-off, site cleanup.</td><td class="rate-range">$35/SF demo<br>$250/LF reframe</td><td><div class="rate-bulk">Volume discount<br>TBD at 10+ units</div></td><td class="rate-note">La Gala unit pricing. Max realistic scope: 150–250 SF per unit. Typical bill: $5,250–$8,750 demo labor.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="alert-box warn" style="margin-top:20px">
+          <span class="alert-icon">📋</span>
+          <div class="alert-text"><strong>Research notes:</strong> South Florida electricians bill $85–$130/hr (WellBuiltFlorida 2025); plumbers $100–$150/hr; HVAC $75–$150/hr (HVAC Pricing Guide 2025). Bulk discount on surveys and engineering is the key margin play — negotiate per-day pricing for multiple units same address.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALEX / FIELD OPS ── -->
+    <div class="page" id="page-alex">
+      <div class="alex-card">
+        <div class="alex-avatar">AT</div>
+        <div class="alex-info">
+          <h3>Alex Torres</h3>
+          <div class="alex-title">Field Operations Manager · La Gala Construction</div>
+          <p>Alex leads all field work at Casa Del Monte — site visits, inspection attendance, demo oversight, and crew management. He's your eyes and ears on the ground. If the inspector needs something done, Alex writes the ticket, you approve and pay, he gets it done.</p>
+        </div>
+        <div class="alex-contact">
+          <a href="tel:7542423636"><span>📞</span> (754) 242-3636</a>
+          <a href="mailto:Alex@lagalacon.com"><span>✉</span> Alex@lagalacon.com</a>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Alex's Field Responsibilities</div>
+          <div class="card-sub">Casa Del Monte Program</div>
+          <div class="checklist">
+            <div class="cl-row"><div class="cl-check done">✓</div><div class="cl-body"><div class="cl-title">Site photo documentation</div><div class="cl-desc">Photographs all additions via CompanyCam — auto-tagged by lot number</div></div></div>
+            <div class="cl-row"><div class="cl-check done">✓</div><div class="cl-body"><div class="cl-title">Scope assessment</div><div class="cl-desc">Measures SF, identifies MEP in addition, determines if load-bearing walls involved</div></div></div>
+            <div class="cl-row"><div class="cl-check">📅</div><div class="cl-body"><div class="cl-title">Inspection attendance</div><div class="cl-desc">Attends all PBC Building Division and Code Compliance inspections on your behalf</div></div></div>
+            <div class="cl-row"><div class="cl-check">📋</div><div class="cl-body"><div class="cl-title">Inspector punch list</div><div class="cl-desc">If inspector flags corrections — Alex writes the work order, gets your signature, and prices it out</div></div></div>
+            <div class="cl-row"><div class="cl-check">🏗️</div><div class="cl-body"><div class="cl-title">Demo crew oversight</div><div class="cl-desc">Manages 2–3 man crew for all physical demolition work on site</div></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">How Work Orders Work</div>
+          <div class="card-sub">When the inspector requires additional work</div>
+          <div style="display:flex;flex-direction:column;gap:16px;margin-top:8px">
+            <div style="display:flex;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:var(--blue);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">1</div><div><div style="font-size:13px;font-weight:600;color:var(--navy)">Inspector flags correction</div><div style="font-size:12px;color:var(--muted)">Alex is present and documents exactly what's needed</div></div></div>
+            <div style="display:flex;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:var(--blue);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">2</div><div><div style="font-size:13px;font-weight:600;color:var(--navy)">Alex writes the work order</div><div style="font-size:12px;color:var(--muted)">Line item price using MEP rate sheet. You receive it by text and email.</div></div></div>
+            <div style="display:flex;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:var(--blue);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">3</div><div><div style="font-size:13px;font-weight:600;color:var(--navy)">You approve and pay</div><div style="font-size:12px;color:var(--muted)">Payment required within 3 business days to avoid permit expiration</div></div></div>
+            <div style="display:flex;gap:12px"><div style="width:28px;height:28px;border-radius:50%;background:var(--green);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">4</div><div><div style="font-size:13px;font-weight:600;color:var(--navy)">Alex gets it done</div><div style="font-size:12px;color:var(--muted)">Work completed, re-inspection scheduled, final payment triggered</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+// ── PAGE NAVIGATION ──
+const pages = {
+  'dashboard':'Dashboard','checklist':'My Checklist','documents':'Documents',
+  'photos':'Photos','payment':'Payments','inspections':'Inspections',
+  'pricing':'Price Calculator','batches':'Batch Schedule','financing':'Financing Options',
+  'owners':'Owner Directory','mep':'MEP Rate Sheet','alex':'Field Operations'
+};
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
+  var p = document.getElementById('page-'+id);
+  if(p) p.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n){
+    if(n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")){
+      n.classList.add('active');
+    }
+  });
+  document.getElementById('pageTitle').textContent = pages[id]||'';
+  closeSidebar();
+  window.scrollTo(0,0);
+}
+
+// ── SIDEBAR MOBILE ──
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').style.display =
+    document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').style.display = 'none';
+}
+
+// ── DEADLINE COUNTDOWN ──
+function updateDeadline(){
+  var d = new Date('2026-06-10T00:00:00') - new Date();
+  var days = Math.max(0,Math.floor(d/86400000));
+  document.getElementById('daysLeft').textContent = days+' days left';
+  var el = document.getElementById('daysNum');
+  if(el) el.textContent = days;
+}
+updateDeadline(); setInterval(updateDeadline,60000);
+
+// ── CHECKLIST TOGGLE ──
+function toggleCheck(el){
+  el.classList.toggle('done');
+  el.textContent = el.classList.contains('done') ? '✓' : '';
+}
+
+// ── PAYMENT SELECTION ──
+function selectPay(el){
+  document.querySelectorAll('.pay-card').forEach(function(c){c.classList.remove('selected')});
+  el.classList.add('selected');
+}
+
+// ── PRICE CALCULATOR ──
+function calcPrice(){
+  var sf   = parseFloat(document.getElementById('calcSF').value)||0;
+  var lf   = parseFloat(document.getElementById('calcLF').value)||0;
+  var path = document.getElementById('calcPath').value;
+  var elec = document.getElementById('hasElec').checked;
+  var plumb= document.getElementById('hasPlumb').checked;
+  var hvac = document.getElementById('hasHVAC').checked;
+  var surv = document.getElementById('needsSurvey').checked;
+
+  var lines = [];
+  var total = 0;
+
+  // Phase 1 always
+  lines.push(['Phase 1 — P&Z Investigation (set fee)', '$750']);
+  total += 750;
+
+  // Survey
+  if(surv){
+    lines.push(['Updated Property Survey (bulk rate)', '$450']);
+    total += 450;
+  }
+
+  if(path === '2a'){
+    // After-the-fact
+    var engFee = Math.max(800, sf * 4);
+    lines.push(['Engineer As-Built Drawings', '$'+Math.round(engFee).toLocaleString()]);
+    total += engFee;
+    lines.push(['PBC Building Permit (incl. double-fee penalty)', '$400']);
+    total += 400;
+    if(hvac){ lines.push(['Mechanical Permit — A/C','$250']); total+=250; }
+    lines.push(['County Surcharges (BCA + DBPR)','$120']); total+=120;
+    lines.push(['La Gala Permit Management & Inspections','$500']); total+=500;
+    if(elec){ lines.push(['Electrical Correction (est. 4hr + permit)','$1,200']); total+=1200; }
+    if(plumb){ lines.push(['Plumbing Correction (est. 6hr + permit)','$1,800']); total+=1800; }
+  } else {
+    // Demo track
+    lines.push(['1. Permit & Design Services (lump sum)', '$4,500']);
+    total += 4500;
+    if(elec){ lines.push(['3. Electrical Demolition (lump sum)','$1,500']); total+=1500; }
+    if(plumb){ lines.push(['2. Plumbing Demolition (lump sum)','$2,500']); total+=2500; }
+    if(hvac){ lines.push(['4. HVAC Demolition (lump sum)','$1,500']); total+=1500; }
+    var demolabor = sf * 35;
+    lines.push(['5. Structural Demolition ('+sf+' SF × $35)','$'+demolabor.toLocaleString()]);
+    total += demolabor;
+    if(lf > 0){
+      var reframe = lf * 250;
+      lines.push(['6. Re-Frame Load Bearing Wall ('+lf+' LF × $250)','$'+reframe.toLocaleString()]);
+      total += reframe;
+    }
+  }
+
+  var html = '';
+  lines.forEach(function(l){
+    html += '<div class="calc-line"><span>'+l[0]+'</span><span>'+l[1]+'</span></div>';
+  });
+  document.getElementById('calcLines').innerHTML = html;
+  document.getElementById('calcTotal').textContent = '$'+Math.round(total).toLocaleString();
+}
+calcPrice();
+
+// ── OWNER SEARCH ──
+function filterOwners(q){
+  q = q.toLowerCase();
+  document.querySelectorAll('#ownerTable tbody tr').forEach(function(row){
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
