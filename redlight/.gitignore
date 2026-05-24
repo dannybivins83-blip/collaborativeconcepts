@@ -10,3 +10,8 @@ ios/
 android/
 expo-env.d.ts
 coverage/
+
+# setup.sh writes these — they contain real business / legal info,
+# don't ship them in source control.
+legal/*.filled.md
+pc-api-google-service-account.json

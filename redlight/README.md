@@ -9,7 +9,30 @@ Four pillars:
 3. **Streak** — a daily attention game with achievements.
 4. **Camera Mode** — full-screen view that detects when a light turns green and grades your reaction time.
 
-## Run it
+## Setup (one command)
+
+```bash
+cd redlight
+bash scripts/setup.sh
+```
+
+Walks you through every credential prompt (Expo login, EAS init, PostHog key, legal-doc placeholders, Apple submit metadata) and writes every config-file edit for you. Idempotent — safe to re-run.
+
+Then deploy the landing page:
+
+```bash
+bash scripts/deploy-web.sh   # one-shot Vercel deploy
+```
+
+Ship the beta:
+
+```bash
+npm run build:dev:ios          # free iOS Simulator build, no Apple account
+npm run build:preview:ios      # real-device IPA → TestFlight (needs Apple Dev)
+npm run build:preview:android  # internal-distribution APK (no Play account)
+```
+
+## Run locally
 
 Prereqs:
 
