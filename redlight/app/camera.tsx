@@ -14,6 +14,7 @@ import Animated, {
 import { PulseDot } from '@/components/PulseDot';
 import { useStore } from '@/state/useStore';
 import { createLightDetector, LightColor, LightDetector } from '@/services/lightDetection';
+import { Events } from '@/services/analytics';
 import { colors, fonts, spacing, typography } from '@/theme';
 
 type Phase = 'setup' | 'red' | 'green' | 'missed' | 'result';
@@ -87,6 +88,7 @@ export default function CameraScreen() {
         missTimer.current = setTimeout(() => {
           setPhase('missed');
           recordLightMiss(reactionPenalty);
+          Events.lightMissed();
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
         }, REACT_WINDOW_MS);
       }
@@ -102,14 +104,17 @@ export default function CameraScreen() {
     const detector = createLightDetector();
     detectorRef.current = detector;
     await detector.start(onLightChange);
+    Events.sessionStarted();
   }, [permission, requestPermission, onLightChange]);
 
   const onCatch = useCallback(() => {
     if (phase !== 'green') return;
     if (missTimer.current) clearTimeout(missTimer.current);
     missTimer.current = null;
+    const reactionMs = greenStartedAt.current ? Date.now() - greenStartedAt.current : 0;
     setPhase('result');
     recordLightCatch(reactionPenalty);
+    Events.lightCaught(reactionMs);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     flashOpacity.value = withSequence(
       withTiming(0.6, { duration: 120 }),

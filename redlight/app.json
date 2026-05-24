@@ -89,7 +89,9 @@
     "extra": {
       "eas": {
         "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
-      }
+      },
+      "posthogApiKey": "",
+      "posthogHost": "https://us.i.posthog.com"
     },
     "updates": {
       "url": "https://u.expo.dev/REPLACE_WITH_EAS_PROJECT_ID"

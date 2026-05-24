@@ -9,6 +9,7 @@ import { BackHeader } from '@/components/BackHeader';
 import { ShareBtn } from '@/components/ShareBtn';
 import { useStore } from '@/state/useStore';
 import { computeStats, fmt } from '@/services/math';
+import { Events } from '@/services/analytics';
 import { colors, fonts, spacing } from '@/theme';
 
 export default function Share() {
@@ -32,6 +33,7 @@ export default function Share() {
         return;
       }
       await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: 'Share your time tax' });
+      Events.shareCardExported(stats.totalLife, stats.reclaimLife);
     } catch (e) {
       const m = e instanceof Error ? e.message : 'Could not export the card.';
       Alert.alert('Export failed', m);
