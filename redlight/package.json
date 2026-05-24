@@ -10,7 +10,18 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "build:dev:ios": "eas build --profile development --platform ios",
+    "build:dev:android": "eas build --profile development --platform android",
+    "build:preview:ios": "eas build --profile preview --platform ios",
+    "build:preview:android": "eas build --profile preview --platform android",
+    "build:prod:ios": "eas build --profile production --platform ios",
+    "build:prod:android": "eas build --profile production --platform android",
+    "build:preview:all": "eas build --profile preview --platform all",
+    "submit:ios": "eas submit --profile production --platform ios --latest",
+    "submit:android": "eas submit --profile production --platform android --latest",
+    "ota:preview": "eas update --branch preview --message",
+    "ota:production": "eas update --branch production --message"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.23.1",
@@ -28,6 +39,7 @@
     "expo-splash-screen": "~0.27.6",
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
+    "expo-updates": "~0.25.27",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.5",
@@ -43,6 +55,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/jest": "^29.5.13",
+    "eas-cli": "^13.4.2",
     "@types/react": "~18.2.45",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",

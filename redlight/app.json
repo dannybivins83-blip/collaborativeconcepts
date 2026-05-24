@@ -3,6 +3,7 @@
     "name": "Redlight",
     "slug": "redlight",
     "version": "0.1.0",
+    "runtimeVersion": { "policy": "appVersion" },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "redlight",
@@ -83,6 +84,15 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "owner": "REPLACE_WITH_EXPO_USERNAME",
+    "extra": {
+      "eas": {
+        "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/REPLACE_WITH_EAS_PROJECT_ID"
     }
   }
 }

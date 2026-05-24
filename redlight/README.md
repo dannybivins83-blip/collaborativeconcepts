@@ -105,10 +105,15 @@ The one-time `Onboarding` screen requires an explicit "I confirm my phone is mou
 
 ## Building for TestFlight / Play
 
+The full beta runbook (EAS setup, Apple cert flow, Play internal track, OTA updates, what to measure, common rejection reasons) lives in [`TESTFLIGHT.md`](./TESTFLIGHT.md).
+
+Quickstart, assuming `eas-cli` is installed and `eas init` has been run:
+
 ```bash
-npx expo prebuild           # generates ios/ and android/
-npx eas build -p ios        # requires EAS account
-npx eas build -p android
+npm run build:dev:ios        # iOS Simulator build (free, no Apple Developer account needed)
+npm run build:preview:ios    # Real device IPA → TestFlight
+npm run build:preview:android # Internal-distribution APK (no Play account needed)
+npm run ota:preview "msg"     # Ship a JS-only update to existing beta installs
 ```
 
 See `TODO.md` for everything still stubbed before public release.
