@@ -1,0 +1,88 @@
+{
+  "expo": {
+    "name": "Redlight",
+    "slug": "redlight",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "redlight",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#0a0807"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.redlight.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Redlight uses the camera to detect when a traffic light turns green so it can chime if you don't accelerate. Mount your phone before driving — the app never asks you to look at the screen while moving.",
+        "NSLocationWhenInUseUsageDescription": "Redlight uses your location to automatically detect when you stop at a traffic light so you don't have to log anything manually.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Background location lets Redlight count red-light stops during a drive without you needing to keep the app open.",
+        "NSMotionUsageDescription": "Motion data helps Redlight tell when you're actually in a car versus walking or stopped, so it only logs real red-light stops.",
+        "UIBackgroundModes": ["location"]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a0807"
+      },
+      "package": "app.redlight.mobile",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.ACTIVITY_RECOGNITION",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Redlight uses the camera to detect when a light turns green."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Redlight detects red-light stops automatically while you drive.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ff6b35"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.0"
+          },
+          "android": {
+            "minSdkVersion": 26,
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
