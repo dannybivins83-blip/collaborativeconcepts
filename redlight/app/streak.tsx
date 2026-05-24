@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Background } from '@/components/Background';
 import { BackHeader } from '@/components/BackHeader';
@@ -21,6 +22,7 @@ const ACHIEVEMENTS: {
 ];
 
 export default function Streak() {
+  const router = useRouter();
   const streak = useStore((s) => s.streak);
   const weekHistory = useStore((s) => s.weekHistory);
   const achievements = useStore((s) => s.achievements);
@@ -87,6 +89,9 @@ export default function Streak() {
             </View>
           </View>
 
+          <Pressable onPress={() => router.push('/legal')} style={styles.legalLink}>
+            <Text style={styles.legalLinkLabel}>TERMS · PRIVACY · SAFETY →</Text>
+          </Pressable>
           <Text style={styles.footnote}>Use only when parked or as a passenger.</Text>
         </ScrollView>
       </SafeAreaView>
@@ -178,13 +183,24 @@ const styles = StyleSheet.create({
   dim: {
     color: colors.muted,
   },
+  legalLink: {
+    alignItems: 'center',
+    marginTop: spacing.xl,
+    paddingVertical: spacing.sm,
+  },
+  legalLinkLabel: {
+    fontFamily: fonts.mono,
+    color: colors.muted,
+    fontSize: 10,
+    letterSpacing: 1.4,
+  },
   footnote: {
     fontFamily: fonts.mono,
     color: colors.muted,
     fontSize: 10,
     letterSpacing: 1.2,
     textAlign: 'center',
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
     paddingHorizontal: spacing.lg,
   },
 });

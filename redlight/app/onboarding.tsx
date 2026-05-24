@@ -35,6 +35,16 @@ export default function Onboarding() {
           </Animated.View>
 
           <Animated.View entering={FadeInDown.duration(500).delay(240)}>
+            <View style={styles.disclaimer}>
+              <Text style={styles.disclaimerEyebrow}>SAFETY NOTICE</Text>
+              <Text style={styles.disclaimerBody}>
+                Redlight is not a driver-assistance system. It can produce false positives and
+                false negatives. You remain responsible for visually verifying every traffic
+                signal and operating your vehicle safely. By continuing you accept the Terms of
+                Use and Privacy Policy.
+              </Text>
+            </View>
+
             <Pressable
               style={styles.checkRow}
               onPress={() => setConfirmed((v) => !v)}
@@ -44,7 +54,8 @@ export default function Onboarding() {
                 {confirmed ? <Text style={styles.checkMark}>✓</Text> : null}
               </View>
               <Text style={styles.checkLabel}>
-                I confirm my phone is mounted and I will not touch it while driving.
+                I confirm my phone is mounted, I will not touch it while driving, and I accept the
+                Terms and Privacy Policy.
               </Text>
             </Pressable>
           </Animated.View>
@@ -112,6 +123,26 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 20,
     lineHeight: 26,
+  },
+  disclaimer: {
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    padding: spacing.md,
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  disclaimerEyebrow: {
+    fontFamily: fonts.monoBold,
+    fontSize: 10,
+    letterSpacing: 1.6,
+    color: colors.danger,
+    textTransform: 'uppercase',
+  },
+  disclaimerBody: {
+    fontFamily: fonts.mono,
+    color: colors.text,
+    fontSize: 12,
+    lineHeight: 18,
   },
   checkRow: {
     flexDirection: 'row',
