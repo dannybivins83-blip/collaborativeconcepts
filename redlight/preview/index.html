@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Redlight — UI Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-start: #1a1410;
+    --bg-mid: #0a0807;
+    --bg-end: #000;
+    --text: #f5e9d4;
+    --accent: #ff6b35;
+    --danger: #ff2d2d;
+    --success: #6dffa6;
+    --muted: #88766a;
+    --border: rgba(245, 233, 212, 0.08);
+    --border-strong: rgba(245, 233, 212, 0.18);
+    --card-bg: rgba(245, 233, 212, 0.03);
+    --serif: 'DM Serif Display', serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #050403;
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    padding: 40px 16px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+  }
+  h1.page {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 36px;
+    color: var(--text);
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .phone {
+    width: 320px;
+    height: 692px;
+    background: radial-gradient(circle at 50% 20%, var(--bg-start) 0%, var(--bg-mid) 55%, var(--bg-end) 100%);
+    border: 1px solid var(--border-strong);
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 8px #111;
+    padding: 36px 20px 60px;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone-label {
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 12px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  .label {
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 9px;
+    color: var(--muted);
+  }
+  .serif-italic { font-family: var(--serif); font-style: italic; color: var(--text); }
+  .h1 { font-size: 36px; line-height: 40px; }
+  .h-hero { font-size: 32px; line-height: 36px; }
+
+  /* HOME */
+  .home-head { display: flex; flex-direction: column; gap: 8px; }
+  .ring-wrap { display: flex; justify-content: center; padding: 8px 0; }
+  .ring { width: 160px; height: 160px; position: relative; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring .center {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px;
+  }
+  .ring .value { font-family: var(--serif); font-style: italic; font-size: 44px; line-height: 48px; color: var(--text); }
+  .stats-row {
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    padding: 14px 0; margin: 14px 0;
+  }
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .v { font-family: var(--serif); font-style: italic; font-size: 26px; line-height: 30px; color: var(--text); }
+  .stat .v.accent { color: var(--accent); }
+  .vdiv { width: 1px; height: 32px; background: var(--border); }
+  .cta {
+    background: var(--accent); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px;
+    margin-top: 10px;
+  }
+  .cta .row1 { display: flex; justify-content: space-between; }
+  .cta .lab { font-family: var(--mono); font-weight: 700; color: #0a0807; font-size: 12px; letter-spacing: 1.4px; }
+  .cta .arrow { font-family: var(--mono); font-weight: 700; color: #0a0807; font-size: 18px; }
+  .cta .sub { font-family: var(--mono); color: #0a0807; opacity: 0.75; font-size: 11px; }
+  .challenge {
+    margin-top: 18px; border: 1px solid var(--border); padding: 14px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .challenge .head { display: flex; justify-content: space-between; align-items: center; }
+  .challenge .count { font-family: var(--mono); color: var(--accent); font-size: 12px; }
+  .challenge .title { font-family: var(--serif); font-style: italic; font-size: 20px; line-height: 24px; }
+  .bar { height: 3px; background: var(--border); }
+  .bar > div { height: 3px; background: var(--accent); width: 64%; }
+  .cards-row { display: flex; gap: 12px; margin-top: 18px; }
+  .small-card {
+    flex: 1; border: 1px solid var(--border); background: var(--card-bg);
+    padding: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 128px;
+  }
+  .small-card .title { font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 22px; }
+  .small-card .body { font-family: var(--mono); color: var(--muted); font-size: 10px; line-height: 14px; }
+  .small-card .arrow { margin-top: auto; align-self: flex-end; font-family: var(--mono); color: var(--accent); font-size: 16px; }
+
+  /* CAMERA */
+  .cam {
+    background: linear-gradient(180deg, #1a1a18 0%, #0c0c0a 50%, #050505 100%);
+    padding: 0; overflow: hidden;
+    position: relative;
+  }
+  .cam-feed {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 70%, rgba(255,107,53,0.05) 0%, transparent 60%),
+      linear-gradient(180deg, #1f1812 0%, #0a0807 60%, #050402 100%);
+  }
+  .cam-feed::before {
+    /* fake road */
+    content: '';
+    position: absolute;
+    left: 50%; bottom: 240px;
+    width: 60%; height: 220px;
+    background: linear-gradient(180deg, transparent 0%, rgba(245,233,212,0.06) 100%);
+    transform: translateX(-50%) perspective(400px) rotateX(60deg);
+    transform-origin: bottom center;
+  }
+  .cam-feed::after {
+    /* red light blob */
+    content: '';
+    position: absolute;
+    left: 60%; top: 180px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--danger);
+    box-shadow: 0 0 30px rgba(255,45,45,0.7);
+  }
+  .hud-top {
+    position: absolute; top: 28px; left: 16px; right: 16px;
+    display: flex; justify-content: space-between; align-items: center; z-index: 2;
+  }
+  .hud-text { font-family: var(--mono); font-weight: 700; color: var(--text); font-size: 11px; letter-spacing: 1.4px; text-shadow: 0 0 4px rgba(0,0,0,0.6); }
+  .rec-row { display: flex; align-items: center; gap: 8px; }
+  .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 0 rgba(255,45,45,0.6); animation: pulse 1.4s infinite; }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255,45,45,0.6); }
+    100% { box-shadow: 0 0 0 12px rgba(255,45,45,0); }
+  }
+  .panel {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+    background: rgba(10, 8, 7, 0.94);
+    border-top: 1px solid var(--border-strong);
+    padding: 24px 20px 40px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .panel .eyebrow.red { color: var(--danger); }
+  .elapsed {
+    font-family: var(--serif); font-style: italic; color: var(--danger);
+    font-size: 72px; line-height: 76px;
+  }
+  .panel .discl {
+    font-family: var(--mono); text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--muted); font-size: 10px;
+  }
+
+  /* SHARE CARD */
+  .share-frame {
+    width: 320px;
+    height: 692px;
+    background: radial-gradient(circle at 50% 20%, var(--bg-start) 0%, var(--bg-mid) 55%, var(--bg-end) 100%);
+    border: 1px solid var(--border-strong);
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 8px #111;
+    padding: 36px 20px 60px;
+    display: flex; flex-direction: column; align-items: center; gap: 18px;
+  }
+  .share-card {
+    width: 200px;
+    aspect-ratio: 9 / 16;
+    background: linear-gradient(180deg, #1a1410 0%, #2a1810 55%, #ff6b35 100%);
+    padding: 18px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .share-card .eyebrow {
+    font-family: var(--mono); font-weight: 700; color: #f5e9d4;
+    opacity: 0.8; font-size: 8px; letter-spacing: 1.4px;
+  }
+  .share-card .line {
+    font-family: var(--serif); font-style: italic;
+    color: #f5e9d4; font-size: 17px; line-height: 21px; margin-top: 6px;
+  }
+  .share-card .red { color: #ff2d2d; }
+  .share-card .green { color: #6dffa6; }
+  .share-card .divider { height: 1px; background: rgba(245,233,212,0.25); }
+  .share-card .foot { display: flex; justify-content: space-between; align-items: flex-end; }
+  .badge { padding: 5px 8px; border: 1px solid rgba(245,233,212,0.55); display: flex; flex-direction: column; align-items: center; }
+  .badge .num { font-family: var(--serif); font-style: italic; color: #f5e9d4; font-size: 22px; line-height: 24px; }
+  .badge .lab { font-family: var(--mono); font-weight: 700; color: #f5e9d4; font-size: 7px; letter-spacing: 1.3px; }
+  .wm { font-family: var(--mono); color: #f5e9d4; opacity: 0.85; font-size: 9px; letter-spacing: 1.1px; }
+  .btn-row { display: flex; gap: 8px; width: 100%; }
+  .btn-row button {
+    flex: 1; background: transparent; border: 1px solid var(--border-strong);
+    padding: 12px 0; font-family: var(--mono); font-weight: 700; color: var(--text);
+    text-transform: uppercase; letter-spacing: 1.4px; font-size: 11px; cursor: pointer;
+  }
+
+  /* CALC */
+  .calc-slider { display: flex; flex-direction: column; gap: 8px; padding: 8px 0; }
+  .calc-slider .top { display: flex; justify-content: space-between; align-items: baseline; }
+  .calc-slider .val { font-family: var(--mono); color: var(--text); font-size: 13px; }
+  .track { height: 4px; background: var(--border); position: relative; }
+  .track .fill { height: 4px; background: var(--accent); }
+  .track .thumb { position: absolute; width: 12px; height: 12px; background: var(--text); border: 2px solid var(--accent); top: -4px; }
+  .out-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; }
+  .out-row .v { font-family: var(--serif); font-style: italic; }
+  .reclaim { background: var(--success); padding: 14px; margin-top: 14px; color: #0a0807; }
+  .reclaim .lab { font-family: var(--mono); font-weight: 700; font-size: 9px; letter-spacing: 1.4px; }
+  .reclaim .v { font-family: var(--serif); font-style: italic; font-size: 44px; line-height: 48px; color: #0a0807; }
+  .reclaim .sub { font-family: var(--mono); font-size: 10px; opacity: 0.7; }
+  .footnote { text-align: center; font-family: var(--mono); color: var(--muted); font-size: 9px; letter-spacing: 1.2px; margin-top: 14px; }
+</style>
+</head>
+<body>
+  <h1 class="page">Redlight — UI Preview</h1>
+  <p class="phone-label">Static HTML mirror of the React Native screens. Same colors, fonts, type scale. Real app is at <code>redlight/</code>.</p>
+
+  <div class="row">
+    <!-- HOME -->
+    <div>
+      <div class="phone">
+        <div class="home-head">
+          <span class="eyebrow">GOOD MORNING, DRIVER</span>
+          <div class="serif-italic h-hero">Today’s the day<br>you look up.</div>
+        </div>
+        <div class="ring-wrap">
+          <div class="ring">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="77" fill="none" stroke="rgba(245,233,212,0.08)" stroke-width="6" />
+              <circle cx="80" cy="80" r="77" fill="none" stroke="#ff6b35" stroke-width="6"
+                stroke-linecap="round"
+                stroke-dasharray="483.8"
+                stroke-dashoffset="135.5" />
+            </svg>
+            <div class="center">
+              <span class="label">ATTENTION</span>
+              <span class="value">72%</span>
+            </div>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat"><span class="label">STREAK</span><span class="v">12d</span></div>
+          <div class="vdiv"></div>
+          <div class="stat"><span class="label">RECLAIMED</span><span class="v accent">48s</span></div>
+          <div class="vdiv"></div>
+          <div class="stat"><span class="label">TODAY</span><span class="v">72%</span></div>
+        </div>
+        <div class="cta">
+          <div class="row1">
+            <span class="lab">START DRIVING SESSION</span>
+            <span class="arrow">→</span>
+          </div>
+          <span class="sub">Open camera</span>
+        </div>
+        <div class="challenge">
+          <div class="head">
+            <span class="eyebrow">WEEKLY CHALLENGE</span>
+            <span class="count">32/50</span>
+          </div>
+          <div class="title">Catch fifty greens this week.</div>
+          <div class="bar"><div></div></div>
+        </div>
+        <div class="cards-row">
+          <div class="small-card">
+            <span class="eyebrow">THE MATH</span>
+            <span class="title">See your time tax.</span>
+            <span class="body">How long a life of red lights actually costs you.</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="small-card">
+            <span class="eyebrow">SHARE</span>
+            <span class="title">Post your number.</span>
+            <span class="body">Export a card. Dare your group chat to beat it.</span>
+            <span class="arrow">→</span>
+          </div>
+        </div>
+      </div>
+      <p class="phone-label">HOME</p>
+    </div>
+
+    <!-- CAMERA -->
+    <div>
+      <div class="phone cam">
+        <div class="cam-feed"></div>
+        <div class="hud-top">
+          <span class="hud-text">← EXIT</span>
+          <div class="rec-row">
+            <span class="pulse-dot"></span>
+            <span class="hud-text">RECORDING</span>
+          </div>
+        </div>
+        <div class="panel">
+          <span class="eyebrow red">RED LIGHT</span>
+          <div class="elapsed">14s</div>
+          <span class="discl">Eyes on the road. We’ll alert you when it’s green.</span>
+        </div>
+      </div>
+      <p class="phone-label">CAMERA MODE — RED PHASE</p>
+    </div>
+
+    <!-- CALC -->
+    <div>
+      <div class="phone">
+        <span class="label" style="font-size:11px;">← BACK</span>
+        <div style="margin-top:18px;">
+          <span class="eyebrow">THE MATH</span>
+          <div class="serif-italic h1" style="margin-top:8px;">Your time tax.</div>
+        </div>
+        <div style="margin-top:14px;">
+          <div class="calc-slider">
+            <div class="top"><span class="label">DRIVES PER DAY</span><span class="val">4</span></div>
+            <div class="track"><div class="fill" style="width:20%"></div><div class="thumb" style="left:20%;margin-left:-6px;"></div></div>
+          </div>
+          <div class="calc-slider">
+            <div class="top"><span class="label">LIGHTS PER DRIVE</span><span class="val">6</span></div>
+            <div class="track"><div class="fill" style="width:20%"></div><div class="thumb" style="left:20%;margin-left:-6px;"></div></div>
+          </div>
+          <div class="calc-slider">
+            <div class="top"><span class="label">AVG WAIT</span><span class="val">35s</span></div>
+            <div class="track"><div class="fill" style="width:29%"></div><div class="thumb" style="left:29%;margin-left:-6px;"></div></div>
+          </div>
+          <div class="calc-slider">
+            <div class="top"><span class="label">% ON PHONE AT REDS</span><span class="val">60%</span></div>
+            <div class="track"><div class="fill" style="width:60%"></div><div class="thumb" style="left:60%;margin-left:-6px;"></div></div>
+          </div>
+        </div>
+        <div style="margin-top:14px; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding: 6px 0;">
+          <div class="out-row"><span class="label">PER DAY</span><span class="v" style="font-size:26px;">17m</span></div>
+          <div class="out-row"><span class="label">PER YEAR</span><span class="v" style="font-size:26px;">4.4d</span></div>
+          <div class="out-row"><span class="label">LIFETIME</span><span class="v" style="font-size:36px;color:var(--danger);">7.1mo</span></div>
+        </div>
+        <div class="reclaim">
+          <span class="lab">RECLAIMABLE</span>
+          <div class="v">3.4mo</div>
+          <span class="sub">Time you’d save by just looking up.</span>
+        </div>
+        <p class="footnote">Use only when parked or as a passenger.</p>
+      </div>
+      <p class="phone-label">CALC</p>
+    </div>
+
+    <!-- SHARE -->
+    <div>
+      <div class="share-frame">
+        <span class="label" style="align-self:flex-start;">← BACK</span>
+        <div style="align-self:flex-start;">
+          <span class="eyebrow">SHARE</span>
+          <div class="serif-italic h1" style="margin-top:6px; font-size:32px;">Post your number.</div>
+        </div>
+        <div class="share-card">
+          <div>
+            <span class="eyebrow">REDLIGHT · TIME TAX</span>
+            <div class="line">I’ll waste <span class="red">7.1mo</span> of my life sitting at red lights.</div>
+          </div>
+          <div class="divider"></div>
+          <div>
+            <span class="eyebrow">BUT IF I LOOK UP</span>
+            <div class="line">I get back <span class="green">3.4mo</span>.</div>
+          </div>
+          <div class="foot">
+            <div class="badge">
+              <span class="num">12</span>
+              <span class="lab">DAY STREAK</span>
+            </div>
+            <span class="wm">redlight.app/me</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button>Story</button>
+          <button>Post</button>
+          <button>DM</button>
+        </div>
+      </div>
+      <p class="phone-label">SHARE</p>
+    </div>
+  </div>
+</body>
+</html>
