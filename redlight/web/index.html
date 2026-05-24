@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Redlight — How much of your life will you waste at red lights?</title>
+<meta name="description" content="Redlight quantifies your lifetime time tax at red traffic lights — and rewards you for paying attention. iOS and Android beta.">
+<meta property="og:title" content="Redlight" />
+<meta property="og:description" content="How much of your life will you waste at red lights?" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://redlight.app" />
+<meta name="theme-color" content="#0a0807" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-start: #1a1410;
+    --bg-mid: #0a0807;
+    --bg-end: #000;
+    --text: #f5e9d4;
+    --accent: #ff6b35;
+    --danger: #ff2d2d;
+    --success: #6dffa6;
+    --muted: #88766a;
+    --border: rgba(245, 233, 212, 0.08);
+    --border-strong: rgba(245, 233, 212, 0.18);
+    --card-bg: rgba(245, 233, 212, 0.03);
+    --serif: 'DM Serif Display', serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg-end); }
+  body {
+    color: var(--text);
+    font-family: var(--mono);
+    background: radial-gradient(circle at 50% 0%, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
+    min-height: 100vh;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { opacity: 0.8; }
+  .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 28px 24px;
+    max-width: 1080px; margin: 0 auto;
+  }
+  nav .brand {
+    font-family: var(--serif); font-style: italic; font-size: 24px;
+    letter-spacing: -0.5px;
+  }
+  nav .brand .dot { color: var(--accent); }
+  nav ul { display: flex; gap: 24px; list-style: none; }
+  nav a { font-family: var(--mono); font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); }
+  nav a:hover { color: var(--text); }
+
+  .hero {
+    padding: 80px 0 100px;
+    text-align: center;
+  }
+  .hero .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    font-size: clamp(48px, 9vw, 96px); line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 .red { color: var(--danger); }
+  .hero .sub {
+    font-family: var(--mono); font-size: 16px; line-height: 1.6;
+    color: var(--muted); max-width: 580px; margin: 32px auto 0;
+  }
+  .hero .cta-row {
+    display: flex; gap: 12px; justify-content: center; margin-top: 40px; flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 22px;
+    font-family: var(--mono); font-weight: 700;
+    font-size: 13px; letter-spacing: 1.4px; text-transform: uppercase;
+    border: none; cursor: pointer;
+  }
+  .btn.primary { background: var(--accent); color: #0a0807; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border-strong); }
+
+  section { padding: 80px 0; border-top: 1px solid var(--border); }
+  section h2 {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    font-size: clamp(36px, 5vw, 56px); line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  section h2 + p { font-family: var(--mono); color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 580px; }
+
+  /* CALCULATOR */
+  .calc {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 720px) { .calc { grid-template-columns: 1fr; } }
+  .sliders { display: flex; flex-direction: column; gap: 18px; }
+  .slider .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .slider .lab { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
+  .slider .val { font-family: var(--mono); font-size: 14px; color: var(--text); }
+  .slider input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; background: var(--border); outline: none;
+  }
+  .slider input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; background: var(--text);
+    border: 2px solid var(--accent); cursor: pointer;
+  }
+  .slider input[type=range]::-moz-range-thumb {
+    width: 14px; height: 14px; background: var(--text);
+    border: 2px solid var(--accent); cursor: pointer;
+  }
+  .output {
+    border: 1px solid var(--border); padding: 24px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .output .row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .output .row:last-of-type { border-bottom: none; }
+  .output .row .l { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
+  .output .row .v { font-family: var(--serif); font-style: italic; font-size: 28px; color: var(--text); }
+  .output .row .v.danger { color: var(--danger); font-size: 36px; }
+  .reclaim {
+    background: var(--success); padding: 20px; margin-top: 16px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .reclaim .l { font-family: var(--mono); font-weight: 700; font-size: 10px; letter-spacing: 1.5px; color: #0a0807; }
+  .reclaim .v { font-family: var(--serif); font-style: italic; font-size: 44px; color: #0a0807; line-height: 1.05; }
+  .reclaim .sub { font-family: var(--mono); font-size: 11px; color: #0a0807; opacity: 0.7; }
+
+  /* FEATURES */
+  .features {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px; margin-top: 48px;
+  }
+  .feature { border: 1px solid var(--border); padding: 28px; background: var(--card-bg); }
+  .feature .num { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 1.4px; }
+  .feature h3 { font-family: var(--serif); font-style: italic; font-size: 24px; line-height: 1.2; margin: 12px 0; }
+  .feature p { font-family: var(--mono); font-size: 12px; line-height: 1.6; color: var(--muted); }
+
+  /* WAITLIST */
+  .waitlist {
+    border: 1px solid var(--border-strong);
+    padding: 48px; margin: 48px 0;
+    text-align: center;
+  }
+  .waitlist form {
+    display: flex; gap: 8px; max-width: 480px; margin: 32px auto 0;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .waitlist input {
+    flex: 1; min-width: 220px;
+    padding: 14px 18px; background: transparent; border: 1px solid var(--border-strong);
+    color: var(--text); font-family: var(--mono); font-size: 14px; outline: none;
+  }
+  .waitlist input:focus { border-color: var(--accent); }
+  .waitlist .note { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 16px; letter-spacing: 1.2px; }
+
+  footer { padding: 48px 0 60px; border-top: 1px solid var(--border); }
+  footer .row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  footer .brand { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--text); }
+  footer .links { display: flex; gap: 20px; flex-wrap: wrap; }
+  footer .links a { font-family: var(--mono); font-size: 11px; letter-spacing: 1.4px; color: var(--muted); text-transform: uppercase; }
+  footer .copy { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 32px; letter-spacing: 1px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--success); color: #0a0807;
+    padding: 14px 22px; font-family: var(--mono); font-weight: 700;
+    font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+  <nav>
+    <div class="brand">redlight<span class="dot">.</span></div>
+    <ul>
+      <li><a href="#calc">The Math</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#join">Join Beta</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero container">
+    <div class="eyebrow">A QUIET REVOLT AGAINST THE LITTLE DEATHS</div>
+    <h1>
+      You will waste<br>
+      <span class="red" id="hero-lifetime">2.8mo</span><br>
+      of your life at red lights.
+    </h1>
+    <p class="sub">
+      Redlight quantifies the time tax. Then it rewards you for looking up. iOS and Android beta — no signup, no ads, no nonsense.
+    </p>
+    <div class="cta-row">
+      <a class="btn primary" href="#join">JOIN THE BETA →</a>
+      <a class="btn ghost" href="#calc">DO THE MATH</a>
+    </div>
+  </header>
+
+  <section id="calc">
+    <div class="container">
+      <h2>How much is yours?</h2>
+      <p>Move the sliders. The number recomputes live. The same engine ships inside the app.</p>
+
+      <div class="calc">
+        <div class="sliders">
+          <div class="slider">
+            <div class="top"><span class="lab">DRIVES PER DAY</span><span class="val" id="v-drives">4</span></div>
+            <input type="range" id="s-drives" min="0" max="20" value="4" />
+          </div>
+          <div class="slider">
+            <div class="top"><span class="lab">LIGHTS PER DRIVE</span><span class="val" id="v-lights">6</span></div>
+            <input type="range" id="s-lights" min="0" max="30" value="6" />
+          </div>
+          <div class="slider">
+            <div class="top"><span class="lab">AVG WAIT</span><span class="val" id="v-wait">35s</span></div>
+            <input type="range" id="s-wait" min="0" max="120" value="35" />
+          </div>
+          <div class="slider">
+            <div class="top"><span class="lab">% ON PHONE AT REDS</span><span class="val" id="v-phone">60%</span></div>
+            <input type="range" id="s-phone" min="0" max="100" value="60" />
+          </div>
+          <div class="slider">
+            <div class="top"><span class="lab">EXTRA SECONDS WHEN MISSED</span><span class="val" id="v-pen">3s</span></div>
+            <input type="range" id="s-pen" min="0" max="15" value="3" />
+          </div>
+          <div class="slider">
+            <div class="top"><span class="lab">YEARS DRIVING</span><span class="val" id="v-years">50</span></div>
+            <input type="range" id="s-years" min="1" max="80" value="50" />
+          </div>
+        </div>
+
+        <div>
+          <div class="output">
+            <div class="row"><span class="l">PER DAY</span><span class="v" id="o-day">17m</span></div>
+            <div class="row"><span class="l">PER YEAR</span><span class="v" id="o-year">4.4d</span></div>
+            <div class="row"><span class="l">LIFETIME</span><span class="v danger" id="o-life">7.1mo</span></div>
+          </div>
+          <div class="reclaim">
+            <span class="l">RECLAIMABLE</span>
+            <span class="v" id="o-reclaim">3.4mo</span>
+            <span class="sub">Time you'd save by just looking up.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="container">
+      <h2>Four pillars.</h2>
+      <p>One feeling: the next time you sit at a red, you'll feel the meter running.</p>
+
+      <div class="features">
+        <div class="feature">
+          <div class="num">01</div>
+          <h3>The math.</h3>
+          <p>A lifetime time-tax calculator. Move six sliders. See the number you spend at reds. Then see the chunk you can take back.</p>
+        </div>
+        <div class="feature">
+          <div class="num">02</div>
+          <h3>Auto-track.</h3>
+          <p>GPS detects every stop without you opening the app. Reviews your drive in one glance. Attentive or lost — no gray area.</p>
+        </div>
+        <div class="feature">
+          <div class="num">03</div>
+          <h3>The streak.</h3>
+          <p>One per day. Miss a day, lose the streak. A small, daily ritual of paying attention. Achievements quietly stack up.</p>
+        </div>
+        <div class="feature">
+          <div class="num">04</div>
+          <h3>Camera mode.</h3>
+          <p>Mount your phone. The camera watches the light. When it turns green, the app chimes — only if you don't accelerate. The app never asks you to look at it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="join">
+    <div class="container">
+      <div class="waitlist">
+        <h2>Join the beta.</h2>
+        <p style="margin: 0 auto; text-align: center;">50 drivers. Two weeks. iOS and Android. We'll send a TestFlight link or APK direct.</p>
+        <form id="waitlist-form" onsubmit="return joinWaitlist(event)">
+          <input type="email" id="waitlist-email" placeholder="you@example.com" required />
+          <button class="btn primary" type="submit">JOIN →</button>
+        </form>
+        <div class="note">No spam. No marketing. One email when the beta opens.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="brand">redlight.</div>
+        <div class="links">
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
+          <a href="mailto:hello@redlight.app">Contact</a>
+        </div>
+      </div>
+      <div class="copy">© 2026 Redlight. Use only when parked or as a passenger.</div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast">YOU'RE ON THE LIST</div>
+
+<script>
+  // Calculator — mirrors src/services/math.ts in the React Native app.
+  const ids = ['drives', 'lights', 'wait', 'phone', 'pen', 'years'];
+  const units = { wait: 's', phone: '%', pen: 's' };
+
+  function fmt(sec) {
+    if (!isFinite(sec) || sec < 0) return '0s';
+    if (sec < 60) return Math.round(sec) + 's';
+    if (sec < 3600) return Math.round(sec / 60) + 'm';
+    if (sec < 86400) return (sec / 3600).toFixed(1) + 'h';
+    if (sec < 2629800) return (sec / 86400).toFixed(1) + 'd';
+    if (sec < 31557600) return (sec / 2629800).toFixed(1) + 'mo';
+    return (sec / 31557600).toFixed(1) + 'y';
+  }
+
+  function compute() {
+    const drives = +document.getElementById('s-drives').value;
+    const lights = +document.getElementById('s-lights').value;
+    const wait = +document.getElementById('s-wait').value;
+    const phone = +document.getElementById('s-phone').value;
+    const pen = +document.getElementById('s-pen').value;
+    const years = +document.getElementById('s-years').value;
+
+    document.getElementById('v-drives').textContent = drives;
+    document.getElementById('v-lights').textContent = lights;
+    document.getElementById('v-wait').textContent = wait + 's';
+    document.getElementById('v-phone').textContent = phone + '%';
+    document.getElementById('v-pen').textContent = pen + 's';
+    document.getElementById('v-years').textContent = years;
+
+    const redsPerDay = drives * lights;
+    const baseSec = redsPerDay * wait;
+    const inattentive = redsPerDay * (phone / 100);
+    const taxSec = inattentive * pen;
+    const cascadeSec = inattentive * 0.25 * wait;
+    const totalDay = baseSec + taxSec + cascadeSec;
+    const reclaimDay = taxSec + cascadeSec;
+    const totalYear = totalDay * 365;
+    const totalLife = totalYear * years;
+    const reclaimLife = reclaimDay * 365 * years;
+
+    document.getElementById('o-day').textContent = fmt(totalDay);
+    document.getElementById('o-year').textContent = fmt(totalYear);
+    document.getElementById('o-life').textContent = fmt(totalLife);
+    document.getElementById('o-reclaim').textContent = fmt(reclaimLife);
+    document.getElementById('hero-lifetime').textContent = fmt(totalLife);
+  }
+  ids.forEach((k) => document.getElementById('s-' + k).addEventListener('input', compute));
+  compute();
+
+  // Waitlist — local-only for now. Drop in Formspree / ConvertKit when the beta opens.
+  function joinWaitlist(e) {
+    e.preventDefault();
+    const email = document.getElementById('waitlist-email').value;
+    const list = JSON.parse(localStorage.getItem('redlight-waitlist') || '[]');
+    if (!list.includes(email)) list.push(email);
+    localStorage.setItem('redlight-waitlist', JSON.stringify(list));
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2400);
+    document.getElementById('waitlist-email').value = '';
+    return false;
+  }
+</script>
+</body>
+</html>

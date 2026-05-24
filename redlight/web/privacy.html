@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Privacy Policy — Redlight</title>
+<meta name="theme-color" content="#0a0807" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0807; color: #f5e9d4;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 60px 24px 100px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  a { color: #ff6b35; text-decoration: none; }
+  .brand { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 24px; }
+  .brand .dot { color: #ff6b35; }
+  h1 { font-family: 'DM Serif Display', serif; font-style: italic; font-weight: 400; font-size: 48px; margin: 32px 0 12px; }
+  .meta { font-size: 11px; color: #88766a; letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 32px; }
+  h2 { font-family: 'DM Serif Display', serif; font-style: italic; font-weight: 400; font-size: 28px; margin: 40px 0 12px; }
+  p, li { font-size: 14px; line-height: 1.7; color: #f5e9d4; margin-bottom: 12px; }
+  ul { padding-left: 20px; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid rgba(245,233,212,0.1); vertical-align: top; }
+  th { color: #88766a; font-weight: 700; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="brand" href="/" style="color:#f5e9d4;">redlight<span class="dot">.</span></a>
+    <h1>Privacy Policy</h1>
+    <div class="meta">Last updated: 2026-05-24</div>
+
+    <h2>The short version</h2>
+    <p>Redlight is local-first. Your camera feed, location, and stop history live on your device and are <strong>never transmitted to us</strong>. Anonymous usage counts may be sent to our analytics provider so we can improve the product.</p>
+
+    <h2>What lives where</h2>
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Where</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Camera frames</td><td>On-device only. Not recorded, not stored, not transmitted.</td><td>Detect green lights.</td></tr>
+        <tr><td>Location</td><td>On-device only. Reduced to "stops" (intersection + duration).</td><td>Detect stops.</td></tr>
+        <tr><td>Streak / preferences</td><td>On-device AsyncStorage.</td><td>Persist your progress.</td></tr>
+        <tr><td>Anonymous events</td><td>Analytics provider. No identifiers, no location.</td><td>Improve the product.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>What we don't collect</h2>
+    <ul>
+      <li>Name, email, phone — Redlight has no account.</li>
+      <li>The contents of your camera feed.</li>
+      <li>Raw GPS coordinates of any stop.</li>
+      <li>Contacts, photos, microphone, calendar.</li>
+    </ul>
+
+    <h2>Permissions</h2>
+    <p>Camera (Camera Mode only), Location (Auto-Track only), Motion (in-vehicle vs. on-foot filter), Notifications (daily streak reminder). Revoke any of these in your device settings at any time.</p>
+
+    <h2>Your choices</h2>
+    <p>Clear local data: Settings → Reset → Clear All Data, or uninstall. Disable analytics: Settings → Privacy (coming soon).</p>
+
+    <h2>Contact</h2>
+    <p>Privacy questions: <a href="mailto:privacy@redlight.app">privacy@redlight.app</a></p>
+    <p><a href="/">← Back to redlight.app</a></p>
+  </div>
+</body>
+</html>
