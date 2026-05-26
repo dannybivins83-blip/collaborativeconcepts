@@ -89,8 +89,8 @@ export default function Streak() {
             </View>
           </View>
 
-          <Pressable onPress={() => router.push('/legal')} style={styles.legalLink}>
-            <Text style={styles.legalLinkLabel}>TERMS · PRIVACY · SAFETY →</Text>
+          <Pressable onPress={() => router.push('/settings')} style={styles.legalLink}>
+            <Text style={styles.legalLinkLabel}>SETTINGS · PRIVACY · SAFETY →</Text>
           </Pressable>
           <Text style={styles.footnote}>Use only when parked or as a passenger.</Text>
         </ScrollView>

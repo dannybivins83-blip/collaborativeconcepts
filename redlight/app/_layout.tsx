@@ -7,7 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useStore } from '@/state/useStore';
-import { initAnalytics } from '@/services/analytics';
+import { initAnalytics, setAnalyticsOptOut } from '@/services/analytics';
 import { colors } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -39,6 +39,12 @@ export default function RootLayout() {
   useEffect(() => {
     initAnalytics().catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (hydrated) {
+      setAnalyticsOptOut(useStore.getState().analyticsOptOut);
+    }
+  }, [hydrated]);
 
   useEffect(() => {
     if (fontsLoaded && hydrated) {
@@ -113,6 +119,12 @@ export default function RootLayout() {
           />
           <Tabs.Screen
             name="legal"
+            options={{
+              href: null,
+            }}
+          />
+          <Tabs.Screen
+            name="settings"
             options={{
               href: null,
             }}

@@ -26,6 +26,7 @@ interface RedlightState {
   stops: SessionStop[];
   weeklyGoalLights: number;
   weeklyCaught: number;
+  analyticsOptOut: boolean;
 
   setHydrated: () => void;
   setOnboarded: (v: boolean) => void;
@@ -36,6 +37,7 @@ interface RedlightState {
   resetSession: () => void;
   bumpStreakIfNewDay: () => void;
   unlock: (id: AchievementId) => void;
+  setAnalyticsOptOut: (v: boolean) => void;
   resetAll: () => void;
 }
 
@@ -74,6 +76,7 @@ export const useStore = create<RedlightState>()(
       stops: [],
       weeklyGoalLights: 50,
       weeklyCaught: 0,
+      analyticsOptOut: false,
 
       setHydrated: () => set({ hydrated: true }),
       setOnboarded: (v) => set({ onboarded: v }),
@@ -151,6 +154,8 @@ export const useStore = create<RedlightState>()(
             : { achievements: { ...s.achievements, [id]: true } },
         ),
 
+      setAnalyticsOptOut: (v) => set({ analyticsOptOut: v }),
+
       resetAll: () =>
         set({
           streak: 0,
@@ -177,6 +182,7 @@ export const useStore = create<RedlightState>()(
         preferences: s.preferences,
         weeklyGoalLights: s.weeklyGoalLights,
         weeklyCaught: s.weeklyCaught,
+        analyticsOptOut: s.analyticsOptOut,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated();

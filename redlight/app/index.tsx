@@ -39,7 +39,12 @@ export default function Home() {
           showsVerticalScrollIndicator={false}
         >
           <Animated.View entering={FadeInDown.duration(500)} style={styles.header}>
-            <Text style={typography.eyebrow}>{greeting().toUpperCase()}, DRIVER</Text>
+            <View style={styles.headerTop}>
+              <Text style={typography.eyebrow}>{greeting().toUpperCase()}, DRIVER</Text>
+              <Pressable onPress={() => router.push('/settings')} hitSlop={12}>
+                <Text style={styles.settingsLink}>SETTINGS</Text>
+              </Pressable>
+            </View>
             <Text style={styles.headline}>Today’s the day{'\n'}you look up.</Text>
           </Animated.View>
 
@@ -126,6 +131,17 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: spacing.sm,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  settingsLink: {
+    fontFamily: fonts.mono,
+    color: colors.muted,
+    fontSize: 10,
+    letterSpacing: 1.4,
   },
   headline: {
     ...typography.serifH1,
