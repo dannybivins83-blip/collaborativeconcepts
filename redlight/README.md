@@ -140,3 +140,11 @@ npm run ota:preview "msg"     # Ship a JS-only update to existing beta installs
 ```
 
 See `TODO.md` for everything still stubbed before public release.
+
+## Going to market
+
+- `TESTFLIGHT.md` — the full beta build + release runbook.
+- `marketing/STORE-LISTING.md` — copy-paste App Store + Play metadata, the App Privacy / Data Safety label, and the screenshot spec.
+- `marketing/BETA-RECRUITING.md` — who to recruit, the messages to send, the tester one-pager, and the 7-question feedback form.
+- `B2B-RESEARCH.md` — the consumer-vs-fleet fork and what the beta's share-rate decides.
+- `legal/` — Terms + Privacy templates (run `scripts/setup.sh` to fill the placeholders).
