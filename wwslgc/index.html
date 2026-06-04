@@ -109,6 +109,18 @@
       <div id="drop" class="drop"><b>Drop a CSV here</b> or click to choose a file<br>
         <span class="muted">Any CSV with an email column. Data stays in your browser — it's never stored on the server.</span></div>
       <input id="file" type="file" accept=".csv" class="hide">
+      <div style="display:flex;align-items:center;gap:12px;margin:16px 0 8px;color:var(--muted);font-size:11px;letter-spacing:.4px">
+        <span style="flex:1;border-top:1px solid var(--line)"></span> OR ADD ONE BY HAND <span style="flex:1;border-top:1px solid var(--line)"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end">
+        <div style="flex:2;min-width:190px"><label class="fld">Email *</label><input id="mEmail" type="text" placeholder="name@company.com"></div>
+        <div style="flex:1;min-width:100px"><label class="fld">First name</label><input id="mFirst" type="text" placeholder="Chris"></div>
+        <div style="flex:2;min-width:150px"><label class="fld">Company</label><input id="mCompany" type="text" placeholder="Acme Corp"></div>
+        <div style="flex:1;min-width:90px"><label class="fld">City</label><input id="mCity" type="text"></div>
+        <div style="flex:1;min-width:80px"><label class="fld">Standard</label><input id="mStandard" type="text" placeholder="1910.22"></div>
+        <button class="btn-primary" id="addOne" style="height:38px">+ Add</button>
+      </div>
+      <div id="addMsg" class="muted" style="margin-top:6px"></div>
       <div id="loadStats" class="stat" style="margin-top:14px"></div>
       <div class="tablewrap hide" id="tableWrap" style="margin-top:12px">
         <table id="leadTable"><thead></thead><tbody></tbody></table>
@@ -255,6 +267,21 @@ function insertToken(tok){ const ta=$('body'),s=ta.selectionStart,e=ta.selection
 function loadText(text){ LEADS=normalize(text); const valid=LEADS.filter(r=>validEmail(r.email)).length;
   $('loadStats').innerHTML='Loaded <b>'+LEADS.length+'</b> leads — <span class="pill ok">'+valid+' with email</span> '+(LEADS.length-valid>0?('<span class="pill no">'+(LEADS.length-valid)+' missing</span>'):'');
   renderTable(); pvIndex=0; refresh(); }
+function addManual(){
+  const email=$('mEmail').value.trim();
+  if(!validEmail(email)){ $('addMsg').innerHTML='<span style="color:var(--bad)">Enter a valid email address.</span>'; $('mEmail').focus(); return; }
+  const first=$('mFirst').value.trim();
+  const merge={First:first||'there',Contact:first,Company:$('mCompany').value.trim(),Address:'',
+    City:$('mCity').value.trim(),County:'',State:'',Zip:'',Standard:$('mStandard').value.trim(),
+    Penalty:'',CaseStatus:'',Phone:'',Email:email};
+  LEADS.push({email,merge});
+  const valid=LEADS.filter(r=>validEmail(r.email)).length;
+  $('loadStats').innerHTML='Loaded <b>'+LEADS.length+'</b> lead'+(LEADS.length!==1?'s':'')+' — <span class="pill ok">'+valid+' with email</span>';
+  renderTable(); refresh();
+  ['mEmail','mFirst','mCompany','mCity','mStandard'].forEach(id=>$(id).value='');
+  $('addMsg').innerHTML='<span style="color:var(--ok)">Added '+email+'. Add another, or scroll to Send.</span>';
+  $('mEmail').focus();
+}
 
 async function sendOne(mode,rec,attachments){
   const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode,recipient:rec,attachments})});
@@ -287,6 +314,8 @@ function wire(){
   $('prevBtn').onclick=()=>{if(LEADS.length){pvIndex=(pvIndex-1+LEADS.length)%LEADS.length;refresh();}};
   $('nextBtn').onclick=()=>{if(LEADS.length){pvIndex=(pvIndex+1)%LEADS.length;refresh();}};
   $('testBtn').onclick=()=>run('test'); $('draftBtn').onclick=()=>run('draft'); $('sendBtn').onclick=()=>run('send');
+  $('addOne').onclick=addManual;
+  ['mEmail','mFirst','mCompany','mCity','mStandard'].forEach(id=>$(id).addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); addManual(); } }));
   $('drop').onclick=()=>$('file').click();
   $('file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>loadText(rd.result);rd.readAsText(f);});
   ['dragover','dragenter'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.add('hot');}));
