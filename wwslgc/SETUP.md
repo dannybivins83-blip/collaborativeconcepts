@@ -94,6 +94,23 @@ functions. No Node needed.
 
 ---
 
+## Gmail (Google) send option
+
+The portal can also send via Gmail. Google OAuth client lives in Google Cloud
+project **deep-wares-394121** (Google Auth Platform → Clients → **WWSLGC Portal**),
+redirect URI `https://wwslgc.collaborativeconceptsfl.com/api/auth/google/callback`,
+Gmail API enabled, app in **Testing** with test users added. To finish, set in Vercel:
+
+| Name | Value |
+|---|---|
+| `GOOGLE_CLIENT_ID` | from the WWSLGC Portal client (starts `202155726344-…`) |
+| `GOOGLE_CLIENT_SECRET` | from the same client (Sensitive) |
+
+Then redeploy. To allow a new Gmail sender, add it as a **Test user** under
+Google Auth Platform → Audience. On first sign-in users see a "Google hasn't
+verified this app" screen → **Advanced → Go to WWSLGC Portal → Allow** (expected
+while the app is in Testing).
+
 ## Troubleshooting
 
 - **"AADSTS50011 redirect URI mismatch"** → the redirect URI in Entra (step 1.4)
