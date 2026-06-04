@@ -180,6 +180,54 @@ def templates():
     return jsonify({"templates": TEMPLATES, "signature": SIGNATURE})
 
 
+# ---- shared contact list (Upstash/Vercel KV) ----
+CONTACTS_KEY = "wwslgc:contacts"
+
+
+def _kv():
+    base = os.environ.get("KV_REST_API_URL") or os.environ.get("UPSTASH_REDIS_REST_URL")
+    token = os.environ.get("KV_REST_API_TOKEN") or os.environ.get("UPSTASH_REDIS_REST_TOKEN")
+    return base, token
+
+
+def _kv_cmd(cmd):
+    base, token = _kv()
+    if not base or not token:
+        return None, False  # store not configured
+    r = requests.post(base, headers={"Authorization": "Bearer " + token}, json=cmd, timeout=15)
+    r.raise_for_status()
+    return r.json().get("result"), True
+
+
+@app.get("/api/contacts")
+def get_contacts():
+    s = read_session()
+    if not s or not s.get("access_token"):
+        return jsonify({"error": "not connected", "leads": []}), 401
+    try:
+        val, configured = _kv_cmd(["GET", CONTACTS_KEY])
+        if not configured:
+            return jsonify({"configured": False, "leads": []})
+        leads = json.loads(val) if val else []
+        return jsonify({"configured": True, "leads": leads})
+    except Exception as e:
+        return jsonify({"configured": True, "leads": [], "status": str(e)}), 200
+
+
+@app.post("/api/contacts")
+def set_contacts():
+    s = read_session()
+    if not s or not s.get("access_token"):
+        return jsonify({"error": "not connected"}), 401
+    body = request.get_json(force=True, silent=True) or {}
+    leads = body.get("leads", [])
+    try:
+        _, configured = _kv_cmd(["SET", CONTACTS_KEY, json.dumps(leads)])
+        return jsonify({"ok": configured, "configured": configured, "count": len(leads)})
+    except Exception as e:
+        return jsonify({"ok": False, "status": str(e)}), 502
+
+
 @app.get("/api/logout")
 def logout():
     resp = make_response(redirect("/wwslgc"))

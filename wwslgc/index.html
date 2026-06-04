@@ -284,19 +284,50 @@ function addManual(){
   saveLeads();
   $('mEmail').focus();
 }
+let SERVER_SYNC=false, saveTimer=null;
+function renderSavedBar(){
+  const sb=$('savedBar');
+  if(!LEADS.length){ sb.classList.add('hide'); return; }
+  sb.classList.remove('hide');
+  let msg;
+  if(AUTH.authenticated && SERVER_SYNC) msg='☁ Synced across your devices & team — saved automatically.';
+  else if(AUTH.authenticated) msg='💾 Saved on this device. (Cross-device sync isn’t set up yet.)';
+  else msg='💾 Saved on this device — connect a mailbox to sync across all devices.';
+  sb.innerHTML=msg+' <a href="#" id="clearSaved" style="color:var(--bad)">Clear list</a>';
+  $('clearSaved').onclick=e=>{ e.preventDefault(); clearSaved(); };
+}
 function saveLeads(){
   try{ localStorage.setItem('wwslgc_leads', JSON.stringify(LEADS)); }catch(e){}
-  const sb=$('savedBar');
-  if(LEADS.length){
-    sb.classList.remove('hide');
-    sb.innerHTML='💾 Saved on this device — your list reloads automatically next time. <a href="#" id="clearSaved" style="color:var(--bad)">Clear saved list</a>';
-    $('clearSaved').onclick=e=>{ e.preventDefault(); clearSaved(); };
-  } else sb.classList.add('hide');
+  if(AUTH.authenticated){
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(()=>{
+      fetch('/api/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leads:LEADS})})
+        .then(r=>r.json()).then(d=>{ SERVER_SYNC=!!d.configured; renderSavedBar(); }).catch(()=>{});
+    }, 700);
+  }
+  renderSavedBar();
+}
+async function syncLoad(){
+  if(!AUTH.authenticated) return;
+  try{
+    const r=await fetch('/api/contacts'); const d=await r.json();
+    if(d.configured){
+      SERVER_SYNC=true;
+      if(d.leads && d.leads.length){ LEADS=d.leads; }
+      else if(LEADS.length){ fetch('/api/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leads:LEADS})}).catch(()=>{}); }
+      try{ localStorage.setItem('wwslgc_leads', JSON.stringify(LEADS)); }catch(e){}
+      const valid=LEADS.filter(x=>validEmail(x.email)).length;
+      $('loadStats').innerHTML='Loaded <b>'+LEADS.length+'</b> contact'+(LEADS.length!==1?'s':'')+' — <span class="pill ok">'+valid+' with email</span>';
+      renderTable();
+    }
+  }catch(e){}
 }
 function clearSaved(){
-  if(!confirm('Clear the saved contact list from this device?')) return;
+  if(!confirm('Clear the saved contact list'+(SERVER_SYNC?' for everyone (this list is shared)':' on this device')+'?')) return;
   try{ localStorage.removeItem('wwslgc_leads'); }catch(e){}
-  LEADS=[]; $('leadTable').querySelector('tbody').innerHTML=''; $('tableWrap').classList.add('hide');
+  LEADS=[];
+  if(AUTH.authenticated) fetch('/api/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leads:[]})}).catch(()=>{});
+  $('leadTable').querySelector('tbody').innerHTML=''; $('tableWrap').classList.add('hide');
   $('emailEditNote').classList.add('hide'); $('loadStats').innerHTML=''; $('savedBar').classList.add('hide');
   pvIndex=0; refresh();
 }
@@ -376,10 +407,12 @@ async function boot(){
     if(Array.isArray(saved) && saved.length){
       LEADS=saved;
       const valid=LEADS.filter(r=>validEmail(r.email)).length;
-      $('loadStats').innerHTML='Restored <b>'+LEADS.length+'</b> saved lead'+(LEADS.length!==1?'s':'')+' — <span class="pill ok">'+valid+' with email</span>';
-      renderTable(); saveLeads();
+      $('loadStats').innerHTML='Restored <b>'+LEADS.length+'</b> saved contact'+(LEADS.length!==1?'s':'')+' — <span class="pill ok">'+valid+' with email</span>';
+      renderTable();
     }
   }catch(e){}
+  await syncLoad();
+  renderSavedBar();
   wire(); applyTemplate(0);
 }
 boot();
