@@ -123,6 +123,16 @@
       <div id="addMsg" class="muted" style="margin-top:6px"></div>
       <div id="loadStats" class="stat" style="margin-top:14px"></div>
       <div id="savedBar" class="muted hide" style="margin-top:6px"></div>
+      <div id="mapPanel" class="hide" style="margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:#fbfcfe">
+        <div class="fld" style="margin-bottom:8px">Map your CSV columns — pick which column holds each field</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <div style="flex:1;min-width:150px"><label class="fld">Email</label><select id="mapEmail"></select></div>
+          <div style="flex:1;min-width:150px"><label class="fld">Company</label><select id="mapCompany"></select></div>
+          <div style="flex:1;min-width:150px"><label class="fld">Contact / Name</label><select id="mapContact"></select></div>
+          <div style="flex:1;min-width:120px"><label class="fld">City</label><select id="mapCity"></select></div>
+          <div style="flex:1;min-width:120px"><label class="fld">Standard</label><select id="mapStandard"></select></div>
+        </div>
+      </div>
       <div class="tablewrap hide" id="tableWrap" style="margin-top:12px">
         <table id="leadTable"><thead></thead><tbody></tbody></table>
       </div>
@@ -183,7 +193,7 @@
 </div>
 
 <script>
-let LEADS=[], TEMPLATES=[], pvIndex=0;
+let LEADS=[], TEMPLATES=[], pvIndex=0, RAW_HEADERS=[], RAW_ROWS=[];
 const $=id=>document.getElementById(id);
 const MERGE_FIELDS=["First","Contact","Company","City","County","Address","Zip","Standard","Penalty","CaseStatus","Phone","Email"];
 const ATTACHMENTS=[
@@ -265,9 +275,48 @@ function refresh(){
 }
 function applyTemplate(i){ const t=TEMPLATES[i]; $('subject').value=t.subject; $('body').value=t.body; refresh(); }
 function insertToken(tok){ const ta=$('body'),s=ta.selectionStart,e=ta.selectionEnd; ta.value=ta.value.slice(0,s)+tok+ta.value.slice(e); ta.focus(); ta.selectionStart=ta.selectionEnd=s+tok.length; refresh(); }
-function loadText(text){ LEADS=normalize(text); const valid=LEADS.filter(r=>validEmail(r.email)).length;
-  $('loadStats').innerHTML='Loaded <b>'+LEADS.length+'</b> leads — <span class="pill ok">'+valid+' with email</span> '+(LEADS.length-valid>0?('<span class="pill no">'+(LEADS.length-valid)+' missing</span>'):'');
-  renderTable(); pvIndex=0; refresh(); saveLeads(); }
+const GUESS={
+  Email:['email','e-mail','mail'],
+  Company:['estab','company name','company','business','organization','organisation','account','dba'],
+  Contact:['contact','owner','principal','agent','full name','first name','attention','attn','name'],
+  City:['site_city','city','town','municipal'],
+  Standard:['standards_cited','standard','citation','violation','osha']
+};
+function autoGuess(field,headers){
+  const lows=headers.map(h=>h.toLowerCase());
+  for(const al of GUESS[field]){ const i=lows.findIndex(h=>h.includes(al)); if(i>=0) return i; }
+  return -1;
+}
+function buildMapUI(){
+  [['mapEmail','Email'],['mapCompany','Company'],['mapContact','Contact'],['mapCity','City'],['mapStandard','Standard']].forEach(([sel,field])=>{
+    const el=$(sel); el.innerHTML='';
+    const none=document.createElement('option'); none.value=''; none.textContent='— none —'; el.appendChild(none);
+    RAW_HEADERS.forEach((h,idx)=>{ const o=document.createElement('option'); o.value=idx; o.textContent=h||('Column '+(idx+1)); el.appendChild(o); });
+    const g=autoGuess(field,RAW_HEADERS); el.value=g>=0?String(g):'';
+    el.onchange=applyMapping;
+  });
+  $('mapPanel').classList.remove('hide');
+}
+function applyMapping(){
+  const pick=sel=>{ const v=$(sel).value; return v===''?-1:parseInt(v,10); };
+  const iE=pick('mapEmail'),iCo=pick('mapCompany'),iCt=pick('mapContact'),iCi=pick('mapCity'),iS=pick('mapStandard');
+  LEADS=RAW_ROWS.map(r=>{
+    const get=i=> i>=0 ? (r[i]||'').trim() : '';
+    const merge={First:firstName(get(iCt)),Contact:get(iCt),Company:get(iCo),Address:'',City:get(iCi),
+      County:'',State:'',Zip:'',Standard:get(iS),Penalty:'',CaseStatus:'',Phone:'',Email:get(iE)};
+    RAW_HEADERS.forEach((h,idx)=>{ if(h && merge[h]==null) merge[h]=(r[idx]||'').trim(); });
+    return {email:get(iE), merge};
+  });
+  const valid=LEADS.filter(r=>validEmail(r.email)).length;
+  $('loadStats').innerHTML='Loaded <b>'+LEADS.length+'</b> lead'+(LEADS.length!==1?'s':'')+' — <span class="pill ok">'+valid+' with email</span> '+(LEADS.length-valid>0?('<span class="pill no">'+(LEADS.length-valid)+' missing</span>'):'');
+  renderTable(); pvIndex=0; refresh(); saveLeads();
+}
+function loadText(text){
+  const grid=parseCSV(text);
+  if(!grid.length){ alert('Could not read that CSV.'); return; }
+  RAW_HEADERS=grid[0].map(c=>(c||'').trim()); RAW_ROWS=grid.slice(1).filter(r=>r.some(c=>(c||'').trim()!==''));
+  buildMapUI(); applyMapping();
+}
 function addManual(){
   const email=$('mEmail').value.trim();
   if(!validEmail(email)){ $('addMsg').innerHTML='<span style="color:var(--bad)">Enter a valid email address.</span>'; $('mEmail').focus(); return; }
@@ -329,6 +378,7 @@ function clearSaved(){
   if(AUTH.authenticated) fetch('/api/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leads:[]})}).catch(()=>{});
   $('leadTable').querySelector('tbody').innerHTML=''; $('tableWrap').classList.add('hide');
   $('emailEditNote').classList.add('hide'); $('loadStats').innerHTML=''; $('savedBar').classList.add('hide');
+  $('mapPanel').classList.add('hide'); RAW_HEADERS=[]; RAW_ROWS=[];
   pvIndex=0; refresh();
 }
 
