@@ -1,27 +1,31 @@
 """
 WWSLGC portal API (Vercel Python / Flask).
 
-Internal, login-gated. Microsoft 365 sign-in (Entra ID, restricted to the
-lagalacon.com tenant) doubles as the portal login AND the authorization to
-send mail via Microsoft Graph -- so drafts/sends land in the signed-in user's
-real mailbox and sync to Outlook.
+Internal outreach mailer. The portal opens WITHOUT a forced login (it stores no
+lead data server-side -- CSVs are parsed in the browser). A mailbox connection
+is required only to actually send/draft, and the user can connect either:
+  - Microsoft 365 (Outlook) via Graph, or
+  - Google (Gmail) via the Gmail API.
+Drafts/sends land in the connected account's own mailbox.
 
-All routes are under /api/* (see vercel.json rewrite). No secrets live in the
-repo; everything sensitive comes from Vercel environment variables.
+No secrets live in the repo; everything sensitive comes from Vercel env vars.
 
-Env vars (set in Vercel project settings):
-  MS_CLIENT_ID          Entra app (client) ID
-  MS_CLIENT_SECRET      Entra client secret value
-  MS_TENANT_ID          Entra directory (tenant) ID  -> restricts sign-in to your org
-  SESSION_SECRET        long random string (signs/encrypts the session cookie)
-  WWSLGC_REDIRECT_URI   optional override, e.g. https://wwslgc.collaborativeconceptsfl.com/api/auth/callback
-  ALLOWED_EMAIL_DOMAIN  optional, defaults to lagalacon.com
+Env vars:
+  MS_CLIENT_ID / MS_CLIENT_SECRET / MS_TENANT_ID   Entra app (Microsoft path)
+  GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET           Google Cloud OAuth (Gmail path)
+  SESSION_SECRET                                    signs/encrypts the session cookie
+  WWSLGC_REDIRECT_URI / GOOGLE_REDIRECT_URI         optional explicit redirect URIs
+  ALLOWED_EMAIL_DOMAIN                              optional Microsoft domain restriction
 """
 
 import base64
 import hashlib
 import json
 import os
+import secrets
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
 
 import requests
 from flask import Flask, request, redirect, jsonify, make_response
@@ -30,14 +34,22 @@ import msal
 
 app = Flask(__name__)
 
+# ---- Microsoft Graph ----
 GRAPH = "https://graph.microsoft.com/v1.0"
-SCOPES = ["User.Read", "Mail.Send", "Mail.ReadWrite"]
+MS_SCOPES = ["User.Read", "Mail.Send", "Mail.ReadWrite"]
+
+# ---- Google / Gmail ----
+GOOGLE_AUTH = "https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_TOKEN = "https://oauth2.googleapis.com/token"
+GOOGLE_USERINFO = "https://www.googleapis.com/oauth2/v2/userinfo"
+GMAIL_API = "https://gmail.googleapis.com/gmail/v1/users/me"
+GOOGLE_SCOPES = ["openid", "email", "profile", "https://www.googleapis.com/auth/gmail.compose"]
+
 SESSION_COOKIE = "wwslgc_session"
 FLOW_COOKIE = "wwslgc_flow"
-ALLOWED_DOMAIN = os.environ.get("ALLOWED_EMAIL_DOMAIN", "lagalacon.com").lower()
+GSTATE_COOKIE = "wwslgc_gstate"
+ALLOWED_DOMAIN = os.environ.get("ALLOWED_EMAIL_DOMAIN", "").lower()
 
-# Built-in templates (mirrors the local tool). Placeholders like {{First}} are
-# merged client-side; the API only sends finished subject/body strings.
 SIGNATURE = (
     "Daniel Bivins · Client Relations\n"
     "La Gala Construction / Tilt Patchers, Inc. · CGC059211 · in partnership with UES\n"
@@ -77,14 +89,13 @@ TEMPLATES = [
 
 
 # --------------------------------------------------------------------------
-# Session cookie crypto (Fernet, derived from SESSION_SECRET)
+# Session cookie crypto
 # --------------------------------------------------------------------------
 def _fernet():
     secret = os.environ.get("SESSION_SECRET", "")
     if not secret:
         raise RuntimeError("SESSION_SECRET not configured")
-    key = base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest())
-    return Fernet(key)
+    return Fernet(base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest()))
 
 
 def read_session():
@@ -92,8 +103,7 @@ def read_session():
     if not raw:
         return None
     try:
-        data = _fernet().decrypt(raw.encode())
-        return json.loads(data)
+        return json.loads(_fernet().decrypt(raw.encode()))
     except (InvalidToken, ValueError, RuntimeError):
         return None
 
@@ -104,12 +114,34 @@ def write_session(resp, payload):
                     samesite="Lax", max_age=60 * 60 * 8, path="/")
 
 
+def set_temp(resp, name, value, max_age=600):
+    token = _fernet().encrypt(json.dumps(value).encode()).decode()
+    resp.set_cookie(name, token, httponly=True, secure=True, samesite="Lax",
+                    max_age=max_age, path="/")
+
+
+def read_temp(name):
+    raw = request.cookies.get(name)
+    if not raw:
+        return None
+    try:
+        return json.loads(_fernet().decrypt(raw.encode()))
+    except (InvalidToken, ValueError, RuntimeError):
+        return None
+
+
 def clear_cookie(resp, name):
     resp.set_cookie(name, "", expires=0, path="/")
 
 
+def base_url():
+    host = request.headers.get("x-forwarded-host", request.host)
+    proto = request.headers.get("x-forwarded-proto", "https")
+    return "{}://{}".format(proto, host)
+
+
 # --------------------------------------------------------------------------
-# MSAL helpers
+# Microsoft (MSAL)
 # --------------------------------------------------------------------------
 def msal_app():
     return msal.ConfidentialClientApplication(
@@ -119,70 +151,31 @@ def msal_app():
     )
 
 
-def redirect_uri():
-    override = os.environ.get("WWSLGC_REDIRECT_URI")
-    if override:
-        return override
-    host = request.headers.get("x-forwarded-host", request.host)
-    proto = request.headers.get("x-forwarded-proto", "https")
-    return "{}://{}/api/auth/callback".format(proto, host)
+def ms_redirect_uri():
+    return os.environ.get("WWSLGC_REDIRECT_URI") or (base_url() + "/api/auth/callback")
+
+
+def google_redirect_uri():
+    return os.environ.get("GOOGLE_REDIRECT_URI") or (base_url() + "/api/auth/google/callback")
 
 
 # --------------------------------------------------------------------------
-# Routes
+# Routes — identity
 # --------------------------------------------------------------------------
 @app.get("/api/me")
 def me():
     s = read_session()
     if not s or not s.get("access_token"):
-        return jsonify({"authenticated": False}), 401
-    return jsonify({"authenticated": True, "email": s.get("email"), "name": s.get("name")})
+        return jsonify({"authenticated": False,
+                        "providers": {"microsoft": bool(os.environ.get("MS_CLIENT_ID")),
+                                      "google": bool(os.environ.get("GOOGLE_CLIENT_ID"))}})
+    return jsonify({"authenticated": True, "provider": s.get("provider"),
+                    "email": s.get("email"), "name": s.get("name")})
 
 
 @app.get("/api/templates")
 def templates():
     return jsonify({"templates": TEMPLATES, "signature": SIGNATURE})
-
-
-@app.get("/api/login")
-def login():
-    flow = msal_app().initiate_auth_code_flow(SCOPES, redirect_uri=redirect_uri())
-    resp = make_response(redirect(flow["auth_uri"]))
-    # the flow dict (state + PKCE verifier) must survive the round-trip
-    token = _fernet().encrypt(json.dumps(flow).encode()).decode()
-    resp.set_cookie(FLOW_COOKIE, token, httponly=True, secure=True,
-                    samesite="Lax", max_age=600, path="/")
-    return resp
-
-
-@app.get("/api/auth/callback")
-def callback():
-    raw = request.cookies.get(FLOW_COOKIE)
-    if not raw:
-        return _err_page("Sign-in expired. Please try again.")
-    try:
-        flow = json.loads(_fernet().decrypt(raw.encode()))
-    except (InvalidToken, ValueError, RuntimeError):
-        return _err_page("Sign-in could not be verified. Please try again.")
-
-    result = msal_app().acquire_token_by_auth_code_flow(flow, dict(request.args))
-    if "access_token" not in result:
-        return _err_page("Sign-in failed: " + result.get("error_description", result.get("error", "unknown")))
-
-    claims = result.get("id_token_claims", {})
-    # Defense in depth: tenant is already locked by authority, also check domain.
-    email = (claims.get("preferred_username") or claims.get("email") or "").lower()
-    if ALLOWED_DOMAIN and not email.endswith("@" + ALLOWED_DOMAIN):
-        return _err_page("This portal is restricted to @{} accounts.".format(ALLOWED_DOMAIN))
-
-    resp = make_response(redirect("/wwslgc"))
-    write_session(resp, {
-        "access_token": result["access_token"],
-        "email": email,
-        "name": claims.get("name", email),
-    })
-    clear_cookie(resp, FLOW_COOKIE)
-    return resp
 
 
 @app.get("/api/logout")
@@ -192,11 +185,99 @@ def logout():
     return resp
 
 
+# ---- Microsoft sign-in ----
+@app.get("/api/login")
+def login_ms():
+    flow = msal_app().initiate_auth_code_flow(MS_SCOPES, redirect_uri=ms_redirect_uri())
+    resp = make_response(redirect(flow["auth_uri"]))
+    set_temp(resp, FLOW_COOKIE, flow)
+    return resp
+
+
+@app.get("/api/auth/callback")
+def callback_ms():
+    flow = read_temp(FLOW_COOKIE)
+    if not flow:
+        return _err_page("Sign-in expired. Please try again.")
+    result = msal_app().acquire_token_by_auth_code_flow(flow, dict(request.args))
+    if "access_token" not in result:
+        return _err_page("Sign-in failed: " + result.get("error_description", result.get("error", "unknown")))
+    claims = result.get("id_token_claims", {})
+    email = (claims.get("preferred_username") or claims.get("email") or "").lower()
+    if ALLOWED_DOMAIN and not email.endswith("@" + ALLOWED_DOMAIN):
+        return _err_page("Microsoft sign-in is restricted to @{} accounts.".format(ALLOWED_DOMAIN))
+    resp = make_response(redirect("/wwslgc"))
+    write_session(resp, {"provider": "microsoft", "access_token": result["access_token"],
+                         "email": email, "name": claims.get("name", email)})
+    clear_cookie(resp, FLOW_COOKIE)
+    return resp
+
+
+# ---- Google sign-in ----
+@app.get("/api/login/google")
+def login_google():
+    cid = os.environ.get("GOOGLE_CLIENT_ID")
+    if not cid:
+        return _err_page("Google sign-in isn't configured yet (GOOGLE_CLIENT_ID missing).")
+    state = secrets.token_urlsafe(24)
+    params = {
+        "client_id": cid,
+        "redirect_uri": google_redirect_uri(),
+        "response_type": "code",
+        "scope": " ".join(GOOGLE_SCOPES),
+        "access_type": "offline",
+        "include_granted_scopes": "true",
+        "prompt": "consent",
+        "state": state,
+    }
+    url = GOOGLE_AUTH + "?" + "&".join("{}={}".format(k, requests.utils.quote(v, safe="")) for k, v in params.items())
+    resp = make_response(redirect(url))
+    set_temp(resp, GSTATE_COOKIE, {"state": state})
+    return resp
+
+
+@app.get("/api/auth/google/callback")
+def callback_google():
+    saved = read_temp(GSTATE_COOKIE)
+    if not saved or request.args.get("state") != saved.get("state"):
+        return _err_page("Google sign-in could not be verified. Please try again.")
+    if request.args.get("error"):
+        return _err_page("Google sign-in failed: " + request.args.get("error"))
+    code = request.args.get("code")
+    try:
+        tok = requests.post(GOOGLE_TOKEN, data={
+            "code": code,
+            "client_id": os.environ["GOOGLE_CLIENT_ID"],
+            "client_secret": os.environ["GOOGLE_CLIENT_SECRET"],
+            "redirect_uri": google_redirect_uri(),
+            "grant_type": "authorization_code",
+        }, timeout=30).json()
+    except requests.RequestException as e:
+        return _err_page("Google token exchange failed: " + str(e))
+    if "access_token" not in tok:
+        return _err_page("Google sign-in failed: " + tok.get("error_description", tok.get("error", "unknown")))
+    access = tok["access_token"]
+    email, name = "", ""
+    try:
+        info = requests.get(GOOGLE_USERINFO, headers={"Authorization": "Bearer " + access}, timeout=20).json()
+        email = (info.get("email") or "").lower()
+        name = info.get("name", email)
+    except requests.RequestException:
+        pass
+    resp = make_response(redirect("/wwslgc"))
+    write_session(resp, {"provider": "google", "access_token": access, "email": email, "name": name})
+    clear_cookie(resp, GSTATE_COOKIE)
+    return resp
+
+
+# --------------------------------------------------------------------------
+# Sending
+# --------------------------------------------------------------------------
 @app.post("/api/send")
 def send():
     s = read_session()
     if not s or not s.get("access_token"):
-        return jsonify({"ok": False, "status": "not signed in"}), 401
+        return jsonify({"ok": False, "status": "not connected"}), 401
 
     body = request.get_json(force=True, silent=True) or {}
     mode = body.get("mode", "draft")               # draft | send | test
@@ -207,31 +288,48 @@ def send():
     if not to_email:
         return jsonify({"ok": False, "status": "no recipient"}), 400
 
-    # Build Graph message
-    message = {
-        "subject": rcpt.get("subject", ""),
-        "body": {"contentType": "HTML", "content": _text_to_html(rcpt.get("body", ""))},
-        "toRecipients": [{"emailAddress": {"address": to_email}}],
-    }
-    attachments = _build_attachments(body.get("attachments", []))
-    if attachments:
-        message["attachments"] = attachments
+    subject = rcpt.get("subject", "")
+    html = _text_to_html(rcpt.get("body", ""))
+    attachments = _fetch_attachments(body.get("attachments", []))
 
-    headers = {"Authorization": "Bearer " + s["access_token"], "Content-Type": "application/json"}
     try:
-        if mode == "send":
-            r = requests.post(GRAPH + "/me/sendMail",
-                              headers=headers, json={"message": message, "saveToSentItems": True},
-                              timeout=30)
-            ok = r.status_code in (200, 202)
-            status = "sent" if ok else _graph_err(r)
-        else:  # draft or test -> create a draft they can review/send
-            r = requests.post(GRAPH + "/me/messages", headers=headers, json=message, timeout=30)
-            ok = r.status_code in (200, 201)
-            status = "draft created" if ok else _graph_err(r)
+        if s.get("provider") == "google":
+            ok, status = _gmail_send(s["access_token"], to_email, subject, html, attachments, mode)
+        else:
+            ok, status = _graph_send(s["access_token"], to_email, subject, html, attachments, mode)
         return jsonify({"ok": ok, "status": status, "email": to_email}), (200 if ok else 502)
     except requests.RequestException as e:
         return jsonify({"ok": False, "status": "network error: " + str(e), "email": to_email}), 502
+
+
+def _graph_send(token, to_email, subject, html, attachments, mode):
+    message = {
+        "subject": subject,
+        "body": {"contentType": "HTML", "content": html},
+        "toRecipients": [{"emailAddress": {"address": to_email}}],
+    }
+    if attachments:
+        message["attachments"] = [{
+            "@odata.type": "#microsoft.graph.fileAttachment",
+            "name": name, "contentBytes": base64.b64encode(data).decode(),
+        } for name, data in attachments]
+    headers = {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
+    if mode == "send":
+        r = requests.post(GRAPH + "/me/sendMail", headers=headers,
+                          json={"message": message, "saveToSentItems": True}, timeout=30)
+        return (r.status_code in (200, 202), "sent" if r.status_code in (200, 202) else _err(r))
+    r = requests.post(GRAPH + "/me/messages", headers=headers, json=message, timeout=30)
+    return (r.status_code in (200, 201), "draft created" if r.status_code in (200, 201) else _err(r))
+
+
+def _gmail_send(token, to_email, subject, html, attachments, mode):
+    raw = _build_mime(to_email, subject, html, attachments)
+    headers = {"Authorization": "Bearer " + token, "Content-Type": "application/json"}
+    if mode == "send":
+        r = requests.post(GMAIL_API + "/messages/send", headers=headers, json={"raw": raw}, timeout=30)
+        return (r.status_code in (200, 202), "sent" if r.status_code in (200, 202) else _err(r))
+    r = requests.post(GMAIL_API + "/drafts", headers=headers, json={"message": {"raw": raw}}, timeout=30)
+    return (r.status_code in (200, 201), "draft created" if r.status_code in (200, 201) else _err(r))
 
 
 # --------------------------------------------------------------------------
@@ -242,32 +340,41 @@ def _text_to_html(text):
     return escape(text or "").replace("\n", "<br>\n")
 
 
-def _build_attachments(urls):
-    """Fetch each (public) collateral URL and inline it as a Graph fileAttachment."""
+def _fetch_attachments(urls):
+    """Fetch each (public) collateral URL -> list of (filename, bytes)."""
     out = []
-    host = request.headers.get("x-forwarded-host", request.host)
-    proto = request.headers.get("x-forwarded-proto", "https")
     for u in urls or []:
-        full = u if u.startswith("http") else "{}://{}{}".format(proto, host, u)
+        full = u if u.startswith("http") else base_url() + u
         try:
             r = requests.get(full, timeout=20)
             if r.status_code == 200 and r.content:
-                out.append({
-                    "@odata.type": "#microsoft.graph.fileAttachment",
-                    "name": full.rsplit("/", 1)[-1],
-                    "contentBytes": base64.b64encode(r.content).decode(),
-                })
+                out.append((full.rsplit("/", 1)[-1], r.content))
         except requests.RequestException:
             pass
     return out
 
 
-def _graph_err(r):
+def _build_mime(to_email, subject, html, attachments):
+    if attachments:
+        msg = MIMEMultipart()
+        msg.attach(MIMEText(html, "html"))
+        for name, data in attachments:
+            part = MIMEApplication(data)
+            part.add_header("Content-Disposition", "attachment", filename=name)
+            msg.attach(part)
+    else:
+        msg = MIMEText(html, "html")
+    msg["To"] = to_email
+    msg["Subject"] = subject
+    return base64.urlsafe_b64encode(msg.as_bytes()).decode()
+
+
+def _err(r):
     try:
         j = r.json()
-        return "Graph {}: {}".format(r.status_code, j.get("error", {}).get("message", r.text[:200]))
+        return "API {}: {}".format(r.status_code, j.get("error", {}).get("message", str(j)[:200]))
     except ValueError:
-        return "Graph {}: {}".format(r.status_code, r.text[:200])
+        return "API {}: {}".format(r.status_code, r.text[:200])
 
 
 def _err_page(msg):

@@ -98,7 +98,7 @@
     <div class="mark">WWS<span>LGC</span> Mailer</div>
     <div class="tag">Concrete Restoration · Waterproofing · Fall-Protection &amp; Compliance — <b>We certify it, and we fix it.</b></div>
   </div>
-  <div class="who">Signed in as <b id="whoEmail">…</b><br><a href="/api/logout">Sign out</a></div>
+  <div class="who" id="connectBar"></div>
 </header>
 
 <div class="wrap">
@@ -261,6 +261,7 @@ async function sendOne(mode,rec,attachments){
   let d={}; try{d=await r.json();}catch(e){} return {ok:r.ok&&d.ok,status:d.status||('HTTP '+r.status),email:rec.email}; }
 
 async function run(mode){
+  if(!AUTH.authenticated){ showConnectPrompt(); return; }
   const attachments=selectedAttachments(); let recs;
   if(mode==='test'){ recs=[recipients()[0]||{email:'(me)',subject:mergeText($('subject').value,{First:'there'}),body:mergeText($('body').value,{First:'there'})}]; }
   else{ recs=recipients(); if(!recs.length){alert('No recipients with a valid email.');return;}
@@ -293,11 +294,25 @@ function wire(){
   $('drop').addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>loadText(rd.result);rd.readAsText(f);});
 }
 
+let AUTH={authenticated:false};
+function renderConnect(){
+  const bar=$('connectBar'); const btn='display:inline-block;background:#fff;color:#0B2340;padding:6px 11px;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin:6px 6px 0 0';
+  if(AUTH.authenticated){
+    bar.innerHTML='Sending as <b>'+(AUTH.email||'')+'</b> <span style="opacity:.75">('+(AUTH.provider==='google'?'Gmail':'Outlook')+')</span><br><a href="/api/logout" style="color:var(--gold)">Disconnect</a>';
+  } else {
+    bar.innerHTML='<span style="color:#c7d6ea">Not connected — connect a mailbox to send:</span><br>'+
+      '<a href="/api/login" style="'+btn+'">✉ Connect Microsoft</a>'+
+      '<a href="/api/login/google" style="'+btn+'">✉ Connect Google</a>';
+  }
+}
+function showConnectPrompt(){
+  alert('Connect a mailbox first — use "Connect Microsoft" or "Connect Google" at the top of the page.');
+  $('connectBar').scrollIntoView({behavior:'smooth'});
+}
 async function boot(){
-  let auth=false, email='';
-  try{ const r=await fetch('/api/me'); if(r.ok){ const d=await r.json(); auth=d.authenticated; email=d.email; } }catch(e){}
-  if(!auth){ $('gate').classList.remove('hide'); return; }
-  $('appShell').classList.remove('hide'); $('whoEmail').textContent=email;
+  $('appShell').classList.remove('hide');
+  try{ const r=await fetch('/api/me'); AUTH=await r.json(); }catch(e){ AUTH={authenticated:false}; }
+  renderConnect();
   // templates
   try{ const r=await fetch('/api/templates'); const d=await r.json(); TEMPLATES=d.templates; }catch(e){ TEMPLATES=[{name:'Blank',subject:'',body:''}]; }
   TEMPLATES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=t.name;$('tplSelect').appendChild(o);});
