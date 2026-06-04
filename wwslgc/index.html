@@ -122,6 +122,7 @@
       </div>
       <div id="addMsg" class="muted" style="margin-top:6px"></div>
       <div id="loadStats" class="stat" style="margin-top:14px"></div>
+      <div id="savedBar" class="muted hide" style="margin-top:6px"></div>
       <div class="tablewrap hide" id="tableWrap" style="margin-top:12px">
         <table id="leadTable"><thead></thead><tbody></tbody></table>
       </div>
@@ -244,7 +245,7 @@ function renderTable(){
   LEADS.forEach((row,idx)=>{ const tr=document.createElement('tr'); const m=row.merge;
     const ec=validEmail(row.email)?'<span class="pill ok">'+row.email+'</span>':'<input type="text" placeholder="add email…" value="'+(row.email||'')+'" data-idx="'+idx+'" class="emailInput">';
     tr.innerHTML='<td>'+ec+'</td>'+['Company','Contact','City','Standard','Penalty'].map(k=>'<td>'+(m[k]||'')+'</td>').join(''); tb.appendChild(tr); });
-  tb.querySelectorAll('.emailInput').forEach(inp=>inp.addEventListener('input',e=>{LEADS[+e.target.dataset.idx].email=e.target.value.trim();refresh();}));
+  tb.querySelectorAll('.emailInput').forEach(inp=>inp.addEventListener('input',e=>{LEADS[+e.target.dataset.idx].email=e.target.value.trim();refresh();saveLeads();}));
   $('tableWrap').classList.remove('hide'); $('emailEditNote').classList.remove('hide');
 }
 function recipients(){ return LEADS.filter(r=>validEmail(r.email)).map(r=>({email:r.email.trim(),subject:mergeText($('subject').value,r.merge),body:mergeText($('body').value,r.merge)})); }
@@ -266,7 +267,7 @@ function applyTemplate(i){ const t=TEMPLATES[i]; $('subject').value=t.subject; $
 function insertToken(tok){ const ta=$('body'),s=ta.selectionStart,e=ta.selectionEnd; ta.value=ta.value.slice(0,s)+tok+ta.value.slice(e); ta.focus(); ta.selectionStart=ta.selectionEnd=s+tok.length; refresh(); }
 function loadText(text){ LEADS=normalize(text); const valid=LEADS.filter(r=>validEmail(r.email)).length;
   $('loadStats').innerHTML='Loaded <b>'+LEADS.length+'</b> leads — <span class="pill ok">'+valid+' with email</span> '+(LEADS.length-valid>0?('<span class="pill no">'+(LEADS.length-valid)+' missing</span>'):'');
-  renderTable(); pvIndex=0; refresh(); }
+  renderTable(); pvIndex=0; refresh(); saveLeads(); }
 function addManual(){
   const email=$('mEmail').value.trim();
   if(!validEmail(email)){ $('addMsg').innerHTML='<span style="color:var(--bad)">Enter a valid email address.</span>'; $('mEmail').focus(); return; }
@@ -280,7 +281,24 @@ function addManual(){
   renderTable(); refresh();
   ['mEmail','mFirst','mCompany','mCity','mStandard'].forEach(id=>$(id).value='');
   $('addMsg').innerHTML='<span style="color:var(--ok)">Added '+email+'. Add another, or scroll to Send.</span>';
+  saveLeads();
   $('mEmail').focus();
+}
+function saveLeads(){
+  try{ localStorage.setItem('wwslgc_leads', JSON.stringify(LEADS)); }catch(e){}
+  const sb=$('savedBar');
+  if(LEADS.length){
+    sb.classList.remove('hide');
+    sb.innerHTML='💾 Saved on this device — your list reloads automatically next time. <a href="#" id="clearSaved" style="color:var(--bad)">Clear saved list</a>';
+    $('clearSaved').onclick=e=>{ e.preventDefault(); clearSaved(); };
+  } else sb.classList.add('hide');
+}
+function clearSaved(){
+  if(!confirm('Clear the saved contact list from this device?')) return;
+  try{ localStorage.removeItem('wwslgc_leads'); }catch(e){}
+  LEADS=[]; $('leadTable').querySelector('tbody').innerHTML=''; $('tableWrap').classList.add('hide');
+  $('emailEditNote').classList.add('hide'); $('loadStats').innerHTML=''; $('savedBar').classList.add('hide');
+  pvIndex=0; refresh();
 }
 
 async function sendOne(mode,rec,attachments){
@@ -352,6 +370,16 @@ async function boot(){
   ATTACHMENTS.forEach(a=>{const w=document.createElement('label');w.className='check';w.style.marginBottom='6px';
     const cb=document.createElement('input');cb.type='checkbox';cb.dataset.url=a.url;cb.className='attachCb';w.appendChild(cb);
     const sp=document.createElement('span');sp.textContent=a.label;sp.style.fontSize='13px';w.appendChild(sp);$('attachList').appendChild(w);});
+  // restore saved contacts from this device
+  try{
+    const saved=JSON.parse(localStorage.getItem('wwslgc_leads')||'[]');
+    if(Array.isArray(saved) && saved.length){
+      LEADS=saved;
+      const valid=LEADS.filter(r=>validEmail(r.email)).length;
+      $('loadStats').innerHTML='Restored <b>'+LEADS.length+'</b> saved lead'+(LEADS.length!==1?'s':'')+' — <span class="pill ok">'+valid+' with email</span>';
+      renderTable(); saveLeads();
+    }
+  }catch(e){}
   wire(); applyTemplate(0);
 }
 boot();
