@@ -52,7 +52,7 @@ ALLOWED_DOMAIN = os.environ.get("ALLOWED_EMAIL_DOMAIN", "").lower()
 
 SIGNATURE = (
     "Daniel Bivins · Client Relations\n"
-    "La Gala Construction / Tilt Patchers, Inc. · CGC059211 · in partnership with UES\n"
+    "La Gala Construction / Tilt Patchers, Inc. · CGC059211 · in partnership with a FL State Certified Engineer\n"
     "(561) 475-8615 · danny@lagalacon.com · lagalacon.com\n"
     "25 SE 7th Street, Suite 12, Deerfield Beach, FL 33441\n"
     "Reply STOP or UNSUBSCRIBE to opt out."
@@ -63,8 +63,9 @@ TEMPLATES = [
      "body": ("Hi {{First}},\n\nI saw {{Company}} has an open OSHA walking-surface matter on the "
               "public record (§{{Standard}}) at the {{City}} location. We're a licensed Florida GC "
               "(CGC059211) that self-performs the work that closes that out — guardrail, edge "
-              "protection, concrete/coating repair, and anchor install/replacement — and our "
-              "engineering partner UES provides the sealed inspection and the 5,000-lb anchor "
+              "protection, concrete/coating repair, anchor install/replacement, and Complete "
+              "Building Code Compliant Recertifications — and a FL State Certified Engineer "
+              "provides the sealed inspection and the 5,000-lb anchor "
               "certification. One team for both the certificate and the fix.\n\nCan I set up a free "
               "walking-surface assessment this week and get you documentation for your file? "
               "Flyer attached.\n\n" + SIGNATURE)},
@@ -72,16 +73,17 @@ TEMPLATES = [
      "subject": "Free walking-surface assessment for {{Company}}",
      "body": ("Hi {{First}},\n\nWe're offering a no-obligation walking-surface assessment for "
               "facilities in {{County}} County with open OSHA Subpart D items. La Gala (CGC059211) "
-              "self-performs the surface, edge, and anchor work; UES seals the inspection and any "
-              "anchor certification — one accountable team, one point of contact.\n\nYou'd get a "
+              "self-performs the surface, edge, and anchor work plus Complete Building Code "
+              "Compliant Recertifications; a FL State Certified Engineer seals the inspection and "
+              "any anchor certification — one accountable team, one point of contact.\n\nYou'd get a "
               "clear written scope plus documentation for your case file. Do you have 20 minutes "
               "this week? Flyer attached.\n\n" + SIGNATURE)},
     {"name": "Follow-up — no reply",
      "subject": "Following up — {{Company}} walking-surface item",
      "body": ("Hi {{First}},\n\nCircling back on the open OSHA walking-surface item (§{{Standard}}) "
               "at {{Company}}. We can scope it this week and hand you documentation for your file at "
-              "no cost — we self-perform the fix and UES seals the engineered sign-off where one is "
-              "needed.\n\nWant me to set up the free assessment?\n\n" + SIGNATURE)},
+              "no cost — we self-perform the fix and a FL State Certified Engineer seals the "
+              "engineered sign-off where one is needed.\n\nWant me to set up the free assessment?\n\n" + SIGNATURE)},
     {"name": "Blank — write your own",
      "subject": "",
      "body": "Hi {{First}},\n\n\n\n" + SIGNATURE},
