@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Deal #16 — 13312 1st St E | Collaborative Concepts</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  @page{size:letter;margin:0}
+  body{font-family:'Inter',sans-serif;color:#1a1c1c;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  h1,h2,h3,h4{font-family:'Manrope',sans-serif}
+  .page{width:8.5in;height:11in;padding:0;position:relative;page-break-after:always;overflow:hidden}
+  .page:last-child{page-break-after:auto}
+  .cover{background:linear-gradient(135deg,#05152b 0%,#0c4a6e 60%,#1a8a9e 100%);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:60px}
+  .cover-badge{display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:20px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.2)}
+  .cover h1{font-size:48px;font-weight:800;line-height:1.1;margin-bottom:12px}
+  .cover .subtitle{font-size:18px;opacity:0.8;margin-bottom:40px}
+  .cover-stats{display:flex;gap:24px}
+  .cover-stat{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:20px 28px;text-align:center}
+  .cover-stat .val{font-size:28px;font-weight:800;color:#6ee7b7}
+  .cover-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:0.7;margin-top:4px}
+  .cover-logo{position:absolute;top:50px;left:60px;font-size:20px;font-weight:800;letter-spacing:-0.5px}
+  .cover-logo span{color:#6ee7b7}
+  .cover-tag{position:absolute;top:50px;right:60px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:0.5}
+  .content{padding:50px 60px}
+  .page-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e5e7eb;padding-bottom:16px;margin-bottom:32px}
+  .page-header h2{font-size:22px;font-weight:800;color:#05152b}
+  .page-header .deal-tag{font-size:10px;font-weight:700;color:#1a8a9e;letter-spacing:2px;text-transform:uppercase}
+  .section-title{font-size:14px;font-weight:800;color:#0c4a6e;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #6ee7b7}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .info-card{background:#f0f7fa;border-radius:12px;padding:20px}
+  .info-card .label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;margin-bottom:6px}
+  .info-card .value{font-size:22px;font-weight:800;color:#05152b}
+  .info-card .note{font-size:11px;color:#3a4f5a;margin-top:4px}
+  .fin-table{width:100%;border-collapse:collapse;font-size:13px}
+  .fin-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;padding:10px 16px;border-bottom:2px solid #0c4a6e}
+  .fin-table td{padding:10px 16px;border-bottom:1px solid #e5e7eb}
+  .fin-table tr:last-child td{border-bottom:2px solid #0c4a6e;font-weight:700}
+  .fin-table .amount{text-align:right;font-variant-numeric:tabular-nums}
+  .fin-table .total-row{background:#05152b;color:#fff}
+  .fin-table .total-row td{border-bottom:none;font-weight:700}
+  .callout{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-left:4px solid #6ee7b7;border-radius:0 12px 12px 0;padding:20px 24px;margin:20px 0}
+  .callout-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#065f46;margin-bottom:8px}
+  .callout p{font-size:13px;color:#1a1c1c;line-height:1.6}
+  .comp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+  .comp-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fff;background:#0c4a6e;padding:8px 12px}
+  .comp-table th:first-child{border-radius:6px 0 0 0}
+  .comp-table th:last-child{border-radius:0 6px 0 0}
+  .comp-table td{padding:8px 12px;border-bottom:1px solid #e5e7eb}
+  .comp-table tr:nth-child(even){background:#f8fafb}
+  .page-footer{position:absolute;bottom:30px;left:60px;right:60px;display:flex;justify-content:space-between;font-size:9px;color:#9ca3af}
+  .page-footer .brand{font-weight:700;color:#05152b}
+  .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  .why-item{display:flex;gap:12px;align-items:flex-start}
+  .why-icon{width:32px;height:32px;background:#0c4a6e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6ee7b7;font-size:16px;font-weight:800;flex-shrink:0}
+  .why-text h4{font-size:13px;font-weight:700;color:#05152b;margin-bottom:2px}
+  .why-text p{font-size:11px;color:#3a4f5a;line-height:1.5}
+  .bullet-list{list-style:none;padding:0}
+  .bullet-list li{padding:6px 0 6px 20px;position:relative;font-size:13px;line-height:1.5;color:#1a1c1c}
+  .bullet-list li::before{content:'';position:absolute;left:0;top:13px;width:8px;height:8px;background:#6ee7b7;border-radius:50%}
+  .cta-box{background:linear-gradient(135deg,#05152b,#0c4a6e);border-radius:16px;padding:32px;color:#fff;margin-top:24px}
+  .cta-box h3{font-size:20px;font-weight:800;margin-bottom:8px}
+  .cta-box p{font-size:13px;opacity:0.8;line-height:1.6}
+  .cta-box .contact{margin-top:16px;font-size:14px;font-weight:600;color:#6ee7b7}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div class="page cover">
+  <div class="cover-logo">Collaborative Concepts <span>+ La Gala</span></div>
+  <div class="cover-tag">Confidential Investment Memo</div>
+  <div class="cover-badge">Deal #16 &middot; Turnkey STR &middot; Madeira Beach</div>
+  <h1>13312 1st<br/>Street East</h1>
+  <p class="subtitle">Madeira Beach, FL 33708 &mdash; 7 Airbnb-ready cottages on a single RM-zoned parcel, turnkey short-term rental income from day one.</p>
+  <div class="cover-stats">
+    <div class="cover-stat"><div class="val">$2.75M</div><div class="lbl">Asking Price</div></div>
+    <div class="cover-stat"><div class="val">12,000</div><div class="lbl">Lot Sqft</div></div>
+    <div class="cover-stat"><div class="val">$3.5M</div><div class="lbl">Est. Exit</div></div>
+    <div class="cover-stat"><div class="val">9.1%</div><div class="lbl">Cap Rate</div></div>
+  </div>
+</div>
+
+<!-- PAGE 2: PROPERTY OVERVIEW -->
+<div class="page content">
+  <div class="page-header">
+    <h2>Property Overview</h2>
+    <div class="deal-tag">Deal #16 &mdash; 13312 1st St E</div>
+  </div>
+
+  <div class="section-title">Site Details</div>
+  <div class="grid-3" style="margin-bottom:28px">
+    <div class="info-card">
+      <div class="label">Lot Size</div>
+      <div class="value">12,000 sf</div>
+      <div class="note">7-cottage compound</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Zoning</div>
+      <div class="value">RM</div>
+      <div class="note">Residential multifamily</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Flood Zone</div>
+      <div class="value">AE</div>
+      <div class="note">BFE ~12' NAVD88</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Units</div>
+      <div class="value">7 Cottages</div>
+      <div class="note">Airbnb-ready, furnished</div>
+    </div>
+    <div class="info-card">
+      <div class="label">STR Licensed</div>
+      <div class="value">Yes</div>
+      <div class="note">Active STR permits in place</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Status</div>
+      <div class="value">Active</div>
+      <div class="note">Listed at $2,749,000</div>
+    </div>
+  </div>
+
+  <div class="section-title">Location &amp; Access</div>
+  <div class="grid-2" style="margin-bottom:28px">
+    <div>
+      <ul class="bullet-list">
+        <li>1st Street East &mdash; near Johns Pass Village</li>
+        <li>Walking distance to Gulf beaches</li>
+        <li>Charming cottage compound with tropical landscaping</li>
+        <li>High tourist foot traffic area</li>
+        <li>Near restaurants, shops, and charter fishing</li>
+      </ul>
+    </div>
+    <div>
+      <ul class="bullet-list">
+        <li>All 7 cottages fully furnished for Airbnb</li>
+        <li>Existing STR licenses and booking history</li>
+        <li>Shared pool and outdoor common areas</li>
+        <li>On-site parking for guests</li>
+        <li>Property management in place</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Key Advantage</div>
+    <p>This is a turnkey STR operation &mdash; 7 furnished cottages with active Airbnb listings, existing STR licenses, booking history, and property management in place. Buy it and start collecting income immediately. No renovation, no permitting, no lease-up. The cottage compound concept is the highest-performing STR format in beach markets.</p>
+  </div>
+
+  <div class="page-footer">
+    <span class="brand">Collaborative Concepts + La Gala Construction</span>
+    <span>Confidential &mdash; April 2026</span>
+    <span>Page 2 of 4</span>
+  </div>
+</div>
+
+<!-- PAGE 3: FINANCIAL ANALYSIS -->
+<div class="page content">
+  <div class="page-header">
+    <h2>Financial Analysis</h2>
+    <div class="deal-tag">Deal #16 &mdash; 13312 1st St E</div>
+  </div>
+
+  <div class="section-title">Acquisition Pro Forma</div>
+  <table class="fin-table" style="margin-bottom:28px">
+    <thead>
+      <tr><th>Line Item</th><th class="amount">Amount</th><th class="amount">Per Cottage</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Acquisition</td><td class="amount">$2,749,000</td><td class="amount">$392,714</td><td>Asking price</td></tr>
+      <tr><td>Closing Costs</td><td class="amount">$55,000</td><td class="amount">$7,857</td><td>~2% of purchase</td></tr>
+      <tr><td>Cosmetic Refresh</td><td class="amount">$70,000</td><td class="amount">$10,000</td><td>Minor updates, staging refresh</td></tr>
+      <tr><td>Technology Upgrades</td><td class="amount">$21,000</td><td class="amount">$3,000</td><td>Smart locks, thermostats, WiFi</td></tr>
+      <tr><td>Permits &amp; Licensing</td><td class="amount">$7,000</td><td class="amount">$1,000</td><td>STR license transfers</td></tr>
+      <tr><td>Carry Costs (3 mo ramp)</td><td class="amount">$36,000</td><td class="amount">$5,143</td><td>Transition period</td></tr>
+      <tr><td>Contingency (5%)</td><td class="amount">$15,000</td><td class="amount">$2,143</td><td>Turnkey = lower contingency</td></tr>
+      <tr class="total-row"><td>Total All-In Cost</td><td class="amount">$2,953,000</td><td class="amount">$421,857</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">Income &amp; Exit Analysis</div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="info-card" style="background:#ecfdf5;border:2px solid #6ee7b7">
+      <div class="label">Annual STR Income (Gross)</div>
+      <div class="value" style="color:#065f46">$420,000</div>
+      <div class="note">7 cottages x $225/night x 267 nights (73% occ)</div>
+    </div>
+    <div class="info-card" style="background:#ecfdf5;border:2px solid #6ee7b7">
+      <div class="label">Target Hold Value</div>
+      <div class="value" style="color:#065f46">$3,500,000</div>
+      <div class="note">Based on stabilized NOI at 7.5% cap</div>
+    </div>
+  </div>
+  <div class="grid-3">
+    <div class="info-card">
+      <div class="label">Net Operating Income</div>
+      <div class="value" style="color:#065f46">$268K</div>
+      <div class="note">After 36% operating expenses</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Cash-on-Cash (Hold)</div>
+      <div class="value" style="color:#065f46">9.1%</div>
+      <div class="note">Year 1 stabilized</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Equity Upside (Sale)</div>
+      <div class="value" style="color:#065f46">$547K</div>
+      <div class="note">At $3.5M exit valuation</div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">Comparable STR Properties &mdash; Madeira Beach</div>
+  <table class="comp-table">
+    <thead>
+      <tr><th>Property</th><th>Units</th><th>Avg Nightly</th><th>Occupancy</th><th>Annual Rev</th><th>Cap Rate</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Johns Pass cottage compound</td><td>5</td><td>$245</td><td>75%</td><td>$335K</td><td>8.5%</td></tr>
+      <tr><td>Gulf Blvd beach cottages</td><td>6</td><td>$275</td><td>72%</td><td>$434K</td><td>8.0%</td></tr>
+      <tr><td>Treasure Island STR portfolio</td><td>8</td><td>$200</td><td>70%</td><td>$409K</td><td>7.5%</td></tr>
+      <tr><td>St. Pete Beach cottages</td><td>4</td><td>$300</td><td>78%</td><td>$341K</td><td>8.2%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-footer">
+    <span class="brand">Collaborative Concepts + La Gala Construction</span>
+    <span>Confidential &mdash; April 2026</span>
+    <span>Page 3 of 4</span>
+  </div>
+</div>
+
+<!-- PAGE 4: INVESTMENT THESIS -->
+<div class="page content">
+  <div class="page-header">
+    <h2>Investment Thesis</h2>
+    <div class="deal-tag">Deal #16 &mdash; 13312 1st St E</div>
+  </div>
+
+  <div class="section-title">Why This Deal</div>
+  <div class="why-grid">
+    <div class="why-item">
+      <div class="why-icon">1</div>
+      <div class="why-text">
+        <h4>Turnkey Operation</h4>
+        <p>7 furnished cottages with active listings, reviews, and booking history. No construction, no lease-up. Income starts at closing.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">2</div>
+      <div class="why-text">
+        <h4>STR Licenses In Place</h4>
+        <p>Active STR permits are increasingly difficult to obtain. These grandfathered licenses are a significant competitive moat and add intrinsic value.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">3</div>
+      <div class="why-text">
+        <h4>9.1% Cap Rate</h4>
+        <p>Strong cash-on-cash return from year one. STR income significantly outperforms long-term rental yields in this market.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">4</div>
+      <div class="why-text">
+        <h4>Cottage Compound Premium</h4>
+        <p>The cottage compound format is the #1 STR product type in beach markets. Guests pay a premium for the charm and community feel.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">5</div>
+      <div class="why-text">
+        <h4>Revenue Optimization</h4>
+        <p>Professional dynamic pricing and listing optimization can increase revenue 15-25% from current levels with minimal capital investment.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">6</div>
+      <div class="why-text">
+        <h4>Dual Exit Strategy</h4>
+        <p>Hold for cash flow or sell as a turnkey STR portfolio at a premium. STR portfolios with proven income trade at 20-30% above traditional multifamily.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:32px">Optimization Plan</div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div>
+      <ul class="bullet-list">
+        <li><strong>7 cottages</strong> with refreshed coastal decor</li>
+        <li>Professional photography and virtual tours</li>
+        <li>Dynamic pricing software implementation</li>
+        <li>Multi-platform listing (Airbnb, VRBO, direct)</li>
+        <li>Automated guest communication</li>
+        <li>Smart home technology in all units</li>
+      </ul>
+    </div>
+    <div>
+      <ul class="bullet-list">
+        <li>Pool area enhancement and lighting</li>
+        <li>Outdoor lounge and BBQ area upgrade</li>
+        <li>Branded direct booking website</li>
+        <li>Guest experience amenity packages</li>
+        <li>Maintenance schedule and vendor contracts</li>
+        <li>Monthly performance reporting dashboard</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:28px">Due Diligence Checklist</div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div>
+      <ul class="bullet-list">
+        <li>Verify STR license transferability</li>
+        <li>Review 24-month booking and revenue history</li>
+        <li>Inspect all 7 cottages (structural + cosmetic)</li>
+        <li>Confirm HOA/community STR restrictions</li>
+      </ul>
+    </div>
+    <div>
+      <ul class="bullet-list">
+        <li>Review guest reviews and ratings</li>
+        <li>Verify insurance costs and coverage</li>
+        <li>Confirm property management contract terms</li>
+        <li>Title search &amp; survey</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cta-box">
+    <h3>Ready to Move Forward?</h3>
+    <p>This turnkey STR compound is actively listed and generating income. We can submit an LOI within 48 hours and target a 30-day close with seamless transition of bookings and operations.</p>
+    <div class="contact">
+      Danny Bivins &mdash; Collaborative Concepts<br/>
+      (561) 475-8615 &nbsp;|&nbsp; dannybivins83@gmail.com<br/>
+      collaborativeconceptsfl.com
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span class="brand">Collaborative Concepts + La Gala Construction</span>
+    <span>Confidential &mdash; April 2026</span>
+    <span>Page 4 of 4</span>
+  </div>
+</div>
+
+</body>
+</html>

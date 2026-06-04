@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Deal #55 — TI 1BR Beach Condo | Collaborative Concepts</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@700;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  @page{size:letter;margin:0}
+  body{font-family:'Inter',sans-serif;color:#1a1c1c;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  h1,h2,h3,h4{font-family:'Manrope',sans-serif}
+  .page{width:8.5in;height:11in;padding:0;position:relative;page-break-after:always;overflow:hidden}
+  .page:last-child{page-break-after:auto}
+  .cover{background:linear-gradient(135deg,#05152b 0%,#0c4a6e 60%,#1a8a9e 100%);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:60px}
+  .cover-badge{display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:20px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.2)}
+  .cover h1{font-size:48px;font-weight:800;line-height:1.1;margin-bottom:12px}
+  .cover .subtitle{font-size:18px;opacity:0.8;margin-bottom:40px}
+  .cover-stats{display:flex;gap:24px}
+  .cover-stat{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:20px 28px;text-align:center}
+  .cover-stat .val{font-size:28px;font-weight:800;color:#6ee7b7}
+  .cover-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:0.7;margin-top:4px}
+  .cover-logo{position:absolute;top:50px;left:60px;font-size:20px;font-weight:800;letter-spacing:-0.5px}
+  .cover-logo span{color:#6ee7b7}
+  .cover-tag{position:absolute;top:50px;right:60px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:0.5}
+  .content{padding:50px 60px}
+  .page-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e5e7eb;padding-bottom:16px;margin-bottom:32px}
+  .page-header h2{font-size:22px;font-weight:800;color:#05152b}
+  .page-header .deal-tag{font-size:10px;font-weight:700;color:#1a8a9e;letter-spacing:2px;text-transform:uppercase}
+  .section-title{font-size:14px;font-weight:800;color:#0c4a6e;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #6ee7b7}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .info-card{background:#f0f7fa;border-radius:12px;padding:20px}
+  .info-card .label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;margin-bottom:6px}
+  .info-card .value{font-size:22px;font-weight:800;color:#05152b}
+  .info-card .note{font-size:11px;color:#3a4f5a;margin-top:4px}
+  .fin-table{width:100%;border-collapse:collapse;font-size:13px}
+  .fin-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;padding:10px 16px;border-bottom:2px solid #0c4a6e}
+  .fin-table td{padding:10px 16px;border-bottom:1px solid #e5e7eb}
+  .fin-table tr:last-child td{border-bottom:2px solid #0c4a6e;font-weight:700}
+  .fin-table .amount{text-align:right;font-variant-numeric:tabular-nums}
+  .fin-table .total-row{background:#05152b;color:#fff}
+  .fin-table .total-row td{border-bottom:none;font-weight:700}
+  .callout{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-left:4px solid #6ee7b7;border-radius:0 12px 12px 0;padding:20px 24px;margin:20px 0}
+  .callout-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#065f46;margin-bottom:8px}
+  .callout p{font-size:13px;color:#1a1c1c;line-height:1.6}
+  .comp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+  .comp-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fff;background:#0c4a6e;padding:8px 12px}
+  .comp-table th:first-child{border-radius:6px 0 0 0}
+  .comp-table th:last-child{border-radius:0 6px 0 0}
+  .comp-table td{padding:8px 12px;border-bottom:1px solid #e5e7eb}
+  .comp-table tr:nth-child(even){background:#f8fafb}
+  .page-footer{position:absolute;bottom:30px;left:60px;right:60px;display:flex;justify-content:space-between;font-size:9px;color:#9ca3af}
+  .page-footer .brand{font-weight:700;color:#05152b}
+  .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  .why-item{display:flex;gap:12px;align-items:flex-start}
+  .why-icon{width:32px;height:32px;background:#0c4a6e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6ee7b7;font-size:16px;font-weight:800;flex-shrink:0}
+  .why-text h4{font-size:13px;font-weight:700;color:#05152b;margin-bottom:2px}
+  .why-text p{font-size:11px;color:#3a4f5a;line-height:1.5}
+  .bullet-list{list-style:none;padding:0}
+  .bullet-list li{padding:6px 0 6px 20px;position:relative;font-size:13px;line-height:1.5;color:#1a1c1c}
+  .bullet-list li::before{content:'';position:absolute;left:0;top:13px;width:8px;height:8px;background:#6ee7b7;border-radius:50%}
+  .cta-box{background:linear-gradient(135deg,#05152b,#0c4a6e);border-radius:16px;padding:32px;color:#fff;margin-top:24px}
+  .cta-box h3{font-size:20px;font-weight:800;margin-bottom:8px}
+  .cta-box p{font-size:13px;opacity:0.8;line-height:1.6}
+  .cta-box .contact{margin-top:16px;font-size:14px;font-weight:600;color:#6ee7b7}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div class="page cover">
+  <div class="cover-logo">Collaborative Concepts <span>+ La Gala</span></div>
+  <div class="cover-tag">Confidential Investment Memo</div>
+  <div class="cover-badge">Deal #55 &middot; 1BR Beach Condo &middot; Treasure Island</div>
+  <h1>TI 1BR<br/>Beach Condo</h1>
+  <p class="subtitle">Treasure Island, FL 33706 &mdash; Budget beach condo at $234,900 with 600 sf. Strong rental demand and proven STR numbers make this an ideal cash-flowing asset.</p>
+  <div class="cover-stats">
+    <div class="cover-stat"><div class="val">$235K</div><div class="lbl">Asking Price</div></div>
+    <div class="cover-stat"><div class="val">600</div><div class="lbl">Unit Sqft</div></div>
+    <div class="cover-stat"><div class="val">$325K</div><div class="lbl">Est. Exit</div></div>
+    <div class="cover-stat"><div class="val">20%</div><div class="lbl">Est. ROI</div></div>
+  </div>
+</div>
+
+<!-- PAGE 2: PROPERTY OVERVIEW -->
+<div class="page content">
+  <div class="page-header">
+    <h2>Property Overview</h2>
+    <div class="deal-tag">Deal #55 &mdash; TI 1BR Beach Condo</div>
+  </div>
+
+  <div class="section-title">Unit Details</div>
+  <div class="grid-3" style="margin-bottom:28px">
+    <div class="info-card">
+      <div class="label">Configuration</div>
+      <div class="value">1 / 1</div>
+      <div class="note">1 bed, 1 bath condo</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Unit Size</div>
+      <div class="value">600 sf</div>
+      <div class="note">Efficient beach layout</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Price / SF</div>
+      <div class="value">$392</div>
+      <div class="note">Below market average</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Location</div>
+      <div class="value">Treasure Island</div>
+      <div class="note">Gulf Coast beach town</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Strategy</div>
+      <div class="value">STR / Hold</div>
+      <div class="note">Short-term rental income</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Status</div>
+      <div class="value">Active</div>
+      <div class="note">Treasure Island</div>
+    </div>
+  </div>
+
+  <div class="section-title">Location &amp; Access</div>
+  <div class="grid-2" style="margin-bottom:28px">
+    <div>
+      <ul class="bullet-list">
+        <li>Treasure Island &mdash; top-rated Pinellas beach community</li>
+        <li>Walking distance to Gulf of Mexico beaches</li>
+        <li>Near restaurants, bars, and beach shops</li>
+        <li>Easy Causeway access to St. Pete and I-275</li>
+        <li>Minutes to Madeira Beach and John's Pass</li>
+      </ul>
+    </div>
+    <div>
+      <ul class="bullet-list">
+        <li>Budget-friendly beach entry at under $235K</li>
+        <li>Efficient 600 sf layout perfect for couples/solo travelers</li>
+        <li>Strong STR demand year-round</li>
+        <li>STR-friendly HOA</li>
+        <li>Community amenities including pool</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Key Advantage</div>
+    <p>At $234,900, this is one of the lowest-priced beach condos on Treasure Island. The 600 sf 1/1 layout is the ideal STR product for the couples and solo traveler market, which books at the highest nightly rates per square foot. Budget entry + strong rental demand = excellent cash-on-cash returns.</p>
+  </div>
+
+  <div class="page-footer">
+    <span class="brand">Collaborative Concepts + La Gala Construction</span>
+    <span>Confidential &mdash; April 2026</span>
+    <span>Page 2 of 4</span>
+  </div>
+</div>
+
+<!-- PAGE 3: FINANCIAL ANALYSIS -->
+<div class="page content">
+  <div class="page-header">
+    <h2>Financial Analysis</h2>
+    <div class="deal-tag">Deal #55 &mdash; TI 1BR Beach Condo</div>
+  </div>
+
+  <div class="section-title">Acquisition &amp; Rental Pro Forma</div>
+  <table class="fin-table" style="margin-bottom:28px">
+    <thead>
+      <tr><th>Line Item</th><th class="amount">Amount</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Acquisition</td><td class="amount">$234,900</td><td>Asking price</td></tr>
+      <tr><td>Closing Costs</td><td class="amount">$4,700</td><td>~2% of purchase</td></tr>
+      <tr><td>Cosmetic Update</td><td class="amount">$12,000</td><td>Paint, fixtures, refresh</td></tr>
+      <tr><td>Furniture &amp; STR Setup</td><td class="amount">$10,000</td><td>Turnkey rental package</td></tr>
+      <tr><td>Reserves</td><td class="amount">$5,000</td><td>Operating reserve</td></tr>
+      <tr class="total-row"><td>Total All-In Cost</td><td class="amount">$266,600</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">STR Income Projection (Annual)</div>
+  <table class="fin-table" style="margin-bottom:28px">
+    <thead>
+      <tr><th>Line Item</th><th class="amount">Amount</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Gross Rental Revenue</td><td class="amount">$35,770</td><td>$140/night avg, 70% occ</td></tr>
+      <tr><td>Property Management (20%)</td><td class="amount">($7,154)</td><td>Full-service STR mgmt</td></tr>
+      <tr><td>HOA / Condo Fees</td><td class="amount">($5,400)</td><td>~$450/month</td></tr>
+      <tr><td>Insurance</td><td class="amount">($3,200)</td><td>~$267/month</td></tr>
+      <tr><td>Property Taxes</td><td class="amount">($2,800)</td><td>Pinellas County</td></tr>
+      <tr><td>Utilities &amp; Supplies</td><td class="amount">($2,000)</td><td>~$167/month</td></tr>
+      <tr class="total-row"><td>Net Operating Income</td><td class="amount">$15,216</td><td>5.7% cap rate</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">Exit Analysis</div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div class="info-card" style="background:#ecfdf5;border:2px solid #6ee7b7">
+      <div class="label">Conservative Exit</div>
+      <div class="value" style="color:#065f46">$290,000</div>
+      <div class="note">Updated 1BR, below comps</div>
+    </div>
+    <div class="info-card" style="background:#ecfdf5;border:2px solid #6ee7b7">
+      <div class="label">Target Exit (2-3 yr hold)</div>
+      <div class="value" style="color:#065f46">$325,000</div>
+      <div class="note">Appreciation + proven STR</div>
+    </div>
+  </div>
+  <div class="grid-3">
+    <div class="info-card">
+      <div class="label">Annual Cash Flow</div>
+      <div class="value" style="color:#065f46">$15.2K</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Cash-on-Cash Return</div>
+      <div class="value" style="color:#065f46">5.7%</div>
+    </div>
+    <div class="info-card">
+      <div class="label">Total ROI (3yr)</div>
+      <div class="value" style="color:#065f46">39%+</div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span class="brand">Collaborative Concepts + La Gala Construction</span>
+    <span>Confidential &mdash; April 2026</span>
+    <span>Page 3 of 4</span>
+  </div>
+</div>
+
+<!-- PAGE 4: WHY THIS DEAL + CTA -->
+<div class="page content">
+  <div class="page-header">
+    <h2>Investment Thesis</h2>
+    <div class="deal-tag">Deal #55 &mdash; TI 1BR Beach Condo</div>
+  </div>
+
+  <div class="section-title">Why This Deal</div>
+  <div class="why-grid">
+    <div class="why-item">
+      <div class="why-icon">1</div>
+      <div class="why-text">
+        <h4>Budget Beach Entry</h4>
+        <p>Under $235K for a beach condo on Treasure Island. This price point is disappearing as the market appreciates &mdash; early movers benefit most.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">2</div>
+      <div class="why-text">
+        <h4>Best $/SF for STR</h4>
+        <p>Compact 600 sf units command the highest nightly rate per square foot. Couples and solo travelers prefer this efficient layout.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">3</div>
+      <div class="why-text">
+        <h4>Strong Rental Demand</h4>
+        <p>Treasure Island 1BR condos average 70%+ occupancy with $140+/night rates. Year-round demand from snowbirds and vacationers.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">4</div>
+      <div class="why-text">
+        <h4>5.7% Cash-on-Cash</h4>
+        <p>$15K+ annual net income from day one. Cash flow while the asset appreciates &mdash; the ideal hold strategy for beach property.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">5</div>
+      <div class="why-text">
+        <h4>Minimal Capex</h4>
+        <p>Light cosmetic update and furnishing package. No major renovation needed &mdash; STR-ready within 30 days of closing.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">6</div>
+      <div class="why-text">
+        <h4>Barrier Island Scarcity</h4>
+        <p>Fixed supply of beachfront condos on a barrier island. As demand grows and prices rise, sub-$250K entries will be gone permanently.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:32px">Investment Summary</div>
+  <div class="grid-2" style="margin-bottom:24px">
+    <div>
+      <ul class="bullet-list">
+        <li><strong>1/1 condo, 600 sf</strong> on Treasure Island</li>
+        <li>Walking distance to Gulf beaches</li>
+        <li>Pool, parking, beach community</li>
+        <li>STR-friendly HOA and building</li>
+        <li>Light cosmetic refresh only</li>
+        <li>Rental-ready in under 30 days</li>
+      </ul>
+    </div>
+    <div>
+      <ul class="bullet-list">
+        <li>Projected $35K+ gross annual revenue</li>
+        <li>$15.2K net operating income</li>
+        <li>5.7% cash-on-cash return</li>
+        <li>$325K target exit in 2-3 years</li>
+        <li>39%+ total ROI including cash flow</li>
+        <li>Lowest capital requirement in portfolio</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cta-box">
+    <h3>Ready to Move Forward?</h3>
+    <p>This budget beach condo is priced to move. Sub-$235K beach entries on Treasure Island are rare and will not last. We can submit an offer within 48 hours and have the unit STR-ready within 30 days of closing.</p>
+    <div class="contact">
+      Danny Bivins &mdash; Collaborative Concepts<br/>
+      (561) 475-8615 &nbsp;|&nbsp; dannybivins83@gmail.com<br/>
+      collaborativeconceptsfl.com
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span class="brand">Collaborative Concepts + La Gala Construction</span>
+    <span>Confidential &mdash; April 2026</span>
+    <span>Page 4 of 4</span>
+  </div>
+</div>
+
+</body>
+</html>

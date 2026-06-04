@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffdcbd"/>
+      <stop offset="25%" stop-color="#fdcb9b"/>
+      <stop offset="55%" stop-color="#c4824a"/>
+      <stop offset="80%" stop-color="#7c5730"/>
+      <stop offset="100%" stop-color="#2c1600"/>
+    </linearGradient>
+    <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1b2a41"/>
+      <stop offset="100%" stop-color="#05152b"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffdcbd" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#ffdcbd" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#ffdcbd" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="beach" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2c1600"/>
+      <stop offset="100%" stop-color="#05152b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="650" fill="url(#sky)"/>
+
+  <!-- Sun glow -->
+  <circle cx="400" cy="520" r="180" fill="url(#sunGlow)"/>
+  <!-- Sun disc -->
+  <circle cx="400" cy="520" r="55" fill="#ffdcbd" opacity="0.95"/>
+
+  <!-- Distant clouds -->
+  <ellipse cx="150" cy="280" rx="120" ry="10" fill="#ffdcbd" opacity="0.25"/>
+  <ellipse cx="620" cy="220" rx="140" ry="12" fill="#ffdcbd" opacity="0.2"/>
+  <ellipse cx="500" cy="340" rx="90" ry="7" fill="#ffdcbd" opacity="0.2"/>
+
+  <!-- Ocean -->
+  <rect y="600" width="800" height="220" fill="url(#ocean)"/>
+
+  <!-- Sun reflection on water -->
+  <ellipse cx="400" cy="605" rx="80" ry="4" fill="#ffdcbd" opacity="0.6"/>
+  <rect x="395" y="605" width="10" height="100" fill="#ffdcbd" opacity="0.15"/>
+
+  <!-- Wave lines -->
+  <path d="M0,640 Q200,632 400,640 T800,640" stroke="#ffdcbd" stroke-width="1.5" opacity="0.35" fill="none"/>
+  <path d="M0,670 Q200,662 400,670 T800,670" stroke="#ffdcbd" stroke-width="1" opacity="0.25" fill="none"/>
+  <path d="M0,700 Q200,692 400,700 T800,700" stroke="#ffdcbd" stroke-width="1" opacity="0.18" fill="none"/>
+  <path d="M0,735 Q200,727 400,735 T800,735" stroke="#ffdcbd" stroke-width="1" opacity="0.12" fill="none"/>
+
+  <!-- Beach/dune foreground -->
+  <path d="M0,820 Q200,800 400,815 T800,810 L800,1000 L0,1000 Z" fill="url(#beach)"/>
+
+  <!-- HOUSE A (left, taller - "House A") -->
+  <g>
+    <!-- Stilts/piers -->
+    <rect x="168" y="705" width="7" height="115" fill="#05152b"/>
+    <rect x="225" y="705" width="7" height="115" fill="#05152b"/>
+    <rect x="282" y="705" width="7" height="115" fill="#05152b"/>
+    <rect x="339" y="705" width="7" height="115" fill="#05152b"/>
+    <!-- Cross bracing -->
+    <line x1="168" y1="760" x2="346" y2="800" stroke="#05152b" stroke-width="2" opacity="0.5"/>
+    <!-- Main lower floor -->
+    <rect x="155" y="630" width="210" height="80" fill="#05152b"/>
+    <!-- Upper floor setback -->
+    <rect x="165" y="580" width="190" height="55" fill="#0a1f3a"/>
+    <!-- Flat modern roof -->
+    <rect x="150" y="575" width="220" height="8" fill="#1b2a41"/>
+    <!-- Railing -->
+    <line x1="155" y1="625" x2="365" y2="625" stroke="#7c5730" stroke-width="2" opacity="0.7"/>
+    <!-- Windows upper -->
+    <rect x="175" y="590" width="35" height="30" fill="#ffdcbd" opacity="0.9"/>
+    <rect x="220" y="590" width="35" height="30" fill="#ffdcbd" opacity="0.7"/>
+    <rect x="265" y="590" width="35" height="30" fill="#ffdcbd" opacity="0.9"/>
+    <rect x="310" y="590" width="35" height="30" fill="#ffdcbd" opacity="0.7"/>
+    <!-- Windows lower (large) -->
+    <rect x="170" y="645" width="80" height="50" fill="#ffdcbd" opacity="0.8"/>
+    <rect x="260" y="645" width="90" height="50" fill="#ffdcbd" opacity="0.85"/>
+  </g>
+
+  <!-- HOUSE B (right, slightly different - "House B") -->
+  <g>
+    <rect x="460" y="720" width="6" height="100" fill="#05152b"/>
+    <rect x="515" y="720" width="6" height="100" fill="#05152b"/>
+    <rect x="570" y="720" width="6" height="100" fill="#05152b"/>
+    <rect x="625" y="720" width="6" height="100" fill="#05152b"/>
+    <line x1="460" y1="770" x2="631" y2="800" stroke="#05152b" stroke-width="2" opacity="0.5"/>
+    <!-- Main box -->
+    <rect x="445" y="660" width="200" height="65" fill="#05152b"/>
+    <!-- Upper -->
+    <rect x="455" y="615" width="180" height="50" fill="#0a1f3a"/>
+    <!-- Roof -->
+    <rect x="440" y="610" width="210" height="8" fill="#1b2a41"/>
+    <!-- Chimney -->
+    <rect x="600" y="590" width="15" height="25" fill="#1b2a41"/>
+    <line x1="445" y1="655" x2="645" y2="655" stroke="#7c5730" stroke-width="2" opacity="0.7"/>
+    <!-- Windows -->
+    <rect x="465" y="625" width="35" height="28" fill="#ffdcbd" opacity="0.9"/>
+    <rect x="510" y="625" width="35" height="28" fill="#ffdcbd" opacity="0.7"/>
+    <rect x="555" y="625" width="35" height="28" fill="#ffdcbd" opacity="0.9"/>
+    <rect x="600" y="625" width="30" height="28" fill="#ffdcbd" opacity="0.7"/>
+    <rect x="455" y="675" width="85" height="45" fill="#ffdcbd" opacity="0.85"/>
+    <rect x="550" y="675" width="90" height="45" fill="#ffdcbd" opacity="0.8"/>
+  </g>
+
+  <!-- Palm tree left -->
+  <g transform="translate(60,810)">
+    <path d="M8,0 Q6,-30 10,-80 Q12,-110 8,-140" stroke="#05152b" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M8,-140 Q-25,-155 -50,-175 Q-35,-160 -20,-140" fill="#05152b"/>
+    <path d="M8,-140 Q35,-155 60,-175 Q45,-160 30,-140" fill="#05152b"/>
+    <path d="M8,-140 Q-10,-175 -20,-205 Q0,-180 10,-145" fill="#05152b"/>
+    <path d="M8,-140 Q25,-170 40,-200 Q20,-175 12,-145" fill="#05152b"/>
+    <path d="M8,-140 Q-5,-160 -30,-155 Q-10,-150 6,-142" fill="#05152b"/>
+  </g>
+
+  <!-- Palm tree right -->
+  <g transform="translate(740,825)">
+    <path d="M5,0 Q3,-25 7,-65 Q9,-95 5,-120" stroke="#05152b" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M5,-120 Q-22,-135 -42,-150 Q-28,-138 -15,-122" fill="#05152b"/>
+    <path d="M5,-120 Q30,-135 50,-150 Q35,-138 25,-122" fill="#05152b"/>
+    <path d="M5,-120 Q-8,-150 -15,-175 Q0,-155 7,-125" fill="#05152b"/>
+    <path d="M5,-120 Q20,-145 32,-170 Q15,-150 8,-125" fill="#05152b"/>
+  </g>
+
+  <!-- Subtle seagulls -->
+  <path d="M100,180 q5,-5 10,0 q5,-5 10,0" stroke="#05152b" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M680,140 q4,-4 8,0 q4,-4 8,0" stroke="#05152b" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M250,120 q3,-3 6,0 q3,-3 6,0" stroke="#05152b" stroke-width="1.5" fill="none" opacity="0.3"/>
+</svg>

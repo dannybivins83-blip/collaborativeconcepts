@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="driftSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdcb9b"/>
+      <stop offset="50%" stop-color="#7c5730"/>
+      <stop offset="100%" stop-color="#05152b"/>
+    </linearGradient>
+    <linearGradient id="driftBldg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1b2a41"/>
+      <stop offset="100%" stop-color="#05152b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#driftSky)"/>
+  <!-- Sun -->
+  <circle cx="1200" cy="380" r="70" fill="#ffdcbd" opacity="0.8"/>
+  <circle cx="1200" cy="380" r="140" fill="#ffdcbd" opacity="0.15"/>
+  <!-- Ocean strip -->
+  <rect y="700" width="1600" height="120" fill="#05152b"/>
+  <!-- Wave lines -->
+  <path d="M0,720 Q400,712 800,720 T1600,720" stroke="#ffdcbd" stroke-width="2" opacity="0.3" fill="none"/>
+  <path d="M0,745 Q400,737 800,745 T1600,745" stroke="#ffdcbd" stroke-width="1" opacity="0.2" fill="none"/>
+  <!-- Beach -->
+  <path d="M0,820 Q400,810 800,815 T1600,810 L1600,1000 L0,1000 Z" fill="#2c1600"/>
+
+  <!-- Drift Hotel - boutique mid-rise, curved balconies -->
+  <g transform="translate(500,0)">
+    <!-- Main tower -->
+    <rect x="0" y="300" width="500" height="500" fill="url(#driftBldg)"/>
+    <!-- Curved roof element -->
+    <path d="M0,300 Q250,240 500,300 L500,320 Q250,260 0,320 Z" fill="#1b2a41"/>
+    <!-- Floor bands / balconies -->
+    <rect x="-15" y="400" width="530" height="8" fill="#7c5730" opacity="0.8"/>
+    <rect x="-15" y="500" width="530" height="8" fill="#7c5730" opacity="0.8"/>
+    <rect x="-15" y="600" width="530" height="8" fill="#7c5730" opacity="0.8"/>
+    <rect x="-15" y="700" width="530" height="8" fill="#7c5730" opacity="0.8"/>
+    <!-- Room windows lit up -->
+    <g fill="#ffdcbd">
+      <rect x="30" y="340" width="40" height="50" opacity="0.9"/>
+      <rect x="90" y="340" width="40" height="50" opacity="0.7"/>
+      <rect x="150" y="340" width="40" height="50" opacity="0.85"/>
+      <rect x="210" y="340" width="40" height="50" opacity="0.6"/>
+      <rect x="270" y="340" width="40" height="50" opacity="0.9"/>
+      <rect x="330" y="340" width="40" height="50" opacity="0.8"/>
+      <rect x="390" y="340" width="40" height="50" opacity="0.7"/>
+      <rect x="450" y="340" width="40" height="50" opacity="0.9"/>
+
+      <rect x="30" y="440" width="40" height="50" opacity="0.85"/>
+      <rect x="90" y="440" width="40" height="50" opacity="0.95"/>
+      <rect x="150" y="440" width="40" height="50" opacity="0.7"/>
+      <rect x="210" y="440" width="40" height="50" opacity="0.9"/>
+      <rect x="270" y="440" width="40" height="50" opacity="0.8"/>
+      <rect x="330" y="440" width="40" height="50" opacity="0.9"/>
+      <rect x="390" y="440" width="40" height="50" opacity="0.6"/>
+      <rect x="450" y="440" width="40" height="50" opacity="0.85"/>
+
+      <rect x="30" y="540" width="40" height="50" opacity="0.9"/>
+      <rect x="90" y="540" width="40" height="50" opacity="0.7"/>
+      <rect x="150" y="540" width="40" height="50" opacity="0.95"/>
+      <rect x="210" y="540" width="40" height="50" opacity="0.8"/>
+      <rect x="270" y="540" width="40" height="50" opacity="0.75"/>
+      <rect x="330" y="540" width="40" height="50" opacity="0.9"/>
+      <rect x="390" y="540" width="40" height="50" opacity="0.85"/>
+      <rect x="450" y="540" width="40" height="50" opacity="0.7"/>
+
+      <rect x="30" y="640" width="40" height="50" opacity="0.8"/>
+      <rect x="90" y="640" width="40" height="50" opacity="0.95"/>
+      <rect x="150" y="640" width="40" height="50" opacity="0.6"/>
+      <rect x="210" y="640" width="40" height="50" opacity="0.9"/>
+      <rect x="270" y="640" width="40" height="50" opacity="0.85"/>
+      <rect x="330" y="640" width="40" height="50" opacity="0.7"/>
+      <rect x="390" y="640" width="40" height="50" opacity="0.9"/>
+      <rect x="450" y="640" width="40" height="50" opacity="0.8"/>
+
+      <rect x="30" y="740" width="40" height="50" opacity="0.95"/>
+      <rect x="90" y="740" width="40" height="50" opacity="0.85"/>
+      <rect x="150" y="740" width="40" height="50" opacity="0.9"/>
+      <rect x="210" y="740" width="40" height="50" opacity="0.75"/>
+      <rect x="270" y="740" width="40" height="50" opacity="0.9"/>
+      <rect x="330" y="740" width="40" height="50" opacity="0.85"/>
+      <rect x="390" y="740" width="40" height="50" opacity="0.7"/>
+      <rect x="450" y="740" width="40" height="50" opacity="0.95"/>
+    </g>
+  </g>
+
+  <!-- Left side lower structure -->
+  <rect x="200" y="550" width="280" height="250" fill="#05152b"/>
+  <rect x="200" y="600" width="280" height="6" fill="#7c5730" opacity="0.6"/>
+  <rect x="200" y="680" width="280" height="6" fill="#7c5730" opacity="0.6"/>
+  <g fill="#ffdcbd" opacity="0.7">
+    <rect x="220" y="615" width="30" height="55"/>
+    <rect x="270" y="615" width="30" height="55" opacity="0.5"/>
+    <rect x="320" y="615" width="30" height="55"/>
+    <rect x="370" y="615" width="30" height="55" opacity="0.6"/>
+    <rect x="420" y="615" width="30" height="55"/>
+    <rect x="220" y="695" width="30" height="55" opacity="0.6"/>
+    <rect x="270" y="695" width="30" height="55"/>
+    <rect x="320" y="695" width="30" height="55" opacity="0.5"/>
+    <rect x="370" y="695" width="30" height="55"/>
+    <rect x="420" y="695" width="30" height="55" opacity="0.7"/>
+  </g>
+
+  <!-- Right side lower -->
+  <rect x="1020" y="580" width="240" height="220" fill="#05152b"/>
+  <rect x="1020" y="640" width="240" height="6" fill="#7c5730" opacity="0.6"/>
+  <rect x="1020" y="720" width="240" height="6" fill="#7c5730" opacity="0.6"/>
+  <g fill="#ffdcbd" opacity="0.75">
+    <rect x="1040" y="595" width="28" height="40"/>
+    <rect x="1085" y="595" width="28" height="40" opacity="0.6"/>
+    <rect x="1130" y="595" width="28" height="40"/>
+    <rect x="1175" y="595" width="28" height="40" opacity="0.5"/>
+    <rect x="1220" y="595" width="28" height="40"/>
+    <rect x="1040" y="655" width="28" height="60"/>
+    <rect x="1085" y="655" width="28" height="60" opacity="0.7"/>
+    <rect x="1130" y="655" width="28" height="60"/>
+    <rect x="1175" y="655" width="28" height="60" opacity="0.8"/>
+    <rect x="1220" y="655" width="28" height="60"/>
+  </g>
+
+  <!-- Palm tree -->
+  <g transform="translate(100,810)">
+    <path d="M10,0 Q8,-40 12,-100 Q14,-140 10,-170" stroke="#05152b" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M10,-170 Q-30,-190 -60,-210 Q-40,-190 -22,-170" fill="#05152b"/>
+    <path d="M10,-170 Q45,-190 75,-210 Q55,-190 35,-170" fill="#05152b"/>
+    <path d="M10,-170 Q-12,-215 -20,-245 Q5,-215 14,-175" fill="#05152b"/>
+    <path d="M10,-170 Q30,-210 45,-240 Q20,-210 14,-175" fill="#05152b"/>
+  </g>
+  <g transform="translate(1450,820)">
+    <path d="M8,0 Q6,-35 10,-85 Q12,-120 8,-145" stroke="#05152b" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M8,-145 Q-25,-162 -50,-180" stroke="#05152b" stroke-width="5" fill="none"/>
+    <path d="M8,-145 Q38,-162 60,-180" stroke="#05152b" stroke-width="5" fill="none"/>
+    <path d="M8,-145 Q-5,-180 -15,-205" stroke="#05152b" stroke-width="5" fill="none"/>
+    <path d="M8,-145 Q25,-180 35,-205" stroke="#05152b" stroke-width="5" fill="none"/>
+  </g>
+</svg>

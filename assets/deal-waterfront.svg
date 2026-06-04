@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bae6fd"/>
+      <stop offset="60%" stop-color="#e0f4f8"/>
+      <stop offset="100%" stop-color="#f0f7fa"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0c4a6e"/>
+      <stop offset="100%" stop-color="#1a8a9e"/>
+    </linearGradient>
+  </defs>
+  <!-- Sky -->
+  <rect width="800" height="400" fill="url(#sky)"/>
+  <!-- Water / Canal -->
+  <rect x="0" y="240" width="800" height="160" fill="url(#water)" opacity="0.85"/>
+  <!-- Water shimmer -->
+  <path d="M0,270 Q50,262 100,270 Q150,278 200,270 Q250,262 300,270 Q350,278 400,270 Q450,262 500,270 Q550,278 600,270 Q650,262 700,270 Q750,278 800,270" fill="none" stroke="#bae6fd" stroke-width="1.5" opacity="0.4"/>
+  <path d="M0,300 Q80,292 160,300 Q240,308 320,300 Q400,292 480,300 Q560,308 640,300 Q720,292 800,300" fill="none" stroke="#bae6fd" stroke-width="1" opacity="0.3"/>
+  <!-- Dock -->
+  <rect x="500" y="230" width="80" height="8" fill="#7c5730" rx="2"/>
+  <rect x="510" y="238" width="6" height="40" fill="#7c5730"/>
+  <rect x="564" y="238" width="6" height="40" fill="#7c5730"/>
+  <!-- Boat lift posts -->
+  <rect x="580" y="220" width="5" height="60" fill="#44474d" opacity="0.6"/>
+  <rect x="620" y="220" width="5" height="60" fill="#44474d" opacity="0.6"/>
+  <rect x="578" y="218" width="50" height="4" fill="#44474d" opacity="0.5"/>
+  <!-- Sand/shore -->
+  <rect x="0" y="228" width="800" height="16" fill="#f5e6d3"/>
+  <!-- Elevated house -->
+  <g transform="translate(200,80)">
+    <!-- Pilings -->
+    <rect x="20" y="100" width="8" height="60" fill="#05152b" opacity="0.6"/>
+    <rect x="100" y="100" width="8" height="60" fill="#05152b" opacity="0.6"/>
+    <rect x="180" y="100" width="8" height="60" fill="#05152b" opacity="0.6"/>
+    <!-- House body -->
+    <rect x="5" y="35" width="195" height="65" fill="#05152b" rx="3"/>
+    <!-- Roof -->
+    <polygon points="-8,35 102,5 212,35" fill="#1b2a41"/>
+    <line x1="-8" y1="35" x2="212" y2="35" stroke="#7c5730" stroke-width="3"/>
+    <!-- Windows - warm glow -->
+    <rect x="20" y="48" width="30" height="25" fill="#ffdcbd" opacity="0.7" rx="2"/>
+    <rect x="65" y="48" width="30" height="25" fill="#ffdcbd" opacity="0.5" rx="2"/>
+    <rect x="110" y="48" width="30" height="25" fill="#ffdcbd" opacity="0.8" rx="2"/>
+    <rect x="155" y="48" width="30" height="25" fill="#ffdcbd" opacity="0.6" rx="2"/>
+    <!-- Deck -->
+    <rect x="5" y="100" width="195" height="6" fill="#7c5730" opacity="0.7"/>
+  </g>
+  <!-- Palm tree left -->
+  <g transform="translate(80,110)">
+    <rect x="0" y="50" width="5" height="90" fill="#7c5730" rx="2"/>
+    <ellipse cx="2" cy="45" rx="28" ry="10" fill="#0d5e6e" opacity="0.7" transform="rotate(-25,2,45)"/>
+    <ellipse cx="2" cy="45" rx="25" ry="9" fill="#0d5e6e" opacity="0.6" transform="rotate(20,2,45)"/>
+    <ellipse cx="2" cy="45" rx="22" ry="8" fill="#0d5e6e" opacity="0.5" transform="rotate(-55,2,45)"/>
+  </g>
+  <!-- Palm tree right -->
+  <g transform="translate(680,120)">
+    <rect x="0" y="50" width="5" height="80" fill="#7c5730" rx="2"/>
+    <ellipse cx="2" cy="45" rx="25" ry="9" fill="#0d5e6e" opacity="0.7" transform="rotate(-30,2,45)"/>
+    <ellipse cx="2" cy="45" rx="22" ry="8" fill="#0d5e6e" opacity="0.6" transform="rotate(25,2,45)"/>
+    <ellipse cx="2" cy="45" rx="20" ry="7" fill="#0d5e6e" opacity="0.5" transform="rotate(-60,2,45)"/>
+  </g>
+  <!-- Sun -->
+  <circle cx="700" cy="60" r="35" fill="#ffdcbd" opacity="0.6"/>
+  <!-- Seagulls -->
+  <path d="M150,50 Q155,44 160,50" fill="none" stroke="#05152b" stroke-width="1.2" opacity="0.3"/>
+  <path d="M620,40 Q625,34 630,40" fill="none" stroke="#05152b" stroke-width="1.2" opacity="0.25"/>
+  <!-- Text watermark -->
+  <text x="400" y="370" text-anchor="middle" font-family="Manrope,Arial,sans-serif" font-size="28" font-weight="800" fill="#ffffff" opacity="0.08">WATERFRONT LOT</text>
+</svg>

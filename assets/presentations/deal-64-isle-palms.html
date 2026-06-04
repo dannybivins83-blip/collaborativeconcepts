@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deal 64 — Isle of Palms Cottage, Treasure Island</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+@page{size:letter;margin:0}
+body{font-family:'Inter',sans-serif;color:#1a1c1c;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1,h2,h3,h4{font-family:'Manrope',sans-serif}
+.page{width:8.5in;height:11in;padding:0;position:relative;page-break-after:always;overflow:hidden}
+.page:last-child{page-break-after:auto}
+.cover{background:linear-gradient(135deg,#05152b 0%,#0c4a6e 60%,#1a8a9e 100%);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:60px}
+.cover-badge{display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:20px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.2)}
+.cover h1{font-size:48px;font-weight:800;line-height:1.1;margin-bottom:12px}
+.cover .subtitle{font-size:18px;opacity:0.8;margin-bottom:40px}
+.cover-stats{display:flex;gap:24px}
+.cover-stat{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:20px 28px;text-align:center}
+.cover-stat .val{font-size:28px;font-weight:800;color:#6ee7b7}
+.cover-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:0.7;margin-top:4px}
+.cover-logo{position:absolute;top:50px;left:60px;font-size:20px;font-weight:800;letter-spacing:-0.5px}
+.cover-logo span{color:#6ee7b7}
+.cover-tag{position:absolute;top:50px;right:60px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:0.5}
+.content{padding:50px 60px}
+.page-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e5e7eb;padding-bottom:16px;margin-bottom:32px}
+.page-header h2{font-size:22px;font-weight:800;color:#05152b}
+.page-header .deal-tag{font-size:10px;font-weight:700;color:#1a8a9e;letter-spacing:2px;text-transform:uppercase}
+.section-title{font-size:14px;font-weight:800;color:#0c4a6e;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #6ee7b7}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.info-card{background:#f0f7fa;border-radius:12px;padding:20px}
+.info-card .label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;margin-bottom:6px}
+.info-card .value{font-size:22px;font-weight:800;color:#05152b}
+.info-card .note{font-size:11px;color:#3a4f5a;margin-top:4px}
+.fin-table{width:100%;border-collapse:collapse;font-size:13px}
+.fin-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;padding:10px 16px;border-bottom:2px solid #0c4a6e}
+.fin-table td{padding:10px 16px;border-bottom:1px solid #e5e7eb}
+.fin-table tr:last-child td{border-bottom:2px solid #0c4a6e;font-weight:700}
+.fin-table .amount{text-align:right;font-variant-numeric:tabular-nums}
+.fin-table .total-row{background:#05152b;color:#fff}
+.fin-table .total-row td{border-bottom:none;font-weight:700}
+.callout{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-left:4px solid #6ee7b7;border-radius:0 12px 12px 0;padding:20px 24px;margin:20px 0}
+.callout-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#065f46;margin-bottom:8px}
+.callout p{font-size:13px;color:#1a1c1c;line-height:1.6}
+.comp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.comp-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fff;background:#0c4a6e;padding:8px 12px}
+.comp-table th:first-child{border-radius:6px 0 0 0}
+.comp-table th:last-child{border-radius:0 6px 0 0}
+.comp-table td{padding:8px 12px;border-bottom:1px solid #e5e7eb}
+.comp-table tr:nth-child(even){background:#f8fafb}
+.page-footer{position:absolute;bottom:30px;left:60px;right:60px;display:flex;justify-content:space-between;font-size:9px;color:#9ca3af}
+.page-footer .brand{font-weight:700;color:#05152b}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.why-item{display:flex;gap:12px;align-items:flex-start}
+.why-icon{width:32px;height:32px;background:#0c4a6e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6ee7b7;font-size:16px;font-weight:800;flex-shrink:0}
+.why-text h4{font-size:13px;font-weight:700;color:#05152b;margin-bottom:2px}
+.why-text p{font-size:11px;color:#3a4f5a;line-height:1.5}
+.bullet-list{list-style:none;padding:0}
+.bullet-list li{padding:6px 0 6px 20px;position:relative;font-size:13px;line-height:1.5;color:#1a1c1c}
+.bullet-list li::before{content:'';position:absolute;left:0;top:13px;width:8px;height:8px;background:#6ee7b7;border-radius:50%}
+.cta-box{background:linear-gradient(135deg,#05152b,#0c4a6e);border-radius:16px;padding:32px;color:#fff;margin-top:24px}
+.cta-box h3{font-size:20px;font-weight:800;margin-bottom:8px}
+.cta-box p{font-size:13px;opacity:0.8;line-height:1.6}
+.cta-box .contact{margin-top:16px;font-size:14px;font-weight:600;color:#6ee7b7}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div class="page cover">
+  <div class="cover-logo">Collaborative<span>Concepts</span></div>
+  <div class="cover-tag">Investment Memo</div>
+  <div class="cover-badge">Deal #64 — Reno Flip</div>
+  <h1>Isle of Palms Cottage</h1>
+  <div class="subtitle">Treasure Island, FL — Charming Original Cottage, One Block to Beach</div>
+  <div class="cover-stats">
+    <div class="cover-stat"><div class="val">$525K</div><div class="lbl">Acquisition</div></div>
+    <div class="cover-stat"><div class="val">$850K</div><div class="lbl">Exit Value</div></div>
+    <div class="cover-stat"><div class="val">5,000 SF</div><div class="lbl">Lot Size</div></div>
+    <div class="cover-stat"><div class="val">62%</div><div class="lbl">ROI Potential</div></div>
+  </div>
+</div>
+
+<!-- PAGE 2: PROPERTY OVERVIEW -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Property Overview</h2>
+      <div class="deal-tag">Deal #64 — Isle of Palms Cottage</div>
+    </div>
+
+    <div class="section-title">Property Details</div>
+    <div class="grid-3">
+      <div class="info-card">
+        <div class="label">Location</div>
+        <div class="value" style="font-size:16px">Isle of Palms, Treasure Island, FL</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Lot Size</div>
+        <div class="value">5,000 SF</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Zoning</div>
+        <div class="value">R-1</div>
+        <div class="note">Single-Family Residential</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:24px">
+      <div class="info-card">
+        <div class="label">Asking Price</div>
+        <div class="value">$525,000</div>
+        <div class="note">$105.00 / SF — Value in location</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Property Type</div>
+        <div class="value">Beach Cottage</div>
+        <div class="note">Original character, block to beach</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">Investment Thesis</div>
+      <p>Charming beach cottage with original character just one block from the Gulf. At $525K, the value is in the location — a full renovation transforms this into an $850K modern beach home or high-performing STR. The 62% ROI potential makes this one of the strongest flip opportunities on TI.</p>
+    </div>
+
+    <div class="section-title" style="margin-top:32px">Location Highlights</div>
+    <ul class="bullet-list">
+      <li>One block to Gulf beach — premium walkability that drives both resale and STR demand</li>
+      <li>Isle of Palms section — quiet, residential character with strong neighborhood identity</li>
+      <li>Original cottage character appeals to buyers seeking authentic beach home charm</li>
+      <li>Treasure Island's barrier island location with limited buildable inventory</li>
+    </ul>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Page 2 of 4 — Deal #64</div>
+  </div>
+</div>
+
+<!-- PAGE 3: FINANCIAL ANALYSIS -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Financial Analysis</h2>
+      <div class="deal-tag">Deal #64 — Isle of Palms Cottage</div>
+    </div>
+
+    <div class="section-title">Renovation Flip Pro Forma</div>
+    <table class="fin-table">
+      <thead>
+        <tr><th>Line Item</th><th class="amount">Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Acquisition Price</td><td class="amount">$525,000</td></tr>
+        <tr><td>Closing Costs</td><td class="amount">$15,750</td></tr>
+        <tr><td>Full Renovation (Kitchen, Bath, Floors, Exterior)</td><td class="amount">$120,000</td></tr>
+        <tr><td>Permits & Engineering</td><td class="amount">$8,000</td></tr>
+        <tr><td>Carry Costs (6 months)</td><td class="amount">$24,000</td></tr>
+        <tr><td>Selling Costs (6%)</td><td class="amount">$51,000</td></tr>
+        <tr class="total-row"><td>Total Investment</td><td class="amount">$743,750</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2" style="margin-top:24px">
+      <div class="info-card">
+        <div class="label">Projected Sale Price</div>
+        <div class="value">$850,000</div>
+        <div class="note">Fully renovated beach cottage, block to Gulf</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Net Profit</div>
+        <div class="value" style="color:#065f46">$106,250</div>
+        <div class="note">62% ROI on cash invested</div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px">Comparable Sales</div>
+    <table class="comp-table">
+      <thead>
+        <tr><th>Address</th><th>Type</th><th>Condition</th><th>Sale Price</th><th>Dist. to Beach</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Isle of Palms, TI</td><td>Cottage</td><td>Renovated</td><td>$875,000</td><td>1 block</td></tr>
+        <tr><td>Gulf Blvd, TI</td><td>SFH</td><td>Remodeled</td><td>$895,000</td><td>2 blocks</td></tr>
+        <tr><td>104th Ave, TI</td><td>Cottage</td><td>Updated</td><td>$825,000</td><td>1 block</td></tr>
+        <tr><td>Sunset Beach, TI</td><td>SFH</td><td>Renovated</td><td>$910,000</td><td>1 block</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout" style="margin-top:24px">
+      <div class="callout-title">Value-Add Opportunity</div>
+      <p>At $525K, this cottage is priced for its current condition — not its location potential. A $120K renovation budget transforms it into a modern coastal home that competes with $850K–$900K comps. The spread between acquisition + reno and exit price creates a compelling risk-adjusted return.</p>
+    </div>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Page 3 of 4 — Deal #64</div>
+  </div>
+</div>
+
+<!-- PAGE 4: WHY THIS DEAL + CTA -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Why This Deal</h2>
+      <div class="deal-tag">Deal #64 — Isle of Palms Cottage</div>
+    </div>
+
+    <div class="section-title">Key Investment Drivers</div>
+    <div class="why-grid">
+      <div class="why-item">
+        <div class="why-icon">1</div>
+        <div class="why-text">
+          <h4>Block-to-Beach Location</h4>
+          <p>One block from the Gulf. This proximity is the single biggest value driver — buyers and renters pay premium for walkable beach access.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">2</div>
+        <div class="why-text">
+          <h4>Strong Renovation Spread</h4>
+          <p>$525K acquisition + $120K reno = $645K all-in vs. $850K exit. Over $100K in projected profit with 62% ROI on invested capital.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">3</div>
+        <div class="why-text">
+          <h4>Original Character</h4>
+          <p>Charming cottage bones that can be preserved through renovation — buyers love the authentic beach home aesthetic with modern upgrades.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">4</div>
+        <div class="why-text">
+          <h4>STR Backup Plan</h4>
+          <p>If the resale market softens, a renovated cottage one block from the beach generates $60K–$80K in annual STR revenue.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px">Exit Strategy</div>
+    <ul class="bullet-list">
+      <li>Primary: Full renovation and resale at $850K — 6-month timeline, $106K+ net profit</li>
+      <li>Alternative: Renovate and operate as STR — $60K–$80K annual gross revenue</li>
+      <li>Alternative: Hold as long-term rental — $2,800–$3,200/month in this location</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Ready to Move on This Deal?</h3>
+      <p>A block-to-beach cottage at $525K with 62% ROI potential — this is a classic beach flip with multiple exit options. Contact us today to discuss the opportunity.</p>
+      <div class="contact">Danny Bivins — (561) 475-8615 — dannybivins83@gmail.com</div>
+    </div>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Page 4 of 4 — Deal #64</div>
+  </div>
+</div>
+
+</body>
+</html>

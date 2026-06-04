@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1200" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sbSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffdcbd"/>
+      <stop offset="40%" stop-color="#c4824a"/>
+      <stop offset="100%" stop-color="#05152b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="1200" fill="url(#sbSky)"/>
+  <!-- Sun behind -->
+  <circle cx="780" cy="350" r="90" fill="#ffdcbd" opacity="0.6"/>
+  <circle cx="780" cy="350" r="170" fill="#ffdcbd" opacity="0.15"/>
+
+  <!-- Ground -->
+  <rect y="1000" width="1000" height="200" fill="#2c1600"/>
+
+  <!-- Mid-century modern 18-unit condo - horizontal emphasis -->
+  <g transform="translate(100,0)">
+    <!-- Main body 3 floors -->
+    <rect x="0" y="550" width="800" height="450" fill="#1b2a41"/>
+    <!-- Flat cantilevered roof -->
+    <rect x="-40" y="540" width="880" height="20" fill="#05152b"/>
+    <rect x="-40" y="540" width="880" height="4" fill="#7c5730"/>
+    <!-- Floor slab bands (signature mid-century horizontal lines) -->
+    <rect x="-20" y="690" width="840" height="15" fill="#2c1600"/>
+    <rect x="-20" y="830" width="840" height="15" fill="#2c1600"/>
+
+    <!-- Window grid -->
+    <g fill="#ffdcbd">
+      <!-- Top floor (6 units) -->
+      <rect x="30" y="580" width="100" height="95" opacity="0.85"/>
+      <rect x="160" y="580" width="100" height="95" opacity="0.7"/>
+      <rect x="290" y="580" width="100" height="95" opacity="0.9"/>
+      <rect x="420" y="580" width="100" height="95" opacity="0.75"/>
+      <rect x="550" y="580" width="100" height="95" opacity="0.85"/>
+      <rect x="680" y="580" width="100" height="95" opacity="0.9"/>
+      <!-- Middle floor -->
+      <rect x="30" y="720" width="100" height="95" opacity="0.7"/>
+      <rect x="160" y="720" width="100" height="95" opacity="0.9"/>
+      <rect x="290" y="720" width="100" height="95" opacity="0.8"/>
+      <rect x="420" y="720" width="100" height="95" opacity="0.95"/>
+      <rect x="550" y="720" width="100" height="95" opacity="0.7"/>
+      <rect x="680" y="720" width="100" height="95" opacity="0.85"/>
+      <!-- Ground floor -->
+      <rect x="30" y="860" width="100" height="95" opacity="0.8"/>
+      <rect x="160" y="860" width="100" height="95" opacity="0.6"/>
+      <rect x="290" y="860" width="100" height="95" opacity="0.9"/>
+      <rect x="420" y="860" width="100" height="95" opacity="0.75"/>
+      <rect x="550" y="860" width="100" height="95" opacity="0.85"/>
+      <rect x="680" y="860" width="100" height="95" opacity="0.7"/>
+    </g>
+
+    <!-- Window mullions (vertical dividers) -->
+    <g stroke="#05152b" stroke-width="3">
+      <line x1="80" y1="580" x2="80" y2="675"/>
+      <line x1="210" y1="580" x2="210" y2="675"/>
+      <line x1="340" y1="580" x2="340" y2="675"/>
+      <line x1="470" y1="580" x2="470" y2="675"/>
+      <line x1="600" y1="580" x2="600" y2="675"/>
+      <line x1="730" y1="580" x2="730" y2="675"/>
+      <line x1="80" y1="720" x2="80" y2="815"/>
+      <line x1="210" y1="720" x2="210" y2="815"/>
+      <line x1="340" y1="720" x2="340" y2="815"/>
+      <line x1="470" y1="720" x2="470" y2="815"/>
+      <line x1="600" y1="720" x2="600" y2="815"/>
+      <line x1="730" y1="720" x2="730" y2="815"/>
+      <line x1="80" y1="860" x2="80" y2="955"/>
+      <line x1="210" y1="860" x2="210" y2="955"/>
+      <line x1="340" y1="860" x2="340" y2="955"/>
+      <line x1="470" y1="860" x2="470" y2="955"/>
+      <line x1="600" y1="860" x2="600" y2="955"/>
+      <line x1="730" y1="860" x2="730" y2="955"/>
+    </g>
+
+    <!-- Entry canopy -->
+    <rect x="360" y="955" width="80" height="45" fill="#7c5730"/>
+  </g>
+
+  <!-- Trees/landscaping -->
+  <g transform="translate(60,990)">
+    <rect x="6" y="-80" width="10" height="80" fill="#05152b"/>
+    <circle cx="11" cy="-95" r="40" fill="#05152b"/>
+  </g>
+  <g transform="translate(910,1000)">
+    <rect x="4" y="-70" width="8" height="70" fill="#05152b"/>
+    <circle cx="8" cy="-85" r="35" fill="#05152b"/>
+  </g>
+</svg>

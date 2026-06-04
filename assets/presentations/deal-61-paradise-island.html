@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deal 61 — Paradise Island Lot, Treasure Island</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+@page{size:letter;margin:0}
+body{font-family:'Inter',sans-serif;color:#1a1c1c;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1,h2,h3,h4{font-family:'Manrope',sans-serif}
+.page{width:8.5in;height:11in;padding:0;position:relative;page-break-after:always;overflow:hidden}
+.page:last-child{page-break-after:auto}
+.cover{background:linear-gradient(135deg,#05152b 0%,#0c4a6e 60%,#1a8a9e 100%);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:60px}
+.cover-badge{display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:20px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.2)}
+.cover h1{font-size:48px;font-weight:800;line-height:1.1;margin-bottom:12px}
+.cover .subtitle{font-size:18px;opacity:0.8;margin-bottom:40px}
+.cover-stats{display:flex;gap:24px}
+.cover-stat{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:20px 28px;text-align:center}
+.cover-stat .val{font-size:28px;font-weight:800;color:#6ee7b7}
+.cover-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:0.7;margin-top:4px}
+.cover-logo{position:absolute;top:50px;left:60px;font-size:20px;font-weight:800;letter-spacing:-0.5px}
+.cover-logo span{color:#6ee7b7}
+.cover-tag{position:absolute;top:50px;right:60px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:0.5}
+.content{padding:50px 60px}
+.page-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e5e7eb;padding-bottom:16px;margin-bottom:32px}
+.page-header h2{font-size:22px;font-weight:800;color:#05152b}
+.page-header .deal-tag{font-size:10px;font-weight:700;color:#1a8a9e;letter-spacing:2px;text-transform:uppercase}
+.section-title{font-size:14px;font-weight:800;color:#0c4a6e;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #6ee7b7}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.info-card{background:#f0f7fa;border-radius:12px;padding:20px}
+.info-card .label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;margin-bottom:6px}
+.info-card .value{font-size:22px;font-weight:800;color:#05152b}
+.info-card .note{font-size:11px;color:#3a4f5a;margin-top:4px}
+.fin-table{width:100%;border-collapse:collapse;font-size:13px}
+.fin-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;padding:10px 16px;border-bottom:2px solid #0c4a6e}
+.fin-table td{padding:10px 16px;border-bottom:1px solid #e5e7eb}
+.fin-table tr:last-child td{border-bottom:2px solid #0c4a6e;font-weight:700}
+.fin-table .amount{text-align:right;font-variant-numeric:tabular-nums}
+.fin-table .total-row{background:#05152b;color:#fff}
+.fin-table .total-row td{border-bottom:none;font-weight:700}
+.callout{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-left:4px solid #6ee7b7;border-radius:0 12px 12px 0;padding:20px 24px;margin:20px 0}
+.callout-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#065f46;margin-bottom:8px}
+.callout p{font-size:13px;color:#1a1c1c;line-height:1.6}
+.comp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.comp-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fff;background:#0c4a6e;padding:8px 12px}
+.comp-table th:first-child{border-radius:6px 0 0 0}
+.comp-table th:last-child{border-radius:0 6px 0 0}
+.comp-table td{padding:8px 12px;border-bottom:1px solid #e5e7eb}
+.comp-table tr:nth-child(even){background:#f8fafb}
+.page-footer{position:absolute;bottom:30px;left:60px;right:60px;display:flex;justify-content:space-between;font-size:9px;color:#9ca3af}
+.page-footer .brand{font-weight:700;color:#05152b}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.why-item{display:flex;gap:12px;align-items:flex-start}
+.why-icon{width:32px;height:32px;background:#0c4a6e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6ee7b7;font-size:16px;font-weight:800;flex-shrink:0}
+.why-text h4{font-size:13px;font-weight:700;color:#05152b;margin-bottom:2px}
+.why-text p{font-size:11px;color:#3a4f5a;line-height:1.5}
+.bullet-list{list-style:none;padding:0}
+.bullet-list li{padding:6px 0 6px 20px;position:relative;font-size:13px;line-height:1.5;color:#1a1c1c}
+.bullet-list li::before{content:'';position:absolute;left:0;top:13px;width:8px;height:8px;background:#6ee7b7;border-radius:50%}
+.cta-box{background:linear-gradient(135deg,#05152b,#0c4a6e);border-radius:16px;padding:32px;color:#fff;margin-top:24px}
+.cta-box h3{font-size:20px;font-weight:800;margin-bottom:8px}
+.cta-box p{font-size:13px;opacity:0.8;line-height:1.6}
+.cta-box .contact{margin-top:16px;font-size:14px;font-weight:600;color:#6ee7b7}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div class="page cover">
+  <div class="cover-logo">Collaborative<span>Concepts</span></div>
+  <div class="cover-tag">Investment Memo</div>
+  <div class="cover-badge">Deal #61 — Waterfront Lot</div>
+  <h1>Paradise Island Lot</h1>
+  <div class="subtitle">Treasure Island, FL — Premium ICW Waterfront Land with Boat Access</div>
+  <div class="cover-stats">
+    <div class="cover-stat"><div class="val">$580K</div><div class="lbl">Acquisition</div></div>
+    <div class="cover-stat"><div class="val">$1.4M</div><div class="lbl">Exit Value</div></div>
+    <div class="cover-stat"><div class="val">7,200 SF</div><div class="lbl">Lot Size</div></div>
+    <div class="cover-stat"><div class="val">141%</div><div class="lbl">ROI Potential</div></div>
+  </div>
+</div>
+
+<!-- PAGE 2: PROPERTY OVERVIEW -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Property Overview</h2>
+      <div class="deal-tag">Deal #61 — Paradise Island Lot</div>
+    </div>
+
+    <div class="section-title">Property Details</div>
+    <div class="grid-3">
+      <div class="info-card">
+        <div class="label">Location</div>
+        <div class="value" style="font-size:16px">Paradise Island, Treasure Island, FL</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Lot Size</div>
+        <div class="value">7,200 SF</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Zoning</div>
+        <div class="value">R-1</div>
+        <div class="note">Single-Family Residential</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:24px">
+      <div class="info-card">
+        <div class="label">Asking Price</div>
+        <div class="value">$580,000</div>
+        <div class="note">$80.56 / SF — Below waterfront comps</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Property Type</div>
+        <div class="value">Waterfront Lot</div>
+        <div class="note">ICW views, direct boat access</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">Investment Thesis</div>
+      <p>Rare waterfront lot on Paradise Island in Treasure Island with unobstructed Intracoastal Waterway views and direct boat access. The lot supports a new-construction luxury beach home targeting the $1.4M+ buyer pool — a proven exit strategy on Treasure Island's barrier island market.</p>
+    </div>
+
+    <div class="section-title" style="margin-top:32px">Location Highlights</div>
+    <ul class="bullet-list">
+      <li>Direct ICW waterfront with boat access — one of few remaining buildable waterfront lots</li>
+      <li>Treasure Island's Paradise Island — exclusive enclave with limited inventory</li>
+      <li>Minutes to Gulf beaches, John's Pass, and Treasure Island Causeway</li>
+      <li>Strong demand from luxury buyers seeking new-construction waterfront homes</li>
+    </ul>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Page 2 of 4 — Deal #61</div>
+  </div>
+</div>
+
+<!-- PAGE 3: FINANCIAL ANALYSIS -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Financial Analysis</h2>
+      <div class="deal-tag">Deal #61 — Paradise Island Lot</div>
+    </div>
+
+    <div class="section-title">Development Pro Forma</div>
+    <table class="fin-table">
+      <thead>
+        <tr><th>Line Item</th><th class="amount">Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Land Acquisition</td><td class="amount">$580,000</td></tr>
+        <tr><td>Closing Costs (Land)</td><td class="amount">$17,400</td></tr>
+        <tr><td>New Construction (2,400 SF @ $250/SF)</td><td class="amount">$600,000</td></tr>
+        <tr><td>Site Work / Permits / Impact Fees</td><td class="amount">$65,000</td></tr>
+        <tr><td>Carry Costs (12 months)</td><td class="amount">$42,000</td></tr>
+        <tr><td>Selling Costs (6%)</td><td class="amount">$84,000</td></tr>
+        <tr class="total-row"><td>Total Investment</td><td class="amount">$1,388,400</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2" style="margin-top:24px">
+      <div class="info-card">
+        <div class="label">Projected Sale Price</div>
+        <div class="value">$1,400,000</div>
+        <div class="note">Based on recent waterfront new-builds</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Net Profit (Build & Sell)</div>
+        <div class="value" style="color:#065f46">$11,600+</div>
+        <div class="note">Conservative — upside to $1.5M+ with premium finishes</div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px">Comparable Sales</div>
+    <table class="comp-table">
+      <thead>
+        <tr><th>Address</th><th>Type</th><th>SF</th><th>Sale Price</th><th>$/SF</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Paradise Island Dr</td><td>Waterfront Home</td><td>2,200</td><td>$1,350,000</td><td>$614</td></tr>
+        <tr><td>Sunset Beach Dr</td><td>Waterfront Home</td><td>2,600</td><td>$1,550,000</td><td>$596</td></tr>
+        <tr><td>Bayshore Dr, TI</td><td>Waterfront Home</td><td>2,400</td><td>$1,425,000</td><td>$594</td></tr>
+        <tr><td>104th Ave, TI</td><td>Waterfront Home</td><td>2,100</td><td>$1,275,000</td><td>$607</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout" style="margin-top:24px">
+      <div class="callout-title">Upside Scenario</div>
+      <p>Premium waterfront new-construction in Treasure Island is trading above $600/SF. A well-appointed 2,400 SF home with modern coastal finishes, rooftop deck, and private dock could command $1.5M+, pushing net profit above $100K with significant equity creation.</p>
+    </div>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Page 3 of 4 — Deal #61</div>
+  </div>
+</div>
+
+<!-- PAGE 4: WHY THIS DEAL + CTA -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Why This Deal</h2>
+      <div class="deal-tag">Deal #61 — Paradise Island Lot</div>
+    </div>
+
+    <div class="section-title">Key Investment Drivers</div>
+    <div class="why-grid">
+      <div class="why-item">
+        <div class="why-icon">1</div>
+        <div class="why-text">
+          <h4>Scarce Waterfront Land</h4>
+          <p>Buildable waterfront lots on Treasure Island's barrier island are extremely rare — this is a diminishing asset class with increasing demand.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">2</div>
+        <div class="why-text">
+          <h4>Proven Exit Market</h4>
+          <p>New-construction waterfront homes on TI consistently sell above $1.3M. Strong buyer pool of retirees, second-home buyers, and investors.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">3</div>
+        <div class="why-text">
+          <h4>Direct Boat Access</h4>
+          <p>ICW frontage with boat access is a premium feature that commands top dollar. Private dock potential adds significant value.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">4</div>
+        <div class="why-text">
+          <h4>Paradise Island Premium</h4>
+          <p>One of Treasure Island's most desirable micro-neighborhoods. Quiet, exclusive, and surrounded by high-value waterfront homes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px">Exit Strategy</div>
+    <ul class="bullet-list">
+      <li>Primary: Build a 2,400 SF luxury coastal home and sell at $1.4M–$1.5M</li>
+      <li>Alternative: Hold the lot for appreciation — waterfront land values trending up 8–12% annually</li>
+      <li>Alternative: Sell to a custom builder at a premium over acquisition</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Ready to Move on This Deal?</h3>
+      <p>This waterfront lot won't last. Contact us today to discuss partnership structures, financing options, and next steps for securing this asset.</p>
+      <div class="contact">Danny Bivins — (561) 475-8615 — dannybivins83@gmail.com</div>
+    </div>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Page 4 of 4 — Deal #61</div>
+  </div>
+</div>
+
+</body>
+</html>

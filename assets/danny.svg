@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="dannyBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1b2a41"/>
+      <stop offset="100%" stop-color="#05152b"/>
+    </linearGradient>
+    <radialGradient id="dannyGlow" cx="50%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#7c5730" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#05152b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#dannyBg)"/>
+  <rect width="800" height="1000" fill="url(#dannyGlow)"/>
+
+  <!-- Monogram ring -->
+  <circle cx="400" cy="340" r="180" fill="none" stroke="#7c5730" stroke-width="3" opacity="0.6"/>
+  <circle cx="400" cy="340" r="165" fill="none" stroke="#ffdcbd" stroke-width="1" opacity="0.3"/>
+
+  <!-- DB monogram -->
+  <text x="400" y="415" font-family="Manrope, Arial, sans-serif" font-size="220" font-weight="800" fill="#ffdcbd" text-anchor="middle">DB</text>
+
+  <!-- Divider -->
+  <line x1="280" y1="580" x2="520" y2="580" stroke="#7c5730" stroke-width="2"/>
+
+  <!-- Name -->
+  <text x="400" y="640" font-family="Manrope, Arial, sans-serif" font-size="48" font-weight="800" fill="#ffffff" text-anchor="middle">Danny Bivins</text>
+  <text x="400" y="685" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="600" fill="#ffdcbd" text-anchor="middle" letter-spacing="2">OPERATOR &amp; DEVELOPER</text>
+
+  <!-- Tag lines -->
+  <text x="400" y="780" font-family="Inter, Arial, sans-serif" font-size="20" fill="#b8c7e5" text-anchor="middle">Florida born · Construction raised</text>
+  <text x="400" y="815" font-family="Inter, Arial, sans-serif" font-size="20" fill="#b8c7e5" text-anchor="middle">Collaborative Concepts · Lantana, FL</text>
+
+  <!-- Phone -->
+  <rect x="250" y="870" width="300" height="55" rx="28" fill="#7c5730"/>
+  <text x="400" y="907" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#ffffff" text-anchor="middle">(561) 475-8615</text>
+
+  <!-- Corner tags -->
+  <text x="50" y="60" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#7c5730" letter-spacing="3">COLLABORATIVE CONCEPTS</text>
+  <text x="750" y="970" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#7c5730" text-anchor="end" letter-spacing="3">FL COASTAL DEVELOPMENT</text>
+
+  <!-- Decorative corner brackets -->
+  <path d="M30,30 L30,80 M30,30 L80,30" stroke="#7c5730" stroke-width="2" fill="none"/>
+  <path d="M770,30 L770,80 M770,30 L720,30" stroke="#7c5730" stroke-width="2" fill="none"/>
+  <path d="M30,970 L30,920 M30,970 L80,970" stroke="#7c5730" stroke-width="2" fill="none"/>
+  <path d="M770,970 L770,920 M770,970 L720,970" stroke="#7c5730" stroke-width="2" fill="none"/>
+</svg>

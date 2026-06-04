@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deal #23 — 11485 2nd St E, Treasure Island</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+@page{size:letter;margin:0}
+body{font-family:'Inter',sans-serif;color:#1a1c1c;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1,h2,h3,h4{font-family:'Manrope',sans-serif}
+.page{width:8.5in;height:11in;padding:0;position:relative;page-break-after:always;overflow:hidden}
+.page:last-child{page-break-after:auto}
+.cover{background:linear-gradient(135deg,#05152b 0%,#0c4a6e 60%,#1a8a9e 100%);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:60px}
+.cover-badge{display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:20px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.2)}
+.cover h1{font-size:48px;font-weight:800;line-height:1.1;margin-bottom:12px}
+.cover .subtitle{font-size:18px;opacity:0.8;margin-bottom:40px}
+.cover-stats{display:flex;gap:24px}
+.cover-stat{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:20px 28px;text-align:center}
+.cover-stat .val{font-size:28px;font-weight:800;color:#6ee7b7}
+.cover-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:0.7;margin-top:4px}
+.cover-logo{position:absolute;top:50px;left:60px;font-size:20px;font-weight:800;letter-spacing:-0.5px}
+.cover-logo span{color:#6ee7b7}
+.cover-tag{position:absolute;top:50px;right:60px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:0.5}
+.content{padding:50px 60px}
+.page-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e5e7eb;padding-bottom:16px;margin-bottom:32px}
+.page-header h2{font-size:22px;font-weight:800;color:#05152b}
+.page-header .deal-tag{font-size:10px;font-weight:700;color:#1a8a9e;letter-spacing:2px;text-transform:uppercase}
+.section-title{font-size:14px;font-weight:800;color:#0c4a6e;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #6ee7b7}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.info-card{background:#f0f7fa;border-radius:12px;padding:20px}
+.info-card .label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;margin-bottom:6px}
+.info-card .value{font-size:22px;font-weight:800;color:#05152b}
+.info-card .note{font-size:11px;color:#3a4f5a;margin-top:4px}
+.fin-table{width:100%;border-collapse:collapse;font-size:13px}
+.fin-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;padding:10px 16px;border-bottom:2px solid #0c4a6e}
+.fin-table td{padding:10px 16px;border-bottom:1px solid #e5e7eb}
+.fin-table tr:last-child td{border-bottom:2px solid #0c4a6e;font-weight:700}
+.fin-table .amount{text-align:right;font-variant-numeric:tabular-nums}
+.fin-table .total-row{background:#05152b;color:#fff}
+.fin-table .total-row td{border-bottom:none;font-weight:700}
+.callout{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-left:4px solid #6ee7b7;border-radius:0 12px 12px 0;padding:20px 24px;margin:20px 0}
+.callout-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#065f46;margin-bottom:8px}
+.callout p{font-size:13px;color:#1a1c1c;line-height:1.6}
+.comp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.comp-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fff;background:#0c4a6e;padding:8px 12px}
+.comp-table th:first-child{border-radius:6px 0 0 0}
+.comp-table th:last-child{border-radius:0 6px 0 0}
+.comp-table td{padding:8px 12px;border-bottom:1px solid #e5e7eb}
+.comp-table tr:nth-child(even){background:#f8fafb}
+.page-footer{position:absolute;bottom:30px;left:60px;right:60px;display:flex;justify-content:space-between;font-size:9px;color:#9ca3af}
+.page-footer .brand{font-weight:700;color:#05152b}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.why-item{display:flex;gap:12px;align-items:flex-start}
+.why-icon{width:32px;height:32px;background:#0c4a6e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6ee7b7;font-size:16px;font-weight:800;flex-shrink:0}
+.why-text h4{font-size:13px;font-weight:700;color:#05152b;margin-bottom:2px}
+.why-text p{font-size:11px;color:#3a4f5a;line-height:1.5}
+.bullet-list{list-style:none;padding:0}
+.bullet-list li{padding:6px 0 6px 20px;position:relative;font-size:13px;line-height:1.5;color:#1a1c1c}
+.bullet-list li::before{content:'';position:absolute;left:0;top:13px;width:8px;height:8px;background:#6ee7b7;border-radius:50%}
+.cta-box{background:linear-gradient(135deg,#05152b,#0c4a6e);border-radius:16px;padding:32px;color:#fff;margin-top:24px}
+.cta-box h3{font-size:20px;font-weight:800;margin-bottom:8px}
+.cta-box p{font-size:13px;opacity:0.8;line-height:1.6}
+.cta-box .contact{margin-top:16px;font-size:14px;font-weight:600;color:#6ee7b7}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div class="page cover">
+  <div class="cover-logo">Collaborative<span>Concepts</span></div>
+  <div class="cover-tag">Investment Memo</div>
+  <div class="cover-badge">Deal #23 — Quadruplex</div>
+  <h1>11485 2nd St E</h1>
+  <div class="subtitle">Treasure Island, FL — 4-Unit Quadruplex, Walk to Beach, Consistent Rental Income</div>
+  <div class="cover-stats">
+    <div class="cover-stat"><div class="val">$1.2M</div><div class="lbl">Asking Price</div></div>
+    <div class="cover-stat"><div class="val">7,500 SF</div><div class="lbl">Lot Size</div></div>
+    <div class="cover-stat"><div class="val">$1.6M</div><div class="lbl">Est. Exit</div></div>
+    <div class="cover-stat"><div class="val">33%</div><div class="lbl">Est. ROI</div></div>
+  </div>
+</div>
+
+<!-- PAGE 2: PROPERTY OVERVIEW -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Property Overview</h2>
+      <div class="deal-tag">Deal #23</div>
+    </div>
+    <div class="section-title">Key Details</div>
+    <div class="grid-3">
+      <div class="info-card"><div class="label">Address</div><div class="value" style="font-size:16px">11485 2nd St E</div><div class="note">Treasure Island, FL</div></div>
+      <div class="info-card"><div class="label">Lot Size</div><div class="value">7,500 SF</div><div class="note">0.17 Acres</div></div>
+      <div class="info-card"><div class="label">Zoning</div><div class="value">RM</div><div class="note">Residential Multi-Family</div></div>
+      <div class="info-card"><div class="label">Asking Price</div><div class="value">$1,200,000</div><div class="note">$300K/unit</div></div>
+      <div class="info-card"><div class="label">Property Type</div><div class="value" style="font-size:16px">Quadruplex</div><div class="note">4 units, walk to beach</div></div>
+      <div class="info-card"><div class="label">Market</div><div class="value" style="font-size:16px">Pinellas County</div><div class="note">Barrier island — high demand</div></div>
+    </div>
+    <div class="section-title" style="margin-top:28px">Location Highlights</div>
+    <ul class="bullet-list">
+      <li>Walk to beach — Treasure Island Gulf beaches are 2-3 blocks away</li>
+      <li>4-unit quadruplex provides diversified income stream — vacancy risk spread across units</li>
+      <li>RM zoning supports current use with potential for further densification</li>
+      <li>Strong year-round rental demand from retirees, seasonal visitors, and remote workers</li>
+      <li>Treasure Island has among the lowest vacancy rates in Pinellas County at under 4%</li>
+    </ul>
+    <div class="callout">
+      <div class="callout-title">Investment Highlight</div>
+      <p>At $300,000 per unit, this quadruplex is priced below replacement cost for barrier island multi-family. The walk-to-beach location and consistent 4-unit income stream make this an ideal cash-flow asset with significant renovation upside.</p>
+    </div>
+  </div>
+  <div class="page-footer"><div class="brand">Collaborative Concepts</div><div>Confidential — For Investor Review Only</div></div>
+</div>
+
+<!-- PAGE 3: FINANCIAL ANALYSIS -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Financial Analysis</h2>
+      <div class="deal-tag">Deal #23</div>
+    </div>
+    <div class="section-title">Renovation Pro Forma</div>
+    <table class="fin-table">
+      <thead><tr><th>Line Item</th><th class="amount">Amount</th></tr></thead>
+      <tbody>
+        <tr><td>Acquisition Price</td><td class="amount">$1,200,000</td></tr>
+        <tr><td>Closing Costs (3%)</td><td class="amount">$36,000</td></tr>
+        <tr><td>Per-Unit Renovation (4 x $35,000)</td><td class="amount">$140,000</td></tr>
+        <tr><td>Common Area &amp; Exterior Upgrades</td><td class="amount">$30,000</td></tr>
+        <tr><td>Permits &amp; Engineering</td><td class="amount">$12,000</td></tr>
+        <tr><td>Carry Costs (6 months)</td><td class="amount">$42,000</td></tr>
+        <tr><td>Contingency (10%)</td><td class="amount">$18,000</td></tr>
+        <tr class="total-row"><td>Total Project Cost</td><td class="amount">$1,478,000</td></tr>
+      </tbody>
+    </table>
+    <div class="grid-2" style="margin-top:24px">
+      <div>
+        <div class="section-title">Exit Analysis — Hold</div>
+        <table class="fin-table">
+          <tbody>
+            <tr><td>Post-Reno Appraised Value</td><td class="amount">$1,600,000</td></tr>
+            <tr><td>Annual Gross Rent (4 x $2,200/mo)</td><td class="amount">$105,600</td></tr>
+            <tr><td>Operating Expenses (35%)</td><td class="amount">($36,960)</td></tr>
+            <tr><td>Net Operating Income</td><td class="amount">$68,640</td></tr>
+            <tr><td><strong>Cap Rate</strong></td><td class="amount"><strong>4.3%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="section-title">Comparable Sales</div>
+        <table class="comp-table">
+          <thead><tr><th>Address</th><th>Units</th><th>Price</th><th>$/Unit</th></tr></thead>
+          <tbody>
+            <tr><td>11400 3rd St E, TI</td><td>4</td><td>$1.55M</td><td>$388K</td></tr>
+            <tr><td>10920 Gulf Blvd</td><td>4</td><td>$1.7M</td><td>$425K</td></tr>
+            <tr><td>11550 1st St E</td><td>3</td><td>$1.35M</td><td>$450K</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="callout-title">Return Summary</div>
+      <p>Post-renovation value of $1.6M creates $122K in equity. Stabilized NOI of $68,640 yields a 4.3% cap rate. With 75% LTV refinance at 7%, projected cash-on-cash return is 9-11%. Long-term hold benefits from barrier island appreciation of 6-10% annually.</p>
+    </div>
+  </div>
+  <div class="page-footer"><div class="brand">Collaborative Concepts</div><div>Confidential — For Investor Review Only</div></div>
+</div>
+
+<!-- PAGE 4: INVESTMENT THESIS -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Investment Thesis</h2>
+      <div class="deal-tag">Deal #23</div>
+    </div>
+    <div class="section-title">Why This Deal</div>
+    <div class="why-grid">
+      <div class="why-item"><div class="why-icon">1</div><div class="why-text"><h4>Below Replacement Cost</h4><p>$300K/unit is below the cost to build new multi-family on a barrier island today.</p></div></div>
+      <div class="why-item"><div class="why-icon">2</div><div class="why-text"><h4>Walk to Beach</h4><p>Premium location 2-3 blocks from Gulf beaches commands top rents and resale value.</p></div></div>
+      <div class="why-item"><div class="why-icon">3</div><div class="why-text"><h4>4-Unit Diversification</h4><p>Four separate income streams reduce vacancy risk compared to single-family rental.</p></div></div>
+      <div class="why-item"><div class="why-icon">4</div><div class="why-text"><h4>Value-Add Opportunity</h4><p>$35K/unit renovation drives rent increases of $400-$600/month per unit.</p></div></div>
+      <div class="why-item"><div class="why-icon">5</div><div class="why-text"><h4>STR Upside Potential</h4><p>Convert 1-2 units to short-term rentals for $200-$300/night seasonal income.</p></div></div>
+      <div class="why-item"><div class="why-icon">6</div><div class="why-text"><h4>Forced Appreciation</h4><p>Renovations drive NOI growth, creating equity through income-based valuation increases.</p></div></div>
+    </div>
+    <div class="section-title" style="margin-top:28px">Renovation Scope (Per Unit)</div>
+    <ul class="bullet-list">
+      <li>Kitchen refresh — new cabinets, quartz counters, stainless appliances, LVP flooring</li>
+      <li>Bathroom updates — new vanity, tile, fixtures, and glass shower enclosures</li>
+      <li>Interior paint, new lighting, and modern coastal finishes throughout</li>
+      <li>Estimated renovation timeline: 4-5 months for all 4 units (staggered turnover)</li>
+    </ul>
+    <div class="section-title" style="margin-top:28px">Due Diligence Checklist</div>
+    <ul class="bullet-list">
+      <li>Current rent roll and lease expiration schedule — confirm income and rollover timing</li>
+      <li>Building inspection — roof age, HVAC condition, plumbing, and electrical systems</li>
+      <li>Flood zone determination and insurance cost verification for all 4 units</li>
+      <li>City STR ordinance review — confirm eligibility for short-term rental conversion</li>
+    </ul>
+    <div class="cta-box">
+      <h3>Ready to Invest?</h3>
+      <p>This Treasure Island quadruplex offers stable 4-unit cash flow with value-add renovation upside in a walk-to-beach location. Contact us to discuss investment terms and partnership structure.</p>
+      <div class="contact">Danny Bivins — (561) 475-8615 — dannybivins83@gmail.com</div>
+    </div>
+  </div>
+  <div class="page-footer"><div class="brand">Collaborative Concepts</div><div>Confidential — For Investor Review Only</div></div>
+</div>
+
+</body>
+</html>

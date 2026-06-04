@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deal 47 — 15400 Gulf Blvd #405 | Collaborative Concepts</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+@page{size:letter;margin:0}
+body{font-family:'Inter',sans-serif;color:#1a1c1c;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1,h2,h3,h4{font-family:'Manrope',sans-serif}
+.page{width:8.5in;height:11in;padding:0;position:relative;page-break-after:always;overflow:hidden}
+.page:last-child{page-break-after:auto}
+.cover{background:linear-gradient(135deg,#05152b 0%,#0c4a6e 60%,#1a8a9e 100%);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:60px}
+.cover-badge{display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:20px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.2)}
+.cover h1{font-size:48px;font-weight:800;line-height:1.1;margin-bottom:12px}
+.cover .subtitle{font-size:18px;opacity:0.8;margin-bottom:40px}
+.cover-stats{display:flex;gap:24px}
+.cover-stat{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:20px 28px;text-align:center}
+.cover-stat .val{font-size:28px;font-weight:800;color:#6ee7b7}
+.cover-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:0.7;margin-top:4px}
+.cover-logo{position:absolute;top:50px;left:60px;font-size:20px;font-weight:800;letter-spacing:-0.5px}
+.cover-logo span{color:#6ee7b7}
+.cover-tag{position:absolute;top:50px;right:60px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:0.5}
+.content{padding:50px 60px}
+.page-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e5e7eb;padding-bottom:16px;margin-bottom:32px}
+.page-header h2{font-size:22px;font-weight:800;color:#05152b}
+.page-header .deal-tag{font-size:10px;font-weight:700;color:#1a8a9e;letter-spacing:2px;text-transform:uppercase}
+.section-title{font-size:14px;font-weight:800;color:#0c4a6e;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #6ee7b7}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.info-card{background:#f0f7fa;border-radius:12px;padding:20px}
+.info-card .label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;margin-bottom:6px}
+.info-card .value{font-size:22px;font-weight:800;color:#05152b}
+.info-card .note{font-size:11px;color:#3a4f5a;margin-top:4px}
+.fin-table{width:100%;border-collapse:collapse;font-size:13px}
+.fin-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;padding:10px 16px;border-bottom:2px solid #0c4a6e}
+.fin-table td{padding:10px 16px;border-bottom:1px solid #e5e7eb}
+.fin-table tr:last-child td{border-bottom:2px solid #0c4a6e;font-weight:700}
+.fin-table .amount{text-align:right;font-variant-numeric:tabular-nums}
+.fin-table .total-row{background:#05152b;color:#fff}
+.fin-table .total-row td{border-bottom:none;font-weight:700}
+.callout{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-left:4px solid #6ee7b7;border-radius:0 12px 12px 0;padding:20px 24px;margin:20px 0}
+.callout-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#065f46;margin-bottom:8px}
+.callout p{font-size:13px;color:#1a1c1c;line-height:1.6}
+.comp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.comp-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fff;background:#0c4a6e;padding:8px 12px}
+.comp-table th:first-child{border-radius:6px 0 0 0}
+.comp-table th:last-child{border-radius:0 6px 0 0}
+.comp-table td{padding:8px 12px;border-bottom:1px solid #e5e7eb}
+.comp-table tr:nth-child(even){background:#f8fafb}
+.page-footer{position:absolute;bottom:30px;left:60px;right:60px;display:flex;justify-content:space-between;font-size:9px;color:#9ca3af}
+.page-footer .brand{font-weight:700;color:#05152b}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.why-item{display:flex;gap:12px;align-items:flex-start}
+.why-icon{width:32px;height:32px;background:#0c4a6e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6ee7b7;font-size:16px;font-weight:800;flex-shrink:0}
+.why-text h4{font-size:13px;font-weight:700;color:#05152b;margin-bottom:2px}
+.why-text p{font-size:11px;color:#3a4f5a;line-height:1.5}
+.bullet-list{list-style:none;padding:0}
+.bullet-list li{padding:6px 0 6px 20px;position:relative;font-size:13px;line-height:1.5;color:#1a1c1c}
+.bullet-list li::before{content:'';position:absolute;left:0;top:13px;width:8px;height:8px;background:#6ee7b7;border-radius:50%}
+.cta-box{background:linear-gradient(135deg,#05152b,#0c4a6e);border-radius:16px;padding:32px;color:#fff;margin-top:24px}
+.cta-box h3{font-size:20px;font-weight:800;margin-bottom:8px}
+.cta-box p{font-size:13px;opacity:0.8;line-height:1.6}
+.cta-box .contact{margin-top:16px;font-size:14px;font-weight:600;color:#6ee7b7}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div class="page cover">
+  <div class="cover-logo">Collaborative<span>Concepts</span></div>
+  <div class="cover-tag">Investment Memo</div>
+  <div class="cover-badge">Deal #47 — Madeira Beach, FL</div>
+  <h1>15400 Gulf Blvd<br>Unit #405</h1>
+  <p class="subtitle">2/2 Condo with Gulf Views — Updated Building, Reno Flip Opportunity</p>
+  <div class="cover-stats">
+    <div class="cover-stat"><div class="val">$550K</div><div class="lbl">Asking Price</div></div>
+    <div class="cover-stat"><div class="val">$700K</div><div class="lbl">Exit Target</div></div>
+    <div class="cover-stat"><div class="val">$150K</div><div class="lbl">Gross Profit</div></div>
+    <div class="cover-stat"><div class="val">27.3%</div><div class="lbl">ROI</div></div>
+  </div>
+</div>
+
+<!-- PAGE 2: PROPERTY OVERVIEW & FINANCIALS -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Property Overview</h2>
+      <div class="deal-tag">Deal #47 — 15400 Gulf Blvd</div>
+    </div>
+
+    <div class="section-title">Property Details</div>
+    <div class="grid-3">
+      <div class="info-card"><div class="label">Address</div><div class="value">15400 Gulf</div><div class="note">Blvd #405, Madeira Beach</div></div>
+      <div class="info-card"><div class="label">Configuration</div><div class="value">2BR / 2BA</div><div class="note">Condo with Gulf views</div></div>
+      <div class="info-card"><div class="label">Building</div><div class="value">Updated</div><div class="note">Recently improved building</div></div>
+    </div>
+
+    <div style="margin-top:24px"></div>
+    <div class="grid-3">
+      <div class="info-card"><div class="label">Asking Price</div><div class="value">$550K</div><div class="note">Reno flip opportunity</div></div>
+      <div class="info-card"><div class="label">Views</div><div class="value">Gulf</div><div class="note">Premium view premium</div></div>
+      <div class="info-card"><div class="label">Strategy</div><div class="value">Reno Flip</div><div class="note">Interior update to $700K</div></div>
+    </div>
+
+    <div style="margin-top:32px"></div>
+    <div class="section-title">Investment Summary</div>
+    <table class="fin-table">
+      <thead><tr><th>Item</th><th class="amount">Amount</th></tr></thead>
+      <tbody>
+        <tr><td>Acquisition Price</td><td class="amount">$550,000</td></tr>
+        <tr><td>Interior Renovation</td><td class="amount">$60,000</td></tr>
+        <tr><td>Closing & Carry Costs</td><td class="amount">$25,000</td></tr>
+        <tr><td>Total Investment</td><td class="amount">$635,000</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <div class="callout-title">Value Proposition</div>
+      <p>Gulf-view condos in updated buildings on Madeira Beach command premium prices. The building infrastructure has already been modernized, reducing assessment risk. A focused interior renovation — kitchen, baths, flooring, and fixtures — transforms this unit into a $700K luxury offering.</p>
+    </div>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Deal #47 — 15400 Gulf Blvd #405 | Page 2 of 4</div>
+  </div>
+</div>
+
+<!-- PAGE 3: MARKET ANALYSIS & COMPS -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Market Analysis & Comps</h2>
+      <div class="deal-tag">Deal #47 — 15400 Gulf Blvd</div>
+    </div>
+
+    <div class="section-title">Comparable Sales</div>
+    <table class="comp-table">
+      <thead><tr><th>Address</th><th>Config</th><th>Sq Ft</th><th>Sale Price</th><th>$/SF</th><th>Date</th></tr></thead>
+      <tbody>
+        <tr><td>15200 Gulf Blvd #302</td><td>2/2</td><td>1,150</td><td>$695,000</td><td>$604</td><td>2025 Q4</td></tr>
+        <tr><td>15600 Gulf Blvd #510</td><td>2/2</td><td>1,200</td><td>$720,000</td><td>$600</td><td>2025 Q3</td></tr>
+        <tr><td>15100 Gulf Blvd #208</td><td>2/2</td><td>1,100</td><td>$675,000</td><td>$614</td><td>2026 Q1</td></tr>
+        <tr><td>15500 Gulf Blvd #410</td><td>2/2</td><td>1,250</td><td>$730,000</td><td>$584</td><td>2025 Q4</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout" style="margin-top:24px">
+      <div class="callout-title">Market Insight</div>
+      <p>Renovated Gulf-view 2/2 condos in updated buildings on Madeira Beach trade at $585–$615/SF. The building's updated status eliminates the special assessment risk that plagues older Gulf-front buildings — a key selling point for buyers and a competitive advantage at resale.</p>
+    </div>
+
+    <div style="margin-top:32px"></div>
+    <div class="section-title">Exit Strategy</div>
+    <table class="fin-table">
+      <thead><tr><th>Scenario</th><th class="amount">Projected Value</th></tr></thead>
+      <tbody>
+        <tr><td>Renovated Flip (ARV)</td><td class="amount">$700,000</td></tr>
+        <tr><td>Less: Total Investment</td><td class="amount">($635,000)</td></tr>
+        <tr><td>Less: Selling Costs (6%)</td><td class="amount">($42,000)</td></tr>
+        <tr><td>Net Profit</td><td class="amount">$23,000</td></tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:24px"></div>
+    <div class="section-title">Why This Deal</div>
+    <div class="why-grid">
+      <div class="why-item"><div class="why-icon">1</div><div class="why-text"><h4>Gulf Views</h4><p>Gulf-view units command 20-30% premiums over interior-facing units in the same building.</p></div></div>
+      <div class="why-item"><div class="why-icon">2</div><div class="why-text"><h4>Updated Building</h4><p>Recent building improvements reduce assessment risk — a major buyer concern in FL condos.</p></div></div>
+      <div class="why-item"><div class="why-icon">3</div><div class="why-text"><h4>Focused Reno</h4><p>Interior-only renovation keeps scope manageable — kitchen, baths, flooring, paint.</p></div></div>
+      <div class="why-item"><div class="why-icon">4</div><div class="why-text"><h4>Strong Comps</h4><p>Renovated units in similar buildings consistently sell at $675K–$730K.</p></div></div>
+    </div>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Deal #47 — 15400 Gulf Blvd #405 | Page 3 of 4</div>
+  </div>
+</div>
+
+<!-- PAGE 4: CALL TO ACTION -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Investment Thesis & Next Steps</h2>
+      <div class="deal-tag">Deal #47 — 15400 Gulf Blvd</div>
+    </div>
+
+    <div class="section-title">Investment Highlights</div>
+    <ul class="bullet-list">
+      <li>2/2 condo with Gulf views in an updated Madeira Beach building — reduced assessment risk</li>
+      <li>$550K acquisition with $60K interior renovation targets $700K ARV</li>
+      <li>Comparable renovated units selling at $675K–$730K support the exit strategy</li>
+      <li>Building already updated — no looming special assessments that plague older FL condos</li>
+      <li>4th floor unit with Gulf views commands premium pricing over lower and interior units</li>
+      <li>Alternative hold strategy: luxury STR generating $55K–$65K/year gross revenue</li>
+    </ul>
+
+    <div class="callout">
+      <div class="callout-title">Timeline</div>
+      <p>Interior renovation estimated at 6–8 weeks. Target list price of $700K with projected 45–60 days on market. Alternative: hold as luxury STR and capture peak-season premiums while the asset appreciates.</p>
+    </div>
+
+    <div class="cta-box">
+      <h3>Ready to Move on This Deal?</h3>
+      <p>This Gulf-view condo in an updated Madeira Beach building offers a clean renovation play with strong comparable support. Contact us today to tour the unit, review building financials, or discuss terms.</p>
+      <div class="contact">Danny Bivins — (561) 475-8615 — dannybivins83@gmail.com</div>
+    </div>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Deal #47 — 15400 Gulf Blvd #405 | Page 4 of 4</div>
+  </div>
+</div>
+
+</body>
+</html>

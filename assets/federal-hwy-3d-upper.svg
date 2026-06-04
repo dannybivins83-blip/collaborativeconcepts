@@ -1,0 +1,407 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900">
+  <defs>
+    <!-- Sky -->
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#87CEEB"/>
+      <stop offset="40%" stop-color="#b0dff5"/>
+      <stop offset="100%" stop-color="#d4ecf7"/>
+    </linearGradient>
+    <!-- Building facade light -->
+    <linearGradient id="facadeL" x1="0" y1="0" x2="1" y2="0.2">
+      <stop offset="0%" stop-color="#f0ede8"/>
+      <stop offset="100%" stop-color="#ddd8d0"/>
+    </linearGradient>
+    <!-- Building facade shadow -->
+    <linearGradient id="facadeR" x1="1" y1="0" x2="0" y2="0.2">
+      <stop offset="0%" stop-color="#c5c0b8"/>
+      <stop offset="100%" stop-color="#a8a49c"/>
+    </linearGradient>
+    <!-- Roof -->
+    <linearGradient id="roof" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d8d4cc"/>
+      <stop offset="100%" stop-color="#c0bbb2"/>
+    </linearGradient>
+    <!-- Glass curtain wall -->
+    <linearGradient id="glassL" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#6fb8d9"/>
+      <stop offset="30%" stop-color="#5aa5c8"/>
+      <stop offset="70%" stop-color="#4a90b5"/>
+      <stop offset="100%" stop-color="#3d7da0"/>
+    </linearGradient>
+    <linearGradient id="glassR" x1="1" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#4a8aaa"/>
+      <stop offset="30%" stop-color="#3d7595"/>
+      <stop offset="70%" stop-color="#2d6080"/>
+      <stop offset="100%" stop-color="#1f4d6a"/>
+    </linearGradient>
+    <!-- Pool water -->
+    <linearGradient id="poolW" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4dd0e1"/>
+      <stop offset="40%" stop-color="#26c6da"/>
+      <stop offset="100%" stop-color="#00acc1"/>
+    </linearGradient>
+    <!-- Pool deck -->
+    <linearGradient id="deckTile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d7ccc8"/>
+      <stop offset="100%" stop-color="#c4b8b0"/>
+    </linearGradient>
+    <!-- Ground -->
+    <linearGradient id="ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8fbc8f"/>
+      <stop offset="100%" stop-color="#6b9b6b"/>
+    </linearGradient>
+    <!-- Road surface -->
+    <linearGradient id="asphalt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#555"/>
+      <stop offset="100%" stop-color="#3a3a3a"/>
+    </linearGradient>
+    <!-- Sidewalk -->
+    <linearGradient id="sidewalk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ccc"/>
+      <stop offset="100%" stop-color="#aaa"/>
+    </linearGradient>
+    <!-- Shadow on ground -->
+    <linearGradient id="bldgShadow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#000" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+    <!-- Parking level -->
+    <linearGradient id="parkingFace" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4a4a4a"/>
+      <stop offset="100%" stop-color="#3a3a3a"/>
+    </linearGradient>
+    <!-- Balcony railing -->
+    <linearGradient id="railing" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ccc"/>
+      <stop offset="100%" stop-color="#999"/>
+    </linearGradient>
+  </defs>
+
+  <!-- === SKY === -->
+  <rect width="1400" height="900" fill="url(#sky)"/>
+  <!-- Clouds -->
+  <g opacity="0.6">
+    <ellipse cx="200" cy="80" rx="90" ry="28" fill="#fff"/>
+    <ellipse cx="250" cy="72" rx="60" ry="22" fill="#fff"/>
+    <ellipse cx="170" cy="75" rx="50" ry="20" fill="#fff"/>
+    <ellipse cx="900" cy="60" rx="80" ry="25" fill="#fff"/>
+    <ellipse cx="950" cy="55" rx="55" ry="18" fill="#fff"/>
+    <ellipse cx="1200" cy="100" rx="65" ry="20" fill="#fff"/>
+    <ellipse cx="1240" cy="95" rx="45" ry="16" fill="#fff"/>
+  </g>
+
+  <!-- === GROUND PLANE === -->
+  <polygon points="0,620 700,900 1400,620 700,340" fill="url(#ground)"/>
+
+  <!-- === BUILDING SHADOW ON GROUND === -->
+  <polygon points="720,580 1050,440 1200,520 870,660" fill="url(#bldgShadow)" opacity="0.4"/>
+
+  <!-- === ROADS === -->
+  <!-- Old Dixie Highway (left) -->
+  <polygon points="60,570 200,505 200,380 60,445" fill="url(#asphalt)"/>
+  <line x1="130" y1="540" x2="130" y2="415" stroke="#e8c547" stroke-width="1.5" stroke-dasharray="12,16" opacity="0.5"/>
+  <!-- Sidewalk -->
+  <polygon points="195,505 225,492 225,375 195,388" fill="url(#sidewalk)" opacity="0.7"/>
+
+  <!-- N. Federal Highway (right) -->
+  <polygon points="1120,380 1260,445 1260,570 1120,505" fill="url(#asphalt)"/>
+  <line x1="1190" y1="415" x2="1190" y2="540" stroke="#e8c547" stroke-width="1.5" stroke-dasharray="12,16" opacity="0.5"/>
+  <polygon points="1095,375 1125,388 1125,505 1095,492" fill="url(#sidewalk)" opacity="0.7"/>
+
+  <!-- Road labels -->
+  <text x="75" y="585" font-family="Manrope,Arial,sans-serif" font-size="11" fill="#444" font-weight="700" transform="rotate(-30,75,585)">OLD DIXIE HWY</text>
+  <text x="1150" y="585" font-family="Manrope,Arial,sans-serif" font-size="11" fill="#444" font-weight="700" transform="rotate(30,1150,585)">N. FEDERAL HWY</text>
+
+  <!-- === LANDSCAPING === -->
+  <!-- Grass patches -->
+  <polygon points="230,490 350,435 350,520 230,575" fill="#7ab87a" opacity="0.5"/>
+  <polygon points="960,435 1090,490 1090,575 960,520" fill="#7ab87a" opacity="0.5"/>
+
+  <!-- Trees (realistic with shadow) -->
+  <!-- Tree 1 -->
+  <g>
+    <ellipse cx="290" cy="530" rx="14" ry="7" fill="#000" opacity="0.1"/>
+    <rect x="287" y="480" width="5" height="50" fill="#6b4226"/>
+    <ellipse cx="290" cy="460" rx="28" ry="35" fill="#2d8a2d"/>
+    <ellipse cx="290" cy="450" rx="22" ry="28" fill="#3da83d"/>
+    <ellipse cx="285" cy="445" rx="15" ry="20" fill="#4dba4d" opacity="0.7"/>
+  </g>
+  <!-- Tree 2 -->
+  <g>
+    <ellipse cx="330" cy="510" rx="12" ry="6" fill="#000" opacity="0.1"/>
+    <rect x="327" y="465" width="5" height="45" fill="#6b4226"/>
+    <ellipse cx="330" cy="448" rx="22" ry="28" fill="#2d8a2d"/>
+    <ellipse cx="330" cy="440" rx="18" ry="22" fill="#3da83d"/>
+  </g>
+  <!-- Tree 3 (right side) -->
+  <g>
+    <ellipse cx="1020" cy="510" rx="12" ry="6" fill="#000" opacity="0.1"/>
+    <rect x="1017" y="465" width="5" height="45" fill="#6b4226"/>
+    <ellipse cx="1020" cy="448" rx="22" ry="28" fill="#2d8a2d"/>
+    <ellipse cx="1020" cy="440" rx="18" ry="22" fill="#3da83d"/>
+  </g>
+  <!-- Tree 4 -->
+  <g>
+    <ellipse cx="1060" cy="530" rx="14" ry="7" fill="#000" opacity="0.1"/>
+    <rect x="1057" y="480" width="5" height="50" fill="#6b4226"/>
+    <ellipse cx="1060" cy="460" rx="28" ry="35" fill="#2d8a2d"/>
+    <ellipse cx="1060" cy="450" rx="22" ry="28" fill="#3da83d"/>
+    <ellipse cx="1065" cy="445" rx="15" ry="20" fill="#4dba4d" opacity="0.7"/>
+  </g>
+  <!-- Palm tree -->
+  <g>
+    <ellipse cx="270" cy="570" rx="10" ry="5" fill="#000" opacity="0.1"/>
+    <path d="M270,570 Q272,520 268,460" fill="none" stroke="#8b6914" stroke-width="5"/>
+    <ellipse cx="268" cy="440" rx="30" ry="10" fill="#2d7a2d" opacity="0.8" transform="rotate(-35,268,440)"/>
+    <ellipse cx="268" cy="440" rx="28" ry="9" fill="#2d7a2d" opacity="0.7" transform="rotate(25,268,440)"/>
+    <ellipse cx="268" cy="440" rx="25" ry="8" fill="#2d7a2d" opacity="0.6" transform="rotate(-60,268,440)"/>
+    <ellipse cx="268" cy="440" rx="22" ry="7" fill="#2d7a2d" opacity="0.5" transform="rotate(55,268,440)"/>
+  </g>
+
+  <!-- === BUILDING — PARKING LEVEL (ground floor) === -->
+  <!-- Left face -->
+  <polygon points="350,530 350,470 700,640 700,700" fill="url(#parkingFace)"/>
+  <!-- Right face -->
+  <polygon points="1050,470 1050,530 700,700 700,640" fill="#2a2a2a"/>
+  <!-- Parking entrance cutout -->
+  <polygon points="360,525 360,478 420,508 420,555" fill="#111"/>
+  <polygon points="362,523 362,480 418,510 418,553" fill="#090909"/>
+  <!-- Entry signage -->
+  <rect x="365" y="477" width="30" height="6" rx="1" fill="#1a6b1a" opacity="0.8"/>
+
+  <!-- === BUILDING — MAIN MASS (3 stories above parking) === -->
+  <!-- Roof (top face) -->
+  <polygon points="700,140 1030,270 700,400 370,270" fill="url(#roof)" stroke="#b5b0a8" stroke-width="0.5"/>
+
+  <!-- Left facade -->
+  <polygon points="370,270 370,530 700,700 700,400" fill="url(#facadeL)" stroke="#c5c0b8" stroke-width="0.5"/>
+
+  <!-- Right facade -->
+  <polygon points="1030,270 1030,530 700,700 700,400" fill="url(#facadeR)" stroke="#a8a49c" stroke-width="0.5"/>
+
+  <!-- === WINDOWS — LEFT FACADE === -->
+  <!-- Floor 2 (bottom) -->
+  <g opacity="0.95">
+    <polygon points="395,410 440,387 440,358 395,381" fill="url(#glassL)"/>
+    <polygon points="395,410 440,387 440,358 395,381" fill="#fff" opacity="0.08"/>
+    <polygon points="455,380 500,357 500,328 455,351" fill="url(#glassL)"/>
+    <polygon points="515,350 560,327 560,298 515,321" fill="url(#glassL)"/>
+    <polygon points="575,320 620,297 620,268 575,291" fill="url(#glassL)"/>
+    <polygon points="635,290 670,270 670,248 635,268" fill="url(#glassL)"/>
+  </g>
+  <!-- Floor 3 (middle) -->
+  <g opacity="0.9">
+    <polygon points="395,480 440,457 440,428 395,451" fill="url(#glassL)"/>
+    <polygon points="455,450 500,427 500,398 455,421" fill="url(#glassL)"/>
+    <polygon points="455,450 500,427 500,398 455,421" fill="#fff" opacity="0.05"/>
+    <polygon points="515,420 560,397 560,368 515,391" fill="url(#glassL)"/>
+    <polygon points="575,390 620,367 620,338 575,361" fill="url(#glassL)"/>
+    <polygon points="635,360 670,340 670,318 635,338" fill="url(#glassL)"/>
+  </g>
+  <!-- Floor 4 (top) -->
+  <g opacity="0.85">
+    <polygon points="395,550 440,527 440,498 395,521" fill="url(#glassL)"/>
+    <polygon points="455,520 500,497 500,468 455,491" fill="url(#glassL)"/>
+    <polygon points="515,490 560,467 560,438 515,461" fill="url(#glassL)"/>
+    <polygon points="515,490 560,467 560,438 515,461" fill="#fff" opacity="0.06"/>
+    <polygon points="575,460 620,437 620,408 575,431" fill="url(#glassL)"/>
+    <polygon points="635,430 670,410 670,388 635,408" fill="url(#glassL)"/>
+  </g>
+
+  <!-- === WINDOWS — RIGHT FACADE === -->
+  <!-- Floor 2 -->
+  <g opacity="0.9">
+    <polygon points="1005,410 960,387 960,358 1005,381" fill="url(#glassR)"/>
+    <polygon points="945,380 900,357 900,328 945,351" fill="url(#glassR)"/>
+    <polygon points="885,350 840,327 840,298 885,321" fill="url(#glassR)"/>
+    <polygon points="825,320 780,297 780,268 825,291" fill="url(#glassR)"/>
+    <polygon points="765,290 730,270 730,248 765,268" fill="url(#glassR)"/>
+  </g>
+  <!-- Floor 3 -->
+  <g opacity="0.85">
+    <polygon points="1005,480 960,457 960,428 1005,451" fill="url(#glassR)"/>
+    <polygon points="945,450 900,427 900,398 945,421" fill="url(#glassR)"/>
+    <polygon points="885,420 840,397 840,368 885,391" fill="url(#glassR)"/>
+    <polygon points="825,390 780,367 780,338 825,361" fill="url(#glassR)"/>
+    <polygon points="765,360 730,340 730,318 765,338" fill="url(#glassR)"/>
+  </g>
+  <!-- Floor 4 -->
+  <g opacity="0.8">
+    <polygon points="1005,550 960,527 960,498 1005,521" fill="url(#glassR)"/>
+    <polygon points="945,520 900,497 900,468 945,491" fill="url(#glassR)"/>
+    <polygon points="885,490 840,467 840,438 885,461" fill="url(#glassR)"/>
+    <polygon points="825,460 780,437 780,408 825,431" fill="url(#glassR)"/>
+    <polygon points="765,430 730,410 730,388 765,408" fill="url(#glassR)"/>
+  </g>
+
+  <!-- === BALCONIES — LEFT FACADE === -->
+  <g opacity="0.7">
+    <!-- Floor 2 balconies -->
+    <polygon points="393,383 442,360 446,362 397,385" fill="#e0ddd5" stroke="#bbb" stroke-width="0.5"/>
+    <polygon points="453,353 502,330 506,332 457,355" fill="#e0ddd5" stroke="#bbb" stroke-width="0.5"/>
+    <polygon points="513,323 562,300 566,302 517,325" fill="#e0ddd5" stroke="#bbb" stroke-width="0.5"/>
+    <!-- Floor 3 balconies -->
+    <polygon points="393,453 442,430 446,432 397,455" fill="#e0ddd5" stroke="#bbb" stroke-width="0.5"/>
+    <polygon points="453,423 502,400 506,402 457,425" fill="#e0ddd5" stroke="#bbb" stroke-width="0.5"/>
+    <polygon points="513,393 562,370 566,372 517,395" fill="#e0ddd5" stroke="#bbb" stroke-width="0.5"/>
+    <!-- Railing lines -->
+    <line x1="393" y1="381" x2="442" y2="358" stroke="#ccc" stroke-width="0.8"/>
+    <line x1="453" y1="351" x2="502" y2="328" stroke="#ccc" stroke-width="0.8"/>
+    <line x1="393" y1="451" x2="442" y2="428" stroke="#ccc" stroke-width="0.8"/>
+    <line x1="453" y1="421" x2="502" y2="398" stroke="#ccc" stroke-width="0.8"/>
+  </g>
+
+  <!-- === FLOOR SLAB LINES (horizontal bands between floors) === -->
+  <g opacity="0.3">
+    <line x1="370" y1="400" x2="700" y2="567" stroke="#b5b0a8" stroke-width="2"/>
+    <line x1="700" y1="567" x2="1030" y2="400" stroke="#a8a49c" stroke-width="2"/>
+    <line x1="370" y1="470" x2="700" y2="637" stroke="#b5b0a8" stroke-width="2"/>
+    <line x1="700" y1="637" x2="1030" y2="470" stroke="#a8a49c" stroke-width="2"/>
+  </g>
+
+  <!-- === ROOFTOP AMENITY DECK === -->
+  <!-- Deck surface -->
+  <polygon points="700,200 980,300 840,370 560,270" fill="url(#deckTile)" stroke="#b5a898" stroke-width="0.5"/>
+  <!-- Deck tile lines -->
+  <g opacity="0.1">
+    <line x1="600" y1="250" x2="900" y2="350" stroke="#8a7a6a" stroke-width="0.5"/>
+    <line x1="640" y1="238" x2="940" y2="338" stroke="#8a7a6a" stroke-width="0.5"/>
+    <line x1="680" y1="226" x2="980" y2="326" stroke="#8a7a6a" stroke-width="0.5"/>
+    <line x1="720" y1="214" x2="940" y2="300" stroke="#8a7a6a" stroke-width="0.5"/>
+    <line x1="640" y1="280" x2="780" y2="220" stroke="#8a7a6a" stroke-width="0.5"/>
+    <line x1="700" y1="310" x2="840" y2="250" stroke="#8a7a6a" stroke-width="0.5"/>
+    <line x1="760" y1="340" x2="900" y2="280" stroke="#8a7a6a" stroke-width="0.5"/>
+  </g>
+
+  <!-- === POOL === -->
+  <polygon points="770,270 930,330 860,360 700,300" fill="url(#poolW)" stroke="#00838f" stroke-width="1.5"/>
+  <!-- Pool inner edge (depth) -->
+  <polygon points="775,274 925,332 858,358 705,298" fill="none" stroke="#e0f7fa" stroke-width="0.5" opacity="0.4"/>
+  <!-- Water caustics / shimmer -->
+  <g opacity="0.25">
+    <line x1="790" y1="285" x2="850" y2="310" stroke="#fff" stroke-width="1.5"/>
+    <line x1="810" y1="278" x2="870" y2="303" stroke="#fff" stroke-width="1"/>
+    <line x1="830" y1="295" x2="890" y2="320" stroke="#fff" stroke-width="0.8"/>
+    <line x1="750" y1="292" x2="810" y2="317" stroke="#fff" stroke-width="0.6"/>
+    <ellipse cx="820" cy="300" rx="15" ry="5" fill="#fff" opacity="0.15"/>
+    <ellipse cx="860" cy="320" rx="12" ry="4" fill="#fff" opacity="0.1"/>
+  </g>
+  <!-- Pool steps -->
+  <line x1="700" y1="300" x2="720" y2="295" stroke="#e0f7fa" stroke-width="1" opacity="0.5"/>
+  <line x1="705" y1="298" x2="725" y2="293" stroke="#e0f7fa" stroke-width="0.8" opacity="0.3"/>
+
+  <!-- === LOUNGE CHAIRS === -->
+  <g opacity="0.6">
+    <!-- Chair 1 -->
+    <polygon points="730,266 744,260 750,264 736,270" fill="#f5f5dc"/>
+    <polygon points="730,266 736,270 736,273 730,269" fill="#ddd8c0"/>
+    <polygon points="725,268 730,266 730,269 725,271" fill="#e8e0c8"/>
+    <!-- Chair 2 -->
+    <polygon points="750,258 764,252 770,256 756,262" fill="#f5f5dc"/>
+    <polygon points="750,258 756,262 756,265 750,261" fill="#ddd8c0"/>
+    <!-- Chair 3 -->
+    <polygon points="870,340 884,334 890,338 876,344" fill="#f5f5dc"/>
+    <polygon points="870,340 876,344 876,347 870,343" fill="#ddd8c0"/>
+    <!-- Chair 4 -->
+    <polygon points="890,332 904,326 910,330 896,336" fill="#f5f5dc"/>
+    <polygon points="890,332 896,336 896,339 890,335" fill="#ddd8c0"/>
+  </g>
+  <!-- Umbrella -->
+  <g opacity="0.5">
+    <line x1="740" y1="248" x2="740" y2="268" stroke="#6b4226" stroke-width="1.5"/>
+    <ellipse cx="740" cy="246" rx="14" ry="5" fill="#c0392b"/>
+    <ellipse cx="740" cy="245" rx="12" ry="4" fill="#e74c3c" opacity="0.7"/>
+  </g>
+
+  <!-- === ROOFTOP RAILING === -->
+  <g opacity="0.5">
+    <polyline points="560,270 700,200 980,300 840,370 560,270" fill="none" stroke="#b8b8b8" stroke-width="2"/>
+    <!-- Railing posts -->
+    <line x1="600" y1="253" x2="600" y2="248" stroke="#b8b8b8" stroke-width="1.5"/>
+    <line x1="650" y1="233" x2="650" y2="228" stroke="#b8b8b8" stroke-width="1.5"/>
+    <line x1="700" y1="200" x2="700" y2="195" stroke="#b8b8b8" stroke-width="1.5"/>
+    <line x1="800" y1="235" x2="800" y2="230" stroke="#b8b8b8" stroke-width="1.5"/>
+    <line x1="900" y1="270" x2="900" y2="265" stroke="#b8b8b8" stroke-width="1.5"/>
+    <line x1="980" y1="300" x2="980" y2="295" stroke="#b8b8b8" stroke-width="1.5"/>
+    <!-- Glass panels -->
+    <polygon points="600,253 650,233 650,228 600,248" fill="#b0dff5" opacity="0.2"/>
+    <polygon points="650,233 700,200 700,195 650,228" fill="#b0dff5" opacity="0.15"/>
+    <polygon points="800,235 900,270 900,265 800,230" fill="#87CEEB" opacity="0.15"/>
+  </g>
+
+  <!-- === ELEVATOR PENTHOUSES === -->
+  <!-- Penthouse 1 -->
+  <g>
+    <polygon points="530,210 570,195 570,175 530,190" fill="#c5c0b8"/>
+    <polygon points="570,195 600,207 600,187 570,175" fill="#a8a49c"/>
+    <polygon points="530,190 570,175 600,187 560,202" fill="#ddd8d0"/>
+  </g>
+  <!-- Penthouse 2 -->
+  <g>
+    <polygon points="620,240 660,225 660,205 620,220" fill="#c5c0b8"/>
+    <polygon points="660,225 690,237 690,217 660,205" fill="#a8a49c"/>
+    <polygon points="620,220 660,205 690,217 650,232" fill="#ddd8d0"/>
+  </g>
+
+  <!-- === HVAC UNITS ON ROOF === -->
+  <g opacity="0.5">
+    <polygon points="430,252 455,240 475,250 450,262" fill="#8a8a8a"/>
+    <polygon points="430,252 430,246 455,234 455,240" fill="#999"/>
+    <polygon points="455,240 455,234 475,244 475,250" fill="#777"/>
+    <polygon points="490,244 510,235 525,242 505,251" fill="#8a8a8a"/>
+    <polygon points="490,244 490,239 510,230 510,235" fill="#999"/>
+  </g>
+
+  <!-- === FEATURE CALLOUTS === -->
+  <g>
+    <!-- Pool -->
+    <line x1="830" y1="310" x2="1020" y2="200" stroke="#1a1a2e" stroke-width="0.8" stroke-dasharray="4,4" opacity="0.5"/>
+    <circle cx="830" cy="310" r="3" fill="#c9a227"/>
+    <rect x="1020" y="188" width="140" height="28" rx="6" fill="#1a1a2e" stroke="#c9a227" stroke-width="1"/>
+    <text x="1090" y="207" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="11" fill="#e8c547" font-weight="600">Rooftop Pool</text>
+
+    <!-- Balconies -->
+    <line x1="440" y1="440" x2="200" y2="380" stroke="#1a1a2e" stroke-width="0.8" stroke-dasharray="4,4" opacity="0.5"/>
+    <circle cx="440" cy="440" r="3" fill="#c9a227"/>
+    <rect x="100" y="368" width="140" height="28" rx="6" fill="#1a1a2e" stroke="#c9a227" stroke-width="1"/>
+    <text x="170" y="387" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="11" fill="#e8c547" font-weight="600">Private Balconies</text>
+
+    <!-- Glass curtain wall -->
+    <line x1="960" y1="440" x2="1120" y2="390" stroke="#1a1a2e" stroke-width="0.8" stroke-dasharray="4,4" opacity="0.5"/>
+    <circle cx="960" cy="440" r="3" fill="#c9a227"/>
+    <rect x="1120" y="378" width="170" height="28" rx="6" fill="#1a1a2e" stroke="#c9a227" stroke-width="1"/>
+    <text x="1205" y="397" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="11" fill="#e8c547" font-weight="600">Floor-to-Ceiling Glass</text>
+
+    <!-- Parking -->
+    <line x1="390" y1="540" x2="200" y2="520" stroke="#1a1a2e" stroke-width="0.8" stroke-dasharray="4,4" opacity="0.5"/>
+    <circle cx="390" cy="540" r="3" fill="#c9a227"/>
+    <rect x="80" y="508" width="160" height="28" rx="6" fill="#1a1a2e" stroke="#c9a227" stroke-width="1"/>
+    <text x="160" y="527" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="11" fill="#e8c547" font-weight="600">Structured Parking</text>
+
+    <!-- Landscaping -->
+    <line x1="1060" y1="490" x2="1150" y2="500" stroke="#1a1a2e" stroke-width="0.8" stroke-dasharray="4,4" opacity="0.5"/>
+    <circle cx="1060" cy="490" r="3" fill="#c9a227"/>
+    <rect x="1150" y="488" width="155" height="28" rx="6" fill="#1a1a2e" stroke="#c9a227" stroke-width="1"/>
+    <text x="1227" y="507" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="11" fill="#e8c547" font-weight="600">Perimeter Landscape</text>
+  </g>
+
+  <!-- === DIMENSION LINE === -->
+  <g opacity="0.35">
+    <line x1="400" y1="130" x2="1000" y2="130" stroke="#1a1a2e" stroke-width="0.8"/>
+    <line x1="400" y1="124" x2="400" y2="136" stroke="#1a1a2e" stroke-width="0.8"/>
+    <line x1="1000" y1="124" x2="1000" y2="136" stroke="#1a1a2e" stroke-width="0.8"/>
+    <text x="700" y="124" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="13" fill="#1a1a2e" font-weight="600">230'-11"</text>
+  </g>
+
+  <!-- === TITLE BLOCK === -->
+  <rect x="80" y="680" width="520" height="170" rx="8" fill="#1a1a2e" stroke="#c9a227" stroke-width="1.5"/>
+  <rect x="80" y="680" width="520" height="4" rx="2" fill="#c9a227"/>
+  <text x="105" y="722" font-family="Manrope,Arial,sans-serif" font-size="26" font-weight="800" fill="#fff">EXTERIOR RENDERING</text>
+  <text x="105" y="748" font-family="Inter,Arial,sans-serif" font-size="14" fill="#c9a227" font-weight="600">Federal Highway Mixed-Use Development</text>
+  <text x="105" y="772" font-family="Inter,Arial,sans-serif" font-size="12" fill="#fff" opacity="0.45">Old Dixie Highway &amp; N. Federal Highway · South Florida</text>
+  <line x1="105" y1="788" x2="570" y2="788" stroke="#c9a227" stroke-width="0.5" opacity="0.3"/>
+  <text x="105" y="808" font-family="Inter,Arial,sans-serif" font-size="11" fill="#fff" opacity="0.35">4 stories · Rooftop amenity deck · Glass curtain wall</text>
+  <text x="105" y="826" font-family="Inter,Arial,sans-serif" font-size="11" fill="#fff" opacity="0.35">Structured parking · Corner lot · Dual highway access</text>
+  <text x="105" y="845" font-family="Inter,Arial,sans-serif" font-size="12" fill="#c9a227" font-weight="700" opacity="0.8">LA GALA CONSTRUCTION</text>
+  <text x="330" y="845" font-family="Inter,Arial,sans-serif" font-size="11" fill="#c9a227" opacity="0.5">CGC 059211</text>
+</svg>

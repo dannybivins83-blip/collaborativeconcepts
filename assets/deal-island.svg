@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bae6fd"/>
+      <stop offset="40%" stop-color="#7dd3fc"/>
+      <stop offset="100%" stop-color="#0c4a6e"/>
+    </linearGradient>
+    <linearGradient id="gulf" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0c4a6e"/>
+      <stop offset="100%" stop-color="#1a8a9e"/>
+    </linearGradient>
+  </defs>
+  <!-- Sky -->
+  <rect width="800" height="400" fill="url(#sky)"/>
+  <!-- Gulf water -->
+  <rect x="0" y="220" width="800" height="180" fill="url(#gulf)" opacity="0.9"/>
+  <!-- Waves -->
+  <path d="M0,250 Q40,242 80,250 Q120,258 160,250 Q200,242 240,250 Q280,258 320,250 Q360,242 400,250 Q440,258 480,250 Q520,242 560,250 Q600,258 640,250 Q680,242 720,250 Q760,258 800,250" fill="none" stroke="#bae6fd" stroke-width="1.5" opacity="0.35"/>
+  <path d="M0,280 Q60,272 120,280 Q180,288 240,280 Q300,272 360,280 Q420,288 480,280 Q540,272 600,280 Q660,288 720,280 Q780,272 800,280" fill="none" stroke="#bae6fd" stroke-width="1" opacity="0.25"/>
+  <path d="M0,310 Q80,304 160,310 Q240,316 320,310 Q400,304 480,310 Q560,316 640,310 Q720,304 800,310" fill="none" stroke="#bae6fd" stroke-width="0.8" opacity="0.2"/>
+  <!-- Island sand strip -->
+  <ellipse cx="400" cy="225" rx="350" ry="15" fill="#f5e6d3" opacity="0.8"/>
+  <!-- Beach sand -->
+  <rect x="50" y="215" width="700" height="12" fill="#f5e6d3" opacity="0.6"/>
+  <!-- House 1 - center -->
+  <g transform="translate(280,90)">
+    <rect x="15" y="90" width="7" height="45" fill="#05152b" opacity="0.6"/>
+    <rect x="80" y="90" width="7" height="45" fill="#05152b" opacity="0.6"/>
+    <rect x="145" y="90" width="7" height="45" fill="#05152b" opacity="0.6"/>
+    <rect x="0" y="30" width="165" height="60" fill="#05152b" rx="3"/>
+    <polygon points="-8,30 82,2 173,30" fill="#1b2a41"/>
+    <line x1="-8" y1="30" x2="173" y2="30" stroke="#7c5730" stroke-width="2.5"/>
+    <rect x="12" y="42" width="24" height="22" fill="#ffdcbd" opacity="0.7" rx="2"/>
+    <rect x="46" y="42" width="24" height="22" fill="#ffdcbd" opacity="0.5" rx="2"/>
+    <rect x="80" y="42" width="24" height="22" fill="#ffdcbd" opacity="0.8" rx="2"/>
+    <rect x="114" y="42" width="24" height="22" fill="#ffdcbd" opacity="0.6" rx="2"/>
+    <rect x="0" y="90" width="165" height="4" fill="#7c5730" opacity="0.6"/>
+  </g>
+  <!-- House 2 - left smaller -->
+  <g transform="translate(80,120)">
+    <rect x="10" y="65" width="5" height="35" fill="#05152b" opacity="0.5"/>
+    <rect x="55" y="65" width="5" height="35" fill="#05152b" opacity="0.5"/>
+    <rect x="100" y="65" width="5" height="35" fill="#05152b" opacity="0.5"/>
+    <rect x="0" y="25" width="110" height="40" fill="#1b2a41" rx="2"/>
+    <polygon points="-5,25 55,5 115,25" fill="#05152b"/>
+    <line x1="-5" y1="25" x2="115" y2="25" stroke="#fdcb9b" stroke-width="2"/>
+    <rect x="10" y="33" width="16" height="16" fill="#bae6fd" opacity="0.5" rx="1"/>
+    <rect x="35" y="33" width="16" height="16" fill="#bae6fd" opacity="0.6" rx="1"/>
+    <rect x="60" y="33" width="16" height="16" fill="#bae6fd" opacity="0.4" rx="1"/>
+    <rect x="85" y="33" width="16" height="16" fill="#bae6fd" opacity="0.5" rx="1"/>
+  </g>
+  <!-- House 3 - right -->
+  <g transform="translate(560,110)">
+    <rect x="10" y="70" width="6" height="40" fill="#05152b" opacity="0.5"/>
+    <rect x="60" y="70" width="6" height="40" fill="#05152b" opacity="0.5"/>
+    <rect x="110" y="70" width="6" height="40" fill="#05152b" opacity="0.5"/>
+    <rect x="0" y="28" width="120" height="42" fill="#05152b" rx="2"/>
+    <polygon points="-6,28 60,5 126,28" fill="#1b2a41"/>
+    <line x1="-6" y1="28" x2="126" y2="28" stroke="#7c5730" stroke-width="2"/>
+    <rect x="10" y="37" width="18" height="18" fill="#ffdcbd" opacity="0.6" rx="1"/>
+    <rect x="38" y="37" width="18" height="18" fill="#ffdcbd" opacity="0.7" rx="1"/>
+    <rect x="66" y="37" width="18" height="18" fill="#ffdcbd" opacity="0.5" rx="1"/>
+    <rect x="94" y="37" width="18" height="18" fill="#ffdcbd" opacity="0.6" rx="1"/>
+  </g>
+  <!-- Palm trees -->
+  <g transform="translate(230,110)">
+    <rect x="0" y="40" width="4" height="70" fill="#7c5730" rx="2"/>
+    <ellipse cx="2" cy="36" rx="22" ry="8" fill="#0d5e6e" opacity="0.7" transform="rotate(-25,2,36)"/>
+    <ellipse cx="2" cy="36" rx="20" ry="7" fill="#0d5e6e" opacity="0.6" transform="rotate(20,2,36)"/>
+    <ellipse cx="2" cy="36" rx="18" ry="6" fill="#0d5e6e" opacity="0.5" transform="rotate(-55,2,36)"/>
+  </g>
+  <g transform="translate(530,115)">
+    <rect x="0" y="40" width="4" height="65" fill="#7c5730" rx="2"/>
+    <ellipse cx="2" cy="36" rx="20" ry="7" fill="#0d5e6e" opacity="0.7" transform="rotate(-30,2,36)"/>
+    <ellipse cx="2" cy="36" rx="18" ry="6" fill="#0d5e6e" opacity="0.6" transform="rotate(25,2,36)"/>
+    <ellipse cx="2" cy="36" rx="16" ry="6" fill="#0d5e6e" opacity="0.5" transform="rotate(-60,2,36)"/>
+  </g>
+  <!-- Seagulls -->
+  <path d="M350,50 Q355,44 360,50" fill="none" stroke="#05152b" stroke-width="1.2" opacity="0.3"/>
+  <path d="M500,35 Q504,30 508,35" fill="none" stroke="#05152b" stroke-width="1" opacity="0.25"/>
+  <path d="M200,60 Q204,55 208,60" fill="none" stroke="#05152b" stroke-width="1" opacity="0.2"/>
+  <!-- Text watermark -->
+  <text x="400" y="385" text-anchor="middle" font-family="Manrope,Arial,sans-serif" font-size="28" font-weight="800" fill="#ffffff" opacity="0.08">TREASURE ISLAND</text>
+</svg>

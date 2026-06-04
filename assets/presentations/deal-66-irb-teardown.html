@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deal 66 — IRB Teardown Beach Block, Indian Rocks Beach</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+@page{size:letter;margin:0}
+body{font-family:'Inter',sans-serif;color:#1a1c1c;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1,h2,h3,h4{font-family:'Manrope',sans-serif}
+.page{width:8.5in;height:11in;padding:0;position:relative;page-break-after:always;overflow:hidden}
+.page:last-child{page-break-after:auto}
+.cover{background:linear-gradient(135deg,#05152b 0%,#0c4a6e 60%,#1a8a9e 100%);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:60px}
+.cover-badge{display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:20px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.2)}
+.cover h1{font-size:48px;font-weight:800;line-height:1.1;margin-bottom:12px}
+.cover .subtitle{font-size:18px;opacity:0.8;margin-bottom:40px}
+.cover-stats{display:flex;gap:24px}
+.cover-stat{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:20px 28px;text-align:center}
+.cover-stat .val{font-size:28px;font-weight:800;color:#6ee7b7}
+.cover-stat .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:0.7;margin-top:4px}
+.cover-logo{position:absolute;top:50px;left:60px;font-size:20px;font-weight:800;letter-spacing:-0.5px}
+.cover-logo span{color:#6ee7b7}
+.cover-tag{position:absolute;top:50px;right:60px;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:0.5}
+.content{padding:50px 60px}
+.page-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e5e7eb;padding-bottom:16px;margin-bottom:32px}
+.page-header h2{font-size:22px;font-weight:800;color:#05152b}
+.page-header .deal-tag{font-size:10px;font-weight:700;color:#1a8a9e;letter-spacing:2px;text-transform:uppercase}
+.section-title{font-size:14px;font-weight:800;color:#0c4a6e;text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #6ee7b7}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.info-card{background:#f0f7fa;border-radius:12px;padding:20px}
+.info-card .label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;margin-bottom:6px}
+.info-card .value{font-size:22px;font-weight:800;color:#05152b}
+.info-card .note{font-size:11px;color:#3a4f5a;margin-top:4px}
+.fin-table{width:100%;border-collapse:collapse;font-size:13px}
+.fin-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#3a4f5a;padding:10px 16px;border-bottom:2px solid #0c4a6e}
+.fin-table td{padding:10px 16px;border-bottom:1px solid #e5e7eb}
+.fin-table tr:last-child td{border-bottom:2px solid #0c4a6e;font-weight:700}
+.fin-table .amount{text-align:right;font-variant-numeric:tabular-nums}
+.fin-table .total-row{background:#05152b;color:#fff}
+.fin-table .total-row td{border-bottom:none;font-weight:700}
+.callout{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-left:4px solid #6ee7b7;border-radius:0 12px 12px 0;padding:20px 24px;margin:20px 0}
+.callout-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#065f46;margin-bottom:8px}
+.callout p{font-size:13px;color:#1a1c1c;line-height:1.6}
+.comp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.comp-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fff;background:#0c4a6e;padding:8px 12px}
+.comp-table th:first-child{border-radius:6px 0 0 0}
+.comp-table th:last-child{border-radius:0 6px 0 0}
+.comp-table td{padding:8px 12px;border-bottom:1px solid #e5e7eb}
+.comp-table tr:nth-child(even){background:#f8fafb}
+.page-footer{position:absolute;bottom:30px;left:60px;right:60px;display:flex;justify-content:space-between;font-size:9px;color:#9ca3af}
+.page-footer .brand{font-weight:700;color:#05152b}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.why-item{display:flex;gap:12px;align-items:flex-start}
+.why-icon{width:32px;height:32px;background:#0c4a6e;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6ee7b7;font-size:16px;font-weight:800;flex-shrink:0}
+.why-text h4{font-size:13px;font-weight:700;color:#05152b;margin-bottom:2px}
+.why-text p{font-size:11px;color:#3a4f5a;line-height:1.5}
+.bullet-list{list-style:none;padding:0}
+.bullet-list li{padding:6px 0 6px 20px;position:relative;font-size:13px;line-height:1.5;color:#1a1c1c}
+.bullet-list li::before{content:'';position:absolute;left:0;top:13px;width:8px;height:8px;background:#6ee7b7;border-radius:50%}
+.cta-box{background:linear-gradient(135deg,#05152b,#0c4a6e);border-radius:16px;padding:32px;color:#fff;margin-top:24px}
+.cta-box h3{font-size:20px;font-weight:800;margin-bottom:8px}
+.cta-box p{font-size:13px;opacity:0.8;line-height:1.6}
+.cta-box .contact{margin-top:16px;font-size:14px;font-weight:600;color:#6ee7b7}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div class="page cover">
+  <div class="cover-logo">Collaborative<span>Concepts</span></div>
+  <div class="cover-tag">Investment Memo</div>
+  <div class="cover-badge">Deal #66 — Teardown / New Build</div>
+  <h1>IRB Teardown Beach Block</h1>
+  <div class="subtitle">Indian Rocks Beach, FL — 1 Block to Gulf, Value in Land</div>
+  <div class="cover-stats">
+    <div class="cover-stat"><div class="val">$725K</div><div class="lbl">Acquisition</div></div>
+    <div class="cover-stat"><div class="val">$1.8M</div><div class="lbl">Exit Value</div></div>
+    <div class="cover-stat"><div class="val">6,000 SF</div><div class="lbl">Lot Size</div></div>
+    <div class="cover-stat"><div class="val">148%</div><div class="lbl">ROI Potential</div></div>
+  </div>
+</div>
+
+<!-- PAGE 2: PROPERTY OVERVIEW -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Property Overview</h2>
+      <div class="deal-tag">Deal #66 — IRB Teardown</div>
+    </div>
+
+    <div class="section-title">Property Details</div>
+    <div class="grid-3">
+      <div class="info-card">
+        <div class="label">Location</div>
+        <div class="value" style="font-size:16px">Indian Rocks Beach, FL</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Lot Size</div>
+        <div class="value">6,000 SF</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Zoning</div>
+        <div class="value">R-1</div>
+        <div class="note">Single-Family Residential</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:24px">
+      <div class="info-card">
+        <div class="label">Asking Price</div>
+        <div class="value">$725,000</div>
+        <div class="note">$120.83 / SF — Value is in the land</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Property Type</div>
+        <div class="value">Teardown</div>
+        <div class="note">1 block to Gulf, new build site</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">Investment Thesis</div>
+      <p>One block from the Gulf of Mexico in Indian Rocks Beach — the value here is entirely in the land. Tear down the existing structure and build a luxury 2,800 SF coastal home targeting the $1.8M buyer pool. IRB's no-high-rise character and walkable beach access drive exceptional new-construction demand.</p>
+    </div>
+
+    <div class="section-title" style="margin-top:32px">Location Highlights</div>
+    <ul class="bullet-list">
+      <li>One block to Gulf beach — the #1 value driver for IRB new construction</li>
+      <li>Indian Rocks Beach — charming beach town with no high-rises, strong identity</li>
+      <li>6,000 SF lot supports a generous home footprint with pool and outdoor living</li>
+      <li>IRB new builds 1 block from Gulf consistently trade at $1.7M–$2.0M</li>
+    </ul>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Page 2 of 4 — Deal #66</div>
+  </div>
+</div>
+
+<!-- PAGE 3: FINANCIAL ANALYSIS -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Financial Analysis</h2>
+      <div class="deal-tag">Deal #66 — IRB Teardown</div>
+    </div>
+
+    <div class="section-title">Teardown / New Build Pro Forma</div>
+    <table class="fin-table">
+      <thead>
+        <tr><th>Line Item</th><th class="amount">Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Land Acquisition</td><td class="amount">$725,000</td></tr>
+        <tr><td>Closing Costs</td><td class="amount">$21,750</td></tr>
+        <tr><td>Demolition</td><td class="amount">$25,000</td></tr>
+        <tr><td>New Construction (2,800 SF @ $275/SF)</td><td class="amount">$770,000</td></tr>
+        <tr><td>Site Work / Permits / Impact Fees</td><td class="amount">$70,000</td></tr>
+        <tr><td>Carry Costs (14 months)</td><td class="amount">$58,000</td></tr>
+        <tr><td>Selling Costs (6%)</td><td class="amount">$108,000</td></tr>
+        <tr class="total-row"><td>Total Investment</td><td class="amount">$1,777,750</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2" style="margin-top:24px">
+      <div class="info-card">
+        <div class="label">Projected Sale Price</div>
+        <div class="value">$1,800,000</div>
+        <div class="note">Based on IRB new-build comps near beach</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Upside Scenario</div>
+        <div class="value" style="color:#065f46">$1,950,000+</div>
+        <div class="note">Premium finishes, rooftop deck, pool</div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px">Comparable Sales</div>
+    <table class="comp-table">
+      <thead>
+        <tr><th>Address</th><th>Type</th><th>SF</th><th>Sale Price</th><th>Dist. to Beach</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Gulf Blvd, IRB</td><td>New Build</td><td>2,900</td><td>$1,850,000</td><td>1 block</td></tr>
+        <tr><td>1st St, IRB</td><td>New Build</td><td>2,600</td><td>$1,725,000</td><td>1 block</td></tr>
+        <tr><td>Bay Palm Blvd, IRB</td><td>New Build</td><td>3,100</td><td>$1,950,000</td><td>2 blocks</td></tr>
+        <tr><td>2nd Ave, IRB</td><td>New Build</td><td>2,800</td><td>$1,800,000</td><td>1 block</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout" style="margin-top:24px">
+      <div class="callout-title">New Build Premium</div>
+      <p>New construction in IRB commands $625–$675/SF — well above the cost to build. A 2,800 SF home with modern coastal design, rooftop deck with Gulf views, and pool can push above $1.9M, generating $150K+ in net profit on the upside scenario.</p>
+    </div>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Page 3 of 4 — Deal #66</div>
+  </div>
+</div>
+
+<!-- PAGE 4: WHY THIS DEAL + CTA -->
+<div class="page">
+  <div class="content">
+    <div class="page-header">
+      <h2>Why This Deal</h2>
+      <div class="deal-tag">Deal #66 — IRB Teardown</div>
+    </div>
+
+    <div class="section-title">Key Investment Drivers</div>
+    <div class="why-grid">
+      <div class="why-item">
+        <div class="why-icon">1</div>
+        <div class="why-text">
+          <h4>Beach Block Location</h4>
+          <p>One block from the Gulf — new builds this close to the beach in IRB are extremely rare and command premium pricing above $625/SF.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">2</div>
+        <div class="why-text">
+          <h4>Land Value Play</h4>
+          <p>At $725K, you're buying the location — the existing structure has zero value. Clean slate for maximum design flexibility and value creation.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">3</div>
+        <div class="why-text">
+          <h4>IRB New-Build Demand</h4>
+          <p>Buyers are willing to pay $1.8M+ for new construction in IRB's beach blocks. Limited supply of buildable lots creates persistent demand.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-icon">4</div>
+        <div class="why-text">
+          <h4>Gulf View Potential</h4>
+          <p>A 3-story design with rooftop deck can capture Gulf views from 1 block back — a massive value driver that differentiates from ground-level homes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px">Exit Strategy</div>
+    <ul class="bullet-list">
+      <li>Primary: Teardown, build 2,800 SF luxury coastal home, sell at $1.8M–$1.95M</li>
+      <li>Alternative: Sell the cleared lot to a custom builder at $800K–$850K for quick profit</li>
+      <li>Alternative: Build and hold as premium STR — $120K+ annual gross revenue</li>
+    </ul>
+
+    <div class="cta-box">
+      <h3>Ready to Move on This Deal?</h3>
+      <p>Beach block teardown in Indian Rocks Beach — one of the highest-value new-build opportunities on the Gulf Coast. Contact us today to discuss the development plan.</p>
+      <div class="contact">Danny Bivins — (561) 475-8615 — dannybivins83@gmail.com</div>
+    </div>
+  </div>
+  <div class="page-footer">
+    <div class="brand">Collaborative Concepts</div>
+    <div>Page 4 of 4 — Deal #66</div>
+  </div>
+</div>
+
+</body>
+</html>
