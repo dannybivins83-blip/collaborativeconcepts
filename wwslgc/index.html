@@ -174,7 +174,7 @@
         <label class="check"><input type="checkbox" id="confirmSend"> I reviewed these and want to send for real</label>
         <button class="btn-danger" id="sendBtn" disabled>🚀 Send all now</button>
       </div>
-      <div class="muted" style="margin-top:8px">Drafts are created in your Outlook/Microsoft 365 mailbox so you can review before sending — nothing goes out until you hit send.</div>
+      <div class="muted" style="margin-top:8px" id="draftNote">Drafts are created in your connected mailbox so you can review before sending — nothing goes out until you hit send.</div>
       <div id="results" class="results hide"></div>
     </div>
   </div>
@@ -327,7 +327,10 @@ let AUTH={authenticated:false};
 function renderConnect(){
   const bar=$('connectBar'); const btn='display:inline-block;background:#fff;color:#0B2340;padding:6px 11px;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin:6px 6px 0 0';
   if(AUTH.authenticated){
-    bar.innerHTML='Sending as <b>'+(AUTH.email||'')+'</b> <span style="opacity:.75">('+(AUTH.provider==='google'?'Gmail':'Outlook')+')</span><br><a href="/api/logout" style="color:var(--gold)">Disconnect</a>';
+    const mb=AUTH.provider==='google'?'Gmail':'Outlook';
+    bar.innerHTML='Sending as <b>'+(AUTH.email||'')+'</b> <span style="opacity:.75">('+mb+')</span><br><a href="/api/logout" style="color:var(--gold)">Disconnect</a>';
+    if($('draftBtn')) $('draftBtn').textContent='📝 Create drafts in '+mb;
+    if($('draftNote')) $('draftNote').textContent='Drafts are created in your '+mb+' mailbox so you can review before sending — nothing goes out until you hit send.';
   } else {
     bar.innerHTML='<span style="color:#c7d6ea">Not connected — connect a mailbox to send:</span><br>'+
       '<a href="/api/login" style="'+btn+'">✉ Connect Microsoft</a>'+
