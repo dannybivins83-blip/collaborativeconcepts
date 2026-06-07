@@ -89,6 +89,85 @@ TEMPLATES = [
      "body": "Hi {{First}},\n\n\n\n" + SIGNATURE},
 ]
 
+# --------------------------------------------------------------------------
+# Collaborative Concept — PBC trades outreach (Outcome AI offer)
+# Merge fields: {{First}} {{Company}} {{City}} {{Trade}}
+# --------------------------------------------------------------------------
+CC_SIGNATURE = (
+    "Danny Bivins · Collaborative Concept\n"
+    "(561) 475-8615 · dannybivins83@gmail.com · Palm Beach County, FL\n"
+    "I build it — you only pay if it works.\n"
+    "Reply STOP or UNSUBSCRIBE to opt out."
+)
+
+TRADES_TEMPLATES = [
+    {"name": "Roofing — cold (AccuLynx admin)", "trade": "Roofing",
+     "subject": "Quick one for {{Company}} — contractor to contractor",
+     "body": ("Hi {{First}},\n\nIf {{Company}} runs AccuLynx, your office is probably burning a full "
+              "work-week every week exporting it, re-keying reports, and chasing stale leads by hand.\n\n"
+              "I run a roofing & construction operation here in Palm Beach County and I built a tool that "
+              "automates exactly that for my own shop — it cut about 125 admin hours a month, roughly "
+              "$4,000. I'll white-label the same thing as {{Company}}'s own internal system.\n\n"
+              "The deal: no retainer. We baseline your current admin hours and I take a share only of what "
+              "it measurably saves you, tracked on a shared dashboard. If it doesn't save you money, you "
+              "owe me nothing — only the software cost is ever upfront.\n\n"
+              "Worth 20 minutes to see the number on your shop?\n\n" + CC_SIGNATURE)},
+
+    {"name": "AC/HVAC — cold (speed-to-lead)", "trade": "AC/HVAC",
+     "subject": "The after-hours calls {{Company}} is missing are booked jobs",
+     "body": ("Hi {{First}},\n\nEvery after-hours or slow-answered call in {{City}} is a job that went to "
+              "the next AC company in the Google results.\n\nI run a contracting operation here in Palm "
+              "Beach County and I built an instant call/text responder that answers, qualifies, and books "
+              "— plus reminders that kill no-shows. Built it for my own shop first.\n\nNo retainer. We pick "
+              "one number — booked-call rate or no-show rate — and I'm paid only from the jobs it wins "
+              "back. Nothing but software cost upfront; I cover my own time.\n\n20 minutes to see if "
+              "there's an easy number to move at {{Company}}?\n\n" + CC_SIGNATURE)},
+
+    {"name": "Electrical / Plumbing — cold (speed-to-lead)", "trade": "Service",
+     "subject": "How fast does {{Company}} call a new lead back?",
+     "body": ("Hi {{First}},\n\nQuick question — when a new lead comes in after hours, how fast does "
+              "someone at {{Company}} actually call them back? Every gap there is a booked job walking to "
+              "the next shop.\n\nI'm a contractor in Palm Beach County and I built a tool that answers and "
+              "books leads in under a minute, plus a system that turns finished jobs into reviews. Built it "
+              "for my own operation first.\n\nNo retainer — I only get paid out of the jobs and reviews it "
+              "wins you. Software cost is the only thing upfront.\n\nWorth 20 minutes?\n\n" + CC_SIGNATURE)},
+
+    {"name": "GC / Multi-trade — cold (proposals + admin)", "trade": "GC/Multi",
+     "subject": "Two numbers I can move for {{Company}}",
+     "body": ("Hi {{First}},\n\nFor a multi-trade shop like {{Company}}, two things quietly cost you jobs: "
+              "proposals that take too long, and an office buried in admin.\n\nI run a construction "
+              "operation in Palm Beach County and built tools that fix both — a proposal/quote generator "
+              "and an ops command center that reclaims admin hours. They cut ~$4,000/month of office grind "
+              "in my own shop before I ever sold one.\n\nNo retainer. We pick one number, baseline it, and "
+              "I'm paid only from what it measurably moves. No result, no invoice.\n\n20 minutes to find "
+              "the most expensive bottleneck at {{Company}}?\n\n" + CC_SIGNATURE)},
+
+    {"name": "HOT — they're hiring an admin/dispatcher", "trade": "Any",
+     "subject": "Before you fill that office seat at {{Company}}",
+     "body": ("Hi {{First}},\n\nSaw {{Company}} is hiring an office admin/dispatcher. Before you put "
+              "someone on payroll for ~$50k/yr to do it by hand — one thing worth 15 minutes.\n\nI run a "
+              "roofing & construction shop too. The exact work that role does — exporting and reporting, "
+              "answering and booking calls, scheduling — I automated for my own company. It cut about "
+              "$4,000 a month. I'll white-label the same tool as {{Company}}'s own system.\n\nAnd you only "
+              "pay me out of what it actually saves you. No savings, no invoice — only the software cost.\n\n"
+              "Want to see the numbers before you fill that seat?\n\n" + CC_SIGNATURE)},
+
+    {"name": "Follow-up — no reply", "trade": "Any",
+     "subject": "Following up — {{Company}}",
+     "body": ("Hi {{First}},\n\nFollowing up. Simplest way to see if this is real for {{Company}}: 20 "
+              "minutes, we pull your number, and I tell you straight what the upside looks like. If it's "
+              "not worth either of our time, I'll say so.\n\nWorth a look?\n\n" + CC_SIGNATURE)},
+
+    {"name": "Break-up — closing the loop", "trade": "Any",
+     "subject": "Closing the loop — {{Company}}",
+     "body": ("Hi {{First}},\n\nI'll stop here so I'm not a pest. If moving one number on a no-risk, "
+              "only-pay-if-it-works basis ever climbs your list, the door's open.\n\n— Danny\n\n" + CC_SIGNATURE)},
+
+    {"name": "Blank — write your own", "trade": "Any",
+     "subject": "",
+     "body": "Hi {{First}},\n\n\n\n" + CC_SIGNATURE},
+]
+
 
 # --------------------------------------------------------------------------
 # Session cookie crypto
@@ -224,6 +303,43 @@ def set_contacts():
     try:
         _, configured = _kv_cmd(["SET", CONTACTS_KEY, json.dumps(leads)])
         return jsonify({"ok": configured, "configured": configured, "count": len(leads)})
+    except Exception as e:
+        return jsonify({"ok": False, "status": str(e)}), 502
+
+
+@app.get("/api/trades/templates")
+def trades_templates():
+    return jsonify({"templates": TRADES_TEMPLATES, "signature": CC_SIGNATURE})
+
+
+# ---- trades prospect pipeline (Upstash/Vercel KV) ----
+PROSPECTS_KEY = "outcomeai:prospects"
+
+
+@app.get("/api/prospects")
+def get_prospects():
+    """Return the saved pipeline. KV-backed; degrades to unconfigured so the
+    dashboard can seed itself from /data/prospects.json in the browser."""
+    try:
+        val, configured = _kv_cmd(["GET", PROSPECTS_KEY])
+        if not configured:
+            return jsonify({"configured": False, "prospects": []})
+        prospects = json.loads(val) if val else []
+        return jsonify({"configured": True, "prospects": prospects})
+    except Exception as e:
+        return jsonify({"configured": True, "prospects": [], "status": str(e)}), 200
+
+
+@app.post("/api/prospects")
+def set_prospects():
+    s = read_session()
+    if not s or not s.get("access_token"):
+        return jsonify({"error": "not connected"}), 401
+    body = request.get_json(force=True, silent=True) or {}
+    prospects = body.get("prospects", [])
+    try:
+        _, configured = _kv_cmd(["SET", PROSPECTS_KEY, json.dumps(prospects)])
+        return jsonify({"ok": configured, "configured": configured, "count": len(prospects)})
     except Exception as e:
         return jsonify({"ok": False, "status": str(e)}), 502
 

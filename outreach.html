@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Outreach Manager — Collaborative Concept</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { primary:"#05152b","primary-container":"#1b2a41",secondary:"#7c5730","secondary-fixed":"#a7f3d0","on-secondary-fixed":"#064e3b",surface:"#faf9f8","surface-low":"#f4f3f2","surface-lowest":"#ffffff","on-surface":"#1a1c1c","on-surface-variant":"#44474d","outline":"#c5c6ce",green:"#1e7d43",amber:"#b45309",red:"#b42318" },
+    fontFamily: { headline:["Manrope"], body:["Inter"] }
+  }}}
+</script>
+<style>
+  body{font-family:'Inter',sans-serif}h1,h2,h3,.head{font-family:'Manrope',sans-serif}
+  .chip{font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:3px 9px;border-radius:999px}
+  [x-modal]{transition:opacity .15s}
+</style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-40 bg-primary text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <span class="w-8 h-8 rounded-lg bg-secondary grid place-items-center font-extrabold text-white">CC</span>
+      <div>
+        <div class="font-extrabold leading-tight head">Outreach Manager</div>
+        <div class="text-[11px] text-white/60 leading-tight">Collaborative Concept · PBC Trades</div>
+      </div>
+    </div>
+    <div id="authBar" class="flex items-center gap-2 text-sm"></div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+
+  <div id="banner" class="hidden mb-4 rounded-lg px-4 py-3 text-sm"></div>
+
+  <!-- STATS -->
+  <div id="stats" class="grid grid-cols-3 sm:grid-cols-7 gap-2 mb-5"></div>
+
+  <!-- TOOLBAR -->
+  <div class="flex flex-wrap items-center gap-2 mb-4">
+    <select id="fTrade" class="rounded-lg border-outline text-sm py-2"><option value="">All trades</option><option>Roofing</option><option>AC/HVAC</option><option>Electrical</option><option>Plumbing</option><option>GC/Multi</option></select>
+    <select id="fStage" class="rounded-lg border-outline text-sm py-2"><option value="">All stages</option></select>
+    <input id="fSearch" placeholder="Search company / city…" class="rounded-lg border-outline text-sm py-2 px-3 flex-1 min-w-[180px]"/>
+    <button onclick="App.pull()" class="text-sm px-3 py-2 rounded-lg border border-outline hover:bg-surface-low">Pull from server</button>
+    <button onclick="App.exportJson()" class="text-sm px-3 py-2 rounded-lg border border-outline hover:bg-surface-low">Export</button>
+    <label class="text-sm px-3 py-2 rounded-lg border border-outline hover:bg-surface-low cursor-pointer">Import<input type="file" accept="application/json" class="hidden" onchange="App.importJson(event)"/></label>
+  </div>
+
+  <!-- TABLE -->
+  <div class="bg-surface-lowest rounded-xl border border-outline/40 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-surface-low text-on-surface-variant">
+        <tr class="text-left">
+          <th class="px-4 py-3 font-semibold">Company</th>
+          <th class="px-3 py-3 font-semibold hidden sm:table-cell">Trade</th>
+          <th class="px-3 py-3 font-semibold hidden md:table-cell">City</th>
+          <th class="px-3 py-3 font-semibold hidden lg:table-cell">Owner</th>
+          <th class="px-3 py-3 font-semibold">Stage</th>
+          <th class="px-3 py-3 font-semibold hidden md:table-cell">Next action</th>
+          <th class="px-3 py-3"></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div id="empty" class="hidden p-8 text-center text-on-surface-variant text-sm">No prospects match.</div>
+  </div>
+  <p class="text-xs text-on-surface-variant mt-3">Connect a mailbox to send and to sync the pipeline across devices. Without it, the list still works and saves to this browser.</p>
+</main>
+
+<!-- PROSPECT MODAL -->
+<div id="modal" x-modal class="hidden fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-0 sm:p-6">
+  <div class="bg-surface-lowest w-full sm:max-w-3xl sm:rounded-2xl rounded-t-2xl max-h-[94vh] overflow-y-auto shadow-2xl">
+    <div class="sticky top-0 bg-primary text-white px-5 py-4 flex items-center justify-between">
+      <div>
+        <div id="mCompany" class="font-extrabold text-lg head"></div>
+        <div id="mSub" class="text-xs text-white/60"></div>
+      </div>
+      <button onclick="App.closeModal()" class="text-white/70 hover:text-white text-2xl leading-none">×</button>
+    </div>
+    <div class="p-5 grid md:grid-cols-2 gap-6">
+      <!-- LEFT: details + touches -->
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <label class="text-xs font-semibold text-on-surface-variant col-span-2">Owner / contact name
+            <input id="mOwner" class="mt-1 w-full rounded-lg border-outline text-sm"/></label>
+          <label class="text-xs font-semibold text-on-surface-variant col-span-2">Email
+            <input id="mEmail" type="email" class="mt-1 w-full rounded-lg border-outline text-sm" placeholder="enrich before sending"/></label>
+          <label class="text-xs font-semibold text-on-surface-variant">Phone
+            <input id="mPhone" class="mt-1 w-full rounded-lg border-outline text-sm"/></label>
+          <label class="text-xs font-semibold text-on-surface-variant">Software
+            <input id="mSoftware" class="mt-1 w-full rounded-lg border-outline text-sm"/></label>
+          <label class="text-xs font-semibold text-on-surface-variant">Stage
+            <select id="mStage" class="mt-1 w-full rounded-lg border-outline text-sm"></select></label>
+          <label class="text-xs font-semibold text-on-surface-variant">Next action
+            <input id="mNext" type="date" class="mt-1 w-full rounded-lg border-outline text-sm"/></label>
+          <label class="text-xs font-semibold text-on-surface-variant col-span-2">Notes
+            <textarea id="mNotes" rows="2" class="mt-1 w-full rounded-lg border-outline text-sm"></textarea></label>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wide text-on-surface-variant">Touch history</span>
+            <div class="flex gap-1">
+              <button onclick="App.logTouch('Call')" class="chip bg-surface-low text-on-surface-variant hover:bg-secondary hover:text-white">+Call</button>
+              <button onclick="App.logTouch('Text')" class="chip bg-surface-low text-on-surface-variant hover:bg-secondary hover:text-white">+Text</button>
+              <button onclick="App.logTouch('LinkedIn')" class="chip bg-surface-low text-on-surface-variant hover:bg-secondary hover:text-white">+LI</button>
+            </div>
+          </div>
+          <ul id="mTouches" class="space-y-1 text-xs text-on-surface-variant max-h-32 overflow-y-auto"></ul>
+        </div>
+      </div>
+      <!-- RIGHT: message composer -->
+      <div class="space-y-3">
+        <label class="text-xs font-semibold text-on-surface-variant">Message template
+          <select id="mTpl" class="mt-1 w-full rounded-lg border-outline text-sm" onchange="App.applyTemplate()"></select></label>
+        <label class="text-xs font-semibold text-on-surface-variant">Subject
+          <input id="mSubject" class="mt-1 w-full rounded-lg border-outline text-sm"/></label>
+        <label class="text-xs font-semibold text-on-surface-variant">Body
+          <textarea id="mBody" rows="11" class="mt-1 w-full rounded-lg border-outline text-sm font-mono leading-relaxed"></textarea></label>
+        <div id="sendStatus" class="text-xs"></div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="App.send('send')" class="bg-primary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-primary-container">Send email</button>
+          <button onclick="App.send('draft')" class="border border-outline text-sm font-semibold px-4 py-2 rounded-lg hover:bg-surface-low">Create draft</button>
+          <button onclick="App.send('test')" class="border border-outline text-sm px-4 py-2 rounded-lg hover:bg-surface-low">Test to me</button>
+          <button onclick="App.copyBody()" class="text-sm px-3 py-2 rounded-lg hover:bg-surface-low">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STAGES = ["New","Contacted","Follow-up","Call booked","Won","Pass"];
+const STAGE_COLORS = {
+  "New":"bg-surface-low text-on-surface-variant","Contacted":"bg-blue-100 text-blue-800",
+  "Follow-up":"bg-amber-100 text-amber-800","Call booked":"bg-purple-100 text-purple-800",
+  "Won":"bg-green-100 text-green-800","Pass":"bg-gray-200 text-gray-600"
+};
+const LS_KEY = "cc_prospects_v1";
+
+const App = {
+  prospects: [], templates: [], signature: "", auth: {authenticated:false},
+  current: null, kvConfigured: false,
+
+  async init(){
+    await this.loadAuth();
+    await this.loadTemplates();
+    await this.load();
+    this.buildStageOptions();
+    this.bindFilters();
+    this.render();
+  },
+
+  async api(path, opts){
+    try { const r = await fetch(path, opts); return await r.json(); }
+    catch(e){ return null; }
+  },
+
+  async loadAuth(){
+    const me = await this.api("/api/me");
+    this.auth = me || {authenticated:false, offline:true};
+    const bar = document.getElementById("authBar");
+    if(me && me.authenticated){
+      bar.innerHTML = '<span class="chip bg-secondary-fixed text-on-secondary-fixed">●&nbsp;'+(me.email||"connected")+'</span>'+
+        '<a href="/api/logout" class="text-white/70 hover:text-white underline">Sign out</a>';
+    } else {
+      const g = (me&&me.providers&&me.providers.google), m = (me&&me.providers&&me.providers.microsoft);
+      bar.innerHTML =
+        (g!==false?'<a href="/api/login/google" class="bg-white text-primary text-xs font-semibold px-3 py-1.5 rounded-lg">Connect Gmail</a>':'')+
+        (m!==false?'<a href="/api/login" class="border border-white/30 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">Connect Outlook</a>':'');
+      if(!me) this.banner("Backend offline (static preview). The list works and saves locally; deploy to Vercel to send + sync.","amber");
+    }
+  },
+
+  async loadTemplates(){
+    const t = await this.api("/api/trades/templates");
+    if(t && t.templates){ this.templates = t.templates; this.signature = t.signature||""; }
+    const sel = document.getElementById("mTpl");
+    sel.innerHTML = this.templates.map((t,i)=>'<option value="'+i+'">'+t.name+'</option>').join("")
+      || '<option>—</option>';
+  },
+
+  async load(){
+    let seed = [];
+    const s = await this.api("/data/prospects.json");
+    if(s && s.prospects) seed = s.prospects;
+    let server = null;
+    const sv = await this.api("/api/prospects");
+    if(sv){ this.kvConfigured = !!sv.configured; if(sv.prospects && sv.prospects.length) server = sv.prospects; }
+    const local = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+    // priority: localStorage (latest working copy) > server (cross-device) > seed
+    this.prospects = local || server || seed;
+    if(!local) this.persistLocal();
+  },
+
+  async pull(){
+    const sv = await this.api("/api/prospects");
+    if(sv && sv.prospects && sv.prospects.length){
+      this.prospects = sv.prospects; this.persistLocal(); this.render();
+      this.banner("Pulled "+sv.prospects.length+" prospects from server.","green");
+    } else { this.banner("No server copy yet (KV not configured or empty).","amber"); }
+  },
+
+  persistLocal(){ localStorage.setItem(LS_KEY, JSON.stringify(this.prospects)); },
+  async persist(){
+    this.persistLocal();
+    if(this.auth.authenticated){
+      const r = await this.api("/api/prospects",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prospects:this.prospects})});
+      this.kvConfigured = !!(r && r.configured);
+    }
+  },
+
+  buildStageOptions(){
+    document.getElementById("fStage").insertAdjacentHTML("beforeend", STAGES.map(s=>'<option>'+s+'</option>').join(""));
+    document.getElementById("mStage").innerHTML = STAGES.map(s=>'<option>'+s+'</option>').join("");
+  },
+  bindFilters(){ ["fTrade","fStage","fSearch"].forEach(id=>document.getElementById(id).addEventListener("input",()=>this.render())); },
+
+  filtered(){
+    const t=document.getElementById("fTrade").value, st=document.getElementById("fStage").value,
+          q=document.getElementById("fSearch").value.toLowerCase();
+    return this.prospects.filter(p=>
+      (!t||p.trade===t)&&(!st||p.stage===st)&&
+      (!q||(p.company+" "+(p.city||"")+" "+(p.owner||"")).toLowerCase().includes(q)));
+  },
+
+  render(){
+    // stats
+    const counts = {Total:this.prospects.length}; STAGES.forEach(s=>counts[s]=0);
+    this.prospects.forEach(p=>counts[p.stage]=(counts[p.stage]||0)+1);
+    const order=["Total","New","Contacted","Follow-up","Call booked","Won","Pass"];
+    document.getElementById("stats").innerHTML = order.map(k=>
+      '<div class="bg-surface-lowest border border-outline/40 rounded-lg px-3 py-2">'+
+      '<div class="text-xl font-extrabold text-primary head">'+(counts[k]||0)+'</div>'+
+      '<div class="text-[11px] text-on-surface-variant uppercase tracking-wide">'+k+'</div></div>').join("");
+    // rows
+    const rows = this.filtered();
+    document.getElementById("empty").classList.toggle("hidden", rows.length>0);
+    document.getElementById("rows").innerHTML = rows.map(p=>{
+      const sc = STAGE_COLORS[p.stage]||"bg-surface-low";
+      const pr = p.priority===1?'<span class="text-secondary" title="Top pick">★</span> ':'';
+      return '<tr class="border-t border-outline/30 hover:bg-surface-low cursor-pointer" onclick="App.open(\''+p.id+'\')">'+
+        '<td class="px-4 py-3"><div class="font-semibold text-primary">'+pr+p.company+'</div>'+
+          '<div class="text-xs text-on-surface-variant sm:hidden">'+p.trade+' · '+(p.city||'')+'</div></td>'+
+        '<td class="px-3 py-3 hidden sm:table-cell">'+p.trade+'</td>'+
+        '<td class="px-3 py-3 hidden md:table-cell">'+(p.city||'')+'</td>'+
+        '<td class="px-3 py-3 hidden lg:table-cell text-on-surface-variant">'+(p.owner||'—')+'</td>'+
+        '<td class="px-3 py-3"><span class="chip '+sc+'">'+p.stage+'</span></td>'+
+        '<td class="px-3 py-3 hidden md:table-cell text-on-surface-variant">'+(p.next||'—')+'</td>'+
+        '<td class="px-3 py-3 text-right text-secondary font-semibold">Open ›</td></tr>';
+    }).join("");
+  },
+
+  open(id){
+    const p = this.prospects.find(x=>x.id===id); if(!p) return;
+    this.current = p;
+    document.getElementById("mCompany").textContent = p.company;
+    document.getElementById("mSub").textContent = p.trade+" · "+(p.city||"")+(p.phone?" · "+p.phone:"");
+    document.getElementById("mOwner").value = p.owner||"";
+    document.getElementById("mEmail").value = p.email||"";
+    document.getElementById("mPhone").value = p.phone||"";
+    document.getElementById("mSoftware").value = p.software||"";
+    document.getElementById("mStage").value = p.stage;
+    document.getElementById("mNext").value = p.next||"";
+    document.getElementById("mNotes").value = p.notes||"";
+    this.renderTouches();
+    this.autoTemplate(); this.applyTemplate();
+    document.getElementById("sendStatus").textContent = "";
+    document.getElementById("modal").classList.remove("hidden");
+  },
+  closeModal(){ this.saveCurrent(); document.getElementById("modal").classList.add("hidden"); },
+
+  saveCurrent(){
+    const p=this.current; if(!p) return;
+    p.owner=val("mOwner"); p.email=val("mEmail"); p.phone=val("mPhone");
+    p.software=val("mSoftware"); p.stage=val("mStage"); p.next=val("mNext"); p.notes=val("mNotes");
+    this.persist(); this.render();
+  },
+
+  renderTouches(){
+    const p=this.current; const ul=document.getElementById("mTouches");
+    ul.innerHTML = (p.touches||[]).slice().reverse().map(t=>
+      '<li>• <b>'+t.date+'</b> · '+t.channel+(t.note?' — '+t.note:'')+'</li>').join("") || '<li class="opacity-60">No touches yet.</li>';
+  },
+  logTouch(channel, note){
+    const p=this.current; if(!p) return;
+    p.touches = p.touches||[];
+    p.touches.push({date:new Date().toISOString().slice(0,10), channel:channel, note:note||""});
+    // auto-advance stage on first contact
+    if(p.stage==="New" && ["Call","Text","Email","LinkedIn"].includes(channel)) p.stage="Contacted";
+    document.getElementById("mStage").value=p.stage;
+    this.renderTouches(); this.persist(); this.render();
+  },
+
+  autoTemplate(){
+    const p=this.current; const map={"Roofing":0,"AC/HVAC":1,"Electrical":2,"Plumbing":2,"GC/Multi":3};
+    let idx = map[p.trade]; if(idx===undefined) idx=0;
+    // if already contacted, default to follow-up
+    if(p.stage==="Contacted"||p.stage==="Follow-up"){ const fu=this.templates.findIndex(t=>/follow-up/i.test(t.name)); if(fu>=0) idx=fu; }
+    document.getElementById("mTpl").value = idx;
+  },
+  merge(s){
+    const p=this.current; const first=(p.owner||"there").split(" ")[0];
+    return (s||"").replace(/{{First}}/g,first).replace(/{{Company}}/g,p.company)
+      .replace(/{{City}}/g,p.city||"your area").replace(/{{Trade}}/g,p.trade);
+  },
+  applyTemplate(){
+    const i=+document.getElementById("mTpl").value; const t=this.templates[i]; if(!t) return;
+    document.getElementById("mSubject").value=this.merge(t.subject);
+    document.getElementById("mBody").value=this.merge(t.body);
+  },
+
+  async send(mode){
+    const p=this.current; const st=document.getElementById("sendStatus");
+    const email=val("mEmail");
+    if(mode!=="test" && !email){ st.innerHTML='<span class="text-red">Add an email first.</span>'; return; }
+    if(!this.auth.authenticated){ st.innerHTML='<span class="text-amber">Connect a mailbox first (top right).</span>'; return; }
+    st.textContent="Working…";
+    const r=await this.api("/api/send",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({mode:mode,recipient:{email:email,subject:val("mSubject"),body:val("mBody")}})});
+    if(r&&r.ok){
+      st.innerHTML='<span class="text-green">✓ '+(r.status||mode)+' → '+(r.email||email)+'</span>';
+      if(mode==="send"){ this.logTouch("Email","sent: "+val("mSubject")); }
+    } else { st.innerHTML='<span class="text-red">'+((r&&r.status)||"failed")+'</span>'; }
+  },
+  copyBody(){ navigator.clipboard.writeText(val("mSubject")+"\n\n"+val("mBody")); document.getElementById("sendStatus").innerHTML='<span class="text-green">Copied.</span>'; },
+
+  banner(msg,color){
+    const b=document.getElementById("banner"); const c={green:"bg-green-50 text-green-800 border border-green-200",amber:"bg-amber-50 text-amber-800 border border-amber-200",red:"bg-red-50 text-red-800 border border-red-200"}[color]||"bg-surface-low";
+    b.className="mb-4 rounded-lg px-4 py-3 text-sm "+c; b.textContent=msg; b.classList.remove("hidden");
+  },
+
+  exportJson(){
+    const blob=new Blob([JSON.stringify({prospects:this.prospects},null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="cc-prospects-backup.json"; a.click();
+  },
+  importJson(e){
+    const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+    r.onload=()=>{ try{ const d=JSON.parse(r.result); const arr=d.prospects||d;
+      if(Array.isArray(arr)){ this.prospects=arr; this.persist(); this.render(); this.banner("Imported "+arr.length+" prospects.","green"); } }
+      catch(err){ this.banner("Import failed: "+err.message,"red"); } };
+    r.readAsText(f);
+  }
+};
+function val(id){ return document.getElementById(id).value.trim(); }
+// save edits when modal fields change
+["mStage","mNext","mOwner","mEmail","mPhone","mSoftware","mNotes"].forEach(id=>{
+  document.addEventListener("input",e=>{ if(e.target.id===id && App.current){ /* debounce-light */ } });
+});
+document.getElementById("mStage").addEventListener?.("change",()=>App.saveCurrent());
+window.addEventListener("DOMContentLoaded",()=>App.init());
+</script>
+</body></html>
