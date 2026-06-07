@@ -103,15 +103,17 @@ CC_SIGNATURE = (
 TRADES_TEMPLATES = [
     {"name": "Roofing — cold (AccuLynx admin)", "trade": "Roofing",
      "subject": "Quick one for {{Company}} — contractor to contractor",
-     "body": ("Hi {{First}},\n\nIf {{Company}} runs AccuLynx, your office is probably burning a full "
-              "work-week every week exporting it, re-keying reports, and chasing stale leads by hand.\n\n"
-              "I run a roofing & construction operation here in Palm Beach County and I built a tool that "
-              "automates exactly that for my own shop — it cut about 125 admin hours a month, roughly "
-              "$4,000. I'll white-label the same thing as {{Company}}'s own internal system.\n\n"
-              "The deal: no retainer. We baseline your current admin hours and I take a share only of what "
+     "body": ("Hi {{First}},\n\nI'll keep this short. I was born and raised here and spent 10+ years in "
+              "roofing in Palm Beach County, so I know the process and the headaches that come with it. "
+              "These days I help small roofing companies cut the office grind — honestly the part of this "
+              "I enjoy most.\n\nIf {{Company}} runs AccuLynx, your office is probably burning close to a "
+              "full work-week every week exporting it, re-keying reports, and chasing stale leads by hand. "
+              "I built a tool that automates exactly that for my own shop — it cut about 125 admin hours a "
+              "month, roughly $4,000. I'll white-label the same thing as {{Company}}'s own internal "
+              "system.\n\nNo retainer. We baseline your current admin hours and I take a share only of what "
               "it measurably saves you, tracked on a shared dashboard. If it doesn't save you money, you "
-              "owe me nothing — only the software cost is ever upfront.\n\n"
-              "Worth 20 minutes to see the number on your shop?\n\n" + CC_SIGNATURE)},
+              "owe me nothing — only the software cost is ever upfront.\n\nWorth 20 minutes to look at the "
+              "number on your shop?\n\n" + CC_SIGNATURE)},
 
     {"name": "AC/HVAC — cold (speed-to-lead)", "trade": "AC/HVAC",
      "subject": "The after-hours calls {{Company}} is missing are booked jobs",
