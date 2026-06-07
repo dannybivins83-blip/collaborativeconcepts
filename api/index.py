@@ -192,13 +192,13 @@ def read_session():
 def write_session(resp, payload):
     token = _fernet().encrypt(json.dumps(payload).encode()).decode()
     resp.set_cookie(SESSION_COOKIE, token, httponly=True, secure=True,
-                    samesite="Lax", max_age=60 * 60 * 8, path="/")
+                    samesite="Lax", max_age=60 * 60 * 8, path="/", domain=_cookie_domain())
 
 
 def set_temp(resp, name, value, max_age=600):
     token = _fernet().encrypt(json.dumps(value).encode()).decode()
     resp.set_cookie(name, token, httponly=True, secure=True, samesite="Lax",
-                    max_age=max_age, path="/")
+                    max_age=max_age, path="/", domain=_cookie_domain())
 
 
 def read_temp(name):
@@ -212,7 +212,7 @@ def read_temp(name):
 
 
 def clear_cookie(resp, name):
-    resp.set_cookie(name, "", expires=0, path="/")
+    resp.set_cookie(name, "", expires=0, path="/", domain=_cookie_domain())
 
 
 def base_url():
@@ -221,14 +221,36 @@ def base_url():
     return "{}://{}".format(proto, host)
 
 
-def _safe_next(default="/wwslgc"):
-    """Where to land after sign-in. Only same-origin relative paths allowed."""
-    nxt = request.args.get("next") or default
-    return nxt if nxt.startswith("/") and not nxt.startswith("//") else default
+ROOT_DOMAIN = "collaborativeconceptsfl.com"
 
 
-def _safe_path(nxt, default="/wwslgc"):
-    return nxt if isinstance(nxt, str) and nxt.startswith("/") and not nxt.startswith("//") else default
+def _cookie_domain():
+    """Scope cookies to the parent domain so a session created on the
+    wwslgc subdomain callback is also readable on the apex (and vice-versa).
+    Falls back to host-only on preview (*.vercel.app)."""
+    host = (request.headers.get("x-forwarded-host", request.host) or "").split(":")[0]
+    return "." + ROOT_DOMAIN if host == ROOT_DOMAIN or host.endswith("." + ROOT_DOMAIN) else None
+
+
+def _safe_next(default_path="/wwslgc"):
+    """Absolute return URL on the host the user started from (e.g. the apex),
+    so after the subdomain callback we can send them back where they began."""
+    nxt = request.args.get("next") or default_path
+    if not (nxt.startswith("/") and not nxt.startswith("//")):
+        nxt = default_path
+    return base_url() + nxt
+
+
+def _safe_path(url, default="/wwslgc"):
+    """Validate a stored return URL is same-site before redirecting to it."""
+    from urllib.parse import urlparse
+    try:
+        host = (urlparse(url).hostname or "") if url else ""
+        if url and url.startswith("https://") and (host == ROOT_DOMAIN or host.endswith("." + ROOT_DOMAIN)):
+            return url
+    except Exception:
+        pass
+    return default
 
 
 # --------------------------------------------------------------------------
