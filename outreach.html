@@ -172,8 +172,8 @@ const App = {
     } else {
       const g = (me&&me.providers&&me.providers.google), m = (me&&me.providers&&me.providers.microsoft);
       bar.innerHTML =
-        (g!==false?'<a href="/api/login/google" class="bg-white text-primary text-xs font-semibold px-3 py-1.5 rounded-lg">Connect Gmail</a>':'')+
-        (m!==false?'<a href="/api/login" class="border border-white/30 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">Connect Outlook</a>':'');
+        (g!==false?'<a href="/api/login/google?next=/outreach" class="bg-white text-primary text-xs font-semibold px-3 py-1.5 rounded-lg">Connect Gmail</a>':'')+
+        (m!==false?'<a href="/api/login?next=/outreach" class="border border-white/30 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">Connect Outlook</a>':'');
       if(!me) this.banner("Backend offline (static preview). The list works and saves locally; deploy to Vercel to send + sync.","amber");
     }
   },

@@ -221,6 +221,16 @@ def base_url():
     return "{}://{}".format(proto, host)
 
 
+def _safe_next(default="/wwslgc"):
+    """Where to land after sign-in. Only same-origin relative paths allowed."""
+    nxt = request.args.get("next") or default
+    return nxt if nxt.startswith("/") and not nxt.startswith("//") else default
+
+
+def _safe_path(nxt, default="/wwslgc"):
+    return nxt if isinstance(nxt, str) and nxt.startswith("/") and not nxt.startswith("//") else default
+
+
 # --------------------------------------------------------------------------
 # Microsoft (MSAL)
 # --------------------------------------------------------------------------
@@ -357,6 +367,7 @@ def login_ms():
     flow = msal_app().initiate_auth_code_flow(MS_SCOPES, redirect_uri=ms_redirect_uri())
     resp = make_response(redirect(flow["auth_uri"]))
     set_temp(resp, FLOW_COOKIE, flow)
+    set_temp(resp, "cc_next", _safe_next())
     return resp
 
 
@@ -372,10 +383,11 @@ def callback_ms():
     email = (claims.get("preferred_username") or claims.get("email") or "").lower()
     if ALLOWED_DOMAIN and not email.endswith("@" + ALLOWED_DOMAIN):
         return _err_page("Microsoft sign-in is restricted to @{} accounts.".format(ALLOWED_DOMAIN))
-    resp = make_response(redirect("/wwslgc"))
+    resp = make_response(redirect(_safe_path(read_temp("cc_next"))))
     write_session(resp, {"provider": "microsoft", "access_token": result["access_token"],
                          "email": email, "name": claims.get("name", email)})
     clear_cookie(resp, FLOW_COOKIE)
+    clear_cookie(resp, "cc_next")
     return resp
 
 
@@ -398,7 +410,7 @@ def login_google():
     }
     url = GOOGLE_AUTH + "?" + "&".join("{}={}".format(k, requests.utils.quote(v, safe="")) for k, v in params.items())
     resp = make_response(redirect(url))
-    set_temp(resp, GSTATE_COOKIE, {"state": state})
+    set_temp(resp, GSTATE_COOKIE, {"state": state, "next": _safe_next()})
     return resp
 
 
@@ -430,7 +442,7 @@ def callback_google():
         name = info.get("name", email)
     except requests.RequestException:
         pass
-    resp = make_response(redirect("/wwslgc"))
+    resp = make_response(redirect(_safe_path(saved.get("next"))))
     write_session(resp, {"provider": "google", "access_token": access, "email": email, "name": name})
     clear_cookie(resp, GSTATE_COOKIE)
     return resp
