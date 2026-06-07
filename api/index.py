@@ -265,11 +265,11 @@ def msal_app():
 
 
 def ms_redirect_uri():
-    return os.environ.get("WWSLGC_REDIRECT_URI") or (base_url() + "/api/auth/callback")
+    return (os.environ.get("WWSLGC_REDIRECT_URI") or "").strip() or (base_url() + "/api/auth/callback")
 
 
 def google_redirect_uri():
-    return os.environ.get("GOOGLE_REDIRECT_URI") or (base_url() + "/api/auth/google/callback")
+    return (os.environ.get("GOOGLE_REDIRECT_URI") or "").strip() or (base_url() + "/api/auth/google/callback")
 
 
 # --------------------------------------------------------------------------
