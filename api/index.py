@@ -121,32 +121,47 @@ TRADES_TEMPLATES = [
 
     {"name": "AC/HVAC — cold (speed-to-lead)", "trade": "AC/HVAC",
      "subject": "The after-hours calls {{Company}} is missing are booked jobs",
-     "body": ("Hi {{First}},\n\nEvery after-hours or slow-answered call in {{City}} is a job that went to "
-              "the next AC company in the Google results.\n\nI run a contracting operation here in Palm "
-              "Beach County and I built an instant call/text responder that answers, qualifies, and books "
-              "— plus reminders that kill no-shows. Built it for my own shop first.\n\nNo retainer. We pick "
-              "one number — booked-call rate or no-show rate — and I'm paid only from the jobs it wins "
-              "back. Nothing but software cost upfront; I cover my own time.\n\n20 minutes to see if "
-              "there's an easy number to move at {{Company}}?\n\n" + CC_SIGNATURE)},
+     "body": ("Hi {{First}},\n\nQuick one, contractor to contractor. I'm local — born and raised here, "
+              "10+ years in construction and the trades around Palm Beach County — and these days I help "
+              "small shops stop leaving money on the table.\n\nEvery after-hours or slow-answered call at "
+              "{{Company}} is a job that went to the next AC company in the Google results. I built an "
+              "instant call/text responder that answers, qualifies, and books — plus reminders that kill "
+              "no-shows. Built it for my own operation first.\n\nAnd unlike ServiceTitan or Housecall Pro: "
+              "no licensing fee, unlimited users, and it ties right into the apps you already run. Where it "
+              "makes sense I can rebuild those tools as your own — branded to {{Company}}, no per-seat bill "
+              "— so you stop paying their monthly licenses for good.\n\nNo retainer. We pick one number — "
+              "booked-call rate or no-show rate — and I'm paid only from the jobs it wins back. Nothing but "
+              "software cost upfront.\n\n20 minutes to see if there's an easy number to move at "
+              "{{Company}}?\n\n" + CC_SIGNATURE)},
 
     {"name": "Electrical / Plumbing — cold (speed-to-lead)", "trade": "Service",
      "subject": "How fast does {{Company}} call a new lead back?",
-     "body": ("Hi {{First}},\n\nQuick question — when a new lead comes in after hours, how fast does "
-              "someone at {{Company}} actually call them back? Every gap there is a booked job walking to "
-              "the next shop.\n\nI'm a contractor in Palm Beach County and I built a tool that answers and "
-              "books leads in under a minute, plus a system that turns finished jobs into reviews. Built it "
-              "for my own operation first.\n\nNo retainer — I only get paid out of the jobs and reviews it "
-              "wins you. Software cost is the only thing upfront.\n\nWorth 20 minutes?\n\n" + CC_SIGNATURE)},
+     "body": ("Hi {{First}},\n\nContractor to contractor — I'm local, born and raised here, 10+ years in "
+              "construction and the trades around Palm Beach County, and I like helping small shops like "
+              "{{Company}}.\n\nQuick question: when a new lead comes in after hours, how fast does someone "
+              "actually call them back? Every gap there is a booked job walking to the next shop. I built a "
+              "tool that answers and books leads in under a minute, plus a system that turns finished jobs "
+              "into reviews. Built it for my own operation first.\n\nAnd unlike Housecall Pro, Jobber, or "
+              "ServiceTitan: no licensing fee, unlimited users, and it ties right into the apps you already "
+              "run. Where it makes sense I can rebuild those tools as your own — branded to {{Company}}, no "
+              "per-seat bill — so you stop paying their monthly licenses for good.\n\nNo retainer — I only "
+              "get paid out of the jobs and reviews it wins you. Software cost is the only thing "
+              "upfront.\n\nWorth 20 minutes?\n\n" + CC_SIGNATURE)},
 
     {"name": "GC / Multi-trade — cold (proposals + admin)", "trade": "GC/Multi",
      "subject": "Two numbers I can move for {{Company}}",
-     "body": ("Hi {{First}},\n\nFor a multi-trade shop like {{Company}}, two things quietly cost you jobs: "
-              "proposals that take too long, and an office buried in admin.\n\nI run a construction "
-              "operation in Palm Beach County and built tools that fix both — a proposal/quote generator "
-              "and an ops command center that reclaims admin hours. They cut ~$4,000/month of office grind "
-              "in my own shop before I ever sold one.\n\nNo retainer. We pick one number, baseline it, and "
-              "I'm paid only from what it measurably moves. No result, no invoice.\n\n20 minutes to find "
-              "the most expensive bottleneck at {{Company}}?\n\n" + CC_SIGNATURE)},
+     "body": ("Hi {{First}},\n\nContractor to contractor — I'm local, born and raised here with 10+ years "
+              "in construction and the trades around Palm Beach County, and I enjoy helping small shops "
+              "like {{Company}}.\n\nFor a multi-trade shop, two things quietly cost you jobs: proposals "
+              "that take too long, and an office buried in admin. I built tools that fix both — a "
+              "proposal/quote generator and an ops command center that reclaims admin hours. They cut "
+              "~$4,000/month of office grind in my own shop before I ever sold one.\n\nAnd unlike "
+              "ServiceTitan or Buildertrend: no licensing fee, unlimited users, and it ties right into the "
+              "apps you already run. Where it makes sense I can rebuild those tools as your own — branded "
+              "to {{Company}}, no per-seat bill — so you stop paying their monthly licenses for good.\n\nNo "
+              "retainer. We pick one number, baseline it, and I'm paid only from what it measurably moves. "
+              "No result, no invoice.\n\n20 minutes to find the most expensive bottleneck at "
+              "{{Company}}?\n\n" + CC_SIGNATURE)},
 
     {"name": "HOT — they're hiring an admin/dispatcher", "trade": "Any",
      "subject": "Before you fill that office seat at {{Company}}",
