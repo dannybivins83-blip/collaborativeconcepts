@@ -110,7 +110,10 @@ TRADES_TEMPLATES = [
               "full work-week every week exporting it, re-keying reports, and chasing stale leads by hand. "
               "I built a tool that automates exactly that for my own shop — it cut about 125 admin hours a "
               "month, roughly $4,000. I'll white-label the same thing as {{Company}}'s own internal "
-              "system.\n\nNo retainer. We baseline your current admin hours and I take a share only of what "
+              "system.\n\nAnd unlike the software you're paying for now: no licensing fee, unlimited users, "
+              "and it ties right into the third-party apps you already run. Where it makes sense, I can "
+              "rebuild those tools as your own — so you stop paying their per-seat licenses and monthly fees "
+              "for good.\n\nNo retainer. We baseline your current admin hours and I take a share only of what "
               "it measurably saves you, tracked on a shared dashboard. If it doesn't save you money, you "
               "owe me nothing — only the software cost is ever upfront.\n\nWorth 20 minutes to look at the "
               "number on your shop?\n\n" + CC_SIGNATURE)},
