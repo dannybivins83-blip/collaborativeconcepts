@@ -1229,14 +1229,13 @@ function showCase(lot){
   const opts = DOC_CATEGORIES.map(cat=>'<option>'+_esc(cat)+'</option>').join('');
   document.getElementById('adminCaseUpload').innerHTML =
     '<div class="card" style="margin-top:20px">'+
-      '<div class="card-title">📤 Upload Document — Lot '+_esc(c.lot)+'</div>'+
-      '<div class="card-sub">As <strong>'+_esc(CURRENT_USER.name)+'</strong>. Every upload optionally emails '+_esc(c.email)+' a notification with a portal link.</div>'+
+      '<div class="card-title">📤 Upload &amp; Email — Lot '+_esc(c.lot)+'</div>'+
+      '<div class="card-sub">As <strong>'+_esc(CURRENT_USER.name)+'</strong>. File goes straight to <strong>'+_esc(c.email)+'</strong> with the team CC&apos;d — the Gmail thread is the file record. Max 40 MB per send.</div>'+
       '<div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">'+
         '<select id="upCat" style="background:var(--navy2);color:var(--white);border:1px solid var(--border);padding:10px;border-radius:6px;font-family:Barlow;font-size:14px">'+opts+'</select>'+
         '<input type="file" id="upFile" style="background:var(--navy2);color:var(--white);border:1px solid var(--border);padding:8px;border-radius:6px">'+
-        '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer"><input type="checkbox" id="upInternal"> 🔒 Internal only — hide from client view (use for sensitive plan-review comments etc.)</label>'+
-        '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--blue2);cursor:pointer"><input type="checkbox" id="upNotify" checked> ✉️ Email '+_esc(c.email)+' when uploaded</label>'+
-        '<button id="upBtn" onclick="doUpload(\''+_esc(c.lot)+'\')" style="background:var(--blue);color:var(--white);border:none;padding:14px;border-radius:6px;font-weight:600;cursor:pointer;font-family:Barlow;font-size:14px">Upload to Lot '+_esc(c.lot)+'</button>'+
+        '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer"><input type="checkbox" id="upInternal"> 🔒 Internal only — staff CC only, do NOT send to '+_esc(c.email)+' (use for sensitive plan-review comments etc.)</label>'+
+        '<button id="upBtn" onclick="doUpload(\''+_esc(c.lot)+'\')" style="background:var(--blue);color:var(--white);border:none;padding:14px;border-radius:6px;font-weight:600;cursor:pointer;font-family:Barlow;font-size:14px">📨 Email this file to Lot '+_esc(c.lot)+'</button>'+
       '</div>'+
     '</div>';
 
@@ -1274,17 +1273,20 @@ function showCase(lot){
     '<div class="alert-box info"><span class="alert-icon">💡</span><div class="alert-text"><strong>'+_esc(CURRENT_USER.role)+':</strong> '+_esc(tips[CURRENT_USER.role]||'Upload anything relevant to this case.')+'</div></div>';
 }
 
-// ── UPLOAD HANDLER ──
+// ── UPLOAD HANDLER (sends file as Resend email attachment) ──
 async function doUpload(lot){
   const cat      = document.getElementById('upCat').value;
   const fileEl   = document.getElementById('upFile');
   const file     = fileEl.files[0];
   const internal = document.getElementById('upInternal').checked;
-  const notify   = document.getElementById('upNotify').checked;
   const btn      = document.getElementById('upBtn');
   if(!file){ alert('Pick a file first.'); return; }
+  if(file.size > 40*1024*1024){
+    alert('File is '+(file.size/1024/1024).toFixed(1)+' MB. Max 40 MB per send.');
+    return;
+  }
 
-  btn.disabled = true; btn.textContent = 'Uploading…';
+  btn.disabled = true; btn.textContent = '📨 Sending…';
   try {
     const fd = new FormData();
     fd.append('file', file);
@@ -1293,29 +1295,28 @@ async function doUpload(lot){
     fd.append('uploaded_by', CURRENT_USER.name);
     fd.append('uploaded_by_role', CURRENT_USER.role);
     fd.append('internal_only', internal ? '1' : '0');
-    fd.append('notify_client', notify ? '1' : '0');
+    fd.append('notify_client', internal ? '0' : '1');
     fd.append('client_email', CASES[lot].email);
     fd.append('client_owner', CASES[lot].owner);
 
     const r = await fetch('/api/portal/upload', {method:'POST', body:fd});
     const j = await r.json().catch(()=>({error:'Non-JSON response'}));
-    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    if(!r.ok || !j.ok) throw new Error(j.error||('HTTP '+r.status));
 
     // Optimistic local update
     CASES[lot].docs.push({
       category: cat, name: file.name,
       uploaded_by: CURRENT_USER.name,
       uploaded_at: new Date().toISOString().slice(0,10),
-      internal_only: internal,
-      url: j.url
+      internal_only: internal
     });
-    btn.textContent = '✓ Uploaded' + (j.email_sent ? ' · client emailed' : (notify ? ' · email pending' : ''));
+    btn.textContent = '✓ Emailed' + (j.client_addressed ? ' to client + team' : ' to team only');
     btn.style.background = '#1a6b40';
     setTimeout(()=>showCase(lot), 1500);
   } catch(e){
     btn.disabled = false;
-    btn.textContent = 'Upload to Lot '+lot;
-    alert('Upload failed: '+e.message+'\n\nThe backend may not be deployed yet. Setup steps:\n1. Enable Vercel Blob in the project dashboard\n2. Add RESEND_API_KEY env var\n3. Redeploy');
+    btn.textContent = '📨 Email this file to Lot '+lot;
+    alert('Send failed: '+e.message);
   }
 }
 
