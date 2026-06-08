@@ -604,3 +604,155 @@ def _err_page(msg):
             "<h2>Sign-in problem</h2><p>{}</p>"
             "<p><a href='/wwslgc'>← Back to the portal</a></p></body>").format(msg)
     return make_response(html, 400)
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Casa Del Monte portal — file uploads + client email notifications
+#
+# Env vars (set in Vercel project settings):
+#   BLOB_READ_WRITE_TOKEN   — created when you enable Vercel Blob storage
+#   RESEND_API_KEY          — from https://resend.com  (free, 100/day)
+#   RESEND_FROM_EMAIL       — verified sender, e.g. updates@collaborativeconceptsfl.com
+#   PORTAL_BASE_URL         — public URL, e.g. https://casadelmonte.collaborativeconceptsfl.com
+# ─────────────────────────────────────────────────────────────────────────
+
+import re
+from datetime import datetime, timezone
+
+BLOB_TOKEN  = os.environ.get("BLOB_READ_WRITE_TOKEN", "")
+RESEND_KEY  = os.environ.get("RESEND_API_KEY", "")
+RESEND_FROM = os.environ.get("RESEND_FROM_EMAIL", "updates@collaborativeconceptsfl.com")
+PORTAL_BASE = os.environ.get("PORTAL_BASE_URL", "https://casadelmonte.collaborativeconceptsfl.com")
+
+
+def _safe_name(name):
+    return re.sub(r"[^A-Za-z0-9._-]+", "_", name)[:120] or "file"
+
+
+def _blob_put(path, data, content_type):
+    """Upload bytes to Vercel Blob. Returns public URL."""
+    if not BLOB_TOKEN:
+        raise RuntimeError("BLOB_READ_WRITE_TOKEN not configured")
+    r = requests.put(
+        "https://blob.vercel-storage.com/" + path,
+        headers={
+            "authorization": "Bearer " + BLOB_TOKEN,
+            "x-api-version": "7",
+            "x-content-type": content_type,
+            "x-add-random-suffix": "1",
+        },
+        data=data,
+        timeout=60,
+    )
+    if not r.ok:
+        raise RuntimeError("Blob {}: {}".format(r.status_code, r.text[:200]))
+    return r.json().get("url", "")
+
+
+def _resend_send(to_email, subject, html):
+    """Send a single transactional email via Resend. Returns (ok, info)."""
+    if not RESEND_KEY:
+        return False, "RESEND_API_KEY not configured"
+    if not to_email:
+        return False, "no recipient"
+    r = requests.post(
+        "https://api.resend.com/emails",
+        headers={
+            "authorization": "Bearer " + RESEND_KEY,
+            "content-type": "application/json",
+        },
+        json={
+            "from": RESEND_FROM,
+            "to": [to_email],
+            "subject": subject,
+            "html": html,
+        },
+        timeout=30,
+    )
+    if r.ok:
+        return True, r.json().get("id", "")
+    return False, r.text[:200]
+
+
+def _notify_html(uploaded_by, category, lot, owner):
+    return (
+        "<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto'>"
+        "<div style='background:#1a2332;padding:24px 32px'>"
+        "<h1 style='color:#fff;font-size:20px;margin:0'>LA GALA CONSTRUCTION</h1>"
+        "<p style='color:#3d7eaa;font-size:12px;margin:4px 0 0;letter-spacing:1px;text-transform:uppercase'>Casa Del Monte · File Update</p>"
+        "</div>"
+        "<div style='padding:28px 32px;color:#1a2332;font-size:14px;line-height:1.6;background:#fff'>"
+        "<p>Hi {owner},</p>"
+        "<p><strong>{uploaded_by}</strong> just added a new document to your case file:</p>"
+        "<div style='background:#f0f9f4;border:1px solid #1a6b40;border-radius:8px;padding:16px 20px;margin:0 0 18px'>"
+        "<p style='margin:0;font-size:12px;color:#1a6b40;letter-spacing:1px;text-transform:uppercase;font-weight:700'>New document</p>"
+        "<p style='margin:6px 0 0;font-size:18px;color:#1a2332;font-weight:700'>{category}</p>"
+        "<p style='margin:6px 0 0;font-size:12px;color:#666'>Lot {lot}</p>"
+        "</div>"
+        "<p><a href='{portal}' style='background:#3d7eaa;color:#fff;text-decoration:none;padding:12px 24px;border-radius:6px;display:inline-block;font-weight:600'>View your file</a></p>"
+        "<p style='font-size:12px;color:#666;margin-top:24px'>Questions? Call Daniel at (561) 475-8615.</p>"
+        "<p style='margin:24px 0 4px'>— La Gala Construction</p>"
+        "<p style='margin:0;color:#666;font-size:12px'>CGC 059211 · Licensed &amp; Insured</p>"
+        "</div></div>"
+    ).format(owner=owner, uploaded_by=uploaded_by, category=category, lot=lot, portal=PORTAL_BASE)
+
+
+@app.route("/api/portal/status", methods=["GET"])
+def portal_status():
+    """Quick check that env vars are wired up."""
+    return jsonify({
+        "blob_configured":   bool(BLOB_TOKEN),
+        "resend_configured": bool(RESEND_KEY),
+        "from_email":        RESEND_FROM if RESEND_KEY else None,
+        "portal_base":       PORTAL_BASE,
+    })
+
+
+@app.route("/api/portal/upload", methods=["POST"])
+def portal_upload():
+    f = request.files.get("file")
+    if f is None:
+        return jsonify({"error": "no file"}), 400
+    lot           = (request.form.get("lot") or "").strip()
+    category      = (request.form.get("category") or "Other").strip()
+    uploaded_by   = (request.form.get("uploaded_by") or "Staff").strip()
+    uploaded_role = (request.form.get("uploaded_by_role") or "").strip()
+    internal_only = request.form.get("internal_only") == "1"
+    notify        = request.form.get("notify_client") == "1"
+    client_email  = (request.form.get("client_email") or "").strip()
+    client_owner  = (request.form.get("client_owner") or "there").strip()
+
+    if not lot:
+        return jsonify({"error": "lot required"}), 400
+
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    path = "casadelmonte/lot-{}/{}-{}".format(_safe_name(lot), ts, _safe_name(f.filename or "file"))
+
+    try:
+        url = _blob_put(path, f.read(), f.content_type or "application/octet-stream")
+    except Exception as e:
+        return jsonify({"error": "upload failed: {}".format(e)}), 500
+
+    email_sent = False
+    email_info = ""
+    if notify and not internal_only and client_email:
+        ok, info = _resend_send(
+            client_email,
+            "New document on your Casa Del Monte file — Lot {}".format(lot),
+            _notify_html(uploaded_by, category, lot, client_owner),
+        )
+        email_sent = ok
+        email_info = info if not ok else ""
+
+    return jsonify({
+        "ok": True,
+        "url": url,
+        "lot": lot,
+        "category": category,
+        "uploaded_by": uploaded_by,
+        "uploaded_by_role": uploaded_role,
+        "internal_only": internal_only,
+        "email_sent": email_sent,
+        "email_error": email_info,
+        "uploaded_at": ts,
+    })
