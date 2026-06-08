@@ -93,6 +93,85 @@ npx expo export --platform android --no-bytecode  # bundles ~2.5 MB
 npx expo start                                    # boots Metro on :8081
 ```
 
+## Ship the beta — canonical ordered sequence
+
+If the user says "ship the beta," this is the precise sequence. Don't ad-lib it.
+
+1. **One-time setup.** User runs `bash scripts/setup.sh`. The script walks them through `eas login` + `eas init`, prompts for Expo username + PostHog key + legal-doc fields + Apple submit metadata, and writes all of it into `app.json`, `eas.json`, and `legal/*.filled.md`. Idempotent — safe to re-run.
+2. **Verify health** before any build: `npm run typecheck && npm run lint && npm test`.
+3. **iOS — TestFlight path** (requires active Apple Developer membership):
+   - `npm run build:preview:ios` → EAS builds an internal-distribution IPA (~15 min).
+   - `npm run submit:preview:ios` → uploads to App Store Connect for TestFlight.
+   - In App Store Connect → TestFlight, add internal testers (instant) or external testers (24h Beta App Review the first time).
+4. **Android — internal-distribution APK** (no Play account needed for the first 50 testers):
+   - `npm run build:preview:android` → EAS builds an APK and prints a shareable URL. Send the URL; testers tap install. **No submit step.** Done.
+5. **Hot-fix shipping** after a build is installed: `npm run ota:preview "your message"` for JS-only changes.
+
+**Parallel tracks for impatient shipping.** Apple Developer enrollment takes 24-48h after payment. If the user wants something in hand today, ship Android first (step 4 — no enrollment, no Play account, no review), then ship iOS to TestFlight whenever Apple approves. The two platforms are independent and the Android APK link works on day one.
+
+What "ship the beta" needs from the user (collect these before running setup.sh): Expo account, Apple ID + Team ID + ASC App ID (only if doing the iOS TestFlight path), PostHog Project API Key (`phc_...`), legal business fields (entity name, governing-law state, contact email), and the iOS Distribution certs which EAS auto-creates on the first build if asked.
+
+What "ship the beta" does NOT need: Google Play Console (the Android preview profile distributes by URL, not through Play), `redlight.app` domain (the landing page can deploy later), or an attorney (template is fine for the beta cohort under explicit "this is a beta" framing).
+
+## Every npm script (full names — match `package.json` exactly)
+
+| Script | What it does |
+| --- | --- |
+| `npm start` | `expo start` — Metro dev server. Press `i` / `a` / `w` for sim/emulator/web. |
+| `npm run ios` | `expo start --ios` |
+| `npm run android` | `expo start --android` |
+| `npm run web` | `expo start --web` |
+| `npm test` | Jest (math service) |
+| `npm run test:watch` | Jest watch mode |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | `eslint . --ext .ts,.tsx` |
+| `npm run build:dev:ios` | EAS iOS Simulator build (free, no Apple account) |
+| `npm run build:dev:android` | EAS Android dev build (APK) |
+| `npm run build:preview:ios` | EAS real-device internal-distribution IPA → TestFlight |
+| `npm run build:preview:android` | EAS internal-distribution APK (shareable link) |
+| `npm run build:preview:all` | Both at once |
+| `npm run build:prod:ios` | EAS App Store IPA |
+| `npm run build:prod:android` | EAS Play `.aab` |
+| `npm run submit:preview:ios` | Upload the latest preview IPA to App Store Connect for TestFlight |
+| `npm run submit:preview:android` | Upload the latest preview AAB to the Play internal track |
+| `npm run submit:ios` | Upload latest production IPA to App Store Connect |
+| `npm run submit:android` | Upload latest production AAB to Play Console |
+| `npm run ota:preview "msg"` | Push a JS-only OTA update to the preview channel |
+| `npm run ota:production "msg"` | Push a JS-only OTA update to production |
+
+## Current real-world state (as of last commit)
+
+| Thing | State |
+| --- | --- |
+| Working tree | Should be clean. `git status` to confirm. |
+| Latest commit | Run `git log --oneline -5` for the head. |
+| EAS project | **Not created yet.** Three `REPLACE_WITH_*` slots in `app.json` (owner, extra.eas.projectId, updates.url) are still placeholder strings. Run `scripts/setup.sh` to fill them. |
+| Apple Developer account | **Not signed up.** User skipped. ($99/yr, individual enrollment recommended.) |
+| Google Play Console | **Not signed up.** User skipped. ($25 once.) |
+| PostHog project | **Not created.** `app.json` `expo.extra.posthogApiKey` is empty. `analytics.ts` no-ops gracefully until set. |
+| Legal docs | `legal/TERMS.md` + `legal/PRIVACY.md` are templates with `{{ }}` placeholders. **No attorney engaged.** `scripts/setup.sh` produces `legal/*.filled.md` (gitignored, contain real business info) that an attorney would then review. |
+| Domain (`redlight.app`) | **Not registered.** `web/` is ready to deploy; `scripts/deploy-web.sh` will smoke-test and push to Vercel. |
+| Beta cohort | **Not recruited.** `marketing/BETA-RECRUITING.md` has the DM/email/social copy + tester one-pager + feedback-form structure. None sent yet. |
+| TFLite model | **No commitment.** Candidates in `TODO.md`: Bosch Small Traffic Lights Dataset, LISA, or a fine-tuned MobileNetV3. `TFLiteLightDetector` class in `src/services/lightDetection.ts` is a stub that throws on `start()`. |
+| TestFlight build | **None submitted.** Never built. |
+| User's platform | Windows. Has hit `cmd.exe` quirks — see Windows notes below. |
+
+## Windows / `cmd.exe` notes (user is on Windows)
+
+- `cmd.exe` doesn't strip `#` like bash does. Never give the user a command with a trailing `# comment` — npm will try to install a package literally called `#` and fail with `EINVALIDTAGNAME`. Comment on a separate line or skip the comment.
+- Paths use backslashes in cmd: `cd C:\Users\name\collaborativeconcepts\redlight`. Forward slashes also work in most commands, but quote any path with spaces.
+- If they get "path not found" on `cd redlight`, they likely haven't cloned the repo yet, or they're at the wrong parent directory. The full first-time path is:
+  ```
+  git clone https://github.com/dannybivins83-blip/collaborativeconcepts.git
+  cd collaborativeconcepts
+  git checkout claude/redlight-mvp-app-KZ24K
+  cd redlight
+  npm install
+  npx expo start
+  ```
+- Prereqs they may not have: Git (`git-scm.com/download/win`), Node LTS (`nodejs.org`). Both install with default options. Reopen `cmd.exe` after installing so `PATH` refreshes.
+- PowerShell behaves more like bash but still doesn't honor `#` for inline comments. Same rule applies.
+
 ## How to test the app
 
 Expo Go on a phone is the fastest path — no accounts, no build. `npx expo start`, scan the QR in the terminal with the iPhone Camera app (or Expo Go on Android), app loads over Wi-Fi. Camera Mode works because the detector is simulated in JS regardless of real camera. iOS Simulator and Android Emulator also work via `i` / `a` in the Metro terminal.

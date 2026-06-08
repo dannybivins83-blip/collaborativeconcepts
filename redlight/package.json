@@ -18,6 +18,8 @@
     "build:prod:ios": "eas build --profile production --platform ios",
     "build:prod:android": "eas build --profile production --platform android",
     "build:preview:all": "eas build --profile preview --platform all",
+    "submit:preview:ios": "eas submit --profile preview --platform ios --latest",
+    "submit:preview:android": "eas submit --profile preview --platform android --latest",
     "submit:ios": "eas submit --profile production --platform ios --latest",
     "submit:android": "eas submit --profile production --platform android --latest",
     "ota:preview": "eas update --branch preview --message",
