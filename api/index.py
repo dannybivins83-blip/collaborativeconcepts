@@ -620,6 +620,14 @@ import re
 from datetime import datetime, timezone
 
 BLOB_TOKEN  = os.environ.get("BLOB_READ_WRITE_TOKEN", "")
+# Vercel Blob's integration sometimes creates env vars named after the store
+# (e.g. CDM_UPLOADS_READ_WRITE_TOKEN). Fall back to any *_READ_WRITE_TOKEN
+# whose value starts with the Blob token prefix.
+if not BLOB_TOKEN:
+    for _k, _v in os.environ.items():
+        if _k.endswith("_READ_WRITE_TOKEN") and _v.startswith("vercel_blob_"):
+            BLOB_TOKEN = _v
+            break
 RESEND_KEY  = os.environ.get("RESEND_API_KEY", "")
 RESEND_FROM = os.environ.get("RESEND_FROM_EMAIL", "updates@collaborativeconceptsfl.com")
 PORTAL_BASE = os.environ.get("PORTAL_BASE_URL", "https://casadelmonte.collaborativeconceptsfl.com")
@@ -700,8 +708,13 @@ def _notify_html(uploaded_by, category, lot, owner):
 @app.route("/api/portal/status", methods=["GET"])
 def portal_status():
     """Quick check that env vars are wired up."""
+    blob_env_names = sorted(
+        k for k in os.environ
+        if "BLOB" in k or k.endswith("_READ_WRITE_TOKEN") or k.startswith("BLOB_")
+    )
     return jsonify({
         "blob_configured":   bool(BLOB_TOKEN),
+        "blob_env_names":    blob_env_names,
         "resend_configured": bool(RESEND_KEY),
         "from_email":        RESEND_FROM if RESEND_KEY else None,
         "portal_base":       PORTAL_BASE,
