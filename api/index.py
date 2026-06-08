@@ -607,117 +607,128 @@ def _err_page(msg):
 
 
 # ─────────────────────────────────────────────────────────────────────────
-# Casa Del Monte portal — file uploads + client email notifications
+# Casa Del Monte portal — file uploads via email attachment
+#
+# Each portal upload becomes a single Resend email with the file attached.
+# Client is in `to`, staff in `cc` — Gmail/Outlook thread is the file record.
+# No persistent file storage, no Blob bucket to maintain.
 #
 # Env vars (set in Vercel project settings):
-#   BLOB_READ_WRITE_TOKEN   — created when you enable Vercel Blob storage
 #   RESEND_API_KEY          — from https://resend.com  (free, 100/day)
 #   RESEND_FROM_EMAIL       — verified sender, e.g. updates@collaborativeconceptsfl.com
 #   PORTAL_BASE_URL         — public URL, e.g. https://casadelmonte.collaborativeconceptsfl.com
+#   PORTAL_STAFF_EMAILS     — comma-sep staff emails CC'd on every upload
 # ─────────────────────────────────────────────────────────────────────────
 
+import base64
 import re
 from datetime import datetime, timezone
 
-BLOB_TOKEN  = os.environ.get("BLOB_READ_WRITE_TOKEN", "")
-# Vercel Blob's integration sometimes creates env vars named after the store
-# (e.g. CDM_UPLOADS_READ_WRITE_TOKEN). Fall back to any *_READ_WRITE_TOKEN
-# whose value starts with the Blob token prefix.
-if not BLOB_TOKEN:
-    for _k, _v in os.environ.items():
-        if _k.endswith("_READ_WRITE_TOKEN") and _v.startswith("vercel_blob_"):
-            BLOB_TOKEN = _v
-            break
 RESEND_KEY  = os.environ.get("RESEND_API_KEY", "")
 RESEND_FROM = os.environ.get("RESEND_FROM_EMAIL", "updates@collaborativeconceptsfl.com")
 PORTAL_BASE = os.environ.get("PORTAL_BASE_URL", "https://casadelmonte.collaborativeconceptsfl.com")
+
+# Staff CC'd on every upload. Override via PORTAL_STAFF_EMAILS env.
+_STAFF_DEFAULT = (
+    "danny@lagalacon.com,"
+    "keith@lagalacon.com,"
+    "kailer.lagala824@gmail.com,"
+    "natasharich1989@gmail.com,"
+    "alex@lagalacon.com"
+)
+PORTAL_STAFF = [
+    e.strip() for e in os.environ.get("PORTAL_STAFF_EMAILS", _STAFF_DEFAULT).split(",")
+    if e.strip()
+]
+
+# Resend attachment size cap (Resend allows 40MB total per request)
+MAX_FILE_BYTES = 40 * 1024 * 1024
 
 
 def _safe_name(name):
     return re.sub(r"[^A-Za-z0-9._-]+", "_", name)[:120] or "file"
 
 
-def _blob_put(path, data, content_type):
-    """Upload bytes to Vercel Blob. Returns public URL."""
-    if not BLOB_TOKEN:
-        raise RuntimeError("BLOB_READ_WRITE_TOKEN not configured")
-    r = requests.put(
-        "https://blob.vercel-storage.com/" + path,
-        headers={
-            "authorization": "Bearer " + BLOB_TOKEN,
-            "x-api-version": "7",
-            "x-content-type": content_type,
-            "x-add-random-suffix": "1",
-        },
-        data=data,
-        timeout=60,
-    )
-    if not r.ok:
-        raise RuntimeError("Blob {}: {}".format(r.status_code, r.text[:200]))
-    return r.json().get("url", "")
-
-
-def _resend_send(to_email, subject, html):
-    """Send a single transactional email via Resend. Returns (ok, info)."""
+def _resend_send(payload):
+    """Generic Resend send. Returns (ok, info)."""
     if not RESEND_KEY:
         return False, "RESEND_API_KEY not configured"
-    if not to_email:
-        return False, "no recipient"
     r = requests.post(
         "https://api.resend.com/emails",
         headers={
             "authorization": "Bearer " + RESEND_KEY,
             "content-type": "application/json",
         },
-        json={
-            "from": RESEND_FROM,
-            "to": [to_email],
-            "subject": subject,
-            "html": html,
-        },
-        timeout=30,
+        json=payload,
+        timeout=60,
     )
     if r.ok:
         return True, r.json().get("id", "")
-    return False, r.text[:200]
+    return False, r.text[:300]
 
 
-def _notify_html(uploaded_by, category, lot, owner):
+def _upload_email_html(uploaded_by, uploaded_role, category, lot, owner_name, filename, internal_only, client_addressed):
+    """Branded HTML body for the upload-attachment email."""
+    greeting = "Hi {}, ".format(owner_name) if client_addressed else "Team,"
+    intro = (
+        "<strong>{u}</strong> ({r}) just added a new document to your Casa Del Monte file:".format(
+            u=uploaded_by, r=uploaded_role or "Staff"
+        )
+        if client_addressed
+        else "<strong>{u}</strong> ({r}) uploaded a new document — file attached.".format(
+            u=uploaded_by, r=uploaded_role or "Staff"
+        )
+    )
+    internal_banner = (
+        "<div style='background:#fee;border-left:3px solid #c0392b;padding:8px 12px;margin-bottom:14px;font-size:12px;color:#7a1a1a'>"
+        "🔒 INTERNAL ONLY — not shared with client</div>"
+        if internal_only
+        else ""
+    )
+    cta = (
+        "<p><a href='{p}' style='background:#3d7eaa;color:#fff;text-decoration:none;padding:12px 24px;border-radius:6px;display:inline-block;font-weight:600'>Open the portal</a></p>".format(
+            p=PORTAL_BASE
+        )
+        if client_addressed
+        else ""
+    )
     return (
         "<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto'>"
         "<div style='background:#1a2332;padding:24px 32px'>"
         "<h1 style='color:#fff;font-size:20px;margin:0'>LA GALA CONSTRUCTION</h1>"
-        "<p style='color:#3d7eaa;font-size:12px;margin:4px 0 0;letter-spacing:1px;text-transform:uppercase'>Casa Del Monte · File Update</p>"
+        "<p style='color:#3d7eaa;font-size:12px;margin:4px 0 0;letter-spacing:1px;text-transform:uppercase'>Casa Del Monte · File Update · Lot {lot}</p>"
         "</div>"
         "<div style='padding:28px 32px;color:#1a2332;font-size:14px;line-height:1.6;background:#fff'>"
-        "<p>Hi {owner},</p>"
-        "<p><strong>{uploaded_by}</strong> just added a new document to your case file:</p>"
+        "{banner}"
+        "<p>{greet}</p>"
+        "<p>{intro}</p>"
         "<div style='background:#f0f9f4;border:1px solid #1a6b40;border-radius:8px;padding:16px 20px;margin:0 0 18px'>"
-        "<p style='margin:0;font-size:12px;color:#1a6b40;letter-spacing:1px;text-transform:uppercase;font-weight:700'>New document</p>"
+        "<p style='margin:0;font-size:12px;color:#1a6b40;letter-spacing:1px;text-transform:uppercase;font-weight:700'>📎 Attached</p>"
         "<p style='margin:6px 0 0;font-size:18px;color:#1a2332;font-weight:700'>{category}</p>"
-        "<p style='margin:6px 0 0;font-size:12px;color:#666'>Lot {lot}</p>"
+        "<p style='margin:6px 0 0;font-size:13px;color:#444'>{filename}</p>"
+        "<p style='margin:6px 0 0;font-size:12px;color:#666'>Case file · Lot {lot}</p>"
         "</div>"
-        "<p><a href='{portal}' style='background:#3d7eaa;color:#fff;text-decoration:none;padding:12px 24px;border-radius:6px;display:inline-block;font-weight:600'>View your file</a></p>"
+        "{cta}"
         "<p style='font-size:12px;color:#666;margin-top:24px'>Questions? Call Daniel at (561) 475-8615.</p>"
         "<p style='margin:24px 0 4px'>— La Gala Construction</p>"
         "<p style='margin:0;color:#666;font-size:12px'>CGC 059211 · Licensed &amp; Insured</p>"
         "</div></div>"
-    ).format(owner=owner, uploaded_by=uploaded_by, category=category, lot=lot, portal=PORTAL_BASE)
+    ).format(
+        lot=lot, banner=internal_banner, greet=greeting, intro=intro,
+        category=category, filename=filename, cta=cta,
+    )
 
 
 @app.route("/api/portal/status", methods=["GET"])
 def portal_status():
     """Quick check that env vars are wired up."""
-    blob_env_names = sorted(
-        k for k in os.environ
-        if "BLOB" in k or k.endswith("_READ_WRITE_TOKEN") or k.startswith("BLOB_")
-    )
     return jsonify({
-        "blob_configured":   bool(BLOB_TOKEN),
-        "blob_env_names":    blob_env_names,
+        "mode":              "email-attachment",
         "resend_configured": bool(RESEND_KEY),
         "from_email":        RESEND_FROM if RESEND_KEY else None,
         "portal_base":       PORTAL_BASE,
+        "staff_count":       len(PORTAL_STAFF),
+        "max_file_mb":       MAX_FILE_BYTES // (1024 * 1024),
     })
 
 
@@ -738,34 +749,66 @@ def portal_upload():
     if not lot:
         return jsonify({"error": "lot required"}), 400
 
-    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    path = "casadelmonte/lot-{}/{}-{}".format(_safe_name(lot), ts, _safe_name(f.filename or "file"))
+    file_bytes = f.read()
+    if len(file_bytes) > MAX_FILE_BYTES:
+        return jsonify({
+            "error": "file too large ({:.1f} MB) — max {} MB per send".format(
+                len(file_bytes) / (1024 * 1024), MAX_FILE_BYTES // (1024 * 1024)
+            )
+        }), 413
+    if len(file_bytes) == 0:
+        return jsonify({"error": "empty file"}), 400
 
-    try:
-        url = _blob_put(path, f.read(), f.content_type or "application/octet-stream")
-    except Exception as e:
-        return jsonify({"error": "upload failed: {}".format(e)}), 500
+    filename = _safe_name(f.filename or "document.bin")
+    client_addressed = (notify and not internal_only and bool(client_email))
 
-    email_sent = False
-    email_info = ""
-    if notify and not internal_only and client_email:
-        ok, info = _resend_send(
-            client_email,
-            "New document on your Casa Del Monte file — Lot {}".format(lot),
-            _notify_html(uploaded_by, category, lot, client_owner),
-        )
-        email_sent = ok
-        email_info = info if not ok else ""
+    # Recipients
+    to_list = [client_email] if client_addressed else (PORTAL_STAFF[:1] or [RESEND_FROM])
+    if client_addressed:
+        cc_list = list(PORTAL_STAFF)
+    else:
+        cc_list = PORTAL_STAFF[1:] if len(PORTAL_STAFF) > 1 else []
+
+    subject_prefix = "[INTERNAL] " if internal_only else ""
+    subject = "{}Casa Del Monte · Lot {} · {} ({})".format(
+        subject_prefix, lot, category, uploaded_by
+    )
+
+    html = _upload_email_html(
+        uploaded_by, uploaded_role, category, lot, client_owner,
+        filename, internal_only, client_addressed,
+    )
+
+    payload = {
+        "from":    RESEND_FROM,
+        "to":      to_list,
+        "subject": subject,
+        "html":    html,
+        "attachments": [{
+            "filename":     filename,
+            "content":      base64.b64encode(file_bytes).decode(),
+            "content_type": f.content_type or "application/octet-stream",
+        }],
+    }
+    if cc_list:
+        payload["cc"] = cc_list
+
+    ok, info = _resend_send(payload)
+    if not ok:
+        return jsonify({"ok": False, "error": info}), 502
 
     return jsonify({
-        "ok": True,
-        "url": url,
-        "lot": lot,
-        "category": category,
-        "uploaded_by": uploaded_by,
+        "ok":              True,
+        "email_sent":      True,
+        "to":              to_list,
+        "cc":              cc_list,
+        "lot":             lot,
+        "category":        category,
+        "uploaded_by":     uploaded_by,
         "uploaded_by_role": uploaded_role,
-        "internal_only": internal_only,
-        "email_sent": email_sent,
-        "email_error": email_info,
-        "uploaded_at": ts,
+        "internal_only":   internal_only,
+        "client_addressed": client_addressed,
+        "file_bytes":      len(file_bytes),
+        "uploaded_at":     datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "resend_id":       info,
     })
