@@ -4,6 +4,8 @@
   "trailingSlash": false,
   "redirects": [
     { "source": "/", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc", "permanent": false },
+    { "source": "/", "has": [{ "type": "host", "value": "casadelmonte.collaborativeconceptsfl.com" }], "destination": "/lagala/casadelmonte", "permanent": false },
+    { "source": "/portal", "has": [{ "type": "host", "value": "casadelmonte.collaborativeconceptsfl.com" }], "destination": "/lagala/casadelmonte/portal", "permanent": false },
     { "source": "/ai", "destination": "/solutions", "permanent": true }
   ],
   "rewrites": [
