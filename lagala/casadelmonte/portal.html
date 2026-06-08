@@ -911,12 +911,11 @@ body{font-family:'Barlow',Arial,sans-serif;background:var(--off);color:var(--nav
           <table class="owner-table" id="ownerTable">
             <thead><tr><th>Lot</th><th>Owner Name</th><th>Address</th><th>Violation</th><th>Phase</th><th>Balance</th></tr></thead>
             <tbody>
-              <tr><td><div class="owner-lot">2020</div></td><td><div class="owner-name">Sonia E. Garcia Godoy</div></td><td><div class="owner-addr">1539 63rd Ave S #2020<br>WPB FL 33415</div></td><td><span class="cl-badge badge-req">Porch + A/C</span></td><td><span class="phase-pill pill-1">Phase 1</span></td><td><strong>$750 paid</strong></td></tr>
-              <tr><td><div class="owner-lot">1045</div></td><td><div class="owner-name">Miguel & Rosa Fernandez</div></td><td><div class="owner-addr">1539 63rd Ave S #1045</div></td><td><span class="cl-badge badge-req">Porch</span></td><td><span class="phase-pill pill-none">Not Started</span></td><td>—</td></tr>
-              <tr><td><div class="owner-lot">1112</div></td><td><div class="owner-name">Carmen Delgado</div></td><td><div class="owner-addr">1539 63rd Ave S #1112</div></td><td><span class="cl-badge badge-req">A/C + Shed</span></td><td><span class="phase-pill pill-none">Not Started</span></td><td>—</td></tr>
-              <tr><td><div class="owner-lot">1388</div></td><td><div class="owner-name">Jose Luis Martinez</div></td><td><div class="owner-addr">1539 63rd Ave S #1388</div></td><td><span class="cl-badge badge-req">Porch + A/C</span></td><td><span class="phase-pill pill-1">Phase 1</span></td><td><strong>$750 paid</strong></td></tr>
-              <tr><td><div class="owner-lot">1550</div></td><td><div class="owner-name">Ana Beatriz Herrera</div></td><td><div class="owner-addr">1539 63rd Ave S #1550</div></td><td><span class="cl-badge badge-req">Porch</span></td><td><span class="phase-pill pill-none">Not Started</span></td><td>—</td></tr>
-              <tr><td><div class="owner-lot">1621</div></td><td><div class="owner-name">Roberto & Maria Santos</div></td><td><div class="owner-addr">1539 63rd Ave S #1621</div></td><td><span class="cl-badge badge-req">A/C</span></td><td><span class="phase-pill pill-none">Not Started</span></td><td>—</td></tr>
+              <tr data-lot="1416"><td><div class="owner-lot">1416</div></td><td><div class="owner-name">Luis Calderon</div></td><td><div class="owner-addr">Casa Del Monte · WPB FL 33415</div></td><td><span class="cl-badge badge-req">Porch + A/C</span></td><td><span class="phase-pill pill-1">Phase 2A · Submitted</span></td><td><strong>Case #OVN792KY</strong></td></tr>
+              <tr data-lot="1417"><td><div class="owner-lot">1417</div></td><td><div class="owner-name">eneda franco</div></td><td><div class="owner-addr">1532 61st Ave S · WPB FL 33415</div></td><td><span class="cl-badge badge-req">Porch + A/C</span></td><td><span class="phase-pill pill-1">Phase 2A · Resubmit</span></td><td><strong>Case #3CLFSAC0</strong></td></tr>
+              <tr data-lot="606"><td><div class="owner-lot">606</div></td><td><div class="owner-name">Dorian Avila</div></td><td><div class="owner-addr">Casa Del Monte · WPB FL 33415</div></td><td><span class="cl-badge badge-req">Porch + A/C</span></td><td><span class="phase-pill pill-1">Phase 2A · Submitted</span></td><td><strong>Case #BR8PFYKI</strong></td></tr>
+              <tr data-lot="1007"><td><div class="owner-lot">1007</div></td><td><div class="owner-name">Adrian Rojo</div></td><td><div class="owner-addr">Casa Del Monte · WPB FL 33415</div></td><td><span class="cl-badge badge-req">Porch + A/C</span></td><td><span class="phase-pill pill-1">Phase 1 · As-built pending</span></td><td><strong>Case #6YRRHTWG</strong></td></tr>
+              <tr data-lot="2020"><td><div class="owner-lot">2020</div></td><td><div class="owner-name">Sonia E. Garcia Godoy</div></td><td><div class="owner-addr">1539 63rd Ave S #2020 · WPB FL 33415</div></td><td><span class="cl-badge badge-req">Porch + A/C</span></td><td><span class="phase-pill pill-1">Phase 1</span></td><td><strong>$750 paid</strong></td></tr>
             </tbody>
           </table>
         </div>
@@ -989,6 +988,14 @@ body{font-family:'Barlow',Arial,sans-serif;background:var(--off);color:var(--nav
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- ── ADMIN CASE FILE — per-lot detail view (loaded by showCase(lot)) ── -->
+    <div class="page" id="page-admin-case">
+      <div id="adminCaseHeader"></div>
+      <div id="adminCaseUpload"></div>
+      <div id="adminCaseDocs"></div>
+      <div id="adminCaseHelp" style="margin-top:20px"></div>
     </div>
 
   </div><!-- /content -->
@@ -1120,6 +1127,227 @@ function filterOwners(q){
     row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
 }
+
+// ── STAFF ROLES & CURRENT USER (?as=daniel|kyler|natasha|alex) ──
+const STAFF = {
+  daniel:  {name:'Daniel Bivins',      role:'Admin · Client Relations'},
+  kyler:   {name:'Kyler',              role:'Design & Engineering'},
+  natasha: {name:'Natasha Richardson', role:'Permitting'},
+  alex:    {name:'Alex Torres',        role:'Field Operations'}
+};
+const CURRENT_USER = STAFF[(new URLSearchParams(location.search).get('as')||'daniel')] || STAFF.daniel;
+
+// ── DOCUMENT CATEGORIES (full workflow per Keith's spec) ──
+const DOC_CATEGORIES = [
+  'Notice of Violation',
+  'Property Survey',
+  'Proof of Ownership',
+  'Park Authorization Letter',
+  'As-Built (Existing)',
+  'Addition As-Built',
+  'Permit Application',
+  'Notice of Commencement (NOC)',
+  'County Confirmation Email',
+  'Plan-Review Comments',
+  'Plan-Review Response',
+  'Pricing Email',
+  'Permit Card',
+  'Inspection Update',
+  'Closeout Package',
+  'Other'
+];
+
+// ── PRE-SEEDED CASES (current state of real files) ──
+const CASES = {
+  '1416': {
+    lot:'1416', owner:'Luis Calderon', email:'luiscalderon9956@gmail.com',
+    case_id:'OVN792KY', violations:'Porch + A/C',
+    phase:'Phase 2A · Permit Submitted', architect:'Tatiana',
+    docs:[
+      {category:'Addition As-Built', name:'1416-as-built.pdf', uploaded_by:'Kyler', uploaded_at:'2026-05-21'},
+      {category:'Permit Application', name:'1416-permit-app.pdf', uploaded_by:'Natasha Richardson', uploaded_at:'2026-05-30'},
+      {category:'Notice of Commencement (NOC)', name:'1416-NOC.pdf', uploaded_by:'Natasha Richardson', uploaded_at:'2026-05-30'},
+      {category:'County Confirmation Email', name:'1416-county-confirm.eml', uploaded_by:'Natasha Richardson', uploaded_at:'2026-05-30'}
+    ]
+  },
+  '1417': {
+    lot:'1417', owner:'eneda franco', email:'rttalexx@gmail.com',
+    case_id:'3CLFSAC0', violations:'Porch + A/C',
+    phase:'Phase 2A · Awaiting resubmission', architect:'Fred (rejected)',
+    docs:[
+      {category:'Addition As-Built', name:'1417-as-built.pdf', uploaded_by:'Kyler', uploaded_at:'2026-05-15'},
+      {category:'Permit Application', name:'1417-permit-app.pdf', uploaded_by:'Natasha Richardson', uploaded_at:'2026-05-22'},
+      {category:'County Confirmation Email', name:'1417-county-sufficient.eml', uploaded_by:'Natasha Richardson', uploaded_at:'2026-05-22'},
+      {category:'Plan-Review Comments', name:'1417-plan-review.pdf', uploaded_by:'Natasha Richardson', uploaded_at:'2026-05-26', internal_only:true, note:'Architect license rejection — admin only, do NOT show client'}
+    ]
+  },
+  '606': {
+    lot:'606', owner:'Dorian Avila', email:'aviladorian82@yahoo.com',
+    case_id:'BR8PFYKI', violations:'Porch + A/C',
+    phase:'Phase 2A · Permit Submitted', architect:'Tatiana',
+    docs:[
+      {category:'Addition As-Built', name:'606-as-built.pdf', uploaded_by:'Kyler', uploaded_at:'2026-05-18'},
+      {category:'Permit Application', name:'606-permit-app.pdf', uploaded_by:'Natasha Richardson', uploaded_at:'2026-05-28'},
+      {category:'Notice of Commencement (NOC)', name:'606-NOC.pdf', uploaded_by:'Natasha Richardson', uploaded_at:'2026-05-28'}
+    ]
+  },
+  '1007': {
+    lot:'1007', owner:'Adrian Rojo', email:'adrianrojob@icloud.com',
+    case_id:'6YRRHTWG', violations:'Porch + A/C',
+    phase:'Phase 1 · Awaiting as-built', architect:'(pending)',
+    docs:[
+      {category:'Notice of Violation', name:'1007-NOV.pdf', uploaded_by:'Daniel Bivins', uploaded_at:'2026-05-05'}
+    ]
+  }
+};
+
+// ── ESCAPE HELPER ──
+function _esc(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ── ADMIN CASE FILE RENDERER ──
+function showCase(lot){
+  const c = CASES[lot];
+  if(!c){ alert('Lot '+lot+' is not yet in the system. Sign up first.'); return; }
+  showPage('admin-case');
+  document.getElementById('pageTitle').textContent = 'Lot '+c.lot+' · '+c.owner;
+
+  // ── Header ──
+  document.getElementById('adminCaseHeader').innerHTML =
+    '<div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px">'+
+      '<div>'+
+        '<div style="font-size:11px;color:var(--blue2);letter-spacing:2px;text-transform:uppercase">Case '+_esc(c.case_id)+' · Lot '+_esc(c.lot)+'</div>'+
+        '<div style="font-size:28px;font-weight:700;color:var(--white);margin-top:4px">'+_esc(c.owner)+'</div>'+
+        '<div style="font-size:14px;color:var(--muted);margin-top:6px">📧 '+_esc(c.email)+' &nbsp;·&nbsp; 🏠 '+_esc(c.violations)+' &nbsp;·&nbsp; ✏️ Architect: '+_esc(c.architect)+'</div>'+
+      '</div>'+
+      '<div style="text-align:right">'+
+        '<span class="phase-pill pill-1">'+_esc(c.phase)+'</span>'+
+        '<div style="font-size:11px;color:var(--muted);margin-top:8px">Viewing as: <strong style="color:var(--blue2)">'+_esc(CURRENT_USER.name)+'</strong> · '+_esc(CURRENT_USER.role)+'</div>'+
+      '</div>'+
+    '</div></div>';
+
+  // ── Upload UI (every role gets it) ──
+  const opts = DOC_CATEGORIES.map(cat=>'<option>'+_esc(cat)+'</option>').join('');
+  document.getElementById('adminCaseUpload').innerHTML =
+    '<div class="card" style="margin-top:20px">'+
+      '<div class="card-title">📤 Upload Document — Lot '+_esc(c.lot)+'</div>'+
+      '<div class="card-sub">As <strong>'+_esc(CURRENT_USER.name)+'</strong>. Every upload optionally emails '+_esc(c.email)+' a notification with a portal link.</div>'+
+      '<div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">'+
+        '<select id="upCat" style="background:var(--navy2);color:var(--white);border:1px solid var(--border);padding:10px;border-radius:6px;font-family:Barlow;font-size:14px">'+opts+'</select>'+
+        '<input type="file" id="upFile" style="background:var(--navy2);color:var(--white);border:1px solid var(--border);padding:8px;border-radius:6px">'+
+        '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer"><input type="checkbox" id="upInternal"> 🔒 Internal only — hide from client view (use for sensitive plan-review comments etc.)</label>'+
+        '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--blue2);cursor:pointer"><input type="checkbox" id="upNotify" checked> ✉️ Email '+_esc(c.email)+' when uploaded</label>'+
+        '<button id="upBtn" onclick="doUpload(\''+_esc(c.lot)+'\')" style="background:var(--blue);color:var(--white);border:none;padding:14px;border-radius:6px;font-weight:600;cursor:pointer;font-family:Barlow;font-size:14px">Upload to Lot '+_esc(c.lot)+'</button>'+
+      '</div>'+
+    '</div>';
+
+  // ── Document list (admin sees everything; internal_only marked) ──
+  let docsHtml = '';
+  c.docs.forEach(d=>{
+    const internalBadge = d.internal_only
+      ? '<span style="background:#fc8181;color:#fff;padding:2px 8px;border-radius:3px;font-size:9px;letter-spacing:1px;text-transform:uppercase;margin-left:8px;display:inline-block;vertical-align:middle">Admin Only</span>'
+      : '';
+    const note = d.note ? '<div style="font-size:11px;color:#fc8181;margin-top:4px;font-style:italic">⚠ '+_esc(d.note)+'</div>' : '';
+    docsHtml +=
+      '<div class="doc-card" style="position:relative">'+
+        '<div class="doc-icon">📄</div>'+
+        '<div class="doc-name">'+_esc(d.category)+internalBadge+'</div>'+
+        '<div class="doc-meta">'+_esc(d.name)+'<br>by '+_esc(d.uploaded_by)+' · '+_esc(d.uploaded_at)+'</div>'+
+        note+
+      '</div>';
+  });
+  if(!docsHtml) docsHtml = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted)">No documents yet. Be the first to upload.</div>';
+  document.getElementById('adminCaseDocs').innerHTML =
+    '<div class="card" style="margin-top:20px">'+
+      '<div class="card-title">📁 Documents on File ('+c.docs.length+')</div>'+
+      '<div class="card-sub">Items marked <span style="background:#fc8181;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;letter-spacing:1px;text-transform:uppercase">Admin Only</span> are hidden from the client portal.</div>'+
+      '<div class="doc-grid" style="margin-top:16px">'+docsHtml+'</div>'+
+    '</div>';
+
+  // ── Role-specific help ──
+  const tips = {
+    'Admin · Client Relations': 'You handle pricing, change orders, payments, and the proposal step. Upload anything related to invoices, receipts, contracts, and the Hold Harmless / RFR agreement.',
+    'Design & Engineering':     'You upload As-Builts (Existing & Addition). Always put the lot # on every drawing page. When the final permit set is ready, upload it here — that hands the file off to Natasha.',
+    'Permitting':               'You upload the Permit Application, Notice of Commencement, County Confirmation Email, Plan-Review Comments (mark Admin Only if sensitive), Responses, Pricing Email, and the issued Permit Card. Closeout package goes here too.',
+    'Field Operations':         'You upload Inspection Updates as you call them in. Mark each as passed/failed/in-progress in the filename.'
+  };
+  document.getElementById('adminCaseHelp').innerHTML =
+    '<div class="alert-box info"><span class="alert-icon">💡</span><div class="alert-text"><strong>'+_esc(CURRENT_USER.role)+':</strong> '+_esc(tips[CURRENT_USER.role]||'Upload anything relevant to this case.')+'</div></div>';
+}
+
+// ── UPLOAD HANDLER ──
+async function doUpload(lot){
+  const cat      = document.getElementById('upCat').value;
+  const fileEl   = document.getElementById('upFile');
+  const file     = fileEl.files[0];
+  const internal = document.getElementById('upInternal').checked;
+  const notify   = document.getElementById('upNotify').checked;
+  const btn      = document.getElementById('upBtn');
+  if(!file){ alert('Pick a file first.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Uploading…';
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('lot', lot);
+    fd.append('category', cat);
+    fd.append('uploaded_by', CURRENT_USER.name);
+    fd.append('uploaded_by_role', CURRENT_USER.role);
+    fd.append('internal_only', internal ? '1' : '0');
+    fd.append('notify_client', notify ? '1' : '0');
+    fd.append('client_email', CASES[lot].email);
+    fd.append('client_owner', CASES[lot].owner);
+
+    const r = await fetch('/api/portal/upload', {method:'POST', body:fd});
+    const j = await r.json().catch(()=>({error:'Non-JSON response'}));
+    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+
+    // Optimistic local update
+    CASES[lot].docs.push({
+      category: cat, name: file.name,
+      uploaded_by: CURRENT_USER.name,
+      uploaded_at: new Date().toISOString().slice(0,10),
+      internal_only: internal,
+      url: j.url
+    });
+    btn.textContent = '✓ Uploaded' + (j.email_sent ? ' · client emailed' : (notify ? ' · email pending' : ''));
+    btn.style.background = '#1a6b40';
+    setTimeout(()=>showCase(lot), 1500);
+  } catch(e){
+    btn.disabled = false;
+    btn.textContent = 'Upload to Lot '+lot;
+    alert('Upload failed: '+e.message+'\n\nThe backend may not be deployed yet. Setup steps:\n1. Enable Vercel Blob in the project dashboard\n2. Add RESEND_API_KEY env var\n3. Redeploy');
+  }
+}
+
+// ── WIRE OWNER DIRECTORY ROWS TO OPEN ADMIN CASE FILE ──
+function wireOwnerClicks(){
+  document.querySelectorAll('#ownerTable tbody tr').forEach(row=>{
+    const lot = row.getAttribute('data-lot');
+    if(!lot) return;
+    row.style.cursor = 'pointer';
+    row.onmouseenter = ()=>row.style.background='rgba(61,126,170,.08)';
+    row.onmouseleave = ()=>row.style.background='';
+    row.onclick = ()=>showCase(lot);
+  });
+}
+wireOwnerClicks();
+
+// ── REGISTER admin-case in pages map so showPage can title it ──
+pages['admin-case'] = 'Case File';
+
+// ── ADMIN MODE: replace sidebar identity with current staff member ──
+(function initStaffMode(){
+  const asParam = new URLSearchParams(location.search).get('as');
+  if(!asParam || !STAFF[asParam]) return; // only flip in admin mode
+  const lotEl    = document.querySelector('.user-lot');
+  const nameEl   = document.querySelector('.user-name');
+  const statusEl = document.querySelector('.user-status');
+  if(lotEl)    lotEl.textContent    = 'Staff · '+CURRENT_USER.role;
+  if(nameEl)   nameEl.textContent   = CURRENT_USER.name;
+  if(statusEl){ statusEl.textContent = '● Admin Mode'; statusEl.style.color = '#fc8181'; }
+  // Land on Owner Directory by default in admin mode
+  setTimeout(()=>showPage('owners'), 0);
+})();
 </script>
 </body>
 </html>
