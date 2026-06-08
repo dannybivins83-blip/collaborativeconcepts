@@ -3,13 +3,14 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc", "permanent": false },
-    { "source": "/", "has": [{ "type": "host", "value": "casadelmonte.collaborativeconceptsfl.com" }], "destination": "/lagala/casadelmonte", "permanent": false },
-    { "source": "/portal", "has": [{ "type": "host", "value": "casadelmonte.collaborativeconceptsfl.com" }], "destination": "/lagala/casadelmonte/portal", "permanent": false },
     { "source": "/ai", "destination": "/solutions", "permanent": true }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" }
+    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc" },
+    { "source": "/", "has": [{ "type": "host", "value": "casadelmonte.collaborativeconceptsfl.com" }], "destination": "/lagala/casadelmonte" },
+    { "source": "/portal", "has": [{ "type": "host", "value": "casadelmonte.collaborativeconceptsfl.com" }], "destination": "/lagala/casadelmonte/portal" },
+    { "source": "/(.*)", "has": [{ "type": "host", "value": "casadelmonte.collaborativeconceptsfl.com" }], "destination": "/lagala/casadelmonte/$1" }
   ],
   "headers": [
     {
