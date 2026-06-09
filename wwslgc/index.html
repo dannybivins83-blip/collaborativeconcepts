@@ -580,5 +580,25 @@ document.addEventListener('DOMContentLoaded',function(){
     }
   })();
 </script>
+<script>
+/* GA4 conversion & interaction tracking */
+(function(){
+  function ev(n,p){ try{ if(typeof gtag==='function') gtag('event',n,p||{}); }catch(e){} }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a,button'); if(!a) return;
+    var h=a.getAttribute('href')||'';
+    if(h.indexOf('tel:')===0) ev('phone_click',{number:h.replace('tel:','')});
+    else if(h.indexOf('mailto:')===0) ev('email_click',{});
+    else if(/\.pdf(\?|$)/i.test(h)||h.indexOf('/collateral/')!==-1) ev('file_download',{file_name:(h.split('/').pop()||'').split('?')[0]});
+    else if(a.id==='requestPlanBtn') ev('request_plan',{config:((document.getElementById('planConfig')||{}).value||'').slice(0,100)});
+    else if(h.indexOf('#assessment')!==-1) ev('cta_click',{cta:'assessment'});
+    else if(h.indexOf('#plans')!==-1) ev('cta_click',{cta:'plans'});
+    else if(h.indexOf('/blog/')!==-1) ev('guide_open',{guide:h.split('/').pop()});
+  },true);
+  var f=document.getElementById('assessForm');
+  if(f) f.addEventListener('submit',function(){ ev('form_submit',{form:'wws_assessment'}); });
+  if(new URLSearchParams(location.search).get('submitted')==='1') ev('generate_lead',{form:'wws_assessment'});
+})();
+</script>
 <script defer src="https://va.vercel-scripts.com/v1/script.js" data-website-id="prj_LkelimAuti9JBNu5B8zB7Rr1ILON"></script>
 </body></html>

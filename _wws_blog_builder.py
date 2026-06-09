@@ -151,6 +151,7 @@ FOOTER = """<footer class="w-full py-12 px-6 sm:px-8 flex flex-col items-center 
 <p class="text-xs text-[#f8f7f5]/40 max-w-3xl">La Gala Construction is a Florida State Certified General Contractor (CGC 059211). Engineering certifications referenced are performed and sealed by an independent, licensed Florida professional engineer; La Gala does not provide engineering services.{credit}</p>
 <p class="text-sm text-[#f8f7f5]/60">&copy; 2026 La Gala Construction (Tilt Patchers, Inc.). Licensed &middot; Bonded &middot; Insured.</p>
 </footer>
+<script>(function(){function ev(n,p){try{if(typeof gtag==='function')gtag('event',n,p||{});}catch(e){}}document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a,button');if(!a)return;var h=a.getAttribute('href')||'';if(h.indexOf('tel:')===0)ev('phone_click',{});else if(h.indexOf('mailto:')===0)ev('email_click',{});else if(h.indexOf('#assessment')!==-1)ev('cta_click',{cta:'assessment'});else if(h.indexOf('#plans')!==-1)ev('cta_click',{cta:'plans'});else if(h.indexOf('/blog/')!==-1)ev('guide_open',{guide:h.split('/').pop()});},true);})();</script>
 <script defer src="https://va.vercel-scripts.com/v1/script.js" data-website-id="prj_LkelimAuti9JBNu5B8zB7Rr1ILON"></script>
 </body></html>"""
 
@@ -188,7 +189,7 @@ def build_post(p):
 </article>
 </main>
 """
-    return head + art + FOOTER.format(credit=foot_credit)
+    return head + art + FOOTER.replace("{credit}", foot_credit)
 
 def build_index():
     head = HEAD.format(title_plain="OSHA Walking-Working Surfaces — Compliance Guides", meta="The top 15 OSHA Walking-Working Surfaces violations explained — what each one is, how often it's inspected, and how La Gala Construction fixes it. South Florida.", marker=MARKER, canonical="https://wwslgc.collaborativeconceptsfl.com/blog", img="unprotected-edges")
@@ -209,7 +210,7 @@ def build_index():
 {('<section class="max-w-7xl mx-auto px-6 sm:px-8 pb-20">'+cta()+'</section>')}
 </main>
 """
-    return head + body + FOOTER.format(credit="")
+    return head + body + FOOTER.replace("{credit}", "")
 
 n=0
 for p in POSTS:
