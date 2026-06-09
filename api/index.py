@@ -719,17 +719,48 @@ def _upload_email_html(uploaded_by, uploaded_role, category, lot, owner_name, fi
     )
 
 
+# CORS for the casadelmonte subdomain calling /api/portal/* cross-origin
+_PORTAL_CORS_ORIGINS = {
+    "https://casadelmonte.collaborativeconceptsfl.com",
+    "https://collaborativeconceptsfl.com",
+    "https://www.collaborativeconceptsfl.com",
+}
+
+
+def _apply_portal_cors(resp):
+    origin = request.headers.get("origin", "")
+    if origin in _PORTAL_CORS_ORIGINS:
+        resp.headers["Access-Control-Allow-Origin"]      = origin
+        resp.headers["Access-Control-Allow-Methods"]     = "GET, POST, OPTIONS"
+        resp.headers["Access-Control-Allow-Headers"]     = "Content-Type"
+        resp.headers["Access-Control-Max-Age"]           = "86400"
+        resp.headers["Vary"]                             = "Origin"
+    return resp
+
+
+@app.route("/api/portal/<path:_>", methods=["OPTIONS"])
+def portal_preflight(_):
+    return _apply_portal_cors(make_response("", 204))
+
+
+@app.after_request
+def _portal_cors_after(resp):
+    if request.path.startswith("/api/portal/"):
+        return _apply_portal_cors(resp)
+    return resp
+
+
 @app.route("/api/portal/status", methods=["GET"])
 def portal_status():
     """Quick check that env vars are wired up."""
-    return jsonify({
+    return _apply_portal_cors(jsonify({
         "mode":              "email-attachment",
         "resend_configured": bool(RESEND_KEY),
         "from_email":        RESEND_FROM if RESEND_KEY else None,
         "portal_base":       PORTAL_BASE,
         "staff_count":       len(PORTAL_STAFF),
         "max_file_mb":       MAX_FILE_BYTES // (1024 * 1024),
-    })
+    }))
 
 
 @app.route("/api/portal/upload", methods=["POST"])
