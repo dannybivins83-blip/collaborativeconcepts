@@ -62,8 +62,10 @@ The startup hook will pick it up automatically on the next session.
   files (`index.html`, `team.html`, `properties.html`, `invest.html`,
   `contact.html`, `solutions.html`, `pipeline.html`, `pipeline-100.html`,
   `outreach.html`), plus `/projects/` and `/blog/`.
-- **WWSLGC portal** at `/wwslgc/` — internal outreach mailer with Microsoft 365
-  and Gmail OAuth integration. Backend in `api/index.py`.
+- **WWS landing page** at `/wwslgc/` (subdomain root) — public OSHA
+  Walking-Working Surfaces marketing page; lead-capture form via FormSubmit.
+- **WWSLGC portal** at `/wwslgc/send/` — internal outreach mailer with Microsoft
+  365 and Gmail OAuth integration. Backend in `api/index.py`.
 - **Casa Del Monte mock** at `/lagala/casadelmonte/` — **NOT currently live**
   (see deployment map). Prototype landing page + portal sit here waiting for
   the subdomain to be repointed.

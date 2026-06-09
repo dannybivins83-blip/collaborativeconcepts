@@ -1,8 +1,14 @@
 # WWSLGC Portal — Deploy & Setup
 
 Internal, login-gated mailer that lives inside the Collaborative Concepts site
-and sends through Microsoft 365 (Graph). Target URL:
-**https://wwslgc.collaborativeconceptsfl.com**
+and sends through Microsoft 365 (Graph) or Gmail. Portal URL:
+**https://wwslgc.collaborativeconceptsfl.com/send**
+
+> The `wwslgc.` subdomain **root** now serves the public WWS marketing landing
+> page (`wwslgc/index.html`). This internal mailer lives at **`/send`**
+> (`wwslgc/send/index.html`); the `vercel.json` catch-all (`/:path*` ->
+> `/wwslgc/:path*` for the wwslgc host) routes it automatically. The mailer's
+> `/api/*` calls and OAuth callbacks are unchanged.
 
 There are 3 one-time setup blocks. Do them in this order. ~20 minutes total.
 
@@ -79,7 +85,7 @@ functions. No Node needed.
 
 ## Test
 
-1. Visit **https://wwslgc.collaborativeconceptsfl.com** → you should see the
+1. Visit **https://wwslgc.collaborativeconceptsfl.com/send** → you should see the
    **Sign in with Microsoft** gate.
 2. Sign in with your `@lagalacon.com` account (consent once).
 3. Drag in a leads CSV (e.g. export from the tracker) → pick a template.
@@ -87,8 +93,8 @@ functions. No Node needed.
    creates a draft to your own address).
 5. **Create drafts in Outlook** → review them in your mailbox → send when ready.
 
-> The public marketing site is unaffected: the portal only takes over the
-> `wwslgc.` subdomain root, and every page is behind the Microsoft sign-in.
+> The public marketing landing page is unaffected: the portal lives only at
+> `wwslgc.collaborativeconceptsfl.com/send`, behind the Microsoft/Google sign-in.
 > No lead data is stored on the server — CSVs are parsed in your browser and
 > only finished emails are sent through Graph.
 
