@@ -6,11 +6,9 @@
     { "source": "/ai", "destination": "/solutions", "permanent": true }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" },
-    { "source": "/", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc" },
-    { "source": "/", "has": [{ "type": "host", "value": "casadelmonte.collaborativeconceptsfl.com" }], "destination": "/lagala/casadelmonte" },
-    { "source": "/portal", "has": [{ "type": "host", "value": "casadelmonte.collaborativeconceptsfl.com" }], "destination": "/lagala/casadelmonte/portal" },
-    { "source": "/(.*)", "has": [{ "type": "host", "value": "casadelmonte.collaborativeconceptsfl.com" }], "destination": "/lagala/casadelmonte/$1" }
+    { "source": "/api/:path*", "destination": "/api/index" },
+    { "source": "/:path*", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc/:path*" },
+    { "source": "/:path*", "has": [{ "type": "host", "value": "casadelmonte.collaborativeconceptsfl.com" }], "destination": "/lagala/casadelmonte/:path*" }
   ],
   "headers": [
     {
