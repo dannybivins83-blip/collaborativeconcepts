@@ -3,10 +3,11 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc", "permanent": false },
     { "source": "/ai", "destination": "/solutions", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc" },
+    { "source": "/send", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc/send" },
     { "source": "/api/(.*)", "destination": "/api/index" }
   ],
   "headers": [

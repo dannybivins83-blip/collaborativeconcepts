@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>WWSLGC Portal — La Gala × UES</title>
+<style>
+  :root{
+    --navy:#0B2340; --steel:#3E6B9E; --gold:#C8A24A;
+    --ink:#13283f; --muted:#5b7088; --line:#e2e8f0; --bg:#f4f6f9;
+    --ok:#1d8a4e; --bad:#c0392b; --warn:#a9772a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+  header{background:linear-gradient(120deg,var(--navy),#143a63);color:#fff;padding:16px 28px;
+         display:flex;align-items:center;gap:16px;border-bottom:3px solid var(--gold)}
+  header .mark{font-weight:800;font-size:22px;letter-spacing:.5px}
+  header .mark span{color:var(--gold)}
+  header .tag{color:#c7d6ea;font-size:13px;margin-top:2px}
+  header .who{margin-left:auto;font-size:13px;color:#c7d6ea;text-align:right}
+  header .who a{color:var(--gold)}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 28px 80px}
+  .step{background:#fff;border:1px solid var(--line);border-radius:12px;margin:18px 0;
+        box-shadow:0 1px 2px rgba(11,35,64,.04)}
+  .step h2{margin:0;padding:14px 20px;font-size:15px;border-bottom:1px solid var(--line);
+           display:flex;align-items:center;gap:10px;color:var(--navy)}
+  .step h2 .n{background:var(--steel);color:#fff;width:24px;height:24px;border-radius:50%;
+              display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+  .step .body{padding:18px 20px}
+  .row{display:flex;gap:18px;flex-wrap:wrap}
+  .col{flex:1;min-width:280px}
+  label.fld{display:block;font-size:12px;font-weight:700;color:var(--muted);
+            text-transform:uppercase;letter-spacing:.4px;margin:0 0 5px}
+  input[type=text],select,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);
+       border-radius:8px;font:inherit;color:var(--ink);background:#fff}
+  textarea{min-height:230px;resize:vertical;font-family:Menlo,Consolas,monospace;font-size:13px;line-height:1.5}
+  button{font:inherit;border:0;border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:600}
+  .btn-primary{background:var(--steel);color:#fff}.btn-primary:hover{background:#345d8a}
+  .btn-ms{background:#2f2f2f;color:#fff;display:inline-flex;align-items:center;gap:10px;font-size:16px;padding:12px 22px}
+  .btn-ms:hover{background:#000}
+  .btn-ghost{background:#eef2f7;color:var(--navy)}.btn-ghost:hover{background:#e3e9f1}
+  .btn-danger{background:#fff;color:var(--bad);border:1px solid var(--bad)}
+  .btn-danger:not(:disabled):hover{background:var(--bad);color:#fff}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .drop{border:2px dashed #c4d0de;border-radius:10px;padding:26px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
+  .drop:hover,.drop.hot{border-color:var(--steel);background:#f7faff;color:var(--steel)}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:12px;font-weight:600}
+  .pill.ok{background:#e6f5ec;color:var(--ok)}.pill.no{background:#fbeae8;color:var(--bad)}
+  .muted{color:var(--muted);font-size:13px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;background:#fff}
+  .tablewrap{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+  td input{padding:4px 6px;font-size:12px}
+  .chips span{display:inline-block;background:#eef2f7;color:var(--navy);border-radius:6px;padding:3px 8px;margin:0 5px 5px 0;font-size:12px;cursor:pointer;font-family:Menlo,Consolas,monospace}
+  .chips span:hover{background:var(--gold);color:#3a2c08}
+  .preview{border:1px solid var(--line);border-radius:8px;padding:16px;background:#fcfdff}
+  .preview .to{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .preview .subj{font-weight:700;margin-bottom:10px;color:var(--navy)}
+  .preview .bodytext{white-space:pre-wrap;font-size:14px}
+  .navbtns{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .check{display:flex;align-items:center;gap:8px;font-size:14px}
+  .warnbox{background:#fdf6e8;border:1px solid #e9d29a;color:var(--warn);padding:10px 14px;border-radius:8px;font-size:13px;margin-top:12px}
+  .results{margin-top:14px;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+  .results div{padding:6px 12px;border-bottom:1px solid var(--line);font-size:13px;display:flex;gap:10px}
+  .stat{font-size:13px;color:var(--muted)}
+  .hide{display:none}
+  .summary{font-weight:700;padding:10px 14px;background:#f7faff;border-radius:8px;color:var(--navy)}
+  /* sign-in gate */
+  .gate{max-width:520px;margin:80px auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:40px;text-align:center;box-shadow:0 4px 20px rgba(11,35,64,.08)}
+  .gate h1{color:var(--navy);margin:0 0 6px}.gate p{color:var(--muted)}
+  .lane{font-size:12px;color:var(--muted);margin-top:22px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+
+<!-- SIGN-IN GATE -->
+<div id="gate" class="gate hide">
+  <div style="font-weight:800;font-size:26px;color:var(--navy)">WWS<span style="color:var(--gold)">LGC</span> Portal</div>
+  <p>OSHA Walking-Working Surfaces outreach — La Gala Construction × UES</p>
+  <div style="margin:28px 0">
+    <a id="signin" class="btn-ms" href="/api/login">
+      <svg width="18" height="18" viewBox="0 0 23 23" aria-hidden="true"><path fill="#f25022" d="M1 1h10v10H1z"/><path fill="#7fba00" d="M12 1h10v10H12z"/><path fill="#00a4ef" d="M1 12h10v10H1z"/><path fill="#ffb900" d="M12 12h10v10H12z"/></svg>
+      Sign in with Microsoft
+    </a>
+  </div>
+  <p class="muted" id="gateMsg">Use your <b>@lagalacon.com</b> account. Internal use only.</p>
+  <div class="lane">La Gala = the contractor · UES seals the engineering &amp; 5,000-lb anchor certification.</div>
+</div>
+
+<!-- APP (shown only when signed in) -->
+<div id="appShell" class="hide">
+<header>
+  <div>
+    <div class="mark">WWS<span>LGC</span> Mailer</div>
+    <div class="tag">Concrete Restoration · Waterproofing · Fall-Protection &amp; Compliance — <b>We certify it, and we fix it.</b></div>
+  </div>
+  <div class="who" id="connectBar"></div>
+</header>
+
+<div class="wrap">
+
+  <div class="step">
+    <h2><span class="n">1</span> Load your leads</h2>
+    <div class="body">
+      <div id="drop" class="drop"><b>Drop a CSV here</b> or click to choose a file<br>
+        <span class="muted">Any CSV with an email column. Data stays in your browser — it's never stored on the server.</span></div>
+      <input id="file" type="file" accept=".csv" class="hide">
+      <div style="display:flex;align-items:center;gap:12px;margin:16px 0 8px;color:var(--muted);font-size:11px;letter-spacing:.4px">
+        <span style="flex:1;border-top:1px solid var(--line)"></span> OR ADD ONE BY HAND <span style="flex:1;border-top:1px solid var(--line)"></span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end">
+        <div style="flex:2;min-width:190px"><label class="fld">Email *</label><input id="mEmail" type="text" placeholder="name@company.com"></div>
+        <div style="flex:1;min-width:100px"><label class="fld">First name</label><input id="mFirst" type="text" placeholder="Chris"></div>
+        <div style="flex:2;min-width:150px"><label class="fld">Company</label><input id="mCompany" type="text" placeholder="Acme Corp"></div>
+        <div style="flex:1;min-width:90px"><label class="fld">City</label><input id="mCity" type="text"></div>
+        <div style="flex:1;min-width:80px"><label class="fld">Standard</label><input id="mStandard" type="text" placeholder="1910.22"></div>
+        <button class="btn-primary" id="addOne" style="height:38px">+ Add</button>
+      </div>
+      <div id="addMsg" class="muted" style="margin-top:6px"></div>
+      <div id="loadStats" class="stat" style="margin-top:14px"></div>
+      <div id="savedBar" class="muted hide" style="margin-top:6px"></div>
+      <div id="mapPanel" class="hide" style="margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:#fbfcfe">
+        <div class="fld" style="margin-bottom:8px">Map your CSV columns — pick which column holds each field</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <div style="flex:1;min-width:150px"><label class="fld">Email</label><select id="mapEmail"></select></div>
+          <div style="flex:1;min-width:150px"><label class="fld">Company</label><select id="mapCompany"></select></div>
+          <div style="flex:1;min-width:150px"><label class="fld">Contact / Name</label><select id="mapContact"></select></div>
+          <div style="flex:1;min-width:120px"><label class="fld">City</label><select id="mapCity"></select></div>
+          <div style="flex:1;min-width:120px"><label class="fld">Standard</label><select id="mapStandard"></select></div>
+        </div>
+      </div>
+      <div class="tablewrap hide" id="tableWrap" style="margin-top:12px">
+        <table id="leadTable"><thead></thead><tbody></tbody></table>
+      </div>
+      <div id="emailEditNote" class="muted hide" style="margin-top:8px">Rows missing an email show a box — type one in to include that lead.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <h2><span class="n">2</span> Pick a template &amp; edit</h2>
+    <div class="body">
+      <div class="row">
+        <div class="col" style="flex:0 0 320px">
+          <label class="fld">Template</label>
+          <select id="tplSelect"></select>
+          <label class="fld" style="margin-top:14px">Insert merge field</label>
+          <div class="chips" id="chips"></div>
+          <label class="fld" style="margin-top:10px">Attach collateral</label>
+          <div id="attachList"></div>
+        </div>
+        <div class="col">
+          <label class="fld">Subject</label>
+          <input id="subject" type="text" placeholder="Subject line…">
+          <label class="fld" style="margin-top:12px">Body</label>
+          <textarea id="body" placeholder="Write your email… use {{First}}, {{Company}}, etc."></textarea>
+        </div>
+      </div>
+      <div id="canspamWarn" class="warnbox hide"></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <h2><span class="n">3</span> Preview &amp; send</h2>
+    <div class="body">
+      <div class="preview">
+        <div class="to" id="pvTo">To: —</div>
+        <div class="subj" id="pvSubj">—</div>
+        <div class="bodytext" id="pvBody">Load leads and pick a template to preview.</div>
+      </div>
+      <div class="navbtns">
+        <button class="btn-ghost" id="prevBtn">‹ Prev</button>
+        <span class="muted" id="pvCount">0 / 0</span>
+        <button class="btn-ghost" id="nextBtn">Next ›</button>
+      </div>
+      <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+      <div class="summary" id="sendSummary">—</div>
+      <div class="toolbar" style="margin-top:18px">
+        <button class="btn-ghost" id="testBtn">✉ Send 1 test to myself</button>
+        <button class="btn-primary" id="draftBtn">📝 Create drafts in Outlook</button>
+        <span style="flex:1"></span>
+        <label class="check"><input type="checkbox" id="confirmSend"> I reviewed these and want to send for real</label>
+        <button class="btn-danger" id="sendBtn" disabled>🚀 Send all now</button>
+      </div>
+      <div class="muted" style="margin-top:8px" id="draftNote">Drafts are created in your connected mailbox so you can review before sending — nothing goes out until you hit send.</div>
+      <div id="results" class="results hide"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+let LEADS=[], TEMPLATES=[], pvIndex=0, RAW_HEADERS=[], RAW_ROWS=[];
+const $=id=>document.getElementById(id);
+const MERGE_FIELDS=["First","Contact","Company","City","County","Address","Zip","Standard","Penalty","CaseStatus","Phone","Email"];
+const ATTACHMENTS=[
+  {label:"OSHA WWS Flyer (PDF)", url:"/wwslgc/collateral/OSHA_WWS_Flyer.pdf"},
+  {label:"Free Assessment Offer (PDF)", url:"/wwslgc/collateral/Free_Assessment_Offer.pdf"},
+  {label:"Subpart D Inspection Checklist (PDF)", url:"/wwslgc/collateral/Subpart_D_Inspection_Checklist_LaGala.pdf"},
+  {label:"WWS Postcard 4x6 (PDF)", url:"/wwslgc/collateral/LaGala_WWS_Postcard_4x6_READY.pdf"},
+];
+
+// ---- CSV parsing + normalization (client-side; nothing leaves the browser until you send) ----
+function parseCSV(text){
+  const rows=[]; let i=0, field='', row=[], inq=false;
+  while(i<text.length){
+    const c=text[i];
+    if(inq){
+      if(c==='"'){ if(text[i+1]==='"'){field+='"';i+=2;continue;} inq=false;i++;continue; }
+      field+=c;i++;continue;
+    }
+    if(c==='"'){inq=true;i++;continue;}
+    if(c===','){row.push(field);field='';i++;continue;}
+    if(c==='\r'){i++;continue;}
+    if(c==='\n'){row.push(field);rows.push(row);row=[];field='';i++;continue;}
+    field+=c;i++;
+  }
+  if(field.length||row.length){row.push(field);rows.push(row);}
+  return rows.filter(r=>r.length>1||(r.length===1&&r[0].trim()!==''));
+}
+const COLMAP={email:["email"],contact:["safety_or_facility_contact","contact","contact_name","name"],
+  company:["estab_name","company","establishment","establishment_name"],address:["site_address","address"],
+  city:["site_city","city"],county:["site_county","county"],state:["site_state","state"],
+  zip:["site_zip","zip","zipcode"],standard:["standards_cited","standard","standards"],
+  penalty:["subpartd_penalty_usd","penalty"],casestatus:["case_status","casestatus","status"],phone:["phone","phone_number"]};
+const TITLES=new Set(["mr","mrs","ms","dr","the"]);
+function firstName(c){ if(!c)return"there"; c=c.replace(/\(.*?\)/g,"").replace(/\./g," ").trim(); if(!c)return"there";
+  for(const t0 of c.split(/\s+/)){ const t=t0.replace(/,$/,""); if(t&&!TITLES.has(t.toLowerCase())) return t===t.toUpperCase()?t.charAt(0)+t.slice(1).toLowerCase():t; } return "there"; }
+function fmtPenalty(v){ if(!v)return""; const s=String(v).replace(/[$,]/g,"").trim(); const n=parseFloat(s); return isNaN(n)?String(v):"$"+n.toLocaleString("en-US",{maximumFractionDigits:0}); }
+function normalize(text){
+  const grid=parseCSV(text); if(!grid.length) return [];
+  const cols=grid[0].map(c=>c.trim()); const low={}; cols.forEach((c,idx)=>low[c.toLowerCase()]=idx);
+  const pick=(r,keys)=>{ for(const k of keys){ const idx=low[k]; if(idx!=null){ const v=(r[idx]||"").trim(); if(v)return v; } } return ""; };
+  const out=[];
+  for(let ri=1;ri<grid.length;ri++){
+    const r=grid[ri]; const g=f=>pick(r,COLMAP[f]);
+    const merge={First:firstName(g("contact")),Contact:g("contact"),Company:g("company"),Address:g("address"),
+      City:g("city"),County:g("county"),State:g("state"),Zip:g("zip"),Standard:g("standard"),
+      Penalty:fmtPenalty(g("penalty")),CaseStatus:g("casestatus"),Phone:g("phone"),Email:g("email")};
+    cols.forEach((c,idx)=>{ if(merge[c]==null) merge[c]=(r[idx]||"").trim(); });
+    out.push({email:g("email"),merge});
+  }
+  return out;
+}
+
+function mergeText(t,m){ return (t||"").replace(/\{\{(\w+)\}\}/g,(x,k)=>(m&&m[k]!=null&&m[k]!=="")?m[k]:x); }
+function validEmail(e){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((e||"").trim()); }
+
+function renderTable(){
+  $('leadTable').querySelector('thead').innerHTML='<tr>'+['Email','Company','Contact','City','Standard','Penalty'].map(c=>'<th>'+c+'</th>').join('')+'</tr>';
+  const tb=$('leadTable').querySelector('tbody'); tb.innerHTML='';
+  LEADS.forEach((row,idx)=>{ const tr=document.createElement('tr'); const m=row.merge;
+    const ec=validEmail(row.email)?'<span class="pill ok">'+row.email+'</span>':'<input type="text" placeholder="add email…" value="'+(row.email||'')+'" data-idx="'+idx+'" class="emailInput">';
+    tr.innerHTML='<td>'+ec+'</td>'+['Company','Contact','City','Standard','Penalty'].map(k=>'<td>'+(m[k]||'')+'</td>').join(''); tb.appendChild(tr); });
+  tb.querySelectorAll('.emailInput').forEach(inp=>inp.addEventListener('input',e=>{LEADS[+e.target.dataset.idx].email=e.target.value.trim();refresh();saveLeads();}));
+  $('tableWrap').classList.remove('hide'); $('emailEditNote').classList.remove('hide');
+}
+function recipients(){ return LEADS.filter(r=>validEmail(r.email)).map(r=>({email:r.email.trim(),subject:mergeText($('subject').value,r.merge),body:mergeText($('body').value,r.merge)})); }
+function selectedAttachments(){ return [...document.querySelectorAll('.attachCb:checked')].map(c=>c.dataset.url); }
+
+function refresh(){
+  const b=$('body').value.toLowerCase(); const warns=[];
+  if(!/unsubscribe|opt[\s-]?out|reply stop/.test(b)) warns.push('no opt-out / unsubscribe line');
+  if(!/deerfield beach|25 se 7th/.test(b)) warns.push('no physical mailing address');
+  const w=$('canspamWarn'); if(warns.length){w.classList.remove('hide');w.innerHTML='⚠ CAN-SPAM: '+warns.join(' · ')+'. The default signature includes both — keep it in for mass sends.';}else w.classList.add('hide');
+  if(LEADS.length){ if(pvIndex>=LEADS.length)pvIndex=0; const r=LEADS[pvIndex];
+    $('pvTo').textContent='To: '+(r.email||'(no email)'); $('pvSubj').textContent=mergeText($('subject').value,r.merge)||'(no subject)';
+    $('pvBody').textContent=mergeText($('body').value,r.merge); $('pvCount').textContent=(pvIndex+1)+' / '+LEADS.length; }
+  else $('pvCount').textContent='0 / 0';
+  const valid=recipients().length; $('sendSummary').textContent=valid+' of '+LEADS.length+' leads ready to send';
+  $('draftBtn').disabled=valid===0; $('sendBtn').disabled=!(valid>0&&$('confirmSend').checked);
+}
+function applyTemplate(i){ const t=TEMPLATES[i]; $('subject').value=t.subject; $('body').value=t.body; refresh(); }
+function insertToken(tok){ const ta=$('body'),s=ta.selectionStart,e=ta.selectionEnd; ta.value=ta.value.slice(0,s)+tok+ta.value.slice(e); ta.focus(); ta.selectionStart=ta.selectionEnd=s+tok.length; refresh(); }
+const GUESS={
+  Email:['email','e-mail','mail'],
+  Company:['estab','company name','company','business','organization','organisation','account','dba'],
+  Contact:['contact','owner','principal','agent','full name','first name','attention','attn','name'],
+  City:['site_city','city','town','municipal'],
+  Standard:['standards_cited','standard','citation','violation','osha']
+};
+function autoGuess(field,headers){
+  const lows=headers.map(h=>h.toLowerCase());
+  for(const al of GUESS[field]){ const i=lows.findIndex(h=>h.includes(al)); if(i>=0) return i; }
+  return -1;
+}
+function buildMapUI(){
+  [['mapEmail','Email'],['mapCompany','Company'],['mapContact','Contact'],['mapCity','City'],['mapStandard','Standard']].forEach(([sel,field])=>{
+    const el=$(sel); el.innerHTML='';
+    const none=document.createElement('option'); none.value=''; none.textContent='— none —'; el.appendChild(none);
+    RAW_HEADERS.forEach((h,idx)=>{ const o=document.createElement('option'); o.value=idx; o.textContent=h||('Column '+(idx+1)); el.appendChild(o); });
+    const g=autoGuess(field,RAW_HEADERS); el.value=g>=0?String(g):'';
+    el.onchange=applyMapping;
+  });
+  $('mapPanel').classList.remove('hide');
+}
+function applyMapping(){
+  const pick=sel=>{ const v=$(sel).value; return v===''?-1:parseInt(v,10); };
+  const iE=pick('mapEmail'),iCo=pick('mapCompany'),iCt=pick('mapContact'),iCi=pick('mapCity'),iS=pick('mapStandard');
+  LEADS=RAW_ROWS.map(r=>{
+    const get=i=> i>=0 ? (r[i]||'').trim() : '';
+    const merge={First:firstName(get(iCt)),Contact:get(iCt),Company:get(iCo),Address:'',City:get(iCi),
+      County:'',State:'',Zip:'',Standard:get(iS),Penalty:'',CaseStatus:'',Phone:'',Email:get(iE)};
+    RAW_HEADERS.forEach((h,idx)=>{ if(h && merge[h]==null) merge[h]=(r[idx]||'').trim(); });
+    return {email:get(iE), merge};
+  });
+  const valid=LEADS.filter(r=>validEmail(r.email)).length;
+  $('loadStats').innerHTML='Loaded <b>'+LEADS.length+'</b> lead'+(LEADS.length!==1?'s':'')+' — <span class="pill ok">'+valid+' with email</span> '+(LEADS.length-valid>0?('<span class="pill no">'+(LEADS.length-valid)+' missing</span>'):'');
+  renderTable(); pvIndex=0; refresh(); saveLeads();
+}
+function loadText(text){
+  const grid=parseCSV(text);
+  if(!grid.length){ alert('Could not read that CSV.'); return; }
+  RAW_HEADERS=grid[0].map(c=>(c||'').trim()); RAW_ROWS=grid.slice(1).filter(r=>r.some(c=>(c||'').trim()!==''));
+  buildMapUI(); applyMapping();
+}
+function addManual(){
+  const email=$('mEmail').value.trim();
+  if(!validEmail(email)){ $('addMsg').innerHTML='<span style="color:var(--bad)">Enter a valid email address.</span>'; $('mEmail').focus(); return; }
+  const first=$('mFirst').value.trim();
+  const merge={First:first||'there',Contact:first,Company:$('mCompany').value.trim(),Address:'',
+    City:$('mCity').value.trim(),County:'',State:'',Zip:'',Standard:$('mStandard').value.trim(),
+    Penalty:'',CaseStatus:'',Phone:'',Email:email};
+  LEADS.push({email,merge});
+  const valid=LEADS.filter(r=>validEmail(r.email)).length;
+  $('loadStats').innerHTML='Loaded <b>'+LEADS.length+'</b> lead'+(LEADS.length!==1?'s':'')+' — <span class="pill ok">'+valid+' with email</span>';
+  renderTable(); refresh();
+  ['mEmail','mFirst','mCompany','mCity','mStandard'].forEach(id=>$(id).value='');
+  $('addMsg').innerHTML='<span style="color:var(--ok)">Added '+email+'. Add another, or scroll to Send.</span>';
+  saveLeads();
+  $('mEmail').focus();
+}
+let SERVER_SYNC=false, saveTimer=null;
+function renderSavedBar(){
+  const sb=$('savedBar');
+  if(!LEADS.length){ sb.classList.add('hide'); return; }
+  sb.classList.remove('hide');
+  let msg;
+  if(AUTH.authenticated && SERVER_SYNC) msg='☁ Synced across your devices & team — saved automatically.';
+  else if(AUTH.authenticated) msg='💾 Saved on this device. (Cross-device sync isn’t set up yet.)';
+  else msg='💾 Saved on this device — connect a mailbox to sync across all devices.';
+  sb.innerHTML=msg+' <a href="#" id="clearSaved" style="color:var(--bad)">Clear list</a>';
+  $('clearSaved').onclick=e=>{ e.preventDefault(); clearSaved(); };
+}
+function saveLeads(){
+  try{ localStorage.setItem('wwslgc_leads', JSON.stringify(LEADS)); }catch(e){}
+  if(AUTH.authenticated){
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(()=>{
+      fetch('/api/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leads:LEADS})})
+        .then(r=>r.json()).then(d=>{ SERVER_SYNC=!!d.configured; renderSavedBar(); }).catch(()=>{});
+    }, 700);
+  }
+  renderSavedBar();
+}
+async function syncLoad(){
+  if(!AUTH.authenticated) return;
+  try{
+    const r=await fetch('/api/contacts'); const d=await r.json();
+    if(d.configured){
+      SERVER_SYNC=true;
+      if(d.leads && d.leads.length){ LEADS=d.leads; }
+      else if(LEADS.length){ fetch('/api/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leads:LEADS})}).catch(()=>{}); }
+      try{ localStorage.setItem('wwslgc_leads', JSON.stringify(LEADS)); }catch(e){}
+      const valid=LEADS.filter(x=>validEmail(x.email)).length;
+      $('loadStats').innerHTML='Loaded <b>'+LEADS.length+'</b> contact'+(LEADS.length!==1?'s':'')+' — <span class="pill ok">'+valid+' with email</span>';
+      renderTable();
+    }
+  }catch(e){}
+}
+function clearSaved(){
+  if(!confirm('Clear the saved contact list'+(SERVER_SYNC?' for everyone (this list is shared)':' on this device')+'?')) return;
+  try{ localStorage.removeItem('wwslgc_leads'); }catch(e){}
+  LEADS=[];
+  if(AUTH.authenticated) fetch('/api/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({leads:[]})}).catch(()=>{});
+  $('leadTable').querySelector('tbody').innerHTML=''; $('tableWrap').classList.add('hide');
+  $('emailEditNote').classList.add('hide'); $('loadStats').innerHTML=''; $('savedBar').classList.add('hide');
+  $('mapPanel').classList.add('hide'); RAW_HEADERS=[]; RAW_ROWS=[];
+  pvIndex=0; refresh();
+}
+
+async function sendOne(mode,rec,attachments){
+  const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode,recipient:rec,attachments})});
+  let d={}; try{d=await r.json();}catch(e){} return {ok:r.ok&&d.ok,status:d.status||('HTTP '+r.status),email:rec.email}; }
+
+async function run(mode){
+  if(!AUTH.authenticated){ showConnectPrompt(); return; }
+  const attachments=selectedAttachments(); let recs;
+  if(mode==='test'){ recs=[recipients()[0]||{email:'(me)',subject:mergeText($('subject').value,{First:'there'}),body:mergeText($('body').value,{First:'there'})}]; }
+  else{ recs=recipients(); if(!recs.length){alert('No recipients with a valid email.');return;}
+    if(mode==='send'&&!confirm('Send '+recs.length+' emails for real, right now, from your mailbox?'))return; }
+  const box=$('results'); box.classList.remove('hide');
+  ['testBtn','draftBtn','sendBtn'].forEach(b=>$(b).disabled=true);
+  let ok=0; box.innerHTML='<div class="summary">Working… 0 / '+recs.length+'</div>';
+  const lines=[];
+  for(let i=0;i<recs.length;i++){
+    const res=await sendOne(mode==='test'?'test':mode,recs[i],attachments);
+    if(res.ok)ok++; lines.push('<div><span class="pill '+(res.ok?'ok':'no')+'">'+(res.ok?'✓':'✗')+'</span> '+res.email+' — '+res.status+'</div>');
+    box.innerHTML='<div class="summary">'+ok+' / '+recs.length+' '+(mode==='send'?'sent':'created')+'</div>'+lines.join('');
+    box.scrollTop=box.scrollHeight;
+  }
+  ['testBtn','draftBtn'].forEach(b=>$(b).disabled=false); refresh();
+}
+
+// wiring
+function wire(){
+  $('tplSelect').addEventListener('change',e=>applyTemplate(+e.target.value));
+  $('subject').addEventListener('input',refresh); $('body').addEventListener('input',refresh);
+  $('confirmSend').addEventListener('change',refresh);
+  $('prevBtn').onclick=()=>{if(LEADS.length){pvIndex=(pvIndex-1+LEADS.length)%LEADS.length;refresh();}};
+  $('nextBtn').onclick=()=>{if(LEADS.length){pvIndex=(pvIndex+1)%LEADS.length;refresh();}};
+  $('testBtn').onclick=()=>run('test'); $('draftBtn').onclick=()=>run('draft'); $('sendBtn').onclick=()=>run('send');
+  $('addOne').onclick=addManual;
+  ['mEmail','mFirst','mCompany','mCity','mStandard'].forEach(id=>$(id).addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); addManual(); } }));
+  $('drop').onclick=()=>$('file').click();
+  $('file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>loadText(rd.result);rd.readAsText(f);});
+  ['dragover','dragenter'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.add('hot');}));
+  ['dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.remove('hot');}));
+  $('drop').addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>loadText(rd.result);rd.readAsText(f);});
+}
+
+let AUTH={authenticated:false};
+function renderConnect(){
+  const bar=$('connectBar'); const btn='display:inline-block;background:#fff;color:#0B2340;padding:6px 11px;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;margin:6px 6px 0 0';
+  if(AUTH.authenticated){
+    const mb=AUTH.provider==='google'?'Gmail':'Outlook';
+    bar.innerHTML='Sending as <b>'+(AUTH.email||'')+'</b> <span style="opacity:.75">('+mb+')</span><br><a href="/api/logout" style="color:var(--gold)">Disconnect</a>';
+    if($('draftBtn')) $('draftBtn').textContent='📝 Create drafts in '+mb;
+    if($('draftNote')) $('draftNote').textContent='Drafts are created in your '+mb+' mailbox so you can review before sending — nothing goes out until you hit send.';
+  } else {
+    bar.innerHTML='<span style="color:#c7d6ea">Not connected — connect a mailbox to send:</span><br>'+
+      '<a href="/api/login" style="'+btn+'">✉ Connect Microsoft</a>'+
+      '<a href="/api/login/google" style="'+btn+'">✉ Connect Google</a>';
+  }
+}
+function showConnectPrompt(){
+  alert('Connect a mailbox first — use "Connect Microsoft" or "Connect Google" at the top of the page.');
+  $('connectBar').scrollIntoView({behavior:'smooth'});
+}
+async function boot(){
+  $('appShell').classList.remove('hide');
+  try{ const r=await fetch('/api/me'); AUTH=await r.json(); }catch(e){ AUTH={authenticated:false}; }
+  renderConnect();
+  // templates
+  try{ const r=await fetch('/api/templates'); const d=await r.json(); TEMPLATES=d.templates; }catch(e){ TEMPLATES=[{name:'Blank',subject:'',body:''}]; }
+  TEMPLATES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=t.name;$('tplSelect').appendChild(o);});
+  MERGE_FIELDS.forEach(f=>{const s=document.createElement('span');s.textContent='{{'+f+'}}';s.onclick=()=>insertToken('{{'+f+'}}');$('chips').appendChild(s);});
+  ATTACHMENTS.forEach(a=>{const w=document.createElement('label');w.className='check';w.style.marginBottom='6px';
+    const cb=document.createElement('input');cb.type='checkbox';cb.dataset.url=a.url;cb.className='attachCb';w.appendChild(cb);
+    const sp=document.createElement('span');sp.textContent=a.label;sp.style.fontSize='13px';w.appendChild(sp);$('attachList').appendChild(w);});
+  // restore saved contacts from this device
+  try{
+    const saved=JSON.parse(localStorage.getItem('wwslgc_leads')||'[]');
+    if(Array.isArray(saved) && saved.length){
+      LEADS=saved;
+      const valid=LEADS.filter(r=>validEmail(r.email)).length;
+      $('loadStats').innerHTML='Restored <b>'+LEADS.length+'</b> saved contact'+(LEADS.length!==1?'s':'')+' — <span class="pill ok">'+valid+' with email</span>';
+      renderTable();
+    }
+  }catch(e){}
+  await syncLoad();
+  renderSavedBar();
+  wire(); applyTemplate(0);
+}
+boot();
+</script>
+</body>
+</html>
