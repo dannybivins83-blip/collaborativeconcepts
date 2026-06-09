@@ -1300,7 +1300,7 @@ async function doUpload(lot){
     fd.append('client_email', CASES[lot].email);
     fd.append('client_owner', CASES[lot].owner);
 
-    const r = await fetch('/api/portal/upload', {method:'POST', body:fd});
+    const r = await fetch('https://collaborativeconceptsfl.com/api/portal/upload', {method:'POST', body:fd});
     const j = await r.json().catch(()=>({error:'Non-JSON response'}));
     if(!r.ok || !j.ok) throw new Error(j.error||('HTTP '+r.status));
 
