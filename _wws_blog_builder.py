@@ -59,6 +59,12 @@ POSTS = [
   "This is the most calendar-driven item on the list. Anchorages require a <strong>visual inspection at least annually</strong> by a qualified person, and a <strong>load re-certification at least every 10 years</strong> (shorter &mdash; commonly 5 years &mdash; for adhesive/post-installed anchors per ANSI/IWCA I-14.1 and the engineer's spec). That recurring clock is exactly what an ongoing maintenance plan manages.",
   "Our licensed PE partner performs the proof-load test and issues the sealed certification; our crews install, repair, or replace anchors to spec &mdash; one contract for the certify-and-fix.",
   ""),
+ ("window-washing","Window-Washing &amp; Rope-Descent Anchors","§1910.27","Hot",
+  "Uncertified rooftop anchors for window cleaning.",
+  "Before any contractor can drop a rope to wash your windows or work the facade, OSHA §1910.27(b) makes the building owner identify and certify the rooftop tie-back and rope descent system (RDS) anchors &mdash; each one must hold 5,000 pounds. Most older buildings have davits, parapet clamps or roof anchors that were never tested, and a reputable window-washing company simply won't tie off until they're certified.",
+  "One of the most calendar-driven duties in Subpart D: RDS anchorages must be inspected by a qualified person at least annually, with a load re-certification at least every 10 years &mdash; and ANSI/IWCA I-14.1 practice is tighter, commonly every 5 years and before any re-roof or facade project. It's a recurring liability an ongoing plan keeps on schedule.",
+  "Our licensed PE partner load-tests and certifies every davit, outrigger and roof anchor; our crews install, repair or replace them to spec &mdash; so your window-washing and facade contractors can work and you hold the sealed certification OSHA wants.",
+  ""),
  ("roof-edge-exposure","Low-Slope Roof-Edge Work","§1910.28","Warm",
   "Work near low-slope roof edges, unprotected.",
   "On low-slope roofs, §1910.28(b)(13) sets graduated requirements based on how close work happens to the edge &mdash; from warning lines and safety monitors to full guardrail or personal fall arrest as you approach the edge. HVAC techs, roofers and inspectors are exposed every time they go up, often with no system in place.",
@@ -83,12 +89,6 @@ POSTS = [
   "OSHA cites unguarded skylights and hatches on inspection and it's a known fatality category, so it draws NEP attention. The duty is continuous &mdash; guarding has to be in place whenever the roof is accessed.",
   "We install skylight screens or guardrails rated to hold the load, and self-closing hatch guards, so the opening is protected without blocking access or light.",
   ""),
- ("mobile-ladder-stands","Mobile Ladder Stands","§1910.29","Cool",
-  "Rolling platforms missing rails or locks.",
-  "Mobile ladder stands and rolling work platforms have their own criteria in §1910.29 &mdash; handrails and guardrails above set heights, slip-resistant steps, and locking casters. Shop-built or worn units often miss the rails or won't lock, turning routine reach-up work into a fall.",
-  "OSHA cites these on inspection. There's no recert interval, but because wheels, locks and rails wear, they should be inspected on the routine (at least annual) equipment safety check and tagged out when they fail.",
-  "We specify and supply compliant ladder stands and platforms, and repair or remove the non-compliant units already on your floor.",
-  ""),
  ("slippery-surfaces","Slippery Surfaces","§1910.22","Cool",
   "Low-traction or chronically wet surfaces.",
   "Beyond housekeeping, §1910.22 expects walking surfaces to provide adequate traction. Worn smooth concrete, the wrong coating, wet processes and weather-exposed ramps create chronic slip exposure that a &lsquo;wet floor&rsquo; sign doesn't actually fix.",
@@ -100,6 +100,12 @@ POSTS = [
   "Ramps, runways and elevated walkways must be structurally sound (§1910.22) and guarded where they're 4 feet or more above a lower level (§1910.28). Connector walkways, equipment platforms and roof-access runways are easy to overlook &mdash; until a slab edge spalls or a rail gives way.",
   "OSHA cites the fall and structural exposure on inspection. Elevated concrete walkways are also a core Milestone / 40-year recertification finding, so structural deterioration here rides the recurring 10-year recert clock.",
   "We restore the walking surface and structure and add compliant guardrail and traction &mdash; treating the walkway as both a fall-protection and a concrete-restoration scope.",
+  ""),
+ ("rooftop-crossover","Rooftop Pipe &amp; Utility Crossovers","§1910.28","Warm",
+  "Crossing over roof pipes, gas &amp; water lines.",
+  "Commercial roofs are crowded with gas lines, condensate and water piping, conduit and duct. When workers have to step over those runs to service equipment, OSHA requires a crossover platform or bridge &mdash; a stepped, guardrailed walkover &mdash; not a leg-over-the-pipe scramble. Tripping over a roof line is both a fall hazard and a risk to the line itself.",
+  "The duty to provide safe access is continuous, so a compliant crossover has to be in place wherever the path of travel crosses an obstruction. OSHA cites it on inspection, and on the structural side corroded roof-access platforms and walkways get flagged on Milestone and 40-year recertifications.",
+  "We design and fabricate compliant crossover stairs and bridge platforms &mdash; guardrailed, slip-resistant, and engineered to clear the line &mdash; so crews cross gas, water and conduit runs safely instead of over them.",
   ""),
 ]
 
@@ -203,7 +209,7 @@ def build_index():
     body = f"""<main class="overflow-x-hidden">
 <section class="max-w-7xl mx-auto px-6 sm:px-8 pt-14 pb-8">
 <span class="text-secondary font-semibold tracking-widest uppercase text-xs">Compliance guides</span>
-<h1 class="text-4xl sm:text-5xl font-extrabold text-primary leading-tight tracking-tight mt-3 max-w-3xl">The top 15 things OSHA cites — explained.</h1>
+<h1 class="text-4xl sm:text-5xl font-extrabold text-primary leading-tight tracking-tight mt-3 max-w-3xl">The hazards OSHA cites most — explained.</h1>
 <p class="text-lg text-on-surface-variant leading-relaxed mt-5 max-w-2xl">For each Walking-Working Surfaces hazard: what it is, why it matters, how often it's inspected or re-certified, and how we close it out. Click any one to read the guide.</p>
 </section>
 <section class="max-w-7xl mx-auto px-6 sm:px-8 pb-20"><div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{cards}</div></section>
@@ -219,3 +225,27 @@ for p in POSTS:
 open(os.path.join(BLOG, "index.html"), "w", encoding="utf-8", newline="").write(build_index())
 print(f"Generated {n} posts + index in wwslgc/blog/")
 print("Posts:", ", ".join(p[0] for p in POSTS))
+
+# ---- sync the landing-page gallery from the same POSTS (single source of truth) ----
+def gallery_cards():
+    out=""
+    for p in POSTS:
+        slug,title,std,short=p[0],p[1],p[2],p[4]
+        alt=title.replace("&amp;","&")
+        out+=('<a href="/blog/'+slug+'" class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all">'
+              '<div class="aspect-[4/3] overflow-hidden relative"><img src="/assets/wws/'+slug+'.jpg" alt="'+alt+'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>'
+              '<span class="absolute top-2 right-2 text-[10px] font-bold bg-secondary text-white px-2 py-0.5 rounded-full">'+std+'</span></div>'
+              '<div class="p-4"><h3 class="font-bold text-primary text-[15px] leading-tight">'+title+'</h3>'
+              '<p class="text-xs text-on-surface-variant mt-1.5 leading-snug">'+short+'</p></div></a>')
+    return out
+
+LANDING=os.path.join(REPO,"wwslgc","index.html")
+lc=open(LANDING,encoding="utf-8").read()
+gstart='<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5 mt-12">'
+gend='<div class="mt-8"><a href="/blog"'
+i=lc.index(gstart); j=lc.index(gend)
+lc=lc[:i]+gstart+gallery_cards()+'</div>\n'+lc[j:]
+lc=lc.replace("The top 15 things OSHA cites &mdash; and we fix.","The hazards OSHA cites most &mdash; and we fix.")
+lc=lc.replace("Read all 15 compliance guides","Read all the compliance guides")
+open(LANDING,"w",encoding="utf-8",newline="").write(lc)
+print("Landing gallery synced:",len(POSTS),"cards")
