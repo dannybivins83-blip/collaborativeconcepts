@@ -263,6 +263,35 @@ def build_index():
     for tp in TOPICS:
         tslug,ttitle,tstd,tshort = tp[0],tp[1],tp[2],tp[4]
         topics += f"""<a href="/guides/{tslug}" class="group bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all p-5 flex flex-col"><span class="text-[11px] font-bold text-secondary">{tstd}</span><h3 class="font-bold text-primary mt-1 leading-tight">{ttitle}</h3><p class="text-sm text-on-surface-variant mt-1.5 flex-1">{tshort}</p><span class="text-sm font-semibold text-primary mt-3 inline-flex items-center gap-1 group-hover:text-secondary">Read the guide <span class="material-symbols-outlined text-base">arrow_forward</span></span></a>"""
+    downloads = """<section id="downloads" class="bg-surface-container-low border-y border-outline-variant/20 py-16 mt-4">
+<div class="max-w-7xl mx-auto px-6 sm:px-8">
+<div class="max-w-3xl"><span class="text-secondary font-semibold tracking-widest uppercase text-xs">Free downloads</span>
+<h2 class="text-3xl font-extrabold text-primary leading-tight tracking-tight mt-3">Resources &amp; collateral.</h2>
+<p class="text-lg text-on-surface-variant leading-relaxed mt-4">Hand these to your board, your safety committee, or your team &mdash; or self-audit before an inspector does.</p></div>
+<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+<a href="/collateral/OSHA_WWS_Flyer.pdf" target="_blank" rel="noopener" class="group bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-6 hover:border-secondary hover:shadow-lg transition-all flex flex-col">
+<span class="material-symbols-outlined text-4xl text-secondary">description</span>
+<h3 class="font-bold text-primary mt-4">Program Flyer</h3>
+<p class="text-sm text-on-surface-variant mt-1 flex-1">The one-page overview of the WWS compliance program.</p>
+<span class="text-sm font-semibold text-primary mt-4 inline-flex items-center gap-1 group-hover:text-secondary">Download PDF <span class="material-symbols-outlined text-base">download</span></span></a>
+<a href="/collateral/Free_Assessment_Offer.pdf" target="_blank" rel="noopener" class="group bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-6 hover:border-secondary hover:shadow-lg transition-all flex flex-col">
+<span class="material-symbols-outlined text-4xl text-secondary">redeem</span>
+<h3 class="font-bold text-primary mt-4">Free Assessment Offer</h3>
+<p class="text-sm text-on-surface-variant mt-1 flex-1">Our no-cost, no-obligation compliance assessment.</p>
+<span class="text-sm font-semibold text-primary mt-4 inline-flex items-center gap-1 group-hover:text-secondary">Download PDF <span class="material-symbols-outlined text-base">download</span></span></a>
+<a href="/collateral/Subpart_D_Inspection_Checklist_LaGala.pdf" target="_blank" rel="noopener" class="group bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-6 hover:border-secondary hover:shadow-lg transition-all flex flex-col">
+<span class="material-symbols-outlined text-4xl text-secondary">checklist</span>
+<h3 class="font-bold text-primary mt-4">Inspection Checklist</h3>
+<p class="text-sm text-on-surface-variant mt-1 flex-1">The Subpart D field checklist we inspect against (.22&ndash;.30).</p>
+<span class="text-sm font-semibold text-primary mt-4 inline-flex items-center gap-1 group-hover:text-secondary">Download PDF <span class="material-symbols-outlined text-base">download</span></span></a>
+<a href="/collateral/LaGala_WWS_Postcard_4x6_READY.pdf" target="_blank" rel="noopener" class="group bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-6 hover:border-secondary hover:shadow-lg transition-all flex flex-col">
+<span class="material-symbols-outlined text-4xl text-secondary">mail</span>
+<h3 class="font-bold text-primary mt-4">4&times;6 Postcard</h3>
+<p class="text-sm text-on-surface-variant mt-1 flex-1">Print-ready direct-mail card for outreach.</p>
+<span class="text-sm font-semibold text-primary mt-4 inline-flex items-center gap-1 group-hover:text-secondary">Download PDF <span class="material-symbols-outlined text-base">download</span></span></a>
+</div>
+</div>
+</section>"""
     body = f"""<main class="overflow-x-hidden">
 <section class="max-w-7xl mx-auto px-6 sm:px-8 pt-14 pb-8">
 <span class="text-secondary font-semibold tracking-widest uppercase text-xs">Compliance guides</span>
@@ -271,7 +300,8 @@ def build_index():
 </section>
 <section class="max-w-7xl mx-auto px-6 sm:px-8 pb-20"><div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{cards}</div></section>
 <section class="max-w-7xl mx-auto px-6 sm:px-8 pb-16"><h2 class="text-2xl font-extrabold text-primary mb-1">More compliance guides</h2><p class="text-on-surface-variant mb-6">Deadlines, rules and Florida-specific requirements worth knowing.</p><div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">{topics}</div></section>
-{('<section class="max-w-7xl mx-auto px-6 sm:px-8 pb-20">'+cta()+'</section>')}
+{downloads}
+{('<section class="max-w-7xl mx-auto px-6 sm:px-8 py-20">'+cta()+'</section>')}
 </main>
 """
     return head + body + FOOTER.replace("{credit}", "")
