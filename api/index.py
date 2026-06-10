@@ -637,6 +637,525 @@ def portal_requests():
     return jsonify({"authed": True, "email": s.get("email"), "name": s.get("name", ""), "requests": mine})
 
 
+# ==========================================================================
+# WWS field inspections + pre-filled documents (reportlab, server-side)
+# ==========================================================================
+import io
+try:
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.units import inch
+    from reportlab.lib import colors
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether
+    NAVY = colors.HexColor("#13233f"); GOLD = colors.HexColor("#c9a227")
+    INK = colors.HexColor("#1f2733"); MUTE = colors.HexColor("#5b6573")
+    LINE = colors.HexColor("#d8dce2"); ZEBRA = colors.HexColor("#f5f6f8"); CREAM = colors.HexColor("#f6efd9")
+    _RL = True
+except Exception:
+    _RL = False
+F, FB = "Helvetica", "Helvetica-Bold"
+RED = "#b3261e"; GREEN = "#1e7a3d"; GREY = "#5b6573"
+SEV = {"high": ("#b3261e", "HIGH"), "med": ("#b8860b", "MEDIUM"), "low": ("#1e7a3d", "LOW")}
+
+SUBPART_D = [
+    ("General Surface Conditions", "§1910.22", [
+        "Surfaces clean, orderly, sanitary; dry or drained where wet",
+        "Free of trip / sharp / corrosion / spill / ice hazards",
+        "Each surface supports its maximum intended load",
+        "Safe means of access and egress at every surface",
+        "Inspected regularly; hazards corrected or guarded"]),
+    ("Portable Ladders", "§1910.23(b),(c)", [
+        "Inspected before use; defective ladders tagged out",
+        "Rungs slip-resistant, level, spaced 10-14 in",
+        "On stable level surface; secured where needed",
+        "Side rails extend >= 3 ft above the landing",
+        "Not overloaded; no improper use (boxes, top cap)"]),
+    ("Fixed Ladders", "§1910.23(d)", [
+        "Supports max load; corrosion-protected",
+        "Clearances behind / beside rungs per code",
+        "Through / side-step extensions; grab bars where required",
+        "Ladders > 24 ft: PFAS or ladder safety system",
+        "All fixed ladders need PFAS / LSS by Nov 18, 2036"]),
+    ("Stairways", "§1910.25", [
+        "Riser / tread geometry and width within limits",
+        "Uniform risers and treads between landings",
+        "Landings sized correctly; clearance maintained",
+        "Stair-rail + handrails per Table D-2",
+        "Landings >= 4 ft above lower level guarded"]),
+    ("Dockboards", "§1910.26", [
+        "Supports load; run-off prevented",
+        "Secured / anchored against displacement; handholds",
+        "Wheel chocks / restraints where required",
+        "Guardrails where fall hazard >= 4 ft"]),
+    ("Rope Descent Systems & Anchorages", "§1910.27", [
+        "Each anchorage certified >= 5,000 lb per worker",
+        "Annual qualified-person inspection current",
+        "Anchorages re-tested at least every 10 years",
+        "RDS inspected at start of each shift",
+        "Each worker on an independent PFAS"]),
+    ("Fall Protection - Duty & Criteria", "§1910.28 / .29", [
+        "Unprotected sides / edges >= 4 ft protected",
+        "Holes / skylights covered, guarded, or PFAS",
+        "Low-slope roof edge work rules met",
+        "Guardrails meet 200 / 150 lb strength criteria",
+        "Toeboards where falling-object exposure exists"]),
+    ("Training", "§1910.30", [
+        "Trained by qualified person in fall-hazard recognition",
+        "Trained to use the fall-protection systems in place",
+        "RDS / dockboard users trained for their equipment",
+        "Retraining when conditions or equipment change"]),
+]
+
+
+def _seed_findings():
+    out = []
+    for section, std, items in SUBPART_D:
+        for it in items:
+            out.append({"section": section, "std": std, "item": it, "result": "", "severity": "", "note": ""})
+    return out
+
+
+def _esc(s):
+    return (str(s) if s is not None else "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _dstyles():
+    return {
+        "wordmark": ParagraphStyle("wm", fontName=FB, fontSize=13, textColor=NAVY, leading=15),
+        "doctype": ParagraphStyle("dt", fontName=F, fontSize=9, textColor=GOLD, leading=11, spaceAfter=1),
+        "h1": ParagraphStyle("h1", fontName=FB, fontSize=17, textColor=NAVY, leading=20, spaceBefore=2, spaceAfter=2),
+        "meta": ParagraphStyle("meta", fontName=F, fontSize=8.5, textColor=MUTE, leading=12),
+        "metab": ParagraphStyle("metab", fontName=FB, fontSize=8.5, textColor=NAVY, leading=12),
+        "sect": ParagraphStyle("sect", fontName=FB, fontSize=10.5, textColor=NAVY, leading=13, spaceBefore=12, spaceAfter=4),
+        "body": ParagraphStyle("body", fontName=F, fontSize=9.5, textColor=INK, leading=13.5, spaceBefore=2),
+        "th": ParagraphStyle("th", fontName=FB, fontSize=8, textColor=colors.white, leading=10),
+        "thc": ParagraphStyle("thc", fontName=FB, fontSize=8, textColor=colors.white, leading=10, alignment=1),
+        "td": ParagraphStyle("td", fontName=F, fontSize=8.5, textColor=INK, leading=11),
+        "tdc": ParagraphStyle("tdc", fontName=F, fontSize=8.5, textColor=INK, leading=11, alignment=1),
+        "tdr": ParagraphStyle("tdr", fontName=F, fontSize=8.5, textColor=INK, leading=11, alignment=2),
+        "key": ParagraphStyle("key", fontName=F, fontSize=9, textColor=NAVY, leading=13, backColor=CREAM, borderPadding=(5, 6, 5, 6)),
+        "disc": ParagraphStyle("disc", fontName=F, fontSize=7, textColor=MUTE, leading=9, spaceBefore=8),
+    }
+
+
+def _dfooter(c, d):
+    c.saveState(); w, h = letter
+    c.setStrokeColor(LINE); c.setLineWidth(0.5); c.line(0.7 * inch, 0.55 * inch, w - 0.7 * inch, 0.55 * inch)
+    c.setFont(F, 7); c.setFillColor(MUTE)
+    c.drawString(0.7 * inch, 0.4 * inch, "La Gala Construction / Tilt Patchers, Inc.  ·  CGC059211  ·  in partnership with a FL State Certified Engineer")
+    c.drawRightString(w - 0.7 * inch, 0.4 * inch, "Page %d" % d.page)
+    c.restoreState()
+
+
+def _dheader(story, st, doctype, title, insp):
+    p = insp.get("property", {}); cl = insp.get("client", {}); insr = insp.get("inspector", {})
+    story.append(Paragraph("LA GALA CONSTRUCTION", st["wordmark"]))
+    story.append(Paragraph(_esc(doctype), st["doctype"]))
+    story.append(Paragraph(_esc(title), st["h1"]))
+    rule = Table([[""]], colWidths=[7.1 * inch]); rule.setStyle(TableStyle([("LINEABOVE", (0, 0), (-1, -1), 1.3, GOLD)]))
+    story.append(Spacer(1, 3)); story.append(rule); story.append(Spacer(1, 6))
+    def kv(k, v): return [Paragraph(k, st["meta"]), Paragraph(_esc(v or "—"), st["metab"])]
+    owner = (cl.get("name", "") + (("  ·  " + cl.get("company", "")) if cl.get("company") else "")).strip(" ·")
+    rows = [
+        kv("Property", p.get("name", "")) + kv("Inspected", insr.get("date", "")),
+        kv("Address", p.get("address", "")) + kv("Inspector", insr.get("name", "")),
+        kv("Owner / contact", owner) + kv("License", insr.get("license", "CGC059211")),
+    ]
+    t = Table(rows, colWidths=[0.95 * inch, 2.55 * inch, 0.85 * inch, 2.05 * inch])
+    t.setStyle(TableStyle([("TOPPADDING", (0, 0), (-1, -1), 1), ("BOTTOMPADDING", (0, 0), (-1, -1), 2), ("LEFTPADDING", (0, 0), (-1, -1), 0), ("VALIGN", (0, 0), (-1, -1), "TOP")]))
+    story.append(t); story.append(Spacer(1, 6))
+
+
+def _dtable_style():
+    return TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#3a4a63")),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BOX", (0, 0), (-1, -1), 0.5, LINE), ("INNERGRID", (0, 0), (-1, -1), 0.4, LINE),
+        ("TOPPADDING", (0, 0), (-1, -1), 4), ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6), ("RIGHTPADDING", (0, 0), (-1, -1), 6)])
+
+
+def _dzebra(t, nrows, start=1):
+    for r in range(start, nrows):
+        if (r - start) % 2 == 1:
+            t.setStyle(TableStyle([("BACKGROUND", (0, r), (-1, r), ZEBRA)]))
+
+
+def _dnew(title):
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=letter, leftMargin=0.7 * inch, rightMargin=0.7 * inch,
+                            topMargin=0.6 * inch, bottomMargin=0.7 * inch, title=title)
+    return buf, doc
+
+
+def _dfinish(buf, doc, story):
+    doc.build(story, onFirstPage=_dfooter, onLaterPages=_dfooter)
+    return buf.getvalue()
+
+
+def _money(v):
+    try:
+        return "{:,.0f}".format(float(str(v).replace(",", "").replace("$", "")))
+    except Exception:
+        return str(v)
+
+
+def doc_checklist(insp):
+    st = _dstyles(); buf, doc = _dnew("Completed OSHA Subpart D Checklist"); story = []
+    _dheader(story, st, "OSHA 1910 Subpart D - field compliance record", "Completed Inspection Checklist", insp)
+    findings = insp.get("findings") or _seed_findings()
+    secs, order = {}, []
+    for f in findings:
+        s = f.get("section", "Other")
+        if s not in secs:
+            secs[s] = []; order.append(s)
+        secs[s].append(f)
+    for s in order:
+        std = secs[s][0].get("std", "")
+        story.append(Paragraph(_esc(s) + "  ·  " + _esc(std), st["sect"]))
+        rows = [[Paragraph("Inspection item", st["th"]), Paragraph("Result", st["thc"]), Paragraph("Note", st["th"])]]
+        for f in secs[s]:
+            res = (f.get("result") or "").lower()
+            label = {"ok": "OK", "def": "DEF", "na": "N/A"}.get(res, "—")
+            col = RED if res == "def" else (GREEN if res == "ok" else GREY)
+            rows.append([Paragraph(_esc(f.get("item", "")), st["td"]),
+                         Paragraph('<font color="%s"><b>%s</b></font>' % (col, label), st["tdc"]),
+                         Paragraph(_esc(f.get("note", "")), st["td"])])
+        t = Table(rows, colWidths=[3.7 * inch, 0.8 * inch, 2.6 * inch], repeatRows=1)
+        t.setStyle(_dtable_style()); _dzebra(t, len(rows))
+        story.append(t)
+    defs = [f for f in findings if (f.get("result") or "").lower() == "def"]
+    story.append(Paragraph("Deficiencies to correct (%d)" % len(defs), st["sect"]))
+    if defs:
+        for f in defs:
+            story.append(Paragraph("&bull; <b>%s</b> (%s): %s" % (_esc(f.get("item", "")), _esc(f.get("std", "")), _esc(f.get("note", "") or "see field notes")), st["body"]))
+    else:
+        story.append(Paragraph("No deficiencies recorded at the time of inspection.", st["body"]))
+    story.append(Spacer(1, 18))
+    story.append(Paragraph("Inspector signature: ______________________________     Date: ____________", st["body"]))
+    story.append(Spacer(1, 6))
+    story.append(Paragraph("Owner / manager acknowledgment: ______________________________     Date: ____________", st["body"]))
+    story.append(Paragraph("Field compliance record only. Anchorage load-test certification (§1910.27) and any structural repair must be performed and sealed by a licensed Florida professional engineer. Thresholds per 29 CFR 1910 Subpart D.", st["disc"]))
+    return _dfinish(buf, doc, story)
+
+
+def doc_report(insp):
+    st = _dstyles(); buf, doc = _dnew("WWS Inspection Report"); story = []
+    _dheader(story, st, "Walking-Working Surfaces - inspection findings", "Inspection Report", insp)
+    findings = insp.get("findings") or []
+    defs = [f for f in findings if (f.get("result") or "").lower() == "def"]
+    nhigh = sum(1 for f in defs if (f.get("severity") or "").lower() == "high")
+    band = [[Paragraph("Items reviewed", st["thc"]), Paragraph("Deficiencies", st["thc"]), Paragraph("High severity", st["thc"]), Paragraph("Standards", st["thc"])],
+            [Paragraph(str(len(findings)), st["tdc"]), Paragraph(str(len(defs)), st["tdc"]), Paragraph(str(nhigh), st["tdc"]), Paragraph(str(len(set(f.get("std", "") for f in findings))), st["tdc"])]]
+    bt = Table(band, colWidths=[1.78 * inch] * 4); bt.setStyle(_dtable_style())
+    story.append(bt); story.append(Spacer(1, 4))
+    if insp.get("summary"):
+        story.append(Paragraph("Summary", st["sect"])); story.append(Paragraph(_esc(insp["summary"]), st["body"]))
+    story.append(Paragraph("Findings", st["sect"]))
+    if defs:
+        rows = [[Paragraph("Standard", st["th"]), Paragraph("Finding", st["th"]), Paragraph("Severity", st["thc"]), Paragraph("Note", st["th"])]]
+        for f in defs:
+            sevc, sevl = SEV.get((f.get("severity") or "").lower(), (GREY, "—"))
+            rows.append([Paragraph(_esc(f.get("std", "")), st["td"]), Paragraph(_esc(f.get("item", "")), st["td"]),
+                         Paragraph('<font color="%s"><b>%s</b></font>' % (sevc, sevl), st["tdc"]), Paragraph(_esc(f.get("note", "")), st["td"])])
+        t = Table(rows, colWidths=[1.0 * inch, 2.7 * inch, 0.8 * inch, 2.6 * inch], repeatRows=1)
+        t.setStyle(_dtable_style()); _dzebra(t, len(rows)); story.append(t)
+    else:
+        story.append(Paragraph("No deficiencies were identified at the time of inspection.", st["body"]))
+    photos = insp.get("photos") or []
+    if photos:
+        story.append(Paragraph("Photo log", st["sect"]))
+        rows = [[Paragraph("#", st["thc"]), Paragraph("Caption", st["th"]), Paragraph("Reference", st["th"])]]
+        for i, ph in enumerate(photos, 1):
+            rows.append([Paragraph(str(i), st["tdc"]), Paragraph(_esc(ph.get("caption", "")), st["td"]), Paragraph(_esc(ph.get("url", "") or "captured in SiteCam"), st["td"])])
+        t = Table(rows, colWidths=[0.4 * inch, 3.4 * inch, 3.3 * inch], repeatRows=1)
+        t.setStyle(_dtable_style()); _dzebra(t, len(rows)); story.append(t)
+    if insp.get("recommendations"):
+        story.append(Paragraph("Recommendations", st["sect"])); story.append(Paragraph(_esc(insp["recommendations"]), st["body"]))
+    story.append(Paragraph("La Gala Construction provides licensed contracting services; engineered inspection and anchorage load-test certification are performed and sealed by an independent licensed Florida professional engineer. La Gala does not provide engineering services. Not legal advice.", st["disc"]))
+    return _dfinish(buf, doc, story)
+
+
+def doc_cert(insp):
+    st = _dstyles(); buf, doc = _dnew("Engineer Certification Packet"); story = []
+    _dheader(story, st, "For review and seal by the licensed FL professional engineer", "Engineer Certification Packet", insp)
+    pe = insp.get("pe", {})
+    story.append(Paragraph("Items submitted for engineered certification", st["sect"]))
+    findings = insp.get("findings") or []
+    eng = [f for f in findings if f.get("std", "").startswith("§1910.27") or "anchor" in (f.get("item", "").lower()) or ((f.get("result", "").lower() == "def") and (f.get("severity", "").lower() == "high"))]
+    if not eng:
+        eng = [f for f in findings if f.get("std", "").startswith("§1910.27")]
+    rows = [[Paragraph("Standard", st["th"]), Paragraph("Item requiring engineered certification", st["th"]), Paragraph("Field note", st["th"])]]
+    for f in (eng or [{"std": "§1910.27", "item": "Roof anchorage load-test certification (5,000 lb / worker)", "note": ""}]):
+        rows.append([Paragraph(_esc(f.get("std", "")), st["td"]), Paragraph(_esc(f.get("item", "")), st["td"]), Paragraph(_esc(f.get("note", "")), st["td"])])
+    t = Table(rows, colWidths=[1.0 * inch, 3.5 * inch, 2.6 * inch], repeatRows=1)
+    t.setStyle(_dtable_style()); _dzebra(t, len(rows)); story.append(t)
+    story.append(Spacer(1, 6))
+    story.append(Paragraph("Scope of certification requested", st["sect"]))
+    story.append(Paragraph("The engineer is asked to inspect, test where applicable, and provide a sealed certification that the items above meet 29 CFR 1910 Subpart D (including §1910.27 anchorage capacity of 5,000 lb in any direction per worker) and applicable Florida Building Code. La Gala Construction performs the corrective work <b>to the engineer's sealed specification</b>.", st["key"]))
+    story.append(Spacer(1, 16))
+    story.append(Paragraph("Engineer of record", st["sect"]))
+    rows = [
+        [Paragraph("Name", st["meta"]), Paragraph(_esc(pe.get("name", "") or "______________________________"), st["metab"])],
+        [Paragraph("Firm", st["meta"]), Paragraph(_esc(pe.get("firm", "") or "______________________________"), st["metab"])],
+        [Paragraph("FL PE license #", st["meta"]), Paragraph(_esc(pe.get("license", "") or "______________________________"), st["metab"])],
+    ]
+    t = Table(rows, colWidths=[1.3 * inch, 5.8 * inch]); t.setStyle(TableStyle([("TOPPADDING", (0, 0), (-1, -1), 3), ("BOTTOMPADDING", (0, 0), (-1, -1), 4), ("LEFTPADDING", (0, 0), (-1, -1), 0)]))
+    story.append(t); story.append(Spacer(1, 22))
+    seal = Table([[Paragraph("Engineer signature & date", st["meta"]), Paragraph("Professional engineer seal", st["meta"])],
+                  [Paragraph("______________________________", st["body"]), Paragraph("", st["body"])]],
+                 colWidths=[3.55 * inch, 3.55 * inch], rowHeights=[14, 96])
+    seal.setStyle(TableStyle([("BOX", (1, 0), (1, 1), 0.7, LINE), ("VALIGN", (0, 0), (-1, -1), "TOP"), ("TOPPADDING", (0, 0), (-1, -1), 4), ("LEFTPADDING", (0, 0), (-1, -1), 4)]))
+    story.append(seal)
+    return _dfinish(buf, doc, story)
+
+
+def doc_proposal(insp):
+    st = _dstyles(); buf, doc = _dnew("Corrective-Work Proposal"); story = []
+    _dheader(story, st, "Scope of corrective work self-performed by La Gala", "Corrective-Work Proposal", insp)
+    items = insp.get("corrective") or []
+    rows = [[Paragraph("Scope of work", st["th"]), Paragraph("Standard", st["thc"]), Paragraph("Qty", st["thc"]), Paragraph("Unit", st["th"]), Paragraph("Price", st["thc"])]]
+    total = 0.0
+    for it in items:
+        try:
+            total += float(str(it.get("price", "0")).replace(",", "").replace("$", "") or 0)
+        except Exception:
+            pass
+        line = it.get("scope", "")
+        if it.get("note"):
+            line += '  <font color="%s">(%s)</font>' % (GREY, _esc(it["note"]))
+        rows.append([Paragraph(line, st["td"]), Paragraph(_esc(it.get("std", "")), st["tdc"]), Paragraph(_esc(it.get("qty", "")), st["tdc"]),
+                     Paragraph(_esc(it.get("unit", "")), st["td"]), Paragraph("$" + _money(it.get("price", "")), st["tdr"])])
+    if not items:
+        rows.append([Paragraph("<i>Scope to be itemized from inspection findings.</i>", st["td"]), Paragraph("", st["td"]), Paragraph("", st["td"]), Paragraph("", st["td"]), Paragraph("", st["td"])])
+    rows.append([Paragraph("<b>Total</b>", st["td"]), Paragraph("", st["td"]), Paragraph("", st["td"]), Paragraph("", st["td"]), Paragraph("<b>$" + _money(total) + "</b>", st["tdr"])])
+    t = Table(rows, colWidths=[3.5 * inch, 0.9 * inch, 0.5 * inch, 0.8 * inch, 1.0 * inch], repeatRows=1)
+    t.setStyle(_dtable_style()); _dzebra(t, len(rows) - 1)
+    t.setStyle(TableStyle([("LINEABOVE", (0, len(rows) - 1), (-1, len(rows) - 1), 1, NAVY), ("BACKGROUND", (0, len(rows) - 1), (-1, len(rows) - 1), CREAM)]))
+    story.append(t); story.append(Spacer(1, 8))
+    story.append(Paragraph("La Gala Construction self-performs the corrective work above and <b>performs that work to the engineer's sealed specification</b>; the engineered inspection and any anchorage certification are provided and sealed by a licensed Florida professional engineer. One accountable team for the certificate and the fix.", st["key"]))
+    story.append(Spacer(1, 8))
+    story.append(Paragraph("Terms", st["sect"]))
+    story.append(Paragraph("Pricing is an estimate based on the inspection findings and is valid for 30 days. Final scope and price are confirmed after the engineered inspection. Engineered certification fees are billed by the professional engineer. Florida CGC059211; licensed, bonded, and insured.", st["body"]))
+    story.append(Spacer(1, 18))
+    story.append(Paragraph("Accepted by: ______________________________     Title: ______________     Date: ____________", st["body"]))
+    return _dfinish(buf, doc, story)
+
+
+DOC_BUILDERS = {"checklist": doc_checklist, "report": doc_report, "cert": doc_cert, "proposal": doc_proposal}
+DOC_LABEL = {"checklist": "Completed Subpart D Checklist", "report": "Inspection Report",
+             "cert": "Engineer Certification Packet", "proposal": "Corrective-Work Proposal"}
+
+
+# ---- inspection storage (KV) ----
+def _insp_index():
+    raw, configured = _kv_cmd(["GET", "wws:insp_index"])
+    if not configured:
+        return None
+    try:
+        return json.loads(raw) if raw else []
+    except Exception:
+        return []
+
+
+def _insp_get(iid):
+    raw, configured = _kv_cmd(["GET", "wws:insp:" + iid])
+    if not configured or not raw:
+        return None
+    try:
+        return json.loads(raw)
+    except Exception:
+        return None
+
+
+def _insp_save(insp):
+    insp["updated_ts"] = _now_ms()
+    _, configured = _kv_cmd(["SET", "wws:insp:" + insp["id"], json.dumps(insp)])
+    if not configured:
+        return False
+    idx = _insp_index() or []
+    if insp["id"] not in idx:
+        idx.insert(0, insp["id"])
+        _kv_cmd(["SET", "wws:insp_index", json.dumps(idx)])
+    return True
+
+
+def _find_lead(lid):
+    for l in (_load_leads() or []):
+        if l.get("id") == lid:
+            return l
+    return None
+
+
+@app.post("/api/admin/inspection")
+def insp_create():
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    b = request.get_json(force=True, silent=True) or {}
+    iid = _gen_id()
+    prop = b.get("property") or {}
+    client = b.get("client") or {}
+    lead = _find_lead(b.get("lead_id", "")) if b.get("lead_id") else None
+    if lead:
+        client.setdefault("name", lead.get("name", "")); client.setdefault("company", lead.get("company", ""))
+        client.setdefault("email", lead.get("email", "")); client.setdefault("phone", lead.get("phone", ""))
+        prop.setdefault("name", lead.get("company", "") or lead.get("property", "")); prop.setdefault("address", lead.get("property", ""))
+    s = read_session() or {}
+    insp = {
+        "id": iid, "created_ts": _now_ms(), "updated_ts": _now_ms(), "status": "draft",
+        "property": prop, "client": client,
+        "inspector": b.get("inspector") or {"name": s.get("name", ""), "license": "CGC059211"},
+        "pe": b.get("pe") or {}, "findings": _seed_findings(),
+        "summary": "", "recommendations": "", "corrective": [], "photos": [], "sitecam": {},
+        "source_lead_id": b.get("lead_id", ""), "source_request_id": b.get("request_id", ""),
+    }
+    if not _insp_save(insp):
+        return jsonify({"ok": False, "error": "store not configured", "inspection": insp}), 200
+    return jsonify({"ok": True, "inspection": insp})
+
+
+@app.get("/api/admin/inspections")
+def insp_list():
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    idx = _insp_index()
+    if idx is None:
+        return jsonify({"configured": False, "inspections": []})
+    out = []
+    for iid in idx:
+        x = _insp_get(iid)
+        if x:
+            out.append({"id": x["id"], "created_ts": x.get("created_ts"), "status": x.get("status", "draft"),
+                        "property": x.get("property", {}), "client": x.get("client", {}),
+                        "defects": sum(1 for f in x.get("findings", []) if (f.get("result") or "").lower() == "def")})
+    return jsonify({"configured": True, "inspections": out})
+
+
+@app.get("/api/admin/inspection/<iid>")
+def insp_one(iid):
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    x = _insp_get(iid)
+    if not x:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"ok": True, "inspection": x, "template": SUBPART_D, "sitecam_on": _sitecam_on()})
+
+
+@app.post("/api/admin/inspection/<iid>")
+def insp_update(iid):
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    x = _insp_get(iid)
+    if not x:
+        return jsonify({"error": "not found"}), 404
+    b = request.get_json(force=True, silent=True) or {}
+    for k in ("property", "client", "inspector", "pe", "findings", "corrective", "photos", "summary", "recommendations", "status", "sitecam"):
+        if k in b:
+            x[k] = b[k]
+    _insp_save(x)
+    return jsonify({"ok": True, "inspection": x})
+
+
+@app.get("/api/admin/inspection/<iid>/doc/<kind>")
+def insp_doc(iid, kind):
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    if not _RL:
+        return jsonify({"error": "pdf engine unavailable"}), 503
+    x = _insp_get(iid)
+    if not x:
+        return jsonify({"error": "not found"}), 404
+    fn = DOC_BUILDERS.get(kind)
+    if not fn:
+        return jsonify({"error": "unknown doc"}), 400
+    try:
+        pdf = fn(x)
+    except Exception as e:
+        return jsonify({"error": "pdf failed: " + str(e)}), 500
+    base = (x.get("property", {}).get("name", "") or iid).replace(" ", "_")[:40]
+    resp = make_response(pdf)
+    resp.headers["Content-Type"] = "application/pdf"
+    resp.headers["Content-Disposition"] = 'inline; filename="LaGala_WWS_%s_%s.pdf"' % (kind, base)
+    return resp
+
+
+# ---- SiteCam field-capture hook (config-gated; activates once SiteCam is deployed) ----
+SITECAM_BASE = os.environ.get("SITECAM_BASE_URL", "").rstrip("/")
+SITECAM_KEY = os.environ.get("SITECAM_API_KEY", "")
+SITECAM_TENANT = os.environ.get("SITECAM_TENANT", "")
+
+
+def _sitecam_on():
+    return bool(SITECAM_BASE and SITECAM_KEY)
+
+
+def _sitecam_headers():
+    h = {"Authorization": "Bearer " + SITECAM_KEY, "Content-Type": "application/json"}
+    if SITECAM_TENANT:
+        h["x-tenant"] = SITECAM_TENANT
+    return h
+
+
+def _sitecam_fetch_photos(pid):
+    r = requests.get(SITECAM_BASE + "/api/projects/" + str(pid) + "/photos", headers=_sitecam_headers(), timeout=20)
+    data = r.json()
+    raw = data if isinstance(data, list) else (data.get("photos") or data.get("items") or [])
+    out = []
+    for p in raw:
+        out.append({"url": p.get("url") or p.get("imageUrl") or "", "caption": p.get("description") or "", "ts": p.get("capturedAt")})
+    return out
+
+
+@app.get("/api/admin/sitecam/status")
+def sitecam_status():
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    return jsonify({"configured": _sitecam_on(), "base": SITECAM_BASE if _sitecam_on() else ""})
+
+
+@app.post("/api/admin/inspection/<iid>/sitecam")
+def sitecam_create(iid):
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    x = _insp_get(iid)
+    if not x:
+        return jsonify({"error": "not found"}), 404
+    if not _sitecam_on():
+        return jsonify({"ok": False, "configured": False,
+                        "message": "SiteCam isn't connected yet. Set SITECAM_BASE_URL + SITECAM_API_KEY (after SiteCam is deployed) to enable field photo capture."}), 200
+    prop = x.get("property", {})
+    try:
+        r = requests.post(SITECAM_BASE + "/api/projects", headers=_sitecam_headers(), timeout=20,
+                          json={"name": prop.get("name") or ("WWS Inspection " + iid), "address": prop.get("address", ""),
+                                "crmJobId": "wws-" + iid, "labels": ["WWS", "OSHA Subpart D"]})
+        data = r.json()
+        pid = data.get("id") or data.get("projectId")
+        x["sitecam"] = {"projectId": pid, "url": (SITECAM_BASE + "/projects/" + str(pid)) if pid else SITECAM_BASE, "created_ts": _now_ms()}
+        _insp_save(x)
+        return jsonify({"ok": True, "configured": True, "sitecam": x["sitecam"]})
+    except Exception as e:
+        return jsonify({"ok": False, "configured": True, "error": str(e)}), 502
+
+
+@app.post("/api/admin/inspection/<iid>/sitecam/pull")
+def sitecam_pull(iid):
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    x = _insp_get(iid)
+    if not x:
+        return jsonify({"error": "not found"}), 404
+    sc = x.get("sitecam", {})
+    if not _sitecam_on() or not sc.get("projectId"):
+        return jsonify({"ok": False, "configured": _sitecam_on(), "photos": []}), 200
+    try:
+        photos = _sitecam_fetch_photos(sc["projectId"])
+        x["photos"] = photos
+        _insp_save(x)
+        return jsonify({"ok": True, "configured": True, "photos": photos})
+    except Exception as e:
+        return jsonify({"ok": False, "configured": True, "error": str(e)}), 502
+
+
 @app.get("/api/logout")
 def logout():
     resp = make_response(redirect("/wwslgc"))

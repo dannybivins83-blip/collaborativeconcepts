@@ -47,6 +47,7 @@
 <div class="flex items-center gap-1 border-b border-line mb-4">
 <button data-tab="leads" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-secondary text-primary">Leads <span id="cLeads" class="text-mute font-normal"></span></button>
 <button data-tab="reqs" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspection requests <span id="cReqs" class="text-mute font-normal"></span></button>
+<button data-tab="insp" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspections <span id="cInsp" class="text-mute font-normal"></span></button>
 <button onclick="loadLeads()" class="ml-auto text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">refresh</span> Refresh</button>
 </div>
 
@@ -77,6 +78,23 @@
 <tbody id="reqRows"></tbody>
 </table></div>
 <div id="reqEmpty" class="hidden p-10 text-center text-mute">No inspection requests yet. These come from clients using the portal at <a href="/portal" class="text-secondary underline">/portal</a>.</div>
+</div>
+</section>
+
+<!-- inspections -->
+<section id="tab-insp" class="hidden">
+<div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+<p class="text-sm text-mute">Field inspections — fill the property &amp; findings, then generate the checklist, report, engineer packet, and proposal.</p>
+<button onclick="newInspection()" class="bg-primary text-white text-sm font-semibold px-4 py-2 rounded-lg inline-flex items-center gap-1 hover:bg-primaryc"><span class="ms text-base">add</span> New inspection</button>
+</div>
+<div class="bg-white rounded-xl border border-line overflow-hidden">
+<div class="overflow-x-auto"><table class="w-full text-sm">
+<thead class="bg-surface text-mute text-left text-xs uppercase tracking-wide"><tr>
+<th class="px-3 py-2 font-semibold">When</th><th class="px-3 py-2 font-semibold">Property</th><th class="px-3 py-2 font-semibold hidden sm:table-cell">Client</th><th class="px-3 py-2 font-semibold">Defects</th><th class="px-3 py-2 font-semibold">Status</th>
+</tr></thead>
+<tbody id="inspRows"></tbody>
+</table></div>
+<div id="inspEmpty" class="hidden p-10 text-center text-mute">No inspections yet. Click “New inspection”, or open a lead and choose “Start inspection”.</div>
 </div>
 </section>
 </main>
@@ -179,7 +197,7 @@ function openDrawer(id){
   var opts=DATA.stages.map(function(s){return '<option value="'+s+'"'+(s===l.status?' selected':'')+'>'+s+'</option>';}).join('');
   document.getElementById('drawerBody').innerHTML=
     '<div class="flex items-center justify-between mb-4"><h2 class="text-xl font-extrabold text-primary">'+esc(l.name||l.company||'Lead')+'</h2><button onclick="closeDrawer()" class="text-mute hover:text-primary"><span class="ms">close</span></button></div>'+
-    '<div class="flex flex-wrap gap-3 mb-4">'+(l.phone?'<a href="tel:'+esc(l.phone)+'" class="inline-flex items-center gap-1 text-sm bg-primary text-white px-3 py-1.5 rounded-lg"><span class="ms text-base">call</span>Call</a>':'')+(l.email?'<a href="mailto:'+esc(l.email)+'" class="inline-flex items-center gap-1 text-sm border border-line px-3 py-1.5 rounded-lg"><span class="ms text-base">mail</span>Email</a>':'')+'</div>'+
+    '<div class="flex flex-wrap gap-3 mb-4">'+(l.phone?'<a href="tel:'+esc(l.phone)+'" class="inline-flex items-center gap-1 text-sm bg-primary text-white px-3 py-1.5 rounded-lg"><span class="ms text-base">call</span>Call</a>':'')+(l.email?'<a href="mailto:'+esc(l.email)+'" class="inline-flex items-center gap-1 text-sm border border-line px-3 py-1.5 rounded-lg"><span class="ms text-base">mail</span>Email</a>':'')+'<button onclick="startInspection(\''+l.id+'\')" class="inline-flex items-center gap-1 text-sm border border-line px-3 py-1.5 rounded-lg hover:border-secondary"><span class="ms text-base">assignment</span>Start inspection</button>'+'</div>'+
     '<div class="text-sm space-y-0.5 mb-4">'+
       row('Email',l.email)+row('Phone',l.phone)+row('Company',l.company)+row('Property',l.property)+extra+row('Source',l.source)+row('Received',new Date(l.ts).toLocaleString())+
     '</div>'+
@@ -212,6 +230,37 @@ function switchTab(t){
   document.querySelectorAll('.tabbtn').forEach(function(b){var on=b.dataset.tab===t;b.classList.toggle('border-secondary',on);b.classList.toggle('text-primary',on);b.classList.toggle('border-transparent',!on);b.classList.toggle('text-mute',!on);});
   document.getElementById('tab-leads').classList.toggle('hidden',t!=='leads');
   document.getElementById('tab-reqs').classList.toggle('hidden',t!=='reqs');
+  document.getElementById('tab-insp').classList.toggle('hidden',t!=='insp');
+  if(t==='insp') loadInspections();
+}
+function loadInspections(){
+  api('/api/admin/inspections').then(function(d){
+    var rows=d.inspections||[];
+    document.getElementById('cInsp').textContent='('+rows.length+')';
+    document.getElementById('inspEmpty').classList.toggle('hidden',rows.length>0);
+    var sc={draft:'bg-gray-200 text-gray-600',field:'bg-amber-100 text-amber-800',complete:'bg-green-100 text-green-700',sealed:'bg-violet-100 text-violet-800'};
+    document.getElementById('inspRows').innerHTML=rows.map(function(x){
+      var p=x.property||{},c=x.client||{};
+      return '<tr class="border-t border-line hover:bg-surface cursor-pointer" onclick="location.href=\'/admin/inspection?id='+x.id+'\'">'+
+        '<td class="px-3 py-2 text-mute whitespace-nowrap">'+esc(ago(x.created_ts))+'</td>'+
+        '<td class="px-3 py-2"><div class="font-semibold text-primary">'+esc(p.name||p.address||'—')+'</div><div class="text-mute text-xs">'+esc(p.address||'')+'</div></td>'+
+        '<td class="px-3 py-2 hidden sm:table-cell">'+esc(c.name||c.company||'')+'</td>'+
+        '<td class="px-3 py-2">'+(x.defects?'<span class="text-red-600 font-bold">'+x.defects+'</span>':'0')+'</td>'+
+        '<td class="px-3 py-2"><span class="text-[11px] font-bold px-2 py-0.5 rounded-full '+(sc[x.status]||'bg-gray-200 text-gray-600')+'">'+esc((x.status||'draft').toUpperCase())+'</span></td></tr>';
+    }).join('');
+  });
+}
+function newInspection(){
+  api('/api/admin/inspection',{method:'POST',body:'{}'}).then(function(d){
+    if(d.inspection&&d.inspection.id) location.href='/admin/inspection?id='+d.inspection.id;
+    else alert(d.error||'Could not create (is storage enabled?)');
+  });
+}
+function startInspection(leadId){
+  api('/api/admin/inspection',{method:'POST',body:JSON.stringify({lead_id:leadId})}).then(function(d){
+    if(d.inspection&&d.inspection.id) location.href='/admin/inspection?id='+d.inspection.id;
+    else alert(d.error||'Could not create (is storage enabled?)');
+  });
 }
 document.querySelectorAll('.tabbtn').forEach(function(b){b.addEventListener('click',function(){switchTab(b.dataset.tab);});});
 boot();

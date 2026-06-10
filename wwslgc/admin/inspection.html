@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
+<title>Inspection — WWS CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&family=Material+Symbols+Outlined&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:"#13233f",primaryc:"#1e3a5f",secondary:"#c9a227",surface:"#f7f6f3",ink:"#1f2733",mute:"#54606f",line:"#e3e6ea"},fontFamily:{h:["Manrope"],b:["Inter"]}}}}</script>
+<style>body{font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}h1,h2,h3{font-family:'Manrope',sans-serif}.ms{font-family:'Material Symbols Outlined'}label.fl{font-size:11px;font-weight:600;color:#54606f;text-transform:uppercase;letter-spacing:.03em}input.tx,textarea.tx,select.tx{width:100%;border:1px solid #e3e6ea;background:#fff;border-radius:.5rem;padding:.5rem .7rem;font-size:14px}input.tx:focus,textarea.tx:focus,select.tx:focus{outline:none;box-shadow:0 0 0 2px #c9a227}</style>
+</head>
+<body class="bg-surface text-ink min-h-screen">
+
+<header class="bg-primary text-white sticky top-0 z-30">
+<div class="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
+<a href="/admin" class="flex items-center gap-2 text-sm text-white/80 hover:text-white"><span class="ms">arrow_back</span> Inspections</a>
+<div class="flex items-center gap-3 text-sm">
+<span id="saveState" class="text-white/50 text-xs"></span>
+<span id="statusPill" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/15"></span>
+</div>
+</div>
+</header>
+
+<div id="gate" class="hidden max-w-md mx-auto mt-24 text-center px-6">
+<span class="ms text-5xl text-secondary">lock</span>
+<h1 class="text-xl font-extrabold text-primary mt-2">Sign in required</h1>
+<p class="text-mute mt-1">Open the <a href="/admin" class="text-secondary underline">admin dashboard</a> and sign in first.</p>
+</div>
+
+<main id="app" class="hidden max-w-5xl mx-auto px-4 sm:px-5 py-6 space-y-5">
+
+<h1 id="ptitle" class="text-2xl font-extrabold text-primary"></h1>
+
+<!-- documents bar -->
+<div class="bg-white rounded-xl border border-line p-4 sticky top-[52px] z-20">
+<div class="flex flex-wrap items-center gap-2">
+<span class="text-xs font-semibold text-mute uppercase tracking-wide mr-1">Generate:</span>
+<button onclick="doc('checklist')" class="docbtn"><span class="ms text-base">checklist</span> Checklist</button>
+<button onclick="doc('report')" class="docbtn"><span class="ms text-base">description</span> Report</button>
+<button onclick="doc('cert')" class="docbtn"><span class="ms text-base">verified</span> Engineer packet</button>
+<button onclick="doc('proposal')" class="docbtn"><span class="ms text-base">request_quote</span> Proposal</button>
+<select id="statusSel" onchange="setField('status',this.value)" class="tx ml-auto" style="width:auto"><option value="draft">Draft</option><option value="field">In field</option><option value="complete">Complete</option><option value="sealed">Sealed</option></select>
+</div>
+</div>
+
+<!-- property / client -->
+<div class="grid md:grid-cols-2 gap-5">
+<div class="bg-white rounded-xl border border-line p-5">
+<h2 class="font-bold text-primary mb-3">Property</h2>
+<div class="space-y-3">
+<div><label class="fl">Name / building</label><input class="tx" data-p="property.name"/></div>
+<div><label class="fl">Address</label><input class="tx" data-p="property.address"/></div>
+<div class="grid grid-cols-3 gap-2">
+<div><label class="fl">County</label><input class="tx" data-p="property.county"/></div>
+<div><label class="fl">Buildings</label><input class="tx" data-p="property.buildings"/></div>
+<div><label class="fl">Stories</label><input class="tx" data-p="property.stories"/></div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div><label class="fl">Year built</label><input class="tx" data-p="property.year_built"/></div>
+<div><label class="fl">Type</label><input class="tx" data-p="property.type"/></div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-xl border border-line p-5">
+<h2 class="font-bold text-primary mb-3">Client / owner</h2>
+<div class="space-y-3">
+<div><label class="fl">Contact name</label><input class="tx" data-p="client.name"/></div>
+<div><label class="fl">Company</label><input class="tx" data-p="client.company"/></div>
+<div class="grid grid-cols-2 gap-2">
+<div><label class="fl">Email</label><input class="tx" data-p="client.email"/></div>
+<div><label class="fl">Phone</label><input class="tx" data-p="client.phone"/></div>
+</div>
+<div><label class="fl">Role</label><input class="tx" data-p="client.role" placeholder="Property manager, owner…"/></div>
+</div>
+</div>
+</div>
+
+<!-- inspector / PE -->
+<div class="grid md:grid-cols-2 gap-5">
+<div class="bg-white rounded-xl border border-line p-5">
+<h2 class="font-bold text-primary mb-3">Inspector</h2>
+<div class="grid grid-cols-2 gap-2">
+<div><label class="fl">Name</label><input class="tx" data-p="inspector.name"/></div>
+<div><label class="fl">Date</label><input class="tx" type="date" data-p="inspector.date"/></div>
+<div><label class="fl">Title</label><input class="tx" data-p="inspector.title"/></div>
+<div><label class="fl">License</label><input class="tx" data-p="inspector.license" placeholder="CGC059211"/></div>
+</div>
+</div>
+<div class="bg-white rounded-xl border border-line p-5">
+<h2 class="font-bold text-primary mb-3">Engineer (for cert packet)</h2>
+<div class="space-y-2">
+<div><label class="fl">PE name</label><input class="tx" data-p="pe.name"/></div>
+<div class="grid grid-cols-2 gap-2">
+<div><label class="fl">Firm</label><input class="tx" data-p="pe.firm"/></div>
+<div><label class="fl">FL PE #</label><input class="tx" data-p="pe.license"/></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- findings -->
+<div class="bg-white rounded-xl border border-line p-5">
+<div class="flex items-center justify-between mb-3"><h2 class="font-bold text-primary">Findings — OSHA Subpart D</h2><span class="text-xs text-mute">OK / DEF / N-A · add a note for any deficiency</span></div>
+<div id="findings"></div>
+</div>
+
+<!-- narrative -->
+<div class="bg-white rounded-xl border border-line p-5 space-y-3">
+<div><label class="fl">Summary (report)</label><textarea class="tx" rows="3" data-p="summary"></textarea></div>
+<div><label class="fl">Recommendations (report)</label><textarea class="tx" rows="3" data-p="recommendations"></textarea></div>
+</div>
+
+<!-- corrective -->
+<div class="bg-white rounded-xl border border-line p-5">
+<div class="flex items-center justify-between mb-3"><h2 class="font-bold text-primary">Corrective-work scope (proposal)</h2><button onclick="addItem()" class="text-sm text-secondary font-semibold inline-flex items-center gap-1"><span class="ms text-base">add</span> Add line</button></div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="text-mute text-xs uppercase"><tr><th class="text-left font-semibold py-1">Scope</th><th class="text-left font-semibold px-1">Std</th><th class="font-semibold px-1">Qty</th><th class="text-left font-semibold px-1">Unit</th><th class="font-semibold px-1">Price $</th><th></th></tr></thead><tbody id="items"></tbody></table></div>
+<div class="text-right text-sm font-bold text-primary mt-2">Total: $<span id="total">0</span></div>
+</div>
+
+<!-- sitecam -->
+<div class="bg-white rounded-xl border border-line p-5">
+<h2 class="font-bold text-primary mb-1 flex items-center gap-2"><span class="ms text-secondary">photo_camera</span> Field photos — SiteCam</h2>
+<div id="sitecam"></div>
+</div>
+
+</main>
+
+<style>.docbtn{display:inline-flex;align-items:center;gap:.3rem;background:#13233f;color:#fff;font-size:13px;font-weight:600;padding:.45rem .8rem;border-radius:.55rem}.docbtn:hover{background:#1e3a5f}.rbtn{font-size:12px;font-weight:700;padding:.2rem .5rem;border-radius:.4rem;border:1px solid #e3e6ea;color:#54606f}.rbtn.on-ok{background:#dcfce7;color:#15803d;border-color:#86efac}.rbtn.on-def{background:#fee2e2;color:#b91c1c;border-color:#fca5a5}.rbtn.on-na{background:#e5e7eb;color:#4b5563;border-color:#d1d5db}</style>
+
+<script>
+var ID=new URLSearchParams(location.search).get('id');
+var INSP=null, SCON=false, T=null;
+function api(p,o){return fetch(p,Object.assign({headers:{'Content-Type':'application/json'}},o||{})).then(function(r){return r.json();});}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function get(path){return path.split('.').reduce(function(o,k){return o?o[k]:undefined;},INSP);}
+function setPath(path,v){var ks=path.split('.'),o=INSP;for(var i=0;i<ks.length-1;i++){if(o[ks[i]]==null)o[ks[i]]={};o=o[ks[i]];}o[ks[ks.length-1]]=v;}
+function setField(path,v){setPath(path,v);markDirty();if(path==='status')renderStatus();}
+function markDirty(){document.getElementById('saveState').textContent='Saving…';clearTimeout(T);T=setTimeout(save,700);}
+function save(){
+  api('/api/admin/inspection/'+ID,{method:'POST',body:JSON.stringify({
+    property:INSP.property,client:INSP.client,inspector:INSP.inspector,pe:INSP.pe,
+    findings:INSP.findings,corrective:INSP.corrective,summary:INSP.summary,
+    recommendations:INSP.recommendations,status:INSP.status})}).then(function(d){
+    document.getElementById('saveState').textContent=d.ok?'Saved':'Save failed (storage on?)';
+  }).catch(function(){document.getElementById('saveState').textContent='Save failed';});
+}
+
+function boot(){
+  api('/api/admin/inspection/'+ID).then(function(d){
+    if(d.error){document.getElementById('gate').classList.remove('hidden');return;}
+    INSP=d.inspection; SCON=d.sitecam_on;
+    document.getElementById('app').classList.remove('hidden');
+    renderAll();
+  }).catch(function(){document.getElementById('gate').classList.remove('hidden');});
+}
+
+function renderAll(){
+  var p=INSP.property||{};
+  document.getElementById('ptitle').textContent=(p.name||p.address||'New inspection');
+  // bind simple fields
+  document.querySelectorAll('[data-p]').forEach(function(el){
+    var v=get(el.getAttribute('data-p')); el.value=(v==null?'':v);
+    el.addEventListener('input',function(){setField(el.getAttribute('data-p'),el.value);if(el.getAttribute('data-p')==='property.name')document.getElementById('ptitle').textContent=el.value||'New inspection';});
+  });
+  document.getElementById('statusSel').value=INSP.status||'draft';
+  renderStatus(); renderFindings(); renderItems(); renderSitecam();
+}
+function renderStatus(){
+  var m={draft:'bg-white/15',field:'bg-amber-400 text-primary',complete:'bg-green-400 text-primary',sealed:'bg-secondary text-primary'};
+  var el=document.getElementById('statusPill'); el.className='text-[11px] font-bold px-2 py-0.5 rounded-full '+(m[INSP.status]||'bg-white/15'); el.textContent=(INSP.status||'draft').toUpperCase();
+}
+
+function renderFindings(){
+  var secs={},order=[];
+  (INSP.findings||[]).forEach(function(f,i){f._i=i;var s=f.section||'Other';if(!secs[s]){secs[s]=[];order.push(s);}secs[s].push(f);});
+  document.getElementById('findings').innerHTML=order.map(function(s){
+    var std=secs[s][0].std||'';
+    return '<div class="border border-line rounded-lg mb-2 overflow-hidden"><div class="bg-surface px-3 py-2 text-sm font-bold text-primary">'+esc(s)+' <span class="text-mute font-normal">· '+esc(std)+'</span></div><div class="divide-y divide-line">'+
+      secs[s].map(function(f){return rowHTML(f);}).join('')+'</div></div>';
+  }).join('');
+}
+function rowHTML(f){
+  var i=f._i,r=(f.result||'');
+  function rb(val,lab){return '<button onclick="setResult('+i+',\''+val+'\')" class="rbtn '+(r===val?'on-'+val:'')+'">'+lab+'</button>';}
+  return '<div class="px-3 py-2 flex flex-wrap items-center gap-2"><div class="flex-1 min-w-[180px] text-sm">'+esc(f.item)+'</div>'+
+    '<div class="flex gap-1">'+rb('ok','OK')+rb('def','DEF')+rb('na','N/A')+'</div>'+
+    (r==='def'?'<select onchange="setFind('+i+',\'severity\',this.value)" class="tx" style="width:auto;padding:.2rem .4rem"><option value="">sev…</option><option value="high"'+(f.severity==='high'?' selected':'')+'>High</option><option value="med"'+(f.severity==='med'?' selected':'')+'>Med</option><option value="low"'+(f.severity==='low'?' selected':'')+'>Low</option></select>':'')+
+    '<input class="tx" style="flex-basis:100%" placeholder="Note" value="'+esc(f.note||'')+'" oninput="setFind('+i+',\'note\',this.value)"/></div>';
+}
+function setResult(i,v){INSP.findings[i].result=(INSP.findings[i].result===v?'':v);markDirty();renderFindings();}
+function setFind(i,k,v){INSP.findings[i][k]=v;markDirty();}
+
+function renderItems(){
+  var items=INSP.corrective||[];
+  document.getElementById('items').innerHTML=items.map(function(it,i){
+    return '<tr>'+
+      '<td class="py-1 pr-1"><input class="tx" value="'+esc(it.scope||'')+'" oninput="setItem('+i+',\'scope\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" style="width:70px" value="'+esc(it.std||'')+'" oninput="setItem('+i+',\'std\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" style="width:50px" value="'+esc(it.qty||'')+'" oninput="setItem('+i+',\'qty\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" style="width:64px" value="'+esc(it.unit||'')+'" oninput="setItem('+i+',\'unit\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" style="width:80px" value="'+esc(it.price||'')+'" oninput="setItem('+i+',\'price\',this.value);recalc()"/></td>'+
+      '<td><button onclick="delItem('+i+')" class="text-mute hover:text-red-600"><span class="ms text-base">close</span></button></td></tr>';
+  }).join('');
+  recalc();
+}
+function setItem(i,k,v){INSP.corrective[i][k]=v;markDirty();}
+function addItem(){if(!INSP.corrective)INSP.corrective=[];INSP.corrective.push({scope:'',std:'',qty:'',unit:'',price:'',note:''});renderItems();markDirty();}
+function delItem(i){INSP.corrective.splice(i,1);renderItems();markDirty();}
+function recalc(){var t=0;(INSP.corrective||[]).forEach(function(it){var n=parseFloat(String(it.price||'').replace(/[,$]/g,''));if(!isNaN(n))t+=n;});document.getElementById('total').textContent=t.toLocaleString();}
+
+function renderSitecam(){
+  var el=document.getElementById('sitecam'), sc=INSP.sitecam||{};
+  if(!SCON){
+    el.innerHTML='<p class="text-sm text-mute">SiteCam isn\'t connected yet. Once the SiteCam app is deployed and its API key is set, a <b>Start field capture</b> button appears here — the inspector captures photos on-site and they pull straight into the report\'s photo log.</p>';
+    return;
+  }
+  if(sc.projectId){
+    el.innerHTML='<div class="flex flex-wrap gap-2 items-center"><a href="'+esc(sc.url)+'" target="_blank" class="docbtn"><span class="ms text-base">open_in_new</span> Open in SiteCam</a><button onclick="pullPhotos()" class="rbtn">Pull photos into report</button><span class="text-xs text-mute">'+((INSP.photos||[]).length)+' photo(s) linked</span></div>';
+  } else {
+    el.innerHTML='<button onclick="startCapture()" class="docbtn"><span class="ms text-base">add_a_photo</span> Start field capture</button>';
+  }
+}
+function startCapture(){api('/api/admin/inspection/'+ID+'/sitecam',{method:'POST',body:'{}'}).then(function(d){if(d.ok){INSP.sitecam=d.sitecam;renderSitecam();}else alert(d.message||d.error||'Could not start');});}
+function pullPhotos(){api('/api/admin/inspection/'+ID+'/sitecam/pull',{method:'POST',body:'{}'}).then(function(d){if(d.ok){INSP.photos=d.photos;renderSitecam();alert(d.photos.length+' photo(s) pulled into the report.');}else alert(d.error||'Pull failed');});}
+
+function doc(kind){ if(T){clearTimeout(T);save();} setTimeout(function(){window.open('/api/admin/inspection/'+ID+'/doc/'+kind,'_blank');},250); }
+
+boot();
+</script>
+</body></html>
