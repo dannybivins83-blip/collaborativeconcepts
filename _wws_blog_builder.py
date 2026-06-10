@@ -152,9 +152,22 @@ HEAD = """<!DOCTYPE html>
 <a class="text-secondary font-semibold border-b-2 border-secondary pb-0.5" href="/guides">Guides</a>
 <a class="text-primary opacity-80 hover:text-secondary transition-colors font-semibold" href="tel:+15614758615">(561)&nbsp;475-8615</a>
 </div>
-<a href="/#assessment" class="bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary-container hover:text-on-secondary-fixed transition-all whitespace-nowrap">Free Assessment</a>
+<a href="/#assessment" class="hidden md:inline-flex bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary-container hover:text-on-secondary-fixed transition-all whitespace-nowrap">Free Assessment</a>
+<button id="navToggle" type="button" class="md:hidden p-2 -mr-1 text-primary" aria-label="Open menu" aria-expanded="false"><span class="material-symbols-outlined text-3xl">menu</span></button>
+</div>
+<div id="mobileMenu" class="hidden md:hidden border-t border-outline-variant/20 bg-surface-container-lowest px-6 pb-4 pt-1">
+<a class="block py-2.5 text-primary font-medium border-b border-outline-variant/15" href="/#how">How it works</a>
+<a class="block py-2.5 text-primary font-medium border-b border-outline-variant/15" href="/#services">What we handle</a>
+<a class="block py-2.5 text-primary font-medium border-b border-outline-variant/15" href="/#plans">Plans</a>
+<a class="block py-2.5 text-primary font-medium border-b border-outline-variant/15" href="/#faq">FAQ</a>
+<a class="block py-2.5 text-secondary font-semibold border-b border-outline-variant/15" href="/guides">Guides</a>
+<a class="block py-2.5 text-primary font-semibold" href="tel:+15614758615">(561)&nbsp;475-8615</a>
+<a href="/#assessment" class="block mt-3 text-center bg-secondary text-white py-3 rounded-xl font-semibold">Free Assessment</a>
 </div>
 </nav>
+<script>
+(function(){{var t=document.getElementById('navToggle'),m=document.getElementById('mobileMenu');if(!t||!m)return;function set(o){{m.classList.toggle('hidden',!o);t.setAttribute('aria-expanded',o?'true':'false');t.querySelector('span').textContent=o?'close':'menu';}}t.addEventListener('click',function(){{set(m.classList.contains('hidden'));}});m.querySelectorAll('a').forEach(function(a){{a.addEventListener('click',function(){{set(false);}});}});}})();
+</script>
 """
 
 FOOTER = """<footer class="w-full py-12 px-6 sm:px-8 flex flex-col items-center text-center space-y-5 bg-[#1a1a2e] text-[#f8f7f5]">
