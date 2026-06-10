@@ -109,6 +109,28 @@ POSTS = [
   ""),
 ]
 
+# SEO topic guides — show in the guides index + sitemap, NOT the landing hazard gallery
+TOPICS = [
+ ("florida-recertification","Florida 40-Year Recertification &amp; Milestone Inspections","FL §553.899","Hot",
+  "When your building's recert is due &mdash; and the repairs it triggers.",
+  "Florida's recertification laws run separate from OSHA, but they flag the same conditions. The statewide <strong>Milestone</strong> program (FS 553.899 / SB 4-D) requires condos and co-ops three stories or taller to pass a structural inspection, and Miami-Dade and Broward add a <strong>40-year recertification</strong> (structural + electrical). The reviewing engineer documents spalling walkways, corroded railings, failed waterproofing and loose anchors &mdash; the exact walking-working-surface conditions OSHA also cites.",
+  "Milestone inspections come due at 30 years (25 if within three miles of the coast), then every 10 years; the Miami-Dade / Broward 40-year recert repeats every 10 years after age 40. Both run on a recurring 10-year clock, and once an engineer flags deficiencies the repair plan carries its own deadline.",
+  "Concrete restoration is our core trade. La Gala self-performs the structural concrete, balcony, walkway, waterproofing and railing repairs the recertification requires &mdash; coordinated with the engineer's report &mdash; so your building passes and stays safe.",
+  ""),
+ ("fixed-ladder-2036","The Fixed-Ladder 2036 Deadline","§1910.23(d)","Hot",
+  "Cages out, fall-arrest in &mdash; by Nov 18, 2036.",
+  "The rule changed. OSHA §1910.23(d) now requires every fixed ladder over 24 feet to carry a personal fall-arrest or ladder-safety system &mdash; and a cage alone no longer counts as compliant protection. Older caged ladders across South Florida are being phased out, and the deadline is real.",
+  "The hard date is <strong>November 18, 2036</strong>: by then every fixed ladder over 24 ft must have a compliant fall-arrest or ladder-safety system. New installs and any replacement section must comply now, and OSHA can cite a deficient ladder on any inspection before then.",
+  "We retrofit fixed ladders with compliant ladder-safety or personal fall-arrest systems, replace corroded rails, rungs and landing platforms, and bring rooftop and mechanical access in line with the standard &mdash; well before 2036 becomes a scramble.",
+  ""),
+ ("four-foot-rule","The OSHA 4-Foot Rule","§1910.28","Warm",
+  "Why 4 feet is the general-industry fall trigger.",
+  "In general industry the fall-protection trigger is just <strong>4 feet</strong> &mdash; not the 6 feet most people assume from construction. OSHA §1910.28 requires protection for any worker on a walking-working surface with an unprotected side or edge 4 feet or more above a lower level. Mezzanines, loading docks, roof access, pits and elevated walkways all qualify.",
+  "The duty is continuous &mdash; there is no inspection interval; protection simply has to be in place whenever the exposure exists. It's a core target of OSHA's fall-protection emphasis program, so an inspector can cite an unprotected 4-foot edge the moment they see it.",
+  "We assess every surface against the 4-foot rule and install the right protection &mdash; compliant guardrail, hole covers, designated-area systems, or certified anchors and tie-offs &mdash; then document it for your compliance file.",
+  ""),
+]
+
 HEAD = """<!DOCTYPE html>
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
@@ -227,6 +249,10 @@ def build_index():
         cards += f"""<a href="/guides/{slug}" class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all flex flex-col">
 <div class="aspect-[16/10] overflow-hidden"><img src="/assets/wws/{img}.jpg" alt="{title.replace('&amp;','&')}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/></div>
 <div class="p-5 flex-1 flex flex-col"><span class="text-[11px] font-bold text-secondary">{std}</span><h3 class="font-bold text-primary mt-1 leading-tight">{title}</h3><p class="text-sm text-on-surface-variant mt-1.5 flex-1">{short}</p><span class="text-sm font-semibold text-primary mt-3 inline-flex items-center gap-1 group-hover:text-secondary">Read the guide <span class="material-symbols-outlined text-base">arrow_forward</span></span></div></a>"""
+    topics = ""
+    for tp in TOPICS:
+        tslug,ttitle,tstd,tshort = tp[0],tp[1],tp[2],tp[4]
+        topics += f"""<a href="/guides/{tslug}" class="group bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all p-5 flex flex-col"><span class="text-[11px] font-bold text-secondary">{tstd}</span><h3 class="font-bold text-primary mt-1 leading-tight">{ttitle}</h3><p class="text-sm text-on-surface-variant mt-1.5 flex-1">{tshort}</p><span class="text-sm font-semibold text-primary mt-3 inline-flex items-center gap-1 group-hover:text-secondary">Read the guide <span class="material-symbols-outlined text-base">arrow_forward</span></span></a>"""
     body = f"""<main class="overflow-x-hidden">
 <section class="max-w-7xl mx-auto px-6 sm:px-8 pt-14 pb-8">
 <span class="text-secondary font-semibold tracking-widest uppercase text-xs">Compliance guides</span>
@@ -234,6 +260,7 @@ def build_index():
 <p class="text-lg text-on-surface-variant leading-relaxed mt-5 max-w-2xl">For each Walking-Working Surfaces hazard: what it is, why it matters, how often it's inspected or re-certified, and how we close it out. Click any one to read the guide.</p>
 </section>
 <section class="max-w-7xl mx-auto px-6 sm:px-8 pb-20"><div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{cards}</div></section>
+<section class="max-w-7xl mx-auto px-6 sm:px-8 pb-16"><h2 class="text-2xl font-extrabold text-primary mb-1">More compliance guides</h2><p class="text-on-surface-variant mb-6">Deadlines, rules and Florida-specific requirements worth knowing.</p><div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">{topics}</div></section>
 {('<section class="max-w-7xl mx-auto px-6 sm:px-8 pb-20">'+cta()+'</section>')}
 </main>
 """
@@ -241,6 +268,9 @@ def build_index():
 
 n=0
 for p in POSTS:
+    open(os.path.join(BLOG, p[0]+".html"), "w", encoding="utf-8", newline="").write(build_post(p))
+    n+=1
+for p in TOPICS:
     open(os.path.join(BLOG, p[0]+".html"), "w", encoding="utf-8", newline="").write(build_post(p))
     n+=1
 open(os.path.join(BLOG, "index.html"), "w", encoding="utf-8", newline="").write(build_index())
@@ -275,7 +305,7 @@ print("Landing gallery synced:",len(POSTS),"cards")
 # ---- sitemap for the wwslgc subdomain (landing + blog index + every guide) ----
 BASEW="https://wwslgc.collaborativeconceptsfl.com"
 LASTMOD="2026-06-09"
-sm_urls=[(BASEW+"/","1.0","weekly"),(BASEW+"/guides","0.8","weekly")]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in POSTS]
+sm_urls=[(BASEW+"/","1.0","weekly"),(BASEW+"/guides","0.8","weekly")]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in POSTS]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in TOPICS]
 sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
 for u,pr,cf in sm_urls:
     sm+='  <url><loc>'+u+'</loc><lastmod>'+LASTMOD+'</lastmod><changefreq>'+cf+'</changefreq><priority>'+pr+'</priority></url>\n'
