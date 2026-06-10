@@ -181,6 +181,7 @@ HEAD = """<!DOCTYPE html>
 <a class="text-primary opacity-80 hover:text-secondary transition-colors" href="/#plans">Plans</a>
 <a class="text-primary opacity-80 hover:text-secondary transition-colors" href="/#faq">FAQ</a>
 <a class="text-secondary font-semibold border-b-2 border-secondary pb-0.5" href="/guides">Guides</a>
+<a class="text-primary opacity-80 hover:text-secondary transition-colors" href="/guides#downloads">Downloads</a>
 <a class="text-primary opacity-80 hover:text-secondary transition-colors font-semibold" href="tel:+15614758615">(561)&nbsp;475-8615</a>
 </div>
 <a href="/#assessment" class="hidden md:inline-flex bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary-container hover:text-on-secondary-fixed transition-all whitespace-nowrap">Free Assessment</a>
@@ -192,6 +193,7 @@ HEAD = """<!DOCTYPE html>
 <a class="block py-2.5 text-primary font-medium border-b border-outline-variant/15" href="/#plans">Plans</a>
 <a class="block py-2.5 text-primary font-medium border-b border-outline-variant/15" href="/#faq">FAQ</a>
 <a class="block py-2.5 text-secondary font-semibold border-b border-outline-variant/15" href="/guides">Guides</a>
+<a class="block py-2.5 text-primary font-medium border-b border-outline-variant/15" href="/guides#downloads">Downloads</a>
 <a class="block py-2.5 text-primary font-semibold" href="tel:+15614758615">(561)&nbsp;475-8615</a>
 <a href="/#assessment" class="block mt-3 text-center bg-secondary text-white py-3 rounded-xl font-semibold">Free Assessment</a>
 </div>
