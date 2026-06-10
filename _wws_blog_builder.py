@@ -249,3 +249,14 @@ lc=lc.replace("The top 15 things OSHA cites &mdash; and we fix.","The hazards OS
 lc=lc.replace("Read all 15 compliance guides","Read all the compliance guides")
 open(LANDING,"w",encoding="utf-8",newline="").write(lc)
 print("Landing gallery synced:",len(POSTS),"cards")
+
+# ---- sitemap for the wwslgc subdomain (landing + blog index + every guide) ----
+BASEW="https://wwslgc.collaborativeconceptsfl.com"
+LASTMOD="2026-06-09"
+sm_urls=[(BASEW+"/","1.0","weekly"),(BASEW+"/blog","0.8","weekly")]+[(BASEW+"/blog/"+p[0],"0.7","monthly") for p in POSTS]
+sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+for u,pr,cf in sm_urls:
+    sm+='  <url><loc>'+u+'</loc><lastmod>'+LASTMOD+'</lastmod><changefreq>'+cf+'</changefreq><priority>'+pr+'</priority></url>\n'
+sm+='</urlset>\n'
+open(os.path.join(REPO,"wwslgc","sitemap-wws.xml"),"w",encoding="utf-8",newline="").write(sm)
+print("Sitemap written:",len(sm_urls),"urls -> wwslgc/sitemap-wws.xml")

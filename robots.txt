@@ -3,3 +3,4 @@ Allow: /
 Disallow:
 
 Sitemap: https://collaborativeconceptsfl.com/sitemap.xml
+Sitemap: https://wwslgc.collaborativeconceptsfl.com/sitemap-wws.xml
