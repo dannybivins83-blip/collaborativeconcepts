@@ -23,17 +23,20 @@
   tailwind.config = {
     darkMode: "class",
     theme: { extend: {
-      colors: { primary:"#1a1a2e","primary-container":"#2d2d4a",secondary:"#c9a227","secondary-container":"#e8c547","secondary-fixed":"#f0d060","on-secondary-fixed":"#3d2e00",surface:"#f8f7f5","surface-container-low":"#f0efed","surface-container-lowest":"#ffffff","surface-container-high":"#e5e4e2","on-surface":"#1a1a1a","on-surface-variant":"#4a4a4a","outline-variant":"#c5c5c0","on-primary":"#ffffff" },
-      borderRadius: { DEFAULT:"0.5rem", lg:"0.75rem", xl:"1rem", full:"9999px" },
+      colors: { primary:"#13233f","primary-container":"#1e3a5f",secondary:"#c9a227","secondary-container":"#e8c547","secondary-fixed":"#f0d060","on-secondary-fixed":"#3d2e00",steel:"#8b97a8",surface:"#f7f6f3","surface-container-low":"#f0eee8","surface-container-lowest":"#ffffff","surface-container-high":"#e8e5dd","on-surface":"#1a1a1a","on-surface-variant":"#54606f","outline-variant":"#dcd8cf","on-primary":"#ffffff" },
+      borderRadius: { DEFAULT:"0.625rem", lg:"0.875rem", xl:"1.25rem", "2xl":"1.5rem", full:"9999px" },
       fontFamily: { headline:["Manrope"], body:["Inter"], label:["Inter"] }
     }}
   }
 </script>
 <style>
-  body { font-family: 'Inter', sans-serif; }
-  h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+  body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; letter-spacing: -0.01em; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
   html { scroll-behavior: smooth; }
+  section { scroll-margin-top: 4.5rem; }
+  a, button { transition: color .2s ease, background-color .2s ease, transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+  section.bg-primary, aside.bg-primary, footer { background-image: linear-gradient(150deg, #13233f 0%, #1f3c63 100%); }
 </style>
 <!-- Google Analytics (GA4) -->
 <link rel="preconnect" href="https://www.googletagmanager.com"/>
@@ -347,6 +350,7 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 });
 </script>
+</section>
 
 <!-- COST ANALYSIS -->
 <section id="cost" class="px-6 sm:px-8 py-20 sm:py-24 max-w-7xl mx-auto">
