@@ -129,6 +129,15 @@ TOPICS = [
   "The duty is continuous &mdash; there is no inspection interval; protection simply has to be in place whenever the exposure exists. It's a core target of OSHA's fall-protection emphasis program, so an inspector can cite an unprotected 4-foot edge the moment they see it.",
   "We assess every surface against the 4-foot rule and install the right protection &mdash; compliant guardrail, hole covers, designated-area systems, or certified anchors and tie-offs &mdash; then document it for your compliance file.",
   ""),
+ ("osha-penalties","2026 OSHA Penalty Amounts","Penalties","Hot",
+  "What a Subpart D citation actually costs in 2026.",
+  "A Walking-Working Surfaces citation isn't a slap on the wrist. As of 2026, OSHA's civil penalties run up to roughly <strong>$16,500 per serious violation</strong>, the same amount <strong>per day</strong> for Failure-to-Abate past the deadline, and up to about <strong>$165,000</strong> for a willful or repeat violation. Stack a few items on one inspection and the number climbs into six figures &mdash; before injury liability or the insurance fallout.",
+  "Penalties attach <strong>per violation</strong>, not per inspection, so multiple cited items add up. Failure-to-Abate accrues for <strong>each day</strong> past the abatement date. A <strong>Repeat</strong> classification &mdash; the same standard cited twice &mdash; is where the figure explodes. OSHA adjusts these maximums for inflation every January, so they only climb.",
+  "The cheapest penalty is the one you never get. We close open citations correctly the first time &mdash; sealed certification plus self-performed repair, documented for abatement &mdash; and keep you ahead with a recurring inspect-and-maintain plan, so a closed citation never reopens as a Repeat.",
+  "",(("payments","The numbers"),("calculate","How the math works"),("verified_user","How we keep you ahead"))),
+ ("inspection-checklist","Free OSHA Subpart D Inspection Checklist","Free download","Hot",
+  "The field checklist we inspect against &mdash; yours to download.",
+  "","","",""),
 ]
 
 HEAD = """<!DOCTYPE html>
@@ -214,7 +223,8 @@ def cta():
 </div></div>"""
 
 def build_post(p):
-    slug,title,std,temp,short,why,how,fix,credit = p
+    slug,title,std,temp,short,why,how,fix,credit = p[:9]
+    secs = p[9] if len(p) > 9 else (("priority_high","Why it matters"),("event_repeat","How often it's checked"),("construction","How La Gala fixes it"))
     img = slug
     title_plain = title.replace("&amp;","&")
     meta = (why[:150].rsplit(" ",1)[0]) + "…"
@@ -230,9 +240,9 @@ def build_post(p):
 <img src="/assets/wws/{img}.jpg" alt="{title_plain}" class="w-full rounded-2xl mt-8 shadow-lg aspect-[16/9] object-cover"/>
 {credit_html}
 <div class="prose mt-10 space-y-8">
-<section><h2 class="text-2xl font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined text-secondary">priority_high</span> Why it matters</h2><p class="text-on-surface-variant leading-relaxed mt-3 text-[17px]">{why}</p></section>
-<section><h2 class="text-2xl font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined text-secondary">event_repeat</span> How often it's checked</h2><p class="text-on-surface-variant leading-relaxed mt-3 text-[17px]">{how}</p></section>
-<section><h2 class="text-2xl font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined text-secondary">construction</span> How La Gala fixes it</h2><p class="text-on-surface-variant leading-relaxed mt-3 text-[17px]">{fix}</p></section>
+<section><h2 class="text-2xl font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined text-secondary">{secs[0][0]}</span> {secs[0][1]}</h2><p class="text-on-surface-variant leading-relaxed mt-3 text-[17px]">{why}</p></section>
+<section><h2 class="text-2xl font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined text-secondary">{secs[1][0]}</span> {secs[1][1]}</h2><p class="text-on-surface-variant leading-relaxed mt-3 text-[17px]">{how}</p></section>
+<section><h2 class="text-2xl font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined text-secondary">{secs[2][0]}</span> {secs[2][1]}</h2><p class="text-on-surface-variant leading-relaxed mt-3 text-[17px]">{fix}</p></section>
 </div>
 {cta()}
 </article>
@@ -266,12 +276,37 @@ def build_index():
 """
     return head + body + FOOTER.replace("{credit}", "")
 
+def build_checklist():
+    head = HEAD.format(title_plain="Free OSHA Walking-Working Surfaces Inspection Checklist", meta="Download La Gala's free OSHA 1910 Subpart D field inspection checklist — the same one we audit against. Self-check your building before an inspector does. South Florida.", marker=MARKER, canonical="https://wwslgc.collaborativeconceptsfl.com/guides/inspection-checklist", img="damaged-surfaces")
+    items = ["§1910.22 — General surface conditions, housekeeping &amp; drainage","§1910.23 — Portable &amp; fixed ladders","§1910.24 — Step bolts &amp; manhole steps","§1910.25 — Stairways","§1910.26 — Dockboards","§1910.27 — Rope descent systems &amp; anchorages","§1910.28 / .29 — Fall protection: duty &amp; criteria","§1910.30 — Training","Corrective-action summary log"]
+    lis = "".join('<li class="flex items-start gap-3"><span class="material-symbols-outlined text-secondary text-xl">check_circle</span><span>'+it+'</span></li>' for it in items)
+    body = f"""<main class="overflow-x-hidden">
+<article class="max-w-3xl mx-auto px-6 sm:px-8 py-12">
+<a href="/guides" class="text-sm font-semibold text-secondary hover:underline inline-flex items-center gap-1"><span class="material-symbols-outlined text-base">arrow_back</span> All compliance guides</a>
+<div class="mt-5 flex items-center gap-3"><span class="text-xs font-bold bg-secondary text-white px-2.5 py-1 rounded-full">Free download</span></div>
+<h1 class="text-3xl sm:text-5xl font-extrabold text-primary leading-tight tracking-tight mt-4">The free OSHA Subpart D inspection checklist.</h1>
+<p class="text-lg text-on-surface-variant leading-relaxed mt-5">The same field checklist La Gala inspects against &mdash; every Walking-Working Surfaces standard, §1910.22 through .30, plus a corrective-action log. Download it and self-audit your building before an inspector does.</p>
+<div class="bg-surface-container-low rounded-2xl border border-outline-variant/30 p-7 mt-8">
+<h2 class="text-xl font-bold text-primary">What's inside</h2>
+<ul class="mt-4 space-y-3 text-on-surface-variant text-[16px]">{lis}</ul>
+</div>
+<div class="mt-8">
+<a href="/collateral/Subpart_D_Inspection_Checklist_LaGala.pdf" download class="inline-flex items-center gap-2 bg-secondary text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-secondary-container hover:text-on-secondary-fixed transition-colors"><span class="material-symbols-outlined">download</span> Download the checklist (PDF)</a>
+</div>
+<p class="text-sm text-on-surface-variant/70 mt-4">Free, no email required. This is a field compliance checklist only &mdash; anchorage load-test certification and any structural repair must be performed and sealed by a licensed Florida professional engineer.</p>
+{cta()}
+</article>
+</main>
+"""
+    return head + body + FOOTER.replace("{credit}", "")
+
 n=0
 for p in POSTS:
     open(os.path.join(BLOG, p[0]+".html"), "w", encoding="utf-8", newline="").write(build_post(p))
     n+=1
 for p in TOPICS:
-    open(os.path.join(BLOG, p[0]+".html"), "w", encoding="utf-8", newline="").write(build_post(p))
+    page = build_checklist() if p[0]=="inspection-checklist" else build_post(p)
+    open(os.path.join(BLOG, p[0]+".html"), "w", encoding="utf-8", newline="").write(page)
     n+=1
 open(os.path.join(BLOG, "index.html"), "w", encoding="utf-8", newline="").write(build_index())
 print(f"Generated {n} posts + index in wwslgc/guides/")
