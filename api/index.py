@@ -1094,10 +1094,11 @@ def insp_doc(iid, kind):
     return resp
 
 
-# ---- SiteCam field-capture hook (config-gated; activates once SiteCam is deployed) ----
+# ---- SiteCam field-photo hook — read-only /api/ext/* contract (config-gated) ----
+# Per-tenant isolation: the API key alone determines the SiteCam tenant server-side
+# (no caller-supplied tenant). A WWS key only ever reaches the WWS tenant's data.
 SITECAM_BASE = os.environ.get("SITECAM_BASE_URL", "").rstrip("/")
 SITECAM_KEY = os.environ.get("SITECAM_API_KEY", "")
-SITECAM_TENANT = os.environ.get("SITECAM_TENANT", "")
 
 
 def _sitecam_on():
@@ -1105,19 +1106,34 @@ def _sitecam_on():
 
 
 def _sitecam_headers():
-    h = {"Authorization": "Bearer " + SITECAM_KEY, "Content-Type": "application/json"}
-    if SITECAM_TENANT:
-        h["x-tenant"] = SITECAM_TENANT
-    return h
+    return {"x-api-key": SITECAM_KEY}
+
+
+def _sitecam_get(path, params=None):
+    r = requests.get(SITECAM_BASE + path, headers=_sitecam_headers(), params=params, timeout=20)
+    r.raise_for_status()
+    return r.json()
+
+
+def _sitecam_search(q):
+    data = _sitecam_get("/api/ext/projects", {"q": q})
+    rows = data if isinstance(data, list) else (data.get("projects") or data.get("items") or [])
+    out = []
+    for p in rows:
+        out.append({"id": p.get("id"), "name": p.get("name", ""), "address": p.get("address", ""),
+                    "system": p.get("system", ""), "status": p.get("status", ""),
+                    "crmJobId": p.get("crmJobId", ""), "photoCount": p.get("photoCount", 0)})
+    return out
 
 
 def _sitecam_fetch_photos(pid):
-    r = requests.get(SITECAM_BASE + "/api/projects/" + str(pid) + "/photos", headers=_sitecam_headers(), timeout=20)
-    data = r.json()
-    raw = data if isinstance(data, list) else (data.get("photos") or data.get("items") or [])
+    data = _sitecam_get("/api/ext/projects/" + str(pid) + "/photos")
+    raw = data.get("photos") if isinstance(data, dict) else (data if isinstance(data, list) else [])
     out = []
-    for p in raw:
-        out.append({"url": p.get("url") or p.get("imageUrl") or "", "caption": p.get("description") or "", "ts": p.get("capturedAt")})
+    for p in (raw or []):
+        out.append({"url": p.get("url", ""), "thumbUrl": p.get("thumbUrl", ""),
+                    "caption": p.get("description", ""), "gps": p.get("gps", ""),
+                    "ts": p.get("capturedAt")})
     return out
 
 
@@ -1128,32 +1144,51 @@ def sitecam_status():
     return jsonify({"configured": _sitecam_on(), "base": SITECAM_BASE if _sitecam_on() else ""})
 
 
-@app.post("/api/admin/inspection/<iid>/sitecam")
-def sitecam_create(iid):
+@app.get("/api/admin/inspection/<iid>/sitecam/search")
+def sitecam_search_ep(iid):
+    """Find SiteCam projects (read-only) to link to this inspection. Defaults the
+    query to the inspection's property address/name."""
     if not _is_admin():
         return jsonify({"error": "forbidden"}), 403
     x = _insp_get(iid)
     if not x:
         return jsonify({"error": "not found"}), 404
     if not _sitecam_on():
-        return jsonify({"ok": False, "configured": False,
-                        "message": "SiteCam isn't connected yet. Set SITECAM_BASE_URL + SITECAM_API_KEY (after SiteCam is deployed) to enable field photo capture."}), 200
+        return jsonify({"ok": False, "configured": False, "results": [],
+                        "message": "SiteCam isn't connected yet. Set SITECAM_BASE_URL + SITECAM_API_KEY once SiteCam is deployed."}), 200
     prop = x.get("property", {})
+    q = (request.args.get("q") or prop.get("address") or prop.get("name") or "").strip()
+    if not q:
+        return jsonify({"ok": True, "configured": True, "results": [], "q": ""})
     try:
-        r = requests.post(SITECAM_BASE + "/api/projects", headers=_sitecam_headers(), timeout=20,
-                          json={"name": prop.get("name") or ("WWS Inspection " + iid), "address": prop.get("address", ""),
-                                "crmJobId": "wws-" + iid, "labels": ["WWS", "OSHA Subpart D"]})
-        data = r.json()
-        pid = data.get("id") or data.get("projectId")
-        x["sitecam"] = {"projectId": pid, "url": (SITECAM_BASE + "/projects/" + str(pid)) if pid else SITECAM_BASE, "created_ts": _now_ms()}
-        _insp_save(x)
-        return jsonify({"ok": True, "configured": True, "sitecam": x["sitecam"]})
+        return jsonify({"ok": True, "configured": True, "q": q, "results": _sitecam_search(q)})
     except Exception as e:
-        return jsonify({"ok": False, "configured": True, "error": str(e)}), 502
+        return jsonify({"ok": False, "configured": True, "error": str(e), "results": []}), 502
+
+
+@app.post("/api/admin/inspection/<iid>/sitecam/link")
+def sitecam_link(iid):
+    """Link a chosen SiteCam project id to this inspection (so we can pull its photos)."""
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    x = _insp_get(iid)
+    if not x:
+        return jsonify({"error": "not found"}), 404
+    if not _sitecam_on():
+        return jsonify({"ok": False, "configured": False}), 200
+    body = request.get_json(force=True, silent=True) or {}
+    pid = body.get("projectId") or body.get("id")
+    if not pid:
+        return jsonify({"ok": False, "error": "projectId required"}), 400
+    x["sitecam"] = {"projectId": pid, "name": body.get("name", ""), "address": body.get("address", ""),
+                    "url": SITECAM_BASE + "/projects/" + str(pid), "linked_ts": _now_ms()}
+    _insp_save(x)
+    return jsonify({"ok": True, "configured": True, "sitecam": x["sitecam"]})
 
 
 @app.post("/api/admin/inspection/<iid>/sitecam/pull")
 def sitecam_pull(iid):
+    """Pull the linked SiteCam project's photos into the inspection's photo log."""
     if not _is_admin():
         return jsonify({"error": "forbidden"}), 403
     x = _insp_get(iid)

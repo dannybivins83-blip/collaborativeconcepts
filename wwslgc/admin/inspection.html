@@ -210,19 +210,37 @@ function addItem(){if(!INSP.corrective)INSP.corrective=[];INSP.corrective.push({
 function delItem(i){INSP.corrective.splice(i,1);renderItems();markDirty();}
 function recalc(){var t=0;(INSP.corrective||[]).forEach(function(it){var n=parseFloat(String(it.price||'').replace(/[,$]/g,''));if(!isNaN(n))t+=n;});document.getElementById('total').textContent=t.toLocaleString();}
 
+var SCRESULTS=[];
 function renderSitecam(){
   var el=document.getElementById('sitecam'), sc=INSP.sitecam||{};
   if(!SCON){
-    el.innerHTML='<p class="text-sm text-mute">SiteCam isn\'t connected yet. Once the SiteCam app is deployed and its API key is set, a <b>Start field capture</b> button appears here — the inspector captures photos on-site and they pull straight into the report\'s photo log.</p>';
+    el.innerHTML='<p class="text-sm text-mute">SiteCam isn\'t connected yet. Once SiteCam is deployed and its API key is set, you can <b>link the SiteCam project</b> your field crew documented for this property and pull its photos straight into the report\'s photo log.</p>';
     return;
   }
   if(sc.projectId){
-    el.innerHTML='<div class="flex flex-wrap gap-2 items-center"><a href="'+esc(sc.url)+'" target="_blank" class="docbtn"><span class="ms text-base">open_in_new</span> Open in SiteCam</a><button onclick="pullPhotos()" class="rbtn">Pull photos into report</button><span class="text-xs text-mute">'+((INSP.photos||[]).length)+' photo(s) linked</span></div>';
+    el.innerHTML='<div class="flex flex-wrap gap-2 items-center"><a href="'+esc(sc.url)+'" target="_blank" class="docbtn"><span class="ms text-base">open_in_new</span> Open in SiteCam</a><button onclick="pullPhotos()" class="rbtn">Pull photos into report</button><button onclick="findProjects()" class="rbtn">Change link</button><span class="text-xs text-mute">'+(sc.name?esc(sc.name)+' · ':'')+((INSP.photos||[]).length)+' photo(s)</span></div><div id="scResults" class="mt-3"></div>';
   } else {
-    el.innerHTML='<button onclick="startCapture()" class="docbtn"><span class="ms text-base">add_a_photo</span> Start field capture</button>';
+    el.innerHTML='<button onclick="findProjects()" class="docbtn"><span class="ms text-base">search</span> Find &amp; link SiteCam project</button><div id="scResults" class="mt-3"></div>';
   }
 }
-function startCapture(){api('/api/admin/inspection/'+ID+'/sitecam',{method:'POST',body:'{}'}).then(function(d){if(d.ok){INSP.sitecam=d.sitecam;renderSitecam();}else alert(d.message||d.error||'Could not start');});}
+function findProjects(){
+  var box=document.getElementById('scResults'); if(box) box.innerHTML='<p class="text-sm text-mute">Searching SiteCam…</p>';
+  api('/api/admin/inspection/'+ID+'/sitecam/search').then(function(d){
+    box=document.getElementById('scResults'); if(!box) return;
+    if(!d.ok){ box.innerHTML='<p class="text-sm text-red-600">'+esc(d.error||d.message||'Search failed')+'</p>'; return; }
+    SCRESULTS=d.results||[];
+    if(!SCRESULTS.length){ box.innerHTML='<p class="text-sm text-mute">No SiteCam projects found for &ldquo;'+esc(d.q||'')+'&rdquo;. The WWS tenant stays empty until field crews document jobs in SiteCam.</p>'; return; }
+    box.innerHTML='<div class="text-xs text-mute mb-1">Matches for &ldquo;'+esc(d.q||'')+'&rdquo; — pick one to link:</div>'+SCRESULTS.map(function(p,i){
+      return '<button onclick="linkProject('+i+')" class="block w-full text-left border border-line rounded-lg px-3 py-2 mb-1 hover:border-secondary text-sm"><b>'+esc(p.name||p.address||p.id)+'</b><span class="text-mute"> · '+esc(p.address||'')+' · '+(p.photoCount||0)+' photo(s)</span></button>';
+    }).join('');
+  });
+}
+function linkProject(i){
+  var p=SCRESULTS[i]; if(!p) return;
+  api('/api/admin/inspection/'+ID+'/sitecam/link',{method:'POST',body:JSON.stringify({projectId:p.id,name:p.name,address:p.address})}).then(function(d){
+    if(d.ok){ INSP.sitecam=d.sitecam; renderSitecam(); } else alert(d.error||'Link failed');
+  });
+}
 function pullPhotos(){api('/api/admin/inspection/'+ID+'/sitecam/pull',{method:'POST',body:'{}'}).then(function(d){if(d.ok){INSP.photos=d.photos;renderSitecam();alert(d.photos.length+' photo(s) pulled into the report.');}else alert(d.error||'Pull failed');});}
 
 function doc(kind){ if(T){clearTimeout(T);save();} setTimeout(function(){window.open('/api/admin/inspection/'+ID+'/doc/'+kind,'_blank');},250); }
