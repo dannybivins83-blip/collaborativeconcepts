@@ -144,7 +144,15 @@ HEAD = """<!DOCTYPE html>
 <nav class="w-full sticky top-0 z-50 bg-[#f8f7f5]/80 backdrop-blur-md border-b border-outline-variant/20">
 <div class="flex justify-between items-center px-6 sm:px-8 py-4 max-w-7xl mx-auto">
 <a href="/" class="flex items-center" aria-label="La Gala Construction"><img src="/assets/lagala-logo.png" alt="La Gala Construction" class="h-10 sm:h-12 w-auto"/></a>
-<div class="flex items-center gap-6"><a href="/guides" class="text-primary opacity-80 hover:text-secondary font-medium hidden sm:inline">Guides</a><a href="/#assessment" class="bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary-container hover:text-on-secondary-fixed transition-all">Free Assessment</a></div>
+<div class="hidden md:flex items-center space-x-7">
+<a class="text-primary opacity-80 hover:text-secondary transition-colors" href="/#how">How it works</a>
+<a class="text-primary opacity-80 hover:text-secondary transition-colors" href="/#services">What we handle</a>
+<a class="text-primary opacity-80 hover:text-secondary transition-colors" href="/#plans">Plans</a>
+<a class="text-primary opacity-80 hover:text-secondary transition-colors" href="/#faq">FAQ</a>
+<a class="text-secondary font-semibold border-b-2 border-secondary pb-0.5" href="/guides">Guides</a>
+<a class="text-primary opacity-80 hover:text-secondary transition-colors font-semibold" href="tel:+15614758615">(561)&nbsp;475-8615</a>
+</div>
+<a href="/#assessment" class="bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary-container hover:text-on-secondary-fixed transition-all whitespace-nowrap">Free Assessment</a>
 </div>
 </nav>
 """
