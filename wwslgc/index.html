@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <h3 class="text-2xl font-extrabold mt-2">Thanks — we've got it.</h3>
 <p class="mt-2">We'll be in touch within one business day. Need it sooner? Call <a href="tel:+15614758615" class="underline font-bold">(561) 475-8615</a>.</p>
 </div>
-<form id="assessForm" action="https://formsubmit.co/dannybivins83@gmail.com" method="POST" class="bg-surface-container-lowest rounded-2xl p-7 sm:p-9 shadow-xl space-y-5">
+<form id="assessForm" action="/api/lead" method="POST" class="bg-surface-container-lowest rounded-2xl p-7 sm:p-9 shadow-xl space-y-5">
 <input type="hidden" name="_subject" value="WWS Compliance — New Assessment Request (wwslgc)"/>
 <input type="hidden" name="_template" value="table"/>
 <input type="hidden" name="_captcha" value="false"/>
@@ -619,6 +619,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <a class="text-[#f8f7f5]/60 hover:text-[#e8c547] transition-all text-sm" href="#how">How it works</a>
 <a class="text-[#f8f7f5]/60 hover:text-[#e8c547] transition-all text-sm" href="#faq">FAQ</a>
 <a class="text-[#f8f7f5]/60 hover:text-[#e8c547] transition-all text-sm" href="#assessment">Free assessment</a>
+<a class="text-[#f8f7f5]/60 hover:text-[#e8c547] transition-all text-sm" href="/portal">Client portal</a>
 <a class="text-[#f8f7f5]/60 hover:text-[#e8c547] transition-all text-sm" href="https://collaborativeconceptsfl.com/lagala">Main site</a>
 </div>
 <p class="text-xs text-[#f8f7f5]/50 max-w-2xl">25 SE 7th Street, Ste 12 · Deerfield Beach, FL 33441 · (561) 475-8615 · danny@lagalacon.com</p>
@@ -652,7 +653,25 @@ document.addEventListener('DOMContentLoaded',function(){
     else if(h.indexOf('/guides/')!==-1) ev('guide_open',{guide:h.split('/').pop()});
   },true);
   var f=document.getElementById('assessForm');
-  if(f) f.addEventListener('submit',function(){ ev('form_submit',{form:'wws_assessment'}); });
+  if(f) f.addEventListener('submit',function(e){
+    e.preventDefault();
+    ev('form_submit',{form:'wws_assessment'});
+    var btn=f.querySelector('button[type=submit]'); var lbl=btn?btn.textContent:'';
+    if(btn){btn.disabled=true;btn.textContent='Sending…';}
+    var fields={}; new FormData(f).forEach(function(v,k){ if(v) fields[k]=v; });
+    var pc=document.getElementById('planConfig'); if(pc&&pc.value) fields['Plan Configuration']=pc.value;
+    fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:fields,source:location.pathname+location.search})})
+      .then(function(r){return r.json().catch(function(){return {ok:r.ok};});})
+      .then(function(){
+        ev('generate_lead',{form:'wws_assessment'});
+        var t=document.getElementById('thanks');
+        if(t){t.classList.remove('hidden'); f.classList.add('hidden'); t.scrollIntoView({behavior:'smooth',block:'center'});}
+      })
+      .catch(function(){
+        if(btn){btn.disabled=false;btn.textContent=lbl;}
+        alert('Sorry — something went wrong sending that. Please call (561) 475-8615 or email danny@lagalacon.com.');
+      });
+  });
   if(new URLSearchParams(location.search).get('submitted')==='1') ev('generate_lead',{form:'wws_assessment'});
 })();
 </script>

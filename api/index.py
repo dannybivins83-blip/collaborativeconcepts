@@ -397,6 +397,246 @@ def set_prospects():
         return jsonify({"ok": False, "status": str(e)}), 502
 
 
+# ==========================================================================
+# WWS lead funnel + lightweight CRM  (KV-backed; degrades gracefully)
+# ==========================================================================
+import time
+
+WWS_LEADS_KEY = "wws:leads"              # Redis LIST; each item = JSON lead (immutable submission)
+WWS_LEAD_META_KEY = "wws:lead_meta"      # JSON map { id: {status, notes:[...], updated} }
+WWS_REQ_KEY = "wws:inspection_requests"  # Redis LIST; customer inspection requests
+WWS_STAGES = ["new", "contacted", "assessed", "proposal", "won", "lost"]
+WWS_ADMIN_EMAILS = set(
+    e.strip().lower() for e in os.environ.get(
+        "WWS_ADMIN_EMAILS", "dannybivins83@gmail.com,danny@lagalacon.com"
+    ).split(",") if e.strip()
+)
+WWS_NOTIFY_EMAIL = os.environ.get("WWS_NOTIFY_EMAIL", "dannybivins83@gmail.com")
+
+
+def _now_ms():
+    return int(time.time() * 1000)
+
+
+def _gen_id():
+    return format(_now_ms(), "x") + secrets.token_hex(2)
+
+
+def _is_admin():
+    s = read_session()
+    return bool(s and s.get("email", "").lower() in WWS_ADMIN_EMAILS)
+
+
+def _notify(subject, text):
+    """Best-effort email notification via FormSubmit AJAX (no API key needed).
+    Never raises — lead storage must not depend on the email going through."""
+    try:
+        requests.post(
+            "https://formsubmit.co/ajax/" + WWS_NOTIFY_EMAIL,
+            json={"_subject": subject, "_template": "table", "message": text},
+            headers={"Content-Type": "application/json", "Accept": "application/json"},
+            timeout=8,
+        )
+    except Exception:
+        pass
+
+
+def _lead_summary(d):
+    lines = []
+    for k in ("name", "email", "phone", "company", "property", "message"):
+        if d.get(k):
+            lines.append("{}: {}".format(k.capitalize(), d[k]))
+    for k, v in (d.get("fields") or {}).items():
+        if k not in ("Name", "Email", "Phone", "Company", "Property Location", "Message") and v:
+            lines.append("{}: {}".format(k, v))
+    if d.get("source"):
+        lines.append("Source: {}".format(d["source"]))
+    return "\n".join(lines)
+
+
+@app.post("/api/lead")
+def create_lead():
+    """Public — the WWS Free Assessment form posts here. Stores the lead in KV
+    and emails a notification. Accepts JSON (fetch) or form-encoded (no-JS)."""
+    if request.is_json:
+        body = request.get_json(force=True, silent=True) or {}
+    else:
+        body = {"fields": request.form.to_dict()}
+    fields = body.get("fields") or {}
+    # honeypot — silently accept & drop bots
+    if (fields.get("_honey") or fields.get("_gotcha") or "").strip():
+        return jsonify({"ok": True}), 200
+
+    def g(*names):
+        for n in names:
+            for src in (body, fields):
+                v = src.get(n)
+                if v:
+                    return str(v).strip()
+        return ""
+
+    name = g("name", "Name")[:200]
+    email = g("email", "Email")[:200]
+    phone = g("phone", "Phone")[:60]
+    company = g("company", "Company")[:200]
+    prop = g("property", "Property Location", "address")[:300]
+    message = g("message", "Message")[:5000]
+    if not (email or phone):
+        return jsonify({"ok": False, "error": "email or phone required"}), 400
+
+    clean = {}
+    for k, v in fields.items():
+        if k and not k.startswith("_") and str(v).strip():
+            clean[k[:60]] = str(v)[:2000]
+    lead = {
+        "id": _gen_id(), "ts": _now_ms(), "name": name, "email": email, "phone": phone,
+        "company": company, "property": prop, "message": message, "fields": clean,
+        "source": (g("source") or request.headers.get("Referer", ""))[:300],
+        "ua": request.headers.get("User-Agent", "")[:300],
+    }
+    try:
+        _, configured = _kv_cmd(["RPUSH", WWS_LEADS_KEY, json.dumps(lead)])
+    except Exception:
+        configured = False
+    _notify("New WWS lead — " + (name or company or email or phone),
+            "New Free Assessment request from the WWS site:\n\n" + _lead_summary(lead))
+
+    if request.is_json:
+        return jsonify({"ok": True, "stored": bool(configured)}), 200
+    return redirect("/?submitted=1#assessment")
+
+
+# ---- admin (gated by WWS_ADMIN_EMAILS) ----
+@app.get("/api/admin/session")
+def admin_session():
+    s = read_session() or {}
+    return jsonify({
+        "authed": bool(s.get("email")),
+        "email": s.get("email", ""),
+        "name": s.get("name", ""),
+        "admin": s.get("email", "").lower() in WWS_ADMIN_EMAILS,
+    })
+
+
+def _load_leads():
+    raw, configured = _kv_cmd(["LRANGE", WWS_LEADS_KEY, "0", "-1"])
+    if not configured:
+        return None
+    leads = []
+    for item in (raw or []):
+        try:
+            leads.append(json.loads(item))
+        except Exception:
+            pass
+    meta_raw, _ = _kv_cmd(["GET", WWS_LEAD_META_KEY])
+    try:
+        meta = json.loads(meta_raw) if meta_raw else {}
+    except Exception:
+        meta = {}
+    for l in leads:
+        m = meta.get(l.get("id"), {})
+        l["status"] = m.get("status", "new")
+        l["notes"] = m.get("notes", [])
+        l["updated"] = m.get("updated")
+    leads.sort(key=lambda x: x.get("ts", 0), reverse=True)
+    return leads
+
+
+def _load_requests():
+    raw, configured = _kv_cmd(["LRANGE", WWS_REQ_KEY, "0", "-1"])
+    if not configured:
+        return []
+    out = []
+    for item in (raw or []):
+        try:
+            out.append(json.loads(item))
+        except Exception:
+            pass
+    out.sort(key=lambda x: x.get("ts", 0), reverse=True)
+    return out
+
+
+@app.get("/api/admin/leads")
+def admin_leads():
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    leads = _load_leads()
+    if leads is None:
+        return jsonify({"configured": False, "leads": [], "requests": [], "stages": WWS_STAGES})
+    return jsonify({"configured": True, "leads": leads, "requests": _load_requests(), "stages": WWS_STAGES})
+
+
+@app.post("/api/admin/lead/update")
+def admin_lead_update():
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    body = request.get_json(force=True, silent=True) or {}
+    lid = (body.get("id") or "").strip()
+    if not lid:
+        return jsonify({"ok": False, "error": "id required"}), 400
+    meta_raw, configured = _kv_cmd(["GET", WWS_LEAD_META_KEY])
+    if not configured:
+        return jsonify({"ok": False, "error": "store not configured"}), 200
+    try:
+        meta = json.loads(meta_raw) if meta_raw else {}
+    except Exception:
+        meta = {}
+    m = meta.get(lid, {})
+    st = body.get("status")
+    if st in WWS_STAGES:
+        m["status"] = st
+    note = (body.get("note") or "").strip()
+    if note:
+        notes = m.get("notes", [])
+        notes.append({"ts": _now_ms(), "text": note[:2000], "by": (read_session() or {}).get("email", "")})
+        m["notes"] = notes
+    m["updated"] = _now_ms()
+    meta[lid] = m
+    _kv_cmd(["SET", WWS_LEAD_META_KEY, json.dumps(meta)])
+    return jsonify({"ok": True, "meta": m})
+
+
+# ---- customer portal (any signed-in user) ----
+@app.post("/api/portal/request")
+def portal_request():
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"ok": False, "error": "sign in required"}), 401
+    body = request.get_json(force=True, silent=True) or {}
+    req = {
+        "id": _gen_id(), "ts": _now_ms(), "kind": "inspection_request",
+        "email": s.get("email", ""), "name": s.get("name", ""),
+        "company": (body.get("company") or "").strip()[:200],
+        "property": (body.get("property") or "").strip()[:300],
+        "buildings": (body.get("buildings") or "").strip()[:60],
+        "stories": (body.get("stories") or "").strip()[:60],
+        "urgency": (body.get("urgency") or "").strip()[:60],
+        "notes": (body.get("notes") or "").strip()[:3000],
+    }
+    if not req["property"] and not req["company"]:
+        return jsonify({"ok": False, "error": "property or company required"}), 400
+    try:
+        _kv_cmd(["RPUSH", WWS_REQ_KEY, json.dumps(req)])
+    except Exception:
+        pass
+    _notify("WWS inspection request — " + (req["company"] or req["email"]),
+            "A client requested an inspection via the portal:\n\n"
+            "From: {} <{}>\nCompany: {}\nProperty: {}\nBuildings: {} / stories: {}\n"
+            "Urgency: {}\n\nNotes:\n{}".format(
+                req["name"], req["email"], req["company"], req["property"],
+                req["buildings"], req["stories"], req["urgency"], req["notes"]))
+    return jsonify({"ok": True})
+
+
+@app.get("/api/portal/requests")
+def portal_requests():
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"authed": False, "requests": []})
+    mine = [r for r in _load_requests() if r.get("email", "").lower() == s.get("email", "").lower()]
+    return jsonify({"authed": True, "email": s.get("email"), "name": s.get("name", ""), "requests": mine})
+
+
 @app.get("/api/logout")
 def logout():
     resp = make_response(redirect("/wwslgc"))
@@ -441,14 +681,17 @@ def login_google():
     if not cid:
         return _err_page("Google sign-in isn't configured yet (GOOGLE_CLIENT_ID missing).")
     state = secrets.token_urlsafe(24)
+    # identity-only sign-in (admin dashboard / client portal) doesn't need Gmail
+    basic = request.args.get("basic")
+    scopes = ["openid", "email", "profile"] if basic else GOOGLE_SCOPES
     params = {
         "client_id": cid,
         "redirect_uri": google_redirect_uri(),
         "response_type": "code",
-        "scope": " ".join(GOOGLE_SCOPES),
-        "access_type": "offline",
+        "scope": " ".join(scopes),
+        "access_type": "online" if basic else "offline",
         "include_granted_scopes": "true",
-        "prompt": "consent",
+        "prompt": "select_account" if basic else "consent",
         "state": state,
     }
     url = GOOGLE_AUTH + "?" + "&".join("{}={}".format(k, requests.utils.quote(v, safe="")) for k, v in params.items())

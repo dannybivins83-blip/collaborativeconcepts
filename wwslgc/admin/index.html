@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
+<title>WWS CRM — La Gala Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&family=Material+Symbols+Outlined&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:"#13233f",primaryc:"#1e3a5f",secondary:"#c9a227",surface:"#f7f6f3",ink:"#1f2733",mute:"#54606f",line:"#e3e6ea"},fontFamily:{h:["Manrope"],b:["Inter"]}}}}</script>
+<style>body{font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}h1,h2,h3{font-family:'Manrope',sans-serif}.ms{font-family:'Material Symbols Outlined'}.drawer{transition:transform .25s ease}</style>
+</head>
+<body class="bg-surface text-ink min-h-screen">
+
+<!-- top bar -->
+<header class="bg-primary text-white sticky top-0 z-30">
+<div class="max-w-7xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<span class="ms text-secondary text-2xl">shield_person</span>
+<div><div class="font-h font-extrabold leading-none">WWS CRM</div><div class="text-[11px] text-white/50 leading-none mt-0.5">La Gala · OSHA Walking-Working Surfaces</div></div>
+</div>
+<div id="who" class="flex items-center gap-3 text-sm"></div>
+</div>
+</header>
+
+<!-- gate (signed out / not authorized) -->
+<div id="gate" class="hidden max-w-md mx-auto mt-24 px-6 text-center">
+<span class="ms text-6xl text-secondary">lock</span>
+<h1 class="text-2xl font-extrabold text-primary mt-3" id="gateTitle">Admin sign-in</h1>
+<p class="text-mute mt-2" id="gateMsg">Sign in with the Google account authorized for La Gala.</p>
+<a id="gateBtn" href="/api/login/google?basic=1&next=/admin" class="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-semibold mt-6 hover:bg-primaryc transition-colors"><span class="ms">login</span> Sign in with Google</a>
+</div>
+
+<!-- dashboard -->
+<main id="app" class="hidden max-w-7xl mx-auto px-4 sm:px-5 py-6">
+
+<div id="kvWarn" class="hidden mb-5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 px-4 py-3 text-sm flex items-start gap-2">
+<span class="ms text-amber-600">warning</span>
+<div><b>Lead storage isn't switched on yet.</b> New leads are still emailed to you, but they won't appear here until the KV store is enabled (Vercel → Storage → create an Upstash Redis → redeploy). Once on, this fills automatically.</div>
+</div>
+
+<!-- stat chips -->
+<div id="stats" class="grid grid-cols-3 sm:grid-cols-7 gap-2 sm:gap-3 mb-5"></div>
+
+<!-- tabs -->
+<div class="flex items-center gap-1 border-b border-line mb-4">
+<button data-tab="leads" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-secondary text-primary">Leads <span id="cLeads" class="text-mute font-normal"></span></button>
+<button data-tab="reqs" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspection requests <span id="cReqs" class="text-mute font-normal"></span></button>
+<button onclick="loadLeads()" class="ml-auto text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">refresh</span> Refresh</button>
+</div>
+
+<!-- leads -->
+<section id="tab-leads">
+<div class="flex flex-wrap items-center gap-2 mb-3">
+<input id="search" oninput="renderLeads()" placeholder="Search name, company, email…" class="flex-1 min-w-[200px] rounded-lg border border-line bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>
+<select id="fstage" onchange="renderLeads()" class="rounded-lg border border-line bg-white px-3 py-2 text-sm"><option value="">All stages</option></select>
+</div>
+<div class="bg-white rounded-xl border border-line overflow-hidden">
+<div class="overflow-x-auto"><table class="w-full text-sm">
+<thead class="bg-surface text-mute text-left text-xs uppercase tracking-wide"><tr>
+<th class="px-3 py-2 font-semibold">When</th><th class="px-3 py-2 font-semibold">Lead</th><th class="px-3 py-2 font-semibold hidden sm:table-cell">Contact</th><th class="px-3 py-2 font-semibold hidden md:table-cell">Source</th><th class="px-3 py-2 font-semibold">Stage</th>
+</tr></thead>
+<tbody id="leadRows"></tbody>
+</table></div>
+<div id="leadEmpty" class="hidden p-10 text-center text-mute">No leads yet. They'll show up here the moment someone submits the Free Assessment form.</div>
+</div>
+</section>
+
+<!-- requests -->
+<section id="tab-reqs" class="hidden">
+<div class="bg-white rounded-xl border border-line overflow-hidden">
+<div class="overflow-x-auto"><table class="w-full text-sm">
+<thead class="bg-surface text-mute text-left text-xs uppercase tracking-wide"><tr>
+<th class="px-3 py-2 font-semibold">When</th><th class="px-3 py-2 font-semibold">From</th><th class="px-3 py-2 font-semibold">Property</th><th class="px-3 py-2 font-semibold hidden sm:table-cell">Buildings</th><th class="px-3 py-2 font-semibold">Urgency</th>
+</tr></thead>
+<tbody id="reqRows"></tbody>
+</table></div>
+<div id="reqEmpty" class="hidden p-10 text-center text-mute">No inspection requests yet. These come from clients using the portal at <a href="/portal" class="text-secondary underline">/portal</a>.</div>
+</div>
+</section>
+</main>
+
+<!-- lead drawer -->
+<div id="scrim" class="hidden fixed inset-0 bg-black/30 z-40" onclick="closeDrawer()"></div>
+<aside id="drawer" class="drawer fixed top-0 right-0 h-full w-full max-w-md bg-white z-50 shadow-2xl translate-x-full overflow-y-auto">
+<div id="drawerBody" class="p-5"></div>
+</aside>
+
+<script>
+var DATA={leads:[],requests:[],stages:[]};
+var STAGE_C={new:"bg-blue-100 text-blue-800",contacted:"bg-violet-100 text-violet-800",assessed:"bg-amber-100 text-amber-800",proposal:"bg-orange-100 text-orange-800",won:"bg-green-100 text-green-700",lost:"bg-gray-200 text-gray-600"};
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function ago(ms){if(!ms)return'';var s=(Date.now()-ms)/1000;if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';var d=Math.floor(s/86400);if(d<30)return d+'d ago';return new Date(ms).toLocaleDateString();}
+function api(p,opts){return fetch(p,Object.assign({headers:{'Content-Type':'application/json'}},opts||{})).then(function(r){return r.json();});}
+
+function boot(){
+  api('/api/admin/session').then(function(s){
+    if(!s.authed){ gate('Admin sign-in','Sign in with the Google account authorized for La Gala.'); return; }
+    if(!s.admin){ gate('Not authorized', esc(s.email)+' isn\'t on the admin list. Sign in with the La Gala account.','/api/logout'); return; }
+    document.getElementById('who').innerHTML='<span class="text-white/70">'+esc(s.email)+'</span><a href="/api/logout" class="text-white/60 hover:text-white inline-flex items-center gap-1"><span class="ms text-base">logout</span></a>';
+    document.getElementById('gate').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    loadLeads();
+  }).catch(function(){ gate('Sign-in','Please sign in to continue.'); });
+}
+function gate(title,msg,btnHref){
+  document.getElementById('app').classList.add('hidden');
+  var g=document.getElementById('gate'); g.classList.remove('hidden');
+  document.getElementById('gateTitle').textContent=title;
+  document.getElementById('gateMsg').innerHTML=msg;
+  var b=document.getElementById('gateBtn');
+  if(btnHref){ b.textContent='Switch account'; b.setAttribute('href',btnHref); }
+}
+
+function loadLeads(){
+  api('/api/admin/leads').then(function(d){
+    if(d.error){ gate('Not authorized','Your account isn\'t permitted here.','/api/logout'); return; }
+    DATA=d;
+    document.getElementById('kvWarn').classList.toggle('hidden', d.configured!==false);
+    // stage filter options
+    var fs=document.getElementById('fstage');
+    if(fs.options.length<=1){ d.stages.forEach(function(st){var o=document.createElement('option');o.value=st;o.textContent=st;fs.appendChild(o);}); }
+    renderStats(); renderLeads(); renderReqs();
+    document.getElementById('cLeads').textContent='('+d.leads.length+')';
+    document.getElementById('cReqs').textContent='('+d.requests.length+')';
+  });
+}
+
+function renderStats(){
+  var counts={}; DATA.stages.forEach(function(s){counts[s]=0;});
+  DATA.leads.forEach(function(l){counts[l.status]=(counts[l.status]||0)+1;});
+  var html='<button onclick="setStage(\'\')" class="rounded-xl bg-white border border-line px-3 py-2 text-left hover:border-secondary"><div class="text-2xl font-extrabold text-primary font-h">'+DATA.leads.length+'</div><div class="text-[11px] uppercase tracking-wide text-mute">All leads</div></button>';
+  DATA.stages.forEach(function(s){
+    html+='<button onclick="setStage(\''+s+'\')" class="rounded-xl bg-white border border-line px-3 py-2 text-left hover:border-secondary"><div class="text-2xl font-extrabold text-primary font-h">'+(counts[s]||0)+'</div><div class="text-[11px] uppercase tracking-wide text-mute">'+s+'</div></button>';
+  });
+  document.getElementById('stats').innerHTML=html;
+}
+function setStage(s){ document.getElementById('fstage').value=s; switchTab('leads'); renderLeads(); }
+
+function renderLeads(){
+  var q=(document.getElementById('search').value||'').toLowerCase();
+  var st=document.getElementById('fstage').value;
+  var rows=DATA.leads.filter(function(l){
+    if(st && l.status!==st) return false;
+    if(!q) return true;
+    return ((l.name||'')+' '+(l.company||'')+' '+(l.email||'')+' '+(l.phone||'')+' '+(l.property||'')).toLowerCase().indexOf(q)>=0;
+  });
+  document.getElementById('leadEmpty').classList.toggle('hidden', rows.length>0);
+  document.getElementById('leadRows').innerHTML=rows.map(function(l){
+    return '<tr class="border-t border-line hover:bg-surface cursor-pointer" onclick="openDrawer(\''+l.id+'\')">'+
+      '<td class="px-3 py-2 text-mute whitespace-nowrap">'+esc(ago(l.ts))+'</td>'+
+      '<td class="px-3 py-2"><div class="font-semibold text-primary">'+esc(l.name||'—')+'</div><div class="text-mute text-xs">'+esc(l.company||'')+'</div></td>'+
+      '<td class="px-3 py-2 hidden sm:table-cell"><div>'+esc(l.email||'')+'</div><div class="text-mute text-xs">'+esc(l.phone||'')+'</div></td>'+
+      '<td class="px-3 py-2 hidden md:table-cell text-mute text-xs max-w-[180px] truncate">'+esc(l.source||'')+'</td>'+
+      '<td class="px-3 py-2">'+badge(l.status)+(l.notes&&l.notes.length?' <span class="ms text-mute text-sm align-middle">sticky_note_2</span>':'')+'</td></tr>';
+  }).join('');
+}
+function badge(s){return '<span class="inline-block text-[11px] font-bold px-2 py-0.5 rounded-full '+(STAGE_C[s]||'bg-gray-100 text-gray-600')+'">'+esc(s||'new')+'</span>';}
+
+function renderReqs(){
+  var rows=DATA.requests||[];
+  document.getElementById('reqEmpty').classList.toggle('hidden', rows.length>0);
+  document.getElementById('reqRows').innerHTML=rows.map(function(r){
+    return '<tr class="border-t border-line">'+
+      '<td class="px-3 py-2 text-mute whitespace-nowrap">'+esc(ago(r.ts))+'</td>'+
+      '<td class="px-3 py-2"><div class="font-semibold text-primary">'+esc(r.name||r.email)+'</div><div class="text-mute text-xs">'+esc(r.email)+'</div></td>'+
+      '<td class="px-3 py-2">'+esc(r.property||'—')+'<div class="text-mute text-xs">'+esc(r.company||'')+'</div></td>'+
+      '<td class="px-3 py-2 hidden sm:table-cell text-mute">'+esc(r.buildings||'')+(r.stories?(' / '+esc(r.stories)+' st'):'')+'</td>'+
+      '<td class="px-3 py-2">'+esc(r.urgency||'—')+(r.notes?'<div class="text-mute text-xs max-w-[200px] truncate">'+esc(r.notes)+'</div>':'')+'</td></tr>';
+  }).join('');
+}
+
+function openDrawer(id){
+  var l=DATA.leads.find(function(x){return x.id===id;}); if(!l) return;
+  var extra=Object.keys(l.fields||{}).filter(function(k){return ['Name','Email','Phone','Company','Property Location','Message'].indexOf(k)<0;})
+    .map(function(k){return '<div class="flex justify-between gap-3 py-1 border-b border-line/60"><span class="text-mute">'+esc(k)+'</span><span class="text-right font-medium">'+esc(l.fields[k])+'</span></div>';}).join('');
+  var notes=(l.notes||[]).map(function(n){return '<div class="bg-surface rounded-lg px-3 py-2 text-sm"><div>'+esc(n.text)+'</div><div class="text-mute text-[11px] mt-1">'+esc(ago(n.ts))+(n.by?(' · '+esc(n.by)):'')+'</div></div>';}).join('')||'<div class="text-mute text-sm">No notes yet.</div>';
+  var opts=DATA.stages.map(function(s){return '<option value="'+s+'"'+(s===l.status?' selected':'')+'>'+s+'</option>';}).join('');
+  document.getElementById('drawerBody').innerHTML=
+    '<div class="flex items-center justify-between mb-4"><h2 class="text-xl font-extrabold text-primary">'+esc(l.name||l.company||'Lead')+'</h2><button onclick="closeDrawer()" class="text-mute hover:text-primary"><span class="ms">close</span></button></div>'+
+    '<div class="flex flex-wrap gap-3 mb-4">'+(l.phone?'<a href="tel:'+esc(l.phone)+'" class="inline-flex items-center gap-1 text-sm bg-primary text-white px-3 py-1.5 rounded-lg"><span class="ms text-base">call</span>Call</a>':'')+(l.email?'<a href="mailto:'+esc(l.email)+'" class="inline-flex items-center gap-1 text-sm border border-line px-3 py-1.5 rounded-lg"><span class="ms text-base">mail</span>Email</a>':'')+'</div>'+
+    '<div class="text-sm space-y-0.5 mb-4">'+
+      row('Email',l.email)+row('Phone',l.phone)+row('Company',l.company)+row('Property',l.property)+extra+row('Source',l.source)+row('Received',new Date(l.ts).toLocaleString())+
+    '</div>'+
+    (l.message?'<div class="mb-4"><div class="text-xs uppercase tracking-wide text-mute mb-1">Message</div><div class="bg-surface rounded-lg p-3 text-sm whitespace-pre-wrap">'+esc(l.message)+'</div></div>':'')+
+    '<div class="mb-4"><label class="text-xs uppercase tracking-wide text-mute">Stage</label><select id="dStage" onchange="saveStage(\''+l.id+'\')" class="w-full mt-1 rounded-lg border border-line bg-white px-3 py-2 text-sm">'+opts+'</select></div>'+
+    '<div class="mb-2"><div class="text-xs uppercase tracking-wide text-mute mb-1">Notes</div><div class="space-y-2">'+notes+'</div></div>'+
+    '<div class="flex gap-2 mt-3"><input id="dNote" placeholder="Add a note…" class="flex-1 rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none" onkeydown="if(event.key===\'Enter\')saveNote(\''+l.id+'\')"/><button onclick="saveNote(\''+l.id+'\')" class="bg-secondary text-white px-3 rounded-lg text-sm font-semibold">Add</button></div>';
+  document.getElementById('scrim').classList.remove('hidden');
+  document.getElementById('drawer').classList.remove('translate-x-full');
+}
+function row(k,v){return v?'<div class="flex justify-between gap-3 py-1 border-b border-line/60"><span class="text-mute">'+esc(k)+'</span><span class="text-right font-medium break-all">'+esc(v)+'</span></div>':'';}
+function closeDrawer(){document.getElementById('scrim').classList.add('hidden');document.getElementById('drawer').classList.add('translate-x-full');}
+
+function saveStage(id){
+  var st=document.getElementById('dStage').value;
+  api('/api/admin/lead/update',{method:'POST',body:JSON.stringify({id:id,status:st})}).then(function(d){
+    if(d.ok){ var l=DATA.leads.find(function(x){return x.id===id;}); if(l)l.status=st; renderStats(); renderLeads(); }
+    else alert(d.error||'Could not save (is storage enabled?)');
+  });
+}
+function saveNote(id){
+  var inp=document.getElementById('dNote'); var t=(inp.value||'').trim(); if(!t)return;
+  api('/api/admin/lead/update',{method:'POST',body:JSON.stringify({id:id,note:t})}).then(function(d){
+    if(d.ok){ var l=DATA.leads.find(function(x){return x.id===id;}); if(l)l.notes=d.meta.notes; openDrawer(id); renderLeads(); }
+    else alert(d.error||'Could not save note (is storage enabled?)');
+  });
+}
+
+function switchTab(t){
+  document.querySelectorAll('.tabbtn').forEach(function(b){var on=b.dataset.tab===t;b.classList.toggle('border-secondary',on);b.classList.toggle('text-primary',on);b.classList.toggle('border-transparent',!on);b.classList.toggle('text-mute',!on);});
+  document.getElementById('tab-leads').classList.toggle('hidden',t!=='leads');
+  document.getElementById('tab-reqs').classList.toggle('hidden',t!=='reqs');
+}
+document.querySelectorAll('.tabbtn').forEach(function(b){b.addEventListener('click',function(){switchTab(b.dataset.tab);});});
+boot();
+</script>
+</body></html>
