@@ -134,7 +134,7 @@ HEAD = """<!DOCTYPE html>
     borderRadius:{{ DEFAULT:"0.625rem", lg:"0.875rem", xl:"1.25rem", "2xl":"1.5rem", full:"9999px" }},
     fontFamily:{{ headline:["Manrope"], body:["Inter"] }} }} }} }}
 </script>
-<style>body{{font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}}h1,h2,h3{{font-family:'Manrope',sans-serif;letter-spacing:-0.01em}}.material-symbols-outlined{{font-variation-settings:'FILL' 0,'wght' 400}}html{{scroll-behavior:smooth}}a,button{{transition:all .2s ease}}section.bg-primary,footer{{background-image:linear-gradient(150deg,#13233f 0%,#1f3c63 100%)}}</style>
+<style>body{{font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}}h1,h2,h3{{font-family:'Manrope',sans-serif;letter-spacing:-0.01em}}.material-symbols-outlined{{font-variation-settings:'FILL' 0,'wght' 400}}html{{scroll-behavior:smooth}}a,button{{transition:all .2s ease}}body,section.bg-surface-container-low,section.bg-surface-container-lowest{{background-image:linear-gradient(rgba(19,35,63,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(19,35,63,0.025) 1px,transparent 1px);background-size:34px 34px}}section.bg-primary,footer{{background-image:linear-gradient(rgba(255,255,255,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.035) 1px,transparent 1px),linear-gradient(150deg,#13233f 0%,#1f3c63 100%);background-size:34px 34px,34px 34px,100% 100%}}</style>
 <link rel="preconnect" href="https://www.googletagmanager.com"/>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-K9ZEXRRMCK"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','G-K9ZEXRRMCK');</script>

@@ -36,7 +36,9 @@
   html { scroll-behavior: smooth; }
   section { scroll-margin-top: 4.5rem; }
   a, button { transition: color .2s ease, background-color .2s ease, transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
-  section.bg-primary, aside.bg-primary, footer { background-image: linear-gradient(150deg, #13233f 0%, #1f3c63 100%); }
+  /* subtle blueprint-grid texture — engineering/technical, kept very faint */
+  body, section.bg-surface-container-low, section.bg-surface-container-lowest, section.bg-surface-container-high { background-image: linear-gradient(rgba(19,35,63,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(19,35,63,0.025) 1px, transparent 1px); background-size: 34px 34px; }
+  section.bg-primary, aside.bg-primary, footer { background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(150deg, #13233f 0%, #1f3c63 100%); background-size: 34px 34px, 34px 34px, 100% 100%; }
 </style>
 <!-- Google Analytics (GA4) -->
 <link rel="preconnect" href="https://www.googletagmanager.com"/>
