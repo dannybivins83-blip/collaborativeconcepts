@@ -428,8 +428,23 @@ def _is_admin():
 
 
 def _notify(subject, text):
-    """Best-effort email notification via FormSubmit AJAX (no API key needed).
-    Never raises — lead storage must not depend on the email going through."""
+    """Best-effort email notification. Prefers Resend (transactional, already
+    provisioned on this project) and falls back to FormSubmit AJAX. Never raises
+    — lead capture must not depend on the email going through."""
+    api_key = os.environ.get("RESEND_API_KEY", "")
+    sender = os.environ.get("RESEND_FROM_EMAIL", "")
+    if api_key and sender:
+        try:
+            r = requests.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": "Bearer " + api_key, "Content-Type": "application/json"},
+                json={"from": sender, "to": [WWS_NOTIFY_EMAIL], "subject": subject, "text": text},
+                timeout=10,
+            )
+            if r.status_code < 300:
+                return
+        except Exception:
+            pass
     try:
         requests.post(
             "https://formsubmit.co/ajax/" + WWS_NOTIFY_EMAIL,
