@@ -1,11 +1,11 @@
-"""Build the La Gala WWS blog: /wwslgc/blog/index.html + one post per top-15 item.
+"""Build the La Gala WWS blog: /wwslgc/guides/index.html + one post per top-15 item.
 La Gala-branded (navy #1a1a2e + gold #c9a227), self-contained on the wwslgc subdomain.
 Regenerate any time: python _wws_blog_builder.py
 """
 import os
 
 REPO = os.path.dirname(os.path.abspath(__file__))
-BLOG = os.path.join(REPO, "wwslgc", "blog")
+BLOG = os.path.join(REPO, "wwslgc", "guides")
 os.makedirs(BLOG, exist_ok=True)
 MARKER = '<meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">'
 
@@ -144,7 +144,7 @@ HEAD = """<!DOCTYPE html>
 <nav class="w-full sticky top-0 z-50 bg-[#f8f7f5]/80 backdrop-blur-md border-b border-outline-variant/20">
 <div class="flex justify-between items-center px-6 sm:px-8 py-4 max-w-7xl mx-auto">
 <a href="/" class="flex items-center" aria-label="La Gala Construction"><img src="/assets/lagala-logo.png" alt="La Gala Construction" class="h-10 sm:h-12 w-auto"/></a>
-<div class="flex items-center gap-6"><a href="/blog" class="text-primary opacity-80 hover:text-secondary font-medium hidden sm:inline">Guides</a><a href="/#assessment" class="bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary-container hover:text-on-secondary-fixed transition-all">Free Assessment</a></div>
+<div class="flex items-center gap-6"><a href="/guides" class="text-primary opacity-80 hover:text-secondary font-medium hidden sm:inline">Guides</a><a href="/#assessment" class="bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary-container hover:text-on-secondary-fixed transition-all">Free Assessment</a></div>
 </div>
 </nav>
 """
@@ -152,12 +152,12 @@ HEAD = """<!DOCTYPE html>
 FOOTER = """<footer class="w-full py-12 px-6 sm:px-8 flex flex-col items-center text-center space-y-5 bg-[#1a1a2e] text-[#f8f7f5]">
 <a href="/" class="inline-block"><img src="/assets/lagala-logo.png" alt="La Gala Construction" class="h-11 w-auto" style="filter:brightness(0) invert(1)"/></a>
 <p class="text-sm text-[#f8f7f5]/70 max-w-xl">Concrete Restoration &middot; Waterproofing &middot; Fall-Protection &amp; Compliance &mdash; South Florida.</p>
-<div class="flex flex-wrap justify-center gap-6 text-sm"><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/blog">All guides</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#plans">Build a plan</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#assessment">Free assessment</a></div>
+<div class="flex flex-wrap justify-center gap-6 text-sm"><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/guides">All guides</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#plans">Build a plan</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#assessment">Free assessment</a></div>
 <p class="text-xs text-[#f8f7f5]/50">25 SE 7th Street, Ste 12 &middot; Deerfield Beach, FL 33441 &middot; (561) 475-8615 &middot; danny@lagalacon.com</p>
 <p class="text-xs text-[#f8f7f5]/40 max-w-3xl">La Gala Construction is a Florida State Certified General Contractor (CGC 059211). Engineering certifications referenced are performed and sealed by an independent, licensed Florida professional engineer; La Gala does not provide engineering services.{credit}</p>
 <p class="text-sm text-[#f8f7f5]/60">&copy; 2026 La Gala Construction (Tilt Patchers, Inc.). Licensed &middot; Bonded &middot; Insured.</p>
 </footer>
-<script>(function(){function ev(n,p){try{if(typeof gtag==='function')gtag('event',n,p||{});}catch(e){}}document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a,button');if(!a)return;var h=a.getAttribute('href')||'';if(h.indexOf('tel:')===0)ev('phone_click',{});else if(h.indexOf('mailto:')===0)ev('email_click',{});else if(h.indexOf('#assessment')!==-1)ev('cta_click',{cta:'assessment'});else if(h.indexOf('#plans')!==-1)ev('cta_click',{cta:'plans'});else if(h.indexOf('/blog/')!==-1)ev('guide_open',{guide:h.split('/').pop()});},true);})();</script>
+<script>(function(){function ev(n,p){try{if(typeof gtag==='function')gtag('event',n,p||{});}catch(e){}}document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a,button');if(!a)return;var h=a.getAttribute('href')||'';if(h.indexOf('tel:')===0)ev('phone_click',{});else if(h.indexOf('mailto:')===0)ev('email_click',{});else if(h.indexOf('#assessment')!==-1)ev('cta_click',{cta:'assessment'});else if(h.indexOf('#plans')!==-1)ev('cta_click',{cta:'plans'});else if(h.indexOf('/guides/')!==-1)ev('guide_open',{guide:h.split('/').pop()});},true);})();</script>
 <script defer src="https://va.vercel-scripts.com/v1/script.js" data-website-id="prj_LkelimAuti9JBNu5B8zB7Rr1ILON"></script>
 </body></html>"""
 
@@ -176,12 +176,12 @@ def build_post(p):
     title_plain = title.replace("&amp;","&")
     meta = (why[:150].rsplit(" ",1)[0]) + "…"
     head = HEAD.format(title_plain=title_plain, meta=meta, marker=MARKER,
-                       canonical=f"https://wwslgc.collaborativeconceptsfl.com/blog/{slug}", img=img)
+                       canonical=f"https://wwslgc.collaborativeconceptsfl.com/guides/{slug}", img=img)
     credit_html = f'<p class="text-xs text-on-surface-variant/60 mt-3 italic">{credit}.</p>' if credit else ""
     foot_credit = f" {credit}." if credit else ""
     art = f"""<main class="overflow-x-hidden">
 <article class="max-w-3xl mx-auto px-6 sm:px-8 py-12">
-<a href="/blog" class="text-sm font-semibold text-secondary hover:underline inline-flex items-center gap-1"><span class="material-symbols-outlined text-base">arrow_back</span> All compliance guides</a>
+<a href="/guides" class="text-sm font-semibold text-secondary hover:underline inline-flex items-center gap-1"><span class="material-symbols-outlined text-base">arrow_back</span> All compliance guides</a>
 <div class="mt-5 flex items-center gap-3"><span class="text-xs font-bold bg-secondary text-white px-2.5 py-1 rounded-full">{std}</span><span class="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{temp} lead item</span></div>
 <h1 class="text-3xl sm:text-5xl font-extrabold text-primary leading-tight tracking-tight mt-4">{title}</h1>
 <img src="/assets/wws/{img}.jpg" alt="{title_plain}" class="w-full rounded-2xl mt-8 shadow-lg aspect-[16/9] object-cover"/>
@@ -198,12 +198,12 @@ def build_post(p):
     return head + art + FOOTER.replace("{credit}", foot_credit)
 
 def build_index():
-    head = HEAD.format(title_plain="OSHA Walking-Working Surfaces — Compliance Guides", meta="The top 15 OSHA Walking-Working Surfaces violations explained — what each one is, how often it's inspected, and how La Gala Construction fixes it. South Florida.", marker=MARKER, canonical="https://wwslgc.collaborativeconceptsfl.com/blog", img="unprotected-edges")
+    head = HEAD.format(title_plain="OSHA Walking-Working Surfaces — Compliance Guides", meta="The top 15 OSHA Walking-Working Surfaces violations explained — what each one is, how often it's inspected, and how La Gala Construction fixes it. South Florida.", marker=MARKER, canonical="https://wwslgc.collaborativeconceptsfl.com/guides", img="unprotected-edges")
     cards = ""
     for p in POSTS:
         slug,title,std,temp,short = p[0],p[1],p[2],p[3],p[4]
         img = slug
-        cards += f"""<a href="/blog/{slug}" class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all flex flex-col">
+        cards += f"""<a href="/guides/{slug}" class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all flex flex-col">
 <div class="aspect-[16/10] overflow-hidden"><img src="/assets/wws/{img}.jpg" alt="{title.replace('&amp;','&')}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/></div>
 <div class="p-5 flex-1 flex flex-col"><span class="text-[11px] font-bold text-secondary">{std}</span><h3 class="font-bold text-primary mt-1 leading-tight">{title}</h3><p class="text-sm text-on-surface-variant mt-1.5 flex-1">{short}</p><span class="text-sm font-semibold text-primary mt-3 inline-flex items-center gap-1 group-hover:text-secondary">Read the guide <span class="material-symbols-outlined text-base">arrow_forward</span></span></div></a>"""
     body = f"""<main class="overflow-x-hidden">
@@ -223,7 +223,7 @@ for p in POSTS:
     open(os.path.join(BLOG, p[0]+".html"), "w", encoding="utf-8", newline="").write(build_post(p))
     n+=1
 open(os.path.join(BLOG, "index.html"), "w", encoding="utf-8", newline="").write(build_index())
-print(f"Generated {n} posts + index in wwslgc/blog/")
+print(f"Generated {n} posts + index in wwslgc/guides/")
 print("Posts:", ", ".join(p[0] for p in POSTS))
 
 # ---- sync the landing-page gallery from the same POSTS (single source of truth) ----
@@ -232,7 +232,7 @@ def gallery_cards():
     for p in POSTS:
         slug,title,std,short=p[0],p[1],p[2],p[4]
         alt=title.replace("&amp;","&")
-        out+=('<a href="/blog/'+slug+'" class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all">'
+        out+=('<a href="/guides/'+slug+'" class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all">'
               '<div class="aspect-[4/3] overflow-hidden relative"><img src="/assets/wws/'+slug+'.jpg" alt="'+alt+'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>'
               '<span class="absolute top-2 right-2 text-[10px] font-bold bg-secondary text-white px-2 py-0.5 rounded-full">'+std+'</span></div>'
               '<div class="p-4"><h3 class="font-bold text-primary text-[15px] leading-tight">'+title+'</h3>'
@@ -242,18 +242,19 @@ def gallery_cards():
 LANDING=os.path.join(REPO,"wwslgc","index.html")
 lc=open(LANDING,encoding="utf-8").read()
 gstart='<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5 mt-12">'
-gend='<div class="mt-8"><a href="/blog"'
+gend='<div class="mt-8"><a href="/guides"'
 i=lc.index(gstart); j=lc.index(gend)
 lc=lc[:i]+gstart+gallery_cards()+'</div>\n'+lc[j:]
 lc=lc.replace("The top 15 things OSHA cites &mdash; and we fix.","The hazards OSHA cites most &mdash; and we fix.")
 lc=lc.replace("Read all 15 compliance guides","Read all the compliance guides")
+lc=lc.replace('href="/blog"','href="/guides"')
 open(LANDING,"w",encoding="utf-8",newline="").write(lc)
 print("Landing gallery synced:",len(POSTS),"cards")
 
 # ---- sitemap for the wwslgc subdomain (landing + blog index + every guide) ----
 BASEW="https://wwslgc.collaborativeconceptsfl.com"
 LASTMOD="2026-06-09"
-sm_urls=[(BASEW+"/","1.0","weekly"),(BASEW+"/blog","0.8","weekly")]+[(BASEW+"/blog/"+p[0],"0.7","monthly") for p in POSTS]
+sm_urls=[(BASEW+"/","1.0","weekly"),(BASEW+"/guides","0.8","weekly")]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in POSTS]
 sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
 for u,pr,cf in sm_urls:
     sm+='  <url><loc>'+u+'</loc><lastmod>'+LASTMOD+'</lastmod><changefreq>'+cf+'</changefreq><priority>'+pr+'</priority></url>\n'
