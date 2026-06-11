@@ -138,6 +138,18 @@ TOPICS = [
  ("inspection-checklist","Free OSHA Subpart D Inspection Checklist","Free download","Hot",
   "The field checklist we inspect against &mdash; yours to download.",
   "","","",""),
+ ("is-my-building-exposed","Is My Building Exposed? A 2-Minute Self-Check","Self-check","Hot",
+  "Five questions that tell you whether you're carrying an OSHA Subpart D violation right now.",
+  "Walk your property and answer honestly: <strong>(1)</strong> Is every roof or balcony edge where someone could fall 4+ feet guarded or anchored? <strong>(2)</strong> Are your rooftop tie-off and window-washing anchors load-tested and certified within the last 10 years, with paperwork on file? <strong>(3)</strong> Are walkways, stairs and ramps free of spalling, standing water and trip hazards? <strong>(4)</strong> Do fixed ladders over 24 ft have a cage or fall-arrest system? <strong>(5)</strong> Could you produce inspection and training records if an inspector asked today? A &ldquo;no&rdquo; or &ldquo;not sure&rdquo; on any one is a citable Subpart D gap.",
+  "Each &ldquo;no&rdquo; is a violation that already exists &mdash; citation or not. OSHA's fall-protection emphasis program lets an inspector open a case on sight, no complaint and no appointment, and every gap is its own penalty (about $16,500 per serious violation, more per day past an abatement deadline). The buildings that get hit aren't unlucky &mdash; they're the ones that never ran this check.",
+  "We turn the self-check into a documented, PE-sealed inspection, then self-perform the corrections &mdash; guardrail, anchors, concrete, drainage &mdash; to the engineer's spec, and hand you abatement-ready paperwork. One team, one contract. Start with a free assessment.",
+  "",(("fact_check","The 2-minute self-check"),("warning","What a &ldquo;no&rdquo; really means"),("verified_user","How we close the gaps"))),
+ ("fall-protection-emphasis-program","OSHA's Fall-Protection Emphasis Program, Explained","Enforcement","Warm",
+  "Why an inspector can open a fall-protection case on your building with no complaint and no warning.",
+  "OSHA runs National and Regional Emphasis Programs (NEPs) that direct inspectors to prioritize specific high-hazard areas &mdash; and falls sit at the top of the list. Fall protection is consistently OSHA's most-cited standard. Under an emphasis program, fall hazards are a programmed inspection target, not just something OSHA reacts to after a complaint or an accident.",
+  "It means an inspector doesn't need a worker complaint or an injury to open a case. If a compliance officer is on site for any reason &mdash; or even observes a hazard in plain view, like an unguarded roof edge or workers without tie-offs &mdash; fall protection is fair game. The first many owners hear of it is the citation, with an abatement deadline already attached.",
+  "You can't control when OSHA shows up &mdash; only what they find. A proactive PE-sealed inspection closes the gaps before they're cited and puts documentation on file. La Gala certifies it and fixes it under one contract. Get a free assessment to find out where you stand.",
+  "",(("gavel","What the emphasis program is"),("visibility_off","Why it means no warning"),("shield","How to stay ahead of it"))),
 ]
 
 HEAD = """<!DOCTYPE html>
