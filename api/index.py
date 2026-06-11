@@ -689,6 +689,54 @@ def portal_requests():
     return jsonify({"authed": True, "email": s.get("email"), "name": s.get("name", ""), "requests": mine})
 
 
+def _client_owns(x, email):
+    """A portal client may only ever see an inspection whose client email matches
+    their signed-in Google email."""
+    ce = ((x.get("client") or {}).get("email") or "").lower()
+    return bool(email) and ce == (email or "").lower()
+
+
+@app.get("/api/portal/inspections")
+def portal_inspections():
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"authed": False, "inspections": []})
+    email = s.get("email", "")
+    out = []
+    for iid in (_insp_index() or []):
+        x = _insp_get(iid)
+        if not x or not _client_owns(x, email):
+            continue
+        prop = x.get("property", {})
+        photos = [{"thumbUrl": p.get("thumbUrl") or p.get("url"), "url": p.get("url") or p.get("thumbUrl"),
+                   "caption": p.get("caption", "")} for p in (x.get("photos") or []) if (p.get("thumbUrl") or p.get("url"))]
+        out.append({"id": x["id"], "created_ts": x.get("created_ts"), "status": x.get("status", "draft"),
+                    "property": {"name": prop.get("name", ""), "address": prop.get("address", "")},
+                    "photos": photos, "docs": ["report", "checklist", "proposal"]})
+    out.sort(key=lambda i: i.get("created_ts", 0), reverse=True)
+    return jsonify({"authed": True, "email": email, "name": s.get("name", ""), "inspections": out})
+
+
+@app.get("/api/portal/inspection/<iid>/doc/<kind>")
+def portal_inspection_doc(iid, kind):
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"error": "sign in required"}), 401
+    x = _insp_get(iid)
+    if not x or not _client_owns(x, s.get("email", "")):
+        return jsonify({"error": "not found"}), 404
+    if kind not in DOC_BUILDERS or not _RL:
+        return jsonify({"error": "unavailable"}), 400
+    try:
+        pdf = DOC_BUILDERS[kind](x)
+    except Exception as e:
+        return jsonify({"error": "pdf failed: " + str(e)}), 500
+    resp = make_response(pdf)
+    resp.headers["Content-Type"] = "application/pdf"
+    resp.headers["Content-Disposition"] = 'inline; filename="LaGala_WWS_%s.pdf"' % kind
+    return resp
+
+
 # ==========================================================================
 # WWS field inspections + pre-filled documents (reportlab, server-side)
 # ==========================================================================

@@ -78,3 +78,14 @@ The startup hook will pick it up automatically on the next session.
 - Python: 3.11+, deps in `requirements.txt`
 - Static site, no build step
 - Tests / linters: none currently wired
+
+<!-- OVERLORD-BUS v1 -->
+## Collaborative Concepts — cross-project comms (OVERLORD bus)
+You are one agent in Collaborative Concepts LLC (owner: Danny Bivins). Coordinate with other projects through the shared message bus — do NOT route through the owner:
+`C:\Users\kjburnz\acculynx roofr reprot\_OVERLORD\bus\` (read `bus\PROTOCOL.md`).
+- Find your slug in `bus\registry.json` (match your project path); if not listed, add yourself.
+- On start + each work session: check `inbox\<your-slug>\` for `status: new`; act; reply into the sender's inbox; mark done -> move to `archive\<your-slug>\`.
+- To reach another agent/project: drop a message file in `inbox\<their-slug>\`.
+- Cross-project decision or blocked: message `overlord`. Never put secret VALUES in a message.
+The OVERLORD heartbeat (scheduled agent) routes the bus and escalates owner-decisions.
+<!-- /OVERLORD-BUS -->
