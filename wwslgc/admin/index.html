@@ -56,6 +56,7 @@
 <div class="flex flex-wrap items-center gap-2 mb-3">
 <input id="search" oninput="renderLeads()" placeholder="Search name, company, email…" class="flex-1 min-w-[200px] rounded-lg border border-line bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>
 <select id="fstage" onchange="renderLeads()" class="rounded-lg border border-line bg-white px-3 py-2 text-sm"><option value="">All stages</option></select>
+<button onclick="openAddLead()" class="bg-primary text-white text-sm font-semibold px-4 py-2 rounded-lg inline-flex items-center gap-1 hover:bg-primaryc whitespace-nowrap"><span class="ms text-base">person_add</span> Add lead</button>
 </div>
 <div class="bg-white rounded-xl border border-line overflow-hidden">
 <div class="overflow-x-auto"><table class="w-full text-sm">
@@ -261,6 +262,35 @@ function startInspection(leadId){
     if(d.inspection&&d.inspection.id) location.href='/admin/inspection?id='+d.inspection.id;
     else alert(d.error||'Could not create (is storage enabled?)');
   });
+}
+function alField(id,label,type,ph){return '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">'+label+'</label><input id="'+id+'" type="'+type+'" placeholder="'+ph+'" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>';}
+function openAddLead(){
+  var stageOpts=DATA.stages.map(function(s){return '<option value="'+s+'"'+(s==='new'?' selected':'')+'>'+s+'</option>';}).join('');
+  document.getElementById('drawerBody').innerHTML=
+    '<div class="flex items-center justify-between mb-4"><h2 class="text-xl font-extrabold text-primary">Add a lead</h2><button onclick="closeDrawer()" class="text-mute hover:text-primary"><span class="ms">close</span></button></div>'+
+    '<p class="text-sm text-mute mb-4">Add a client you got by phone, referral, or in person. They land in the pipeline just like a form submission.</p>'+
+    '<div class="space-y-3 text-sm">'+
+      alField('alName','Full name','text','')+
+      alField('alCompany','Company / property owner','text','')+
+      alField('alPhone','Phone','tel','(555) 555-5555')+
+      alField('alEmail','Email','email','you@email.com')+
+      alField('alProp','Property location','text','City & county')+
+      '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">Stage</label><select id="alStage" class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm">'+stageOpts+'</select></div>'+
+      '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">Notes</label><textarea id="alMsg" rows="3" placeholder="How you got them, what they need…" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none resize-y"></textarea></div>'+
+    '</div>'+
+    '<button onclick="submitAddLead()" id="alBtn" class="w-full mt-5 bg-secondary text-white py-3 rounded-xl font-bold hover:bg-primary transition-colors">Add lead</button>';
+  document.getElementById('scrim').classList.remove('hidden');
+  document.getElementById('drawer').classList.remove('translate-x-full');
+}
+function submitAddLead(){
+  var v=function(id){return ((document.getElementById(id)||{}).value||'').trim();};
+  var body={name:v('alName'),company:v('alCompany'),phone:v('alPhone'),email:v('alEmail'),property:v('alProp'),message:v('alMsg'),status:v('alStage')};
+  if(!(body.name||body.company||body.phone||body.email)){ alert('Enter at least a name, company, phone, or email.'); return; }
+  var btn=document.getElementById('alBtn'); btn.disabled=true; btn.textContent='Adding…';
+  api('/api/admin/lead/create',{method:'POST',body:JSON.stringify(body)}).then(function(d){
+    if(d.ok){ closeDrawer(); loadLeads(); }
+    else { btn.disabled=false; btn.textContent='Add lead'; alert(d.error||'Could not add (is storage enabled?)'); }
+  }).catch(function(){ btn.disabled=false; btn.textContent='Add lead'; alert('Network error — please try again.'); });
 }
 document.querySelectorAll('.tabbtn').forEach(function(b){b.addEventListener('click',function(){switchTab(b.dataset.tab);});});
 boot();

@@ -611,6 +611,43 @@ def admin_lead_update():
     return jsonify({"ok": True, "meta": m})
 
 
+@app.post("/api/admin/lead/create")
+def admin_lead_create():
+    """Manually add a lead/client from the admin dashboard (phone, referral, walk-in)."""
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    b = request.get_json(force=True, silent=True) or {}
+    name = (b.get("name") or "").strip()[:200]
+    email = (b.get("email") or "").strip()[:200]
+    phone = (b.get("phone") or "").strip()[:60]
+    company = (b.get("company") or "").strip()[:200]
+    prop = (b.get("property") or "").strip()[:300]
+    message = (b.get("message") or "").strip()[:5000]
+    if not (name or company or email or phone):
+        return jsonify({"ok": False, "error": "Enter at least a name, company, phone, or email."}), 400
+    lead = {
+        "id": _gen_id(), "ts": _now_ms(), "name": name, "email": email, "phone": phone,
+        "company": company, "property": prop, "message": message, "fields": {},
+        "source": (b.get("source") or "Manual (admin)")[:120], "ua": "admin",
+    }
+    try:
+        _, configured = _kv_cmd(["RPUSH", WWS_LEADS_KEY, json.dumps(lead)])
+    except Exception:
+        configured = False
+    if not configured:
+        return jsonify({"ok": False, "error": "store not configured"}), 200
+    stage = b.get("status")
+    if stage in WWS_STAGES and stage != "new":
+        try:
+            meta_raw, _ = _kv_cmd(["GET", WWS_LEAD_META_KEY])
+            meta = json.loads(meta_raw) if meta_raw else {}
+            meta[lead["id"]] = {"status": stage, "notes": [], "updated": _now_ms()}
+            _kv_cmd(["SET", WWS_LEAD_META_KEY, json.dumps(meta)])
+        except Exception:
+            pass
+    return jsonify({"ok": True, "lead": lead})
+
+
 # ---- customer portal (any signed-in user) ----
 @app.post("/api/portal/request")
 def portal_request():
