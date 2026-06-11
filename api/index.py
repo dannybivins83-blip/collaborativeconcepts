@@ -698,7 +698,7 @@ try:
     from reportlab.lib.units import inch
     from reportlab.lib import colors
     from reportlab.lib.styles import ParagraphStyle
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether, Image
     NAVY = colors.HexColor("#13233f"); GOLD = colors.HexColor("#c9a227")
     INK = colors.HexColor("#1f2733"); MUTE = colors.HexColor("#5b6573")
     LINE = colors.HexColor("#d8dce2"); ZEBRA = colors.HexColor("#f5f6f8"); CREAM = colors.HexColor("#f6efd9")
@@ -708,6 +708,18 @@ except Exception:
 F, FB = "Helvetica", "Helvetica-Bold"
 RED = "#b3261e"; GREEN = "#1e7a3d"; GREY = "#5b6573"
 SEV = {"high": ("#b3261e", "HIGH"), "med": ("#b8860b", "MEDIUM"), "low": ("#1e7a3d", "LOW")}
+
+
+def _fetch_img(url):
+    """Fetch a durable public image URL into a BytesIO for PDF embedding. Best-effort."""
+    try:
+        r = requests.get(url, timeout=8)
+        if r.status_code < 300 and r.content:
+            return io.BytesIO(r.content)
+    except Exception:
+        pass
+    return None
+
 
 SUBPART_D = [
     ("General Surface Conditions", "§1910.22", [
@@ -917,11 +929,32 @@ def doc_report(insp):
     photos = insp.get("photos") or []
     if photos:
         story.append(Paragraph("Photo log", st["sect"]))
-        rows = [[Paragraph("#", st["thc"]), Paragraph("Caption", st["th"]), Paragraph("Reference", st["th"])]]
-        for i, ph in enumerate(photos, 1):
-            rows.append([Paragraph(str(i), st["tdc"]), Paragraph(_esc(ph.get("caption", "")), st["td"]), Paragraph(_esc(ph.get("url", "") or "captured in SiteCam"), st["td"])])
-        t = Table(rows, colWidths=[0.4 * inch, 3.4 * inch, 3.3 * inch], repeatRows=1)
-        t.setStyle(_dtable_style()); _dzebra(t, len(rows)); story.append(t)
+        cells = []
+        for ph in photos[:9]:
+            img_url = ph.get("thumbUrl") or ph.get("url") or ""
+            flow = []
+            buf2 = _fetch_img(img_url) if (_RL and img_url) else None
+            if buf2 is not None:
+                try:
+                    flow.append(Image(buf2, width=2.15 * inch, height=1.5 * inch, kind="proportional"))
+                except Exception:
+                    flow.append(Paragraph(_esc(img_url), st["td"]))
+            else:
+                flow.append(Paragraph(_esc(img_url or "captured in SiteCam"), st["td"]))
+            cap = _esc(ph.get("caption", ""))
+            if cap:
+                flow.append(Paragraph(cap, st["tdc"]))
+            cells.append(flow)
+        while len(cells) % 3 != 0:
+            cells.append("")
+        grid = [cells[i:i + 3] for i in range(0, len(cells), 3)]
+        gt = Table(grid, colWidths=[2.36 * inch] * 3)
+        gt.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"), ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                                ("TOPPADDING", (0, 0), (-1, -1), 4), ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                                ("LEFTPADDING", (0, 0), (-1, -1), 3), ("RIGHTPADDING", (0, 0), (-1, -1), 3)]))
+        story.append(gt)
+        if len(photos) > 9:
+            story.append(Paragraph("+ %d more photo(s) in SiteCam." % (len(photos) - 9), st["disc"]))
     if insp.get("recommendations"):
         story.append(Paragraph("Recommendations", st["sect"])); story.append(Paragraph(_esc(insp["recommendations"]), st["body"]))
     story.append(Paragraph("La Gala Construction provides licensed contracting services; engineered inspection and anchorage load-test certification are performed and sealed by an independent licensed Florida professional engineer. La Gala does not provide engineering services. Not legal advice.", st["disc"]))
@@ -1174,6 +1207,13 @@ def _sitecam_fetch_photos(pid):
     return out
 
 
+def _sitecam_create(crm_job_id, name, address):
+    r = requests.post(SITECAM_BASE + "/api/ext/projects", headers=_sitecam_headers(),
+                      json={"name": name, "address": address, "crmJobId": crm_job_id}, timeout=20)
+    r.raise_for_status()
+    return r.json()
+
+
 @app.get("/api/admin/sitecam/status")
 def sitecam_status():
     if not _is_admin():
@@ -1201,6 +1241,31 @@ def sitecam_search_ep(iid):
         return jsonify({"ok": True, "configured": True, "q": q, "results": _sitecam_search(q)})
     except Exception as e:
         return jsonify({"ok": False, "configured": True, "error": str(e), "results": []}), 502
+
+
+@app.post("/api/admin/inspection/<iid>/sitecam/start")
+def sitecam_start(iid):
+    """One-click: create (idempotent on crmJobId) the SiteCam project for this
+    inspection so field crews can shoot photos against it."""
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    x = _insp_get(iid)
+    if not x:
+        return jsonify({"error": "not found"}), 404
+    if not _sitecam_on():
+        return jsonify({"ok": False, "configured": False, "message": "SiteCam isn't connected yet."}), 200
+    prop = x.get("property", {})
+    name = prop.get("name") or prop.get("address") or ("WWS Inspection " + iid)
+    try:
+        data = _sitecam_create("wws-" + iid, name, prop.get("address", ""))
+        pid = data.get("id")
+        x["sitecam"] = {"projectId": pid, "name": data.get("name", name), "address": data.get("address", ""),
+                        "crmJobId": data.get("crmJobId", "wws-" + iid),
+                        "url": SITECAM_BASE + "/projects/" + str(pid), "linked_ts": _now_ms()}
+        _insp_save(x)
+        return jsonify({"ok": True, "configured": True, "sitecam": x["sitecam"]})
+    except Exception as e:
+        return jsonify({"ok": False, "configured": True, "error": str(e)}), 502
 
 
 @app.post("/api/admin/inspection/<iid>/sitecam/link")

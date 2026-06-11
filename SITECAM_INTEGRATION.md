@@ -12,8 +12,10 @@ Key-per-tenant: the `x-api-key` **is** the tenant (no caller-supplied tenant par
 |---|---|---|---|
 | GET | `/api/ext/projects?q=<address\|name>` | `[{id,name,address,system,status,crmJobId,photoCount}]` | ✅ live |
 | GET | `/api/ext/projects/:id/photos` | `{project:{id,name,address,system}, photos:[{url,thumbUrl,capturedAt,gps,description}]}` | ✅ live |
-| POST | `/api/ext/projects` | body `{name,address,crmJobId}` → `201 {id,name,address,crmJobId}`, **idempotent on `crmJobId`** | ⬜ Step 2 |
-| GET | `/api/ext/projects?crmJobId=<id>` | matching project or `[]` (deterministic lookup) | ⬜ Step 2 (optional) |
+| POST | `/api/ext/projects` | body `{name,address,crmJobId}` → `{id,name,address,crmJobId,system}`, **idempotent on `crmJobId`** | ✅ live |
+| GET | `/api/ext/projects?crmJobId=<id>` | exact match (deterministic) | ✅ live |
+
+Photos are **public/durable Cloudflare R2** objects (no signing, no expiry) — embeddable straight into the PDF.
 
 ## Env vars
 | Side | Variable | Value |
@@ -24,6 +26,7 @@ Key-per-tenant: the `x-api-key` **is** the tenant (no caller-supplied tenant par
 
 ## WWS consumer — already built & deployed (`api/index.py`, config-gated by both env vars)
 - `GET /api/admin/sitecam/status` → `{configured, base}`
+- `POST /api/admin/inspection/<id>/sitecam/start` → one-click **create** (idempotent on `crmJobId=wws-<id>`) the SiteCam project for this inspection
 - `GET /api/admin/inspection/<id>/sitecam/search?q=` → search SiteCam projects (defaults q to the inspection's property address)
 - `POST /api/admin/inspection/<id>/sitecam/link` `{projectId}` → store the chosen project on the inspection
 - `POST /api/admin/inspection/<id>/sitecam/pull` → pull that project's photos into `inspection.photos`
@@ -57,9 +60,9 @@ Auth header sent: `x-api-key`. Everything is gated by `_sitecam_on()` (both env 
 - [x] SiteCam `/api/ext/*` + per-tenant isolation + 404 on cross-tenant id
 - [x] `wws` tenant created (isolated, empty)
 - [x] `SITECAM_BASE_URL` set on Vercel
-- [ ] **Step 1:** shared key set on both dashboards *(pending courier)*
-- [ ] **Step 2:** `POST /api/ext/projects` + crmJobId lookup + WWS crew logins + WWS "Start field capture"
-- [ ] **Step 3:** photo URL durability confirmed → embed in report PDF + portal
+- [ ] **Step 1:** shared key set on both dashboards *(pending — your courier)*
+- [ ] **Step 2:** SiteCam `POST /api/ext/projects` + `crmJobId` lookup ✅ · WWS one-click "Start field capture" ✅ · **WWS crew logins in the `wws` tenant ⬜ (pending — names/emails or generic logins)**
+- [ ] **Step 3:** photos are public/durable R2 ✅ · WWS embeds thumbnails in the report PDF ✅ · client-portal document center ⬜
 
 ## Open question
 - Photo `url`/`thumbUrl`: public-durable or signed/expiring? (decides Step 3 rendering)
