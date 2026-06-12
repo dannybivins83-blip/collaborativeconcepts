@@ -2076,3 +2076,27 @@ def admin_candys_order():
     if not configured:
         return jsonify({"ok": False, "error": "storage not enabled (Vercel -> Storage -> Upstash Redis)"}), 503
     return jsonify({"ok": True, "order": order, "portal_url": CANDYS_PORTAL_BASE + "?code=" + order["code"]})
+
+
+# ---- Pop Squad: portal sharing game (friend visits fill the meter) ----
+@app.route("/api/candys/squad/<code>", methods=["GET", "POST"])
+def candys_squad(code):
+    code = (code or "").strip().upper()[:24]
+    key = "candys:squad"
+    if request.method == "POST":
+        val, configured = _kv_cmd(["HINCRBY", key, code, 1])
+        if not configured:
+            return _candys_resp({"ok": True, "count": 0, "storage": False})
+        count = int(val or 0)
+        if count in (1, 3):  # heads-up when a squad starts and when it completes
+            _notify("[CANDYS] Pop Squad {} — order {}".format(
+                "complete!" if count >= 3 else "started", code),
+                "Order {} squad count is now {}. {}".format(
+                    code, count,
+                    "Squad complete — honor the POP SQUAD flavor-upgrade mention on their next order." if count >= 3 else ""))
+        return _candys_resp({"ok": True, "count": count})
+    raw, configured = _kv_cmd(["HGET", key, code])
+    count = int(raw or 0)
+    if code == "DEMO":
+        count = max(count, 2)  # demo shows a nearly-complete squad
+    return _candys_resp({"ok": True, "count": count, "storage": configured})
