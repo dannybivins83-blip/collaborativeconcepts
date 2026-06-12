@@ -1894,3 +1894,185 @@ def admin_dev_request():
     except Exception:
         pass
     return jsonify({"ok": True, "id": rid})
+
+
+# ==========================================================================
+# Candy's Cake Pops — orders, contact, and client portal
+# Orders are requests (no payment rails yet): customer submits, Candice
+# confirms + invoices via Square/PayPal. Portal lets a client watch progress
+# notes and their recurring plan. KV-backed with graceful degrade + DEMO.
+# ==========================================================================
+CANDYS_ORDERS_KEY = "candys:orders"  # Redis HASH: code -> JSON order
+CANDYS_STAGES = ["proof", "approved", "baking", "decorating", "packed", "delivered"]
+CANDYS_PORTAL_BASE = "https://candys-cake-pops.vercel.app/portal"
+
+CANDYS_DEMO_ORDER = {
+    "code": "DEMO",
+    "client": {"name": "The Gab Group", "email": "events@example.com"},
+    "item": "10 dozen custom logo cake pops + 4 dozen branded Oreos",
+    "total": "$648.00",
+    "status": "decorating",
+    "created": "2026-06-01",
+    "event_date": "2026-06-20",
+    "recurring": {"active": True, "freq": "Quarterly", "amount": "$648.00",
+                  "next": "2026-09-15", "method": "Invoiced via Square"},
+    "notes": [
+        {"ts": "2026-06-02", "by": "Candice", "text": "Proof sent! Check your email for the edible-print mock-up of your logo pops."},
+        {"ts": "2026-06-04", "by": "You", "text": "Proof approved — the gold drizzle version. So excited!"},
+        {"ts": "2026-06-10", "by": "Candice", "text": "Batch one is baked and dipped. Logo decals go on tomorrow morning.",
+         "photo": "https://www.cakepops.com/cdn/shop/products/ArrowCorporateLogoCakePopsBrandingCandy_sthinner.jpg?width=500"},
+    ],
+}
+
+
+def _candys_get_order(code):
+    raw, configured = _kv_cmd(["HGET", CANDYS_ORDERS_KEY, code])
+    if raw:
+        try:
+            return json.loads(raw), configured
+        except Exception:
+            return None, configured
+    return None, configured
+
+
+def _candys_put_order(order):
+    return _kv_cmd(["HSET", CANDYS_ORDERS_KEY, order["code"], json.dumps(order)])
+
+
+@app.post("/api/candys/contact")
+def candys_contact():
+    b = request.get_json(force=True, silent=True) or {}
+    email = (b.get("email") or "").strip()[:200]
+    msg = (b.get("message") or "").strip()[:5000]
+    if "@" not in email or len(msg) < 3:
+        return _candys_resp({"ok": False, "error": "email and message required"}, 400)
+    _notify("[CANDYS] Contact — " + (b.get("name") or email)[:80],
+            "Message from the Candy's site contact page:\n\n"
+            "Name: {}\nEmail: {}\nPhone: {}\n\n{}".format(
+                (b.get("name") or "")[:200], email, (b.get("phone") or "")[:60], msg))
+    return _candys_resp({"ok": True})
+
+
+@app.post("/api/candys/order")
+def candys_order():
+    """Order request — JSON, or multipart when a design/logo/photo rides along.
+    The attachment is forwarded on the notification email via Resend."""
+    if request.content_type and "multipart" in request.content_type:
+        b = request.form.to_dict()
+        f = request.files.get("design")
+    else:
+        b = request.get_json(force=True, silent=True) or {}
+        f = None
+    email = (b.get("email") or "").strip()[:200]
+    if "@" not in email:
+        return _candys_resp({"ok": False, "error": "valid email required"}, 400)
+
+    rid = _gen_id()
+    lines = ["Order request from the Candy's site (no payment taken — confirm and invoice via Square):", ""]
+    for k, label in (("name", "Name"), ("email", "Email"), ("phone", "Phone"),
+                     ("item", "Item"), ("qty", "Quantity"), ("flavors", "Flavors"),
+                     ("colors", "Colors / theme"), ("date", "Needed by"), ("notes", "Notes")):
+        v = (b.get(k) or "").strip()
+        if v:
+            lines.append("{}: {}".format(label, v[:2000]))
+    lines.append("")
+    lines.append("Request ID: " + rid)
+    subject = "[CANDYS] Order request — " + ((b.get("item") or email)[:90])
+
+    if f and f.filename:
+        data = f.read()
+        if len(data) > 8 * 1024 * 1024:
+            return _candys_resp({"ok": False, "error": "file over 8MB — email it instead"}, 400)
+        lines.append("Attached design file: " + f.filename)
+        ok, info = _resend_send({
+            "from": RESEND_FROM,
+            "to": [CANDYS_NOTIFY_EMAIL],
+            "subject": subject,
+            "text": "\n".join(lines),
+            "attachments": [{
+                "filename": f.filename[:120],
+                "content": base64.b64encode(data).decode(),
+                "content_type": f.content_type or "application/octet-stream",
+            }],
+        })
+        if not ok:
+            _notify(subject, "\n".join(lines) + "\n\n(Attachment failed to send: {})".format(info))
+    else:
+        _notify(subject, "\n".join(lines))
+    return _candys_resp({"ok": True, "id": rid})
+
+
+@app.get("/api/candys/portal/<code>")
+def candys_portal(code):
+    code = (code or "").strip().upper()[:24]
+    if code == "DEMO":
+        return _candys_resp({"ok": True, "order": CANDYS_DEMO_ORDER, "demo": True})
+    order, configured = _candys_get_order(code)
+    if not configured:
+        return _candys_resp({"ok": False, "error": "Portal storage isn't switched on yet — ask us for your status by email.", "storage": False}, 503)
+    if not order:
+        return _candys_resp({"ok": False, "error": "No order found for that code. Check the code on your confirmation email."}, 404)
+    return _candys_resp({"ok": True, "order": order})
+
+
+# ---- admin: manage Candy's orders (gated by WWS_ADMIN_EMAILS) ----
+@app.get("/api/admin/candys/orders")
+def admin_candys_orders():
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "not authorized"}), 403
+    raw, configured = _kv_cmd(["HGETALL", CANDYS_ORDERS_KEY])
+    orders = []
+    if raw:
+        # Upstash returns a flat [field, value, field, value, ...] array
+        for i in range(0, len(raw) - 1, 2):
+            try:
+                orders.append(json.loads(raw[i + 1]))
+            except Exception:
+                pass
+    orders.sort(key=lambda o: o.get("updated", o.get("created", "")), reverse=True)
+    return jsonify({"ok": True, "configured": configured, "orders": orders,
+                    "stages": CANDYS_STAGES, "portal_base": CANDYS_PORTAL_BASE})
+
+
+@app.post("/api/admin/candys/order")
+def admin_candys_order():
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "not authorized"}), 403
+    b = request.get_json(force=True, silent=True) or {}
+    code = (b.get("code") or "").strip().upper()
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if code:
+        order, configured = _candys_get_order(code)
+        if not configured:
+            return jsonify({"ok": False, "error": "storage not enabled (Vercel -> Storage -> Upstash Redis)"}), 503
+        if not order:
+            return jsonify({"ok": False, "error": "unknown code"}), 404
+    else:
+        order = {"code": "CCP-" + secrets.token_hex(2).upper(), "created": today, "notes": []}
+    for k in ("item", "total", "event_date"):
+        if b.get(k) is not None:
+            order[k] = str(b[k])[:400]
+    if b.get("client") is not None:
+        c = b["client"] or {}
+        order["client"] = {"name": str(c.get("name", ""))[:200], "email": str(c.get("email", ""))[:200]}
+    if b.get("status") in CANDYS_STAGES:
+        order["status"] = b["status"]
+    order.setdefault("status", "proof")
+    if b.get("recurring") is not None:
+        r = b["recurring"] or {}
+        order["recurring"] = {
+            "active": bool(r.get("active")), "freq": str(r.get("freq", ""))[:40],
+            "amount": str(r.get("amount", ""))[:40], "next": str(r.get("next", ""))[:40],
+            "method": "Invoiced via Square",
+        }
+    note = (b.get("note") or "").strip()
+    if note:
+        order.setdefault("notes", []).append({
+            "ts": today, "by": (read_session() or {}).get("email", "admin").split("@")[0],
+            "text": note[:2000], "photo": (b.get("note_photo") or "")[:500] or None,
+        })
+    order["updated"] = today
+    _, configured = _candys_put_order(order)
+    if not configured:
+        return jsonify({"ok": False, "error": "storage not enabled (Vercel -> Storage -> Upstash Redis)"}), 503
+    return jsonify({"ok": True, "order": order, "portal_url": CANDYS_PORTAL_BASE + "?code=" + order["code"]})
