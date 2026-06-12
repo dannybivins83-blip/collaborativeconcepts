@@ -48,6 +48,7 @@
 <button data-tab="leads" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-secondary text-primary">Leads <span id="cLeads" class="text-mute font-normal"></span></button>
 <button data-tab="reqs" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspection requests <span id="cReqs" class="text-mute font-normal"></span></button>
 <button data-tab="insp" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspections <span id="cInsp" class="text-mute font-normal"></span></button>
+<button data-tab="dev" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary inline-flex items-center gap-1"><span class="ms text-base">smart_toy</span>Dev Agent</button>
 <button onclick="loadLeads()" class="ml-auto text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">refresh</span> Refresh</button>
 </div>
 
@@ -96,6 +97,43 @@
 <tbody id="inspRows"></tbody>
 </table></div>
 <div id="inspEmpty" class="hidden p-10 text-center text-mute">No inspections yet. Click “New inspection”, or open a lead and choose “Start inspection”.</div>
+</div>
+</section>
+
+<!-- dev agent -->
+<section id="tab-dev" class="hidden">
+<div class="grid md:grid-cols-5 gap-5">
+<div class="md:col-span-3 bg-white rounded-xl border border-line p-5">
+<h2 class="text-lg font-extrabold text-primary flex items-center gap-2"><span class="ms text-secondary">smart_toy</span>Call the dev agent</h2>
+<p class="text-sm text-mute mt-1 mb-4">Describe a fix or change on any Collaborative Concepts property. It routes straight to Claude, who makes the change and reports back.</p>
+<label class="block text-xs uppercase tracking-wide text-mute mb-1">Project</label>
+<select id="devProject" class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm mb-3">
+<option>Candy's Cake Pops site</option>
+<option>WWS landing page / CRM</option>
+<option>Collaborative Concepts apex site</option>
+<option>Casa Del Monte portal</option>
+<option>Other / not sure</option>
+</select>
+<label class="block text-xs uppercase tracking-wide text-mute mb-1">Priority</label>
+<select id="devPriority" class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm mb-3">
+<option value="normal">Normal — next agent run</option>
+<option value="high">High — broken in front of customers</option>
+<option value="low">Low — nice to have</option>
+</select>
+<label class="block text-xs uppercase tracking-wide text-mute mb-1">What needs fixing or changing?</label>
+<textarea id="devReq" rows="5" placeholder="e.g. The corporate page pricing tier should say $4.25, and swap the hero photo for the gold gift box shot…" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none resize-y"></textarea>
+<button onclick="submitDevRequest()" id="devBtn" class="w-full mt-4 bg-primary text-white py-3 rounded-xl font-bold hover:bg-primaryc transition-colors inline-flex items-center justify-center gap-2"><span class="ms">send</span>Send to dev agent</button>
+<div id="devMsg" class="hidden mt-3 rounded-lg px-4 py-3 text-sm"></div>
+</div>
+<div class="md:col-span-2 bg-white rounded-xl border border-line p-5 text-sm">
+<h3 class="font-extrabold text-primary mb-2">How it works</h3>
+<ol class="space-y-2 text-mute list-decimal list-inside">
+<li>Your request is tagged <span class="font-mono text-xs bg-surface px-1.5 py-0.5 rounded">[DEV-AGENT]</span> and lands in the owner inbox instantly.</li>
+<li>A scheduled Claude dev agent picks it up on its next run, opens the right repo, and makes the change.</li>
+<li>The thread is labeled <span class="font-mono text-xs bg-surface px-1.5 py-0.5 rounded">dev-agent/done</span> with a summary of exactly what changed.</li>
+</ol>
+<p class="mt-3 text-mute">Urgent and the agent hasn't run yet? Open a Claude session and say <em>“check dev requests”</em>.</p>
+</div>
 </div>
 </section>
 </main>
@@ -232,7 +270,34 @@ function switchTab(t){
   document.getElementById('tab-leads').classList.toggle('hidden',t!=='leads');
   document.getElementById('tab-reqs').classList.toggle('hidden',t!=='reqs');
   document.getElementById('tab-insp').classList.toggle('hidden',t!=='insp');
+  document.getElementById('tab-dev').classList.toggle('hidden',t!=='dev');
   if(t==='insp') loadInspections();
+}
+function submitDevRequest(){
+  var req=(document.getElementById('devReq').value||'').trim();
+  var msg=document.getElementById('devMsg'), btn=document.getElementById('devBtn');
+  if(req.length<5){ msg.className='mt-3 rounded-lg px-4 py-3 text-sm bg-amber-50 border border-amber-300 text-amber-900'; msg.textContent='Describe the fix or change first.'; msg.classList.remove('hidden'); return; }
+  btn.disabled=true; btn.innerHTML='<span class="ms animate-spin">progress_activity</span>Sending…';
+  api('/api/admin/dev-request',{method:'POST',body:JSON.stringify({
+    project:document.getElementById('devProject').value,
+    priority:document.getElementById('devPriority').value,
+    request:req
+  })}).then(function(d){
+    btn.disabled=false; btn.innerHTML='<span class="ms">send</span>Send to dev agent';
+    if(d.ok){
+      document.getElementById('devReq').value='';
+      msg.className='mt-3 rounded-lg px-4 py-3 text-sm bg-green-50 border border-green-300 text-green-800';
+      msg.innerHTML='<b>Sent.</b> Request <span class="font-mono text-xs">'+esc(d.id)+'</span> is queued for the dev agent\'s next run.';
+    } else {
+      msg.className='mt-3 rounded-lg px-4 py-3 text-sm bg-red-50 border border-red-300 text-red-800';
+      msg.textContent=d.error||'Could not send — try again.';
+    }
+    msg.classList.remove('hidden');
+  }).catch(function(){
+    btn.disabled=false; btn.innerHTML='<span class="ms">send</span>Send to dev agent';
+    msg.className='mt-3 rounded-lg px-4 py-3 text-sm bg-red-50 border border-red-300 text-red-800';
+    msg.textContent='Network error — try again.'; msg.classList.remove('hidden');
+  });
 }
 function loadInspections(){
   api('/api/admin/inspections').then(function(d){

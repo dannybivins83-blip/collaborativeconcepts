@@ -1805,3 +1805,92 @@ def portal_upload():
         "uploaded_at":     datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "resend_id":       info,
     })
+
+
+# ==========================================================================
+# Candy's Cake Pops — public site endpoints (Sweet List + corporate quotes)
+# Static site origin differs (Vercel deploy / local preview), so these reply
+# with permissive CORS. Notifications ride the existing Resend pipeline.
+# ==========================================================================
+CANDYS_NOTIFY_EMAIL = os.environ.get("CANDYS_NOTIFY_EMAIL", WWS_NOTIFY_EMAIL)
+
+
+def _candys_resp(payload, code=200):
+    resp = jsonify(payload)
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    resp.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return resp, code
+
+
+@app.route("/api/candys/<path:_>", methods=["OPTIONS"])
+def candys_preflight(_):
+    return _candys_resp({"ok": True})
+
+
+@app.post("/api/candys/subscribe")
+def candys_subscribe():
+    b = request.get_json(force=True, silent=True) or {}
+    email = (b.get("email") or "").strip()[:200]
+    if "@" not in email:
+        return _candys_resp({"ok": False, "error": "valid email required"}, 400)
+    _notify("[CANDYS] Sweet List signup — " + email,
+            "New 10%-off signup on the Candy's Cake Pops site:\n\n"
+            "Email: {}\nSource: {}\n\n"
+            "Send the welcome + 10% code (manual until Square Marketing/Mailchimp "
+            "automation is connected).".format(email, (b.get("source") or "site")[:120]))
+    return _candys_resp({"ok": True})
+
+
+@app.post("/api/candys/quote")
+def candys_quote():
+    b = request.get_json(force=True, silent=True) or {}
+    email = (b.get("email") or "").strip()[:200]
+    if "@" not in email:
+        return _candys_resp({"ok": False, "error": "valid email required"}, 400)
+    lines = []
+    for k, label in (("name", "Name"), ("company", "Company"), ("email", "Email"),
+                     ("quantity", "Quantity"), ("event_date", "Event date"), ("notes", "Notes")):
+        v = (b.get(k) or "").strip()
+        if v:
+            lines.append("{}: {}".format(label, v[:2000]))
+    _notify("[CANDYS] Corporate quote request — " + ((b.get("company") or email)[:120]),
+            "New corporate quote request from the Candy's site "
+            "(promised response: one business day):\n\n" + "\n".join(lines))
+    return _candys_resp({"ok": True})
+
+
+# ==========================================================================
+# Dev Agent hook — the admin dashboard widget posts fix/change requests here.
+# Each request is emailed to the owner inbox tagged [DEV-AGENT]; a scheduled
+# local Claude agent polls that tag and executes the work in the right repo.
+# ==========================================================================
+@app.post("/api/admin/dev-request")
+def admin_dev_request():
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "not authorized"}), 403
+    b = request.get_json(force=True, silent=True) or {}
+    req_text = (b.get("request") or "").strip()
+    if len(req_text) < 5:
+        return jsonify({"ok": False, "error": "describe the fix or change"}), 400
+    project = (b.get("project") or "unspecified")[:80]
+    priority = (b.get("priority") or "normal")[:20]
+    rid = _gen_id()
+    requester = (read_session() or {}).get("email", "unknown")
+    _notify("[DEV-AGENT] {} — {}".format(project, req_text[:70]),
+            "Dev request from the collaborative dashboard.\n\n"
+            "ID: {rid}\nProject: {project}\nPriority: {priority}\n"
+            "Requested by: {requester}\n\n"
+            "REQUEST:\n{req}\n\n"
+            "-- Routing: a scheduled local Claude dev agent polls Gmail for "
+            "[DEV-AGENT] subjects, executes the change in the matching repo, "
+            "and labels this thread dev-agent/done with a reply draft."
+            .format(rid=rid, project=project, priority=priority,
+                    requester=requester, req=req_text[:8000]))
+    try:
+        _kv_cmd(["RPUSH", "dev:requests", json.dumps(
+            {"id": rid, "ts": _now_ms(), "project": project,
+             "priority": priority, "by": requester, "request": req_text[:8000]})])
+    except Exception:
+        pass
+    return jsonify({"ok": True, "id": rid})
