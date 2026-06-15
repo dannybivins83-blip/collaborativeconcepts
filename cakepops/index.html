@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
+<meta name="robots" content="noindex">
+<title>Cake Pop Layout Maker — upload a picture, get the plan</title>
+<style>
+  :root{
+    --ink:#1d2630; --muted:#6a7682; --line:#e3e8ee; --bg:#f4f7fb;
+    --brand:#0a5aaa; --brand2:#be1e2d; --gold:#ffc81e; --card:#fff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header{background:linear-gradient(120deg,#0a5aaa,#0b4f93);color:#fff;padding:22px 18px}
+  header h1{margin:0;font-size:22px}
+  header p{margin:4px 0 0;opacity:.9;font-size:14px}
+  .wrap{max-width:1000px;margin:0 auto;padding:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 18px;box-shadow:0 1px 3px rgba(20,30,50,.04)}
+  .card h2{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:8px}
+  .step{display:inline-flex;width:24px;height:24px;border-radius:50%;background:var(--brand);color:#fff;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+  /* drop zone */
+  #drop{border:2px dashed #b9c6d6;border-radius:12px;padding:34px 18px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s;background:#fbfdff}
+  #drop.drag{border-color:var(--brand);background:#eef6ff;color:var(--brand)}
+  #drop b{color:var(--brand)}
+  .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+  label.fld{display:block;font-size:13px;color:var(--muted);margin-bottom:5px;font-weight:600}
+  input[type=number],select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:15px}
+  .total-chip{display:inline-block;background:#eef6ff;color:var(--brand);font-weight:700;padding:4px 12px;border-radius:20px;font-size:14px}
+  .presets button,.tinybtn{font:inherit;font-size:13px;border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 12px;cursor:pointer;margin:0 6px 6px 0}
+  .presets button:hover{border-color:var(--brand);color:var(--brand)}
+  /* palette */
+  .pal{display:flex;flex-wrap:wrap;gap:10px}
+  .swatch{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff}
+  .swatch input[type=color]{width:30px;height:30px;border:none;background:none;padding:0;cursor:pointer}
+  .swatch input[type=text]{width:84px;border:none;font-size:13px;font-weight:600;color:var(--ink)}
+  .swatch .x{cursor:pointer;color:#b9c2cc;font-weight:700;padding:0 2px}
+  .swatch .x:hover{color:var(--brand2)}
+  .btn{font:inherit;font-weight:700;border:none;border-radius:10px;padding:12px 18px;cursor:pointer}
+  .btn.primary{background:var(--brand);color:#fff}
+  .btn.primary:disabled{background:#b9c6d6;cursor:not-allowed}
+  .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+  /* output */
+  #out{display:none}
+  #canvasWrap{overflow:auto;text-align:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
+  canvas{max-width:100%;height:auto}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  .dot{display:inline-block;width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.25);vertical-align:-3px;margin-right:8px}
+  .guide{font-size:14px}
+  .guide li{margin:3px 0}
+  details summary{cursor:pointer;font-weight:600;color:var(--brand)}
+  .hint{color:var(--muted);font-size:13px}
+  .foot{color:var(--muted);font-size:12px;text-align:center;padding:10px 0 30px}
+  @media print{
+    header,#dropCard,#setupCard,#palCard,.row-actions,.foot,.hint{display:none!important}
+    body{background:#fff}.card{border:none;box-shadow:none;padding:0}
+    #out{display:block!important}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎂 Cake Pop Layout Maker</h1>
+  <p>Upload any picture — get the pop-by-pop plan, color counts, and a printable guide.</p>
+</header>
+
+<div class="wrap">
+
+  <div class="card" id="dropCard">
+    <h2><span class="step">1</span> Upload a picture</h2>
+    <div id="drop">
+      <div style="font-size:34px">🖼️</div>
+      <div><b>Tap to choose a photo</b> or drag one here</div>
+      <div class="hint">A flag, logo, character, anything. Clear, simple pictures work best.</div>
+    </div>
+    <input type="file" id="file" accept="image/*" hidden>
+  </div>
+
+  <div class="card" id="setupCard">
+    <h2><span class="step">2</span> Tray size &amp; colors</h2>
+    <div class="controls">
+      <div>
+        <label class="fld">Pops across (width)</label>
+        <input type="number" id="gw" min="3" max="60" value="15">
+      </div>
+      <div>
+        <label class="fld">Pops down (height)</label>
+        <input type="number" id="gh" min="3" max="60" value="10">
+      </div>
+      <div>
+        <label class="fld">Fit picture</label>
+        <select id="fit">
+          <option value="contain">Show whole picture (letterbox)</option>
+          <option value="cover">Fill the tray (crop edges)</option>
+          <option value="stretch">Stretch to tray</option>
+        </select>
+      </div>
+      <div>
+        <label class="fld">Empty/background pops</label>
+        <select id="bg">
+          <option value="nearest">Match nearest color</option>
+          <option value="skip">Leave blank (no pop)</option>
+        </select>
+      </div>
+    </div>
+    <p style="margin:12px 0 0"><span class="total-chip" id="total">150 pops</span></p>
+    <div class="presets" style="margin-top:12px">
+      <span class="hint">Tray presets:</span><br>
+      <button data-w="15" data-h="10">150 (15×10)</button>
+      <button data-w="10" data-h="10">100 (10×10)</button>
+      <button data-w="12" data-h="8">96 (12×8)</button>
+      <button data-w="20" data-h="10">200 (20×10)</button>
+    </div>
+  </div>
+
+  <div class="card" id="palCard">
+    <h2><span class="step">3</span> Candy colors</h2>
+    <p class="hint">These are the candy-melt colors the maker is allowed to use. Click a swatch to change its shade, rename it, or remove ones you don't have.</p>
+    <div class="pal" id="pal"></div>
+    <div class="presets" style="margin-top:12px">
+      <button type="button" class="tinybtn" id="addColor">＋ Add color</button>
+      <button type="button" class="tinybtn" data-preset="colorado">🇨🇴 Colorado flag set</button>
+      <button type="button" class="tinybtn" data-preset="full">🌈 Full color set</button>
+    </div>
+  </div>
+
+  <div class="row-actions">
+    <button class="btn primary" id="go" disabled>✨ Make the layout</button>
+  </div>
+
+  <div class="card" id="out">
+    <h2 style="justify-content:space-between"><span>Your cake pop layout</span></h2>
+    <div id="canvasWrap"><canvas id="canvas"></canvas></div>
+    <div class="row-actions">
+      <button class="btn primary" id="dl">⬇️ Download image</button>
+      <button class="btn ghost" id="print">🖨️ Print</button>
+    </div>
+
+    <h2 style="margin-top:22px">🛒 Shopping list</h2>
+    <table id="counts"><tbody></tbody></table>
+
+    <div style="margin-top:18px">
+      <details>
+        <summary>📋 Row-by-row plating guide (left → right)</summary>
+        <ol class="guide" id="guide" style="margin-top:10px"></ol>
+      </details>
+    </div>
+  </div>
+
+  <div class="foot">Made for Candy’s Cake Pops • everything runs in your browser — nothing is uploaded anywhere.</div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const PRESETS = {
+    colorado: [
+      ["Blue","#0a5aaa"],["White","#f5f5f5"],["Red","#be1e2d"],["Gold","#ffc81e"]
+    ],
+    full: [
+      ["Blue","#0a5aaa"],["Light Blue","#7ec8e3"],["White","#f5f5f5"],["Red","#be1e2d"],
+      ["Pink","#f49ac2"],["Gold","#ffc81e"],["Orange","#f47a20"],["Green","#2e8b57"],
+      ["Purple","#7a3e9d"],["Brown","#6b4226"],["Black","#222222"]
+    ]
+  };
+  let palette = PRESETS.colorado.slice();
+  let img = null;
+
+  // ---------- palette UI ----------
+  const hexToRgb = h => { const n = parseInt(h.slice(1),16); return [n>>16&255,n>>8&255,n&255]; };
+  function renderPalette(){
+    const el = $('pal'); el.innerHTML='';
+    palette.forEach((c,i)=>{
+      const d = document.createElement('div'); d.className='swatch';
+      d.innerHTML = `<input type="color" value="${c[1]}"><input type="text" value="${c[0]}"><span class="x" title="remove">✕</span>`;
+      const [pick,name,x] = d.children;
+      pick.oninput = e => palette[i][1]=e.target.value;
+      name.onchange = e => palette[i][0]=e.target.value||('Color '+(i+1));
+      x.onclick = () => { palette.splice(i,1); renderPalette(); };
+      el.appendChild(d);
+    });
+  }
+  $('addColor').onclick = () => { palette.push(["New color","#888888"]); renderPalette(); };
+  document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{ palette=PRESETS[b.dataset.preset].map(c=>c.slice()); renderPalette(); });
+
+  // ---------- tray size ----------
+  function updTotal(){ $('total').textContent = (+$('gw').value * +$('gh').value) + ' pops'; }
+  ['gw','gh'].forEach(id=>$(id).oninput=updTotal);
+  document.querySelectorAll('.presets [data-w]').forEach(b=>b.onclick=()=>{ $('gw').value=b.dataset.w; $('gh').value=b.dataset.h; updTotal(); });
+
+  // ---------- upload ----------
+  const drop = $('drop'), file = $('file');
+  drop.onclick = () => file.click();
+  ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag');}));
+  drop.addEventListener('drop', e => loadFile(e.dataTransfer.files[0]));
+  file.onchange = e => loadFile(e.target.files[0]);
+  function loadFile(f){
+    if(!f) return;
+    const r = new FileReader();
+    r.onload = () => { img = new Image(); img.onload = ()=>{ $('go').disabled=false; drop.querySelector('b').textContent=f.name+' ✓ — tap to change'; }; img.src = r.result; };
+    r.readAsDataURL(f);
+  }
+
+  // ---------- color matching (redmean distance) ----------
+  function nearest(r,g,b){
+    let best=0, bd=Infinity;
+    for(let i=0;i<palette.length;i++){
+      const [pr,pg,pb]=hexToRgb(palette[i][1]);
+      const rm=(r+pr)/2, dr=r-pr, dg=g-pg, db=b-pb;
+      const d=(2+rm/256)*dr*dr + 4*dg*dg + (2+(255-rm)/256)*db*db;
+      if(d<bd){bd=d;best=i;}
+    }
+    return best;
+  }
+
+  // ---------- generate ----------
+  $('go').onclick = generate;
+  function generate(){
+    if(!img) return;
+    const W=Math.max(3,+$('gw').value), H=Math.max(3,+$('gh').value);
+    const fit=$('fit').value, bgMode=$('bg').value;
+
+    // sample image down to W×H
+    const s=document.createElement('canvas'); s.width=W; s.height=H;
+    const sc=s.getContext('2d'); sc.imageSmoothingEnabled=true;
+    sc.clearRect(0,0,W,H);
+    let dw=W,dh=H,dx=0,dy=0;
+    if(fit!=='stretch'){
+      const ar=img.width/img.height, tr=W/H;
+      if((fit==='contain')===(ar>tr)){ dw=W; dh=W/ar; dy=(H-dh)/2; }
+      else { dh=H; dw=H*ar; dx=(W-dw)/2; }
+    }
+    sc.drawImage(img,dx,dy,dw,dh);
+    const data=sc.getImageData(0,0,W,H).data;
+
+    // build grid of palette indices (-1 = blank)
+    const grid=[]; const counts=new Array(palette.length).fill(0); let blanks=0;
+    for(let y=0;y<H;y++){ const row=[]; for(let x=0;x<W;x++){
+      const o=(y*W+x)*4, a=data[o+3];
+      if(a<100 && bgMode==='skip'){ row.push(-1); blanks++; continue; }
+      const idx=nearest(data[o],data[o+1],data[o+2]); row.push(idx); counts[idx]++;
+    } grid.push(row); }
+
+    drawLayout(grid,W,H);
+    showCounts(counts,blanks);
+    showGuide(grid,W,H);
+    $('out').style.display='block';
+    $('out').scrollIntoView({behavior:'smooth'});
+  }
+
+  // ---------- render pretty layout to canvas ----------
+  let lastURL=null;
+  function drawLayout(grid,W,H){
+    const cell=54, pad=58, top=96, leg=66;
+    const cv=$('canvas'); const cw=pad*2+W*cell, ch=top+H*cell+pad+leg;
+    cv.width=cw; cv.height=ch; const x=cv.getContext('2d');
+    x.fillStyle='#fff'; x.fillRect(0,0,cw,ch);
+    x.fillStyle='#0a3a72'; x.textAlign='center'; x.font='bold 30px sans-serif';
+    x.fillText('Cake Pop Layout', cw/2, 40);
+    x.fillStyle='#be1e2d'; x.font='bold 17px sans-serif';
+    x.fillText(`${W*H} pops · ${W} wide × ${H} tall`, cw/2, 66);
+    x.font='14px sans-serif'; x.fillStyle='#8a96a2';
+    for(let c=0;c<W;c++) x.fillText(c+1, pad+c*cell+cell/2, top-14);
+    for(let r=0;r<H;r++){
+      const y=top+r*cell;
+      x.textAlign='center'; x.fillStyle='#8a96a2';
+      x.fillText(r+1, pad/2, y+cell/2+5); x.fillText(r+1, cw-pad/2, y+cell/2+5);
+      for(let c=0;c<W;c++){
+        const idx=grid[r][c]; const cx=pad+c*cell+cell/2, cy=y+cell/2, rad=cell/2-5;
+        if(idx<0){ x.strokeStyle='#dfe5ec'; x.lineWidth=1; x.beginPath(); x.arc(cx,cy,rad,0,7); x.stroke(); continue; }
+        x.fillStyle=palette[idx][1]; x.beginPath(); x.arc(cx,cy,rad,0,7); x.fill();
+        x.strokeStyle='rgba(0,0,0,.28)'; x.lineWidth=1.5; x.stroke();
+        x.fillStyle='rgba(255,255,255,.55)'; x.beginPath(); x.arc(cx-rad*0.32,cy-rad*0.34,rad*0.22,0,7); x.fill();
+      }
+    }
+    // legend
+    const used=[...new Set(grid.flat().filter(i=>i>=0))];
+    const ly=top+H*cell+34; let lx=pad;
+    x.textAlign='left'; x.font='bold 16px sans-serif';
+    used.forEach(i=>{
+      x.fillStyle=palette[i][1]; x.beginPath(); x.arc(lx+12,ly,12,0,7); x.fill();
+      x.strokeStyle='rgba(0,0,0,.28)'; x.lineWidth=1.5; x.stroke();
+      const cnt=grid.flat().filter(v=>v===i).length;
+      const label=`${palette[i][0]}: ${cnt}`; x.fillStyle='#2a3540'; x.fillText(label, lx+30, ly+5);
+      lx += 40 + x.measureText(label).width + 26;
+      if(lx > cw-160){ lx=pad; }
+    });
+    lastURL = cv.toDataURL('image/png');
+  }
+
+  function showCounts(counts,blanks){
+    const tb=$('counts').querySelector('tbody'); tb.innerHTML='';
+    const total=counts.reduce((a,b)=>a+b,0)+blanks;
+    counts.map((n,i)=>[palette[i][0],palette[i][1],n]).filter(r=>r[2]>0)
+      .sort((a,b)=>b[2]-a[2]).forEach(([name,hex,n])=>{
+        tb.insertAdjacentHTML('beforeend',`<tr><td><span class="dot" style="background:${hex}"></span>${name}</td><td style="text-align:right;font-weight:700">${n}</td></tr>`);
+      });
+    if(blanks) tb.insertAdjacentHTML('beforeend',`<tr><td><span class="dot" style="background:#fff"></span>Blank (no pop)</td><td style="text-align:right;font-weight:700">${blanks}</td></tr>`);
+    tb.insertAdjacentHTML('beforeend',`<tr><td style="font-weight:700">TOTAL</td><td style="text-align:right;font-weight:700">${total}</td></tr>`);
+  }
+
+  function showGuide(grid,W,H){
+    const ol=$('guide'); ol.innerHTML='';
+    grid.forEach(row=>{
+      const parts=[]; let i=0;
+      while(i<W){ let j=i; while(j<W && row[j]===row[i]) j++;
+        const name = row[i]<0 ? 'blank' : palette[row[i]][0];
+        parts.push(`${j-i} ${name}`); i=j; }
+      ol.insertAdjacentHTML('beforeend',`<li>${parts.join(' · ')}</li>`);
+    });
+  }
+
+  // ---------- download / print ----------
+  $('dl').onclick = () => { if(!lastURL) return; const a=document.createElement('a'); a.href=lastURL; a.download='cake-pop-layout.png'; a.click(); };
+  $('print').onclick = () => window.print();
+
+  renderPalette(); updTotal();
+})();
+</script>
+</body>
+</html>
