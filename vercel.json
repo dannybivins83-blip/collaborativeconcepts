@@ -3,7 +3,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc", "permanent": false },
+    { "source": "/", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc", "permanent": true },
     { "source": "/ai", "destination": "/solutions", "permanent": true }
   ],
   "rewrites": [
