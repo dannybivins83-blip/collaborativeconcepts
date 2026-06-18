@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts"/>
+<title>513 W Drew St — Bathroom Concept Render | Collaborative Concepts</title>
+<meta name="description" content="Architectural concept visualization of the primary bathroom renovation at 513 W Drew St, Lantana FL — walk-in shower, rain head system, matte black fixtures, large-format tile."/>
+<meta name="robots" content="noindex"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230B2545'/%3E%3Ctext x='50%25' y='58%25' text-anchor='middle' font-family='Arial,sans-serif' font-size='30' font-weight='800' fill='%23B08D57'%3ECC%3C/text%3E%3C/svg%3E"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --navy:#0B2545;
+    --navy-soft:#163764;
+    --gold:#B08D57;
+    --gold-bright:#c9a36a;
+    --paper:#f6f3ee;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;width:100%;overflow:hidden;background:#0a0f16;font-family:'Inter',system-ui,sans-serif;color:#fff}
+  #app{position:fixed;inset:0}
+  canvas{display:block}
+
+  /* ----- top overlay ----- */
+  #topbar{
+    position:absolute;top:0;left:0;right:0;z-index:20;
+    display:flex;align-items:flex-start;justify-content:space-between;
+    padding:22px 30px;
+    background:linear-gradient(180deg, rgba(8,16,30,.78) 0%, rgba(8,16,30,.35) 60%, rgba(8,16,30,0) 100%);
+    pointer-events:none;
+  }
+  #brand .eyebrow{
+    font-family:'Inter';font-weight:600;letter-spacing:.28em;text-transform:uppercase;
+    font-size:11px;color:var(--gold-bright);margin-bottom:6px;
+  }
+  #brand h1{
+    font-family:'Manrope';font-weight:800;letter-spacing:-.01em;
+    font-size:clamp(20px,2.6vw,30px);line-height:1.05;color:#fff;
+  }
+  #brand h1 .addr{color:#fff}
+  #brand .sub{
+    font-family:'Inter';font-weight:500;font-size:13px;color:#c7d2e2;margin-top:5px;
+    display:flex;align-items:center;gap:9px;
+  }
+  #brand .sub .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);display:inline-block}
+  #studio{
+    text-align:right;pointer-events:none;
+  }
+  #studio .mark{
+    font-family:'Manrope';font-weight:800;font-size:15px;letter-spacing:.02em;color:#fff;
+  }
+  #studio .mark b{color:var(--gold-bright)}
+  #studio .line{
+    font-family:'Inter';font-weight:500;font-size:11px;color:#9fb0c6;margin-top:3px;letter-spacing:.04em;
+  }
+
+  /* ----- spec card ----- */
+  #specs{
+    position:absolute;left:30px;top:120px;z-index:15;
+    width:236px;max-width:42vw;
+    background:rgba(11,37,69,.62);
+    backdrop-filter:blur(9px) saturate(120%);
+    -webkit-backdrop-filter:blur(9px) saturate(120%);
+    border:1px solid rgba(176,141,87,.34);
+    border-radius:13px;padding:16px 17px 15px;
+    box-shadow:0 18px 50px -20px rgba(0,0,0,.7);
+    transition:opacity .4s ease, transform .4s ease;
+  }
+  #specs h2{
+    font-family:'Inter';font-weight:600;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--gold-bright);margin-bottom:11px;display:flex;align-items:center;gap:8px;
+  }
+  #specs h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(176,141,87,.5),transparent)}
+  #specs .row{
+    display:flex;justify-content:space-between;gap:12px;
+    padding:5.5px 0;border-bottom:1px solid rgba(255,255,255,.07);
+    font-size:12px;
+  }
+  #specs .row:last-child{border-bottom:0}
+  #specs .row .k{color:#aebed3;font-weight:500}
+  #specs .row .v{color:#fff;font-weight:600;text-align:right}
+  .swatch{display:inline-block;width:11px;height:11px;border-radius:3px;border:1px solid rgba(255,255,255,.35);vertical-align:-1px;margin-right:5px}
+  #specs.collapsed{opacity:0;transform:translateX(-14px);pointer-events:none}
+
+  /* ----- bottom bar ----- */
+  #bottombar{
+    position:absolute;left:0;right:0;bottom:0;z-index:20;
+    display:flex;flex-direction:column;align-items:center;gap:13px;
+    padding:30px 20px 24px;
+    background:linear-gradient(0deg, rgba(8,16,30,.8) 0%, rgba(8,16,30,.3) 65%, rgba(8,16,30,0) 100%);
+  }
+  #views{display:flex;gap:11px;flex-wrap:wrap;justify-content:center}
+  .vbtn{
+    appearance:none;cursor:pointer;
+    font-family:'Inter';font-weight:600;font-size:12.5px;letter-spacing:.05em;
+    color:#dfe7f1;
+    background:rgba(22,55,100,.55);
+    border:1px solid rgba(176,141,87,.4);
+    padding:10px 19px;border-radius:999px;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    transition:all .22s ease;display:flex;align-items:center;gap:8px;
+  }
+  .vbtn .ic{width:14px;height:14px;opacity:.8}
+  .vbtn:hover{background:rgba(176,141,87,.22);border-color:var(--gold-bright);color:#fff;transform:translateY(-1px)}
+  .vbtn.active{background:var(--gold);border-color:var(--gold-bright);color:#1b1206;box-shadow:0 8px 22px -8px rgba(176,141,87,.8)}
+  .vbtn.active .ic{opacity:1}
+  #legend{
+    font-family:'Inter';font-weight:500;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:#7f93ab;
+  }
+
+  /* ----- rotate hint ----- */
+  #hint{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;
+    display:flex;align-items:center;gap:14px;
+    padding:13px 22px;border-radius:999px;
+    background:rgba(11,37,69,.72);border:1px solid rgba(176,141,87,.4);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    font-family:'Inter';font-weight:600;font-size:12px;letter-spacing:.14em;color:#e7eef7;
+    transition:opacity .8s ease;pointer-events:none;
+  }
+  #hint.gone{opacity:0}
+  #hint .sep{width:1px;height:14px;background:rgba(176,141,87,.5)}
+  #hint svg{vertical-align:-3px;margin-right:6px;opacity:.85}
+
+  /* ----- loader ----- */
+  #loader{
+    position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:20px;
+    background:radial-gradient(120% 120% at 50% 35%, #13243c 0%, #0a0f16 70%);
+    transition:opacity .7s ease;
+  }
+  #loader.gone{opacity:0;pointer-events:none}
+  #loader .lmark{font-family:'Manrope';font-weight:800;font-size:22px;letter-spacing:.02em;color:#fff}
+  #loader .lmark b{color:var(--gold-bright)}
+  #loader .lsub{font-family:'Inter';font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#7f93ab}
+  #ring{width:42px;height:42px;border-radius:50%;border:2.5px solid rgba(176,141,87,.25);border-top-color:var(--gold-bright);animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  @media (max-width:720px){
+    #specs{display:none}
+    #studio{display:none}
+    #topbar{padding:16px 18px}
+    .vbtn{padding:9px 14px;font-size:11.5px}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- top overlay -->
+<header id="topbar">
+  <div id="brand">
+    <div class="eyebrow">Collaborative Concepts · Renovation Studio</div>
+    <h1><span class="addr">513 W Drew St</span> — Bathroom Concept Render</h1>
+    <div class="sub"><span class="dot"></span>Lantana, FL · Primary Bath · Walk-In Shower Concept</div>
+  </div>
+  <div id="studio">
+    <div class="mark">CC<b>·</b>VIZ</div>
+    <div class="line">Architectural Visualization</div>
+  </div>
+</header>
+
+<!-- spec card -->
+<aside id="specs">
+  <h2>Scope &amp; Finish</h2>
+  <div class="row"><span class="k">Shower</span><span class="v">4′×4′ walk-in</span></div>
+  <div class="row"><span class="k">Bench seat</span><span class="v">18″ d · 17″ h</span></div>
+  <div class="row"><span class="k">Half wall</span><span class="v">42″ tall</span></div>
+  <div class="row"><span class="k">Wall tile</span><span class="v"><span class="swatch" style="background:#e7e1d6"></span>12×24 greige</span></div>
+  <div class="row"><span class="k">Floor tile</span><span class="v"><span class="swatch" style="background:#c4baa9"></span>24×24</span></div>
+  <div class="row"><span class="k">Grout</span><span class="v"><span class="swatch" style="background:#8C8880"></span>#8C8880</span></div>
+  <div class="row"><span class="k">Fixtures</span><span class="v"><span class="swatch" style="background:#1a1a1a"></span>Matte black</span></div>
+  <div class="row"><span class="k">System</span><span class="v">Rain + hand</span></div>
+</aside>
+
+<!-- bottom controls -->
+<footer id="bottombar">
+  <div id="views">
+    <button class="vbtn active" data-view="entry">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+      Entry View
+    </button>
+    <button class="vbtn" data-view="shower">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="6" r="3"/><path d="M12 9v3M8 16h.01M12 18h.01M16 16h.01M10 21h.01M14 21h.01"/></svg>
+      Shower Detail
+    </button>
+    <button class="vbtn" data-view="overview">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Overview
+    </button>
+  </div>
+  <div id="legend">Concept render · not construction documents</div>
+</footer>
+
+<!-- rotate hint -->
+<div id="hint">
+  <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg>Drag to rotate</span>
+  <span class="sep"></span>
+  <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M11 8v6M8 11h6M21 21l-4-4"/></svg>Scroll to zoom</span>
+</div>
+
+<!-- loader -->
+<div id="loader">
+  <div id="ring"></div>
+  <div class="lmark">CC<b>·</b>VIZ</div>
+  <div class="lsub">Building scene…</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+
+/* =====================================================================
+   513 W DREW ST — BATHROOM CONCEPT RENDER
+   Units: 1 world unit = 1 foot.  Coordinate frame:
+     +X = toward the right wall      (0 = left wall, 8 = right wall)
+     +Z = toward the open entry      (0 = back wall, 8 = front/open)
+     +Y = up                          (0 = floor, 8.5 = ceiling)
+   ===================================================================== */
+
+const ROOM = { W: 8, D: 8, H: 8.5 };       // room width / depth / ceiling
+const SHOWER = { x0:0, x1:4, z0:0, z1:4 };  // walk-in shower footprint (back-left)
+
+/* ---------- palette ---------- */
+const COL = {
+  wallTile : '#e7e1d6',   // warm white / light greige (White Dove-ish)
+  wallTile2: '#ded7c9',   // tonal variation
+  floorTile: '#c4baa9',   // darker stone/wood-look
+  floorTile2:'#b8ad9a',
+  grout    : '#8C8880',   // warm gray grout
+  ceiling  : '#f3f1ec',
+  matteBlk : '#17171a',
+  ceramic  : '#f3efe9',
+};
+
+/* =====================================================================
+   PROCEDURAL TILE TEXTURES  (canvas → CanvasTexture)
+   Builds a tonal tile field with baked grout joints + surface noise,
+   plus a matching bump map so grout joints read as recessed.
+   ===================================================================== */
+function makeTileTextures(opts){
+  const {
+    px=1024,                 // canvas resolution
+    cols, rows,              // tiles across / down within the canvas block
+    base, base2,             // tile face colors (subtle blend)
+    grout=COL.grout,
+    groutW=0.012,            // grout width as fraction of tile
+    veins=true               // subtle stone veining
+  } = opts;
+
+  const cMap   = document.createElement('canvas'); cMap.width=cMap.height=px;
+  const cBump  = document.createElement('canvas'); cBump.width=cBump.height=px;
+  const cRough = document.createElement('canvas'); cRough.width=cRough.height=px;
+  const g  = cMap.getContext('2d');
+  const gb = cBump.getContext('2d');
+  const gr = cRough.getContext('2d');
+
+  // grout field background
+  g.fillStyle  = grout;  g.fillRect(0,0,px,px);
+  gb.fillStyle = '#5a5a5a'; gb.fillRect(0,0,px,px);   // joints = mid (recessed)
+  gr.fillStyle = '#9a9a9a'; gr.fillRect(0,0,px,px);   // grout slightly rougher
+
+  const tw = px/cols, th = px/rows;
+  const jx = tw*groutW, jy = th*groutW;
+
+  const b1 = new THREE.Color(base), b2 = new THREE.Color(base2);
+
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const x = c*tw + jx, y = r*th + jy;
+      const w = tw - jx*2, h = th - jy*2;
+
+      // per-tile tonal variation
+      const t = Math.random()*0.9;
+      const col = b1.clone().lerp(b2, t);
+      // gentle per-tile brightness jitter
+      const jitter = 0.96 + Math.random()*0.08;
+      col.multiplyScalar(jitter);
+      g.fillStyle = '#'+col.getHexString();
+      g.fillRect(x,y,w,h);
+
+      // tile face = raised in bump map, slight per-tile value drift
+      const bv = 200 + Math.floor(Math.random()*40);
+      gb.fillStyle = `rgb(${bv},${bv},${bv})`;
+      gb.fillRect(x,y,w,h);
+
+      // tile face is smoother (darker in roughness map)
+      const rv = 70 + Math.floor(Math.random()*22);
+      gr.fillStyle = `rgb(${rv},${rv},${rv})`;
+      gr.fillRect(x,y,w,h);
+
+      // subtle stone veining / wood streaks across the face
+      if(veins){
+        g.save();
+        g.beginPath(); g.rect(x,y,w,h); g.clip();
+        const strokes = 5 + Math.floor(Math.random()*5);
+        for(let s=0;s<strokes;s++){
+          g.globalAlpha = 0.04 + Math.random()*0.06;
+          g.strokeStyle = Math.random()>0.5 ? '#ffffff' : '#7d7466';
+          g.lineWidth = 0.6 + Math.random()*1.6;
+          g.beginPath();
+          const sy = y + Math.random()*h;
+          g.moveTo(x, sy + (Math.random()-0.5)*h*0.3);
+          g.bezierCurveTo(
+            x+w*0.33, sy+(Math.random()-0.5)*h*0.5,
+            x+w*0.66, sy+(Math.random()-0.5)*h*0.5,
+            x+w,      sy+(Math.random()-0.5)*h*0.3);
+          g.stroke();
+        }
+        g.restore();
+        g.globalAlpha = 1;
+      }
+    }
+  }
+
+  // fine surface noise on the color map (micro imperfection)
+  const img = g.getImageData(0,0,px,px), d = img.data;
+  for(let i=0;i<d.length;i+=4){
+    const n = (Math.random()-0.5)*10;
+    d[i]+=n; d[i+1]+=n; d[i+2]+=n;
+  }
+  g.putImageData(img,0,0);
+
+  const map   = new THREE.CanvasTexture(cMap);
+  const bump  = new THREE.CanvasTexture(cBump);
+  const rough = new THREE.CanvasTexture(cRough);
+  [map,bump,rough].forEach(t=>{
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.anisotropy = 8;
+  });
+  map.colorSpace = THREE.SRGBColorSpace;
+  return { map, bump, rough };
+}
+
+// nozzle grid for the rain head face
+function makeNozzleTexture(){
+  const px=512, c=document.createElement('canvas'); c.width=c.height=px;
+  const g=c.getContext('2d');
+  g.fillStyle='#1b1b1e'; g.fillRect(0,0,px,px);
+  const n=16, step=px/n;
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+    const cx=x*step+step/2, cy=y*step+step/2;
+    g.beginPath(); g.arc(cx,cy,step*0.26,0,Math.PI*2);
+    g.fillStyle='#3a3a40'; g.fill();
+    g.beginPath(); g.arc(cx,cy,step*0.13,0,Math.PI*2);
+    g.fillStyle='#08080a'; g.fill();
+  }
+  const t=new THREE.CanvasTexture(c);
+  t.colorSpace=THREE.SRGBColorSpace;
+  return t;
+}
+
+/* build tile texture sets (one block reused via RepeatWrapping) */
+const wallTex  = makeTileTextures({ cols:4, rows:8, base:COL.wallTile, base2:COL.wallTile2, groutW:0.010, veins:true });
+const floorTex = makeTileTextures({ cols:4, rows:4, base:COL.floorTile, base2:COL.floorTile2, groutW:0.012, veins:true });
+const benchTex = makeTileTextures({ cols:4, rows:8, base:COL.wallTile, base2:COL.wallTile2, groutW:0.010, veins:true });
+const nozzleTex= makeNozzleTexture();
+
+/* =====================================================================
+   MATERIAL FACTORY
+   ===================================================================== */
+function tileMat(tex, repeatX, repeatY){
+  const map = tex.map.clone();   map.needsUpdate=true;
+  const bump= tex.bump.clone();  bump.needsUpdate=true;
+  const rgh = tex.rough.clone(); rgh.needsUpdate=true;
+  [map,bump,rgh].forEach(t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(repeatX,repeatY); t.anisotropy=8; });
+  map.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.MeshStandardMaterial({
+    map, bumpMap:bump, bumpScale:0.02,
+    roughnessMap:rgh, roughness:0.32, metalness:0.0,
+    envMapIntensity:0.5
+  });
+}
+const matMatteBlack = new THREE.MeshStandardMaterial({ color:COL.matteBlk, roughness:0.8,  metalness:0.9, envMapIntensity:0.7 });
+const matChrome     = new THREE.MeshStandardMaterial({ color:'#e9edf2', roughness:0.1, metalness:1.0, envMapIntensity:1.0 });
+const matCeramic    = new THREE.MeshStandardMaterial({ color:COL.ceramic, roughness:0.16, metalness:0.0, envMapIntensity:0.6 });
+const matCeiling    = new THREE.MeshStandardMaterial({ color:COL.ceiling, roughness:0.92, metalness:0.0 });
+const matTrim       = new THREE.MeshStandardMaterial({ color:'#121214', roughness:0.5, metalness:0.85 }); // Schluter edge
+const matGlassNozzle= new THREE.MeshStandardMaterial({ map:nozzleTex, roughness:0.6, metalness:0.85, color:'#222' });
+
+/* =====================================================================
+   RENDERER / SCENE / CAMERA
+   ===================================================================== */
+const app = document.getElementById('app');
+const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+app.appendChild(renderer.domElement);
+
+RectAreaLightUniformsLib.init();
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#cdd6e0');
+
+const camera = new THREE.PerspectiveCamera(46, innerWidth/innerHeight, 0.05, 200);
+camera.position.set(6.6, 5.0, 7.6);   // eye level ~5ft, angled to read back + left walls
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.07;
+controls.target.set(2.6, 3.0, 1.6);
+controls.minDistance = 1.2;
+controls.maxDistance = 16;
+controls.maxPolarAngle = Math.PI*0.52;   // keep camera at/above floor
+controls.update();
+
+/* =====================================================================
+   LIGHTING
+   ===================================================================== */
+scene.add(new THREE.AmbientLight('#fff1df', 0.40));   // warm low ambient
+
+const sun = new THREE.DirectionalLight('#fff3e2', 1.2); // natural light, upper-left
+sun.position.set(-7, 11, 5);
+sun.target.position.set(3, 1, 3);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048,2048);
+sun.shadow.camera.near = 0.5;
+sun.shadow.camera.far = 40;
+sun.shadow.camera.left=-9; sun.shadow.camera.right=9;
+sun.shadow.camera.top=12;  sun.shadow.camera.bottom=-2;
+sun.shadow.bias = -0.0004;
+sun.shadow.normalBias = 0.02;
+scene.add(sun); scene.add(sun.target);
+
+// soft ceiling fill
+const ceilLight = new THREE.RectAreaLight('#fff6ec', 2.6, ROOM.W*0.7, ROOM.D*0.7);
+ceilLight.position.set(4, ROOM.H-0.05, 4);
+ceilLight.lookAt(4, 0, 4);
+scene.add(ceilLight);
+
+// fill from behind the camera
+const camFill = new THREE.PointLight('#ffffff', 0.3, 40, 1.4);
+camFill.position.set(6, 5.5, 9);
+scene.add(camFill);
+
+// faint cool bounce from the open front to keep shadows from going dead
+const bounce = new THREE.HemisphereLight('#dfeaf6', '#5a5346', 0.25);
+scene.add(bounce);
+
+// simulated window glow on the left wall (skylight ambient from left)
+const windowGlow = new THREE.RectAreaLight('#eaf2ff', 1.1, 2.6, 3.2);
+windowGlow.position.set(0.05, 5.0, 3.0);
+windowGlow.lookAt(4, 4, 3);
+scene.add(windowGlow);
+
+/* =====================================================================
+   GEOMETRY HELPERS
+   ===================================================================== */
+const root = new THREE.Group();
+scene.add(root);
+
+function box(w,h,d,mat,opts={}){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
+  m.castShadow = opts.cast!==false;
+  m.receiveShadow = opts.receive!==false;
+  return m;
+}
+// position helper: place a box by its min-corner + size
+function slab(x,y,z,w,h,d,mat,opts={}){
+  const m=box(w,h,d,mat,opts);
+  m.position.set(x+w/2, y+h/2, z+d/2);
+  root.add(m);
+  return m;
+}
+
+/* =====================================================================
+   SHELL — floor, ceiling, walls
+   ===================================================================== */
+// floor (24x24 tile → 2ft modules; block is 4×4 tiles = 8ft, so repeat span/8)
+const floorMat = tileMat(floorTex, ROOM.W/8, ROOM.D/8);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM.W, ROOM.D), floorMat);
+floor.rotation.x = -Math.PI/2;
+floor.position.set(ROOM.W/2, 0, ROOM.D/2);
+floor.receiveShadow = true;
+root.add(floor);
+
+// ceiling
+const ceil = new THREE.Mesh(new THREE.PlaneGeometry(ROOM.W, ROOM.D), matCeiling);
+ceil.rotation.x = Math.PI/2;
+ceil.position.set(ROOM.W/2, ROOM.H, ROOM.D/2);
+ceil.receiveShadow = true;
+root.add(ceil);
+
+// wall material (12x24 vertical → 1ft wide, 2ft tall: repeat = width/4 across the block of 4, height/8... block is 4x8)
+function wallMat(spanW, spanH){
+  // block holds 4 cols (each = 1ft) and 8 rows (each = 0.5ft? ) → keep tiles 1ft x 2ft:
+  // block width 4 tiles*1ft=4ft, block height 8 rows -> we want 2ft tall tiles so map a 4ft x 8ft block?
+  // Simpler: 12x24 vertical tile = 1ft wide x 2ft tall. block(cols4,rows8) over 4ft x 8ft? that makes rows 1ft.
+  // We want rows=2ft tall, so over the canvas treat block as 4ft wide x 16ft tall visually:
+  return tileMat(wallTex, spanW/4, spanH/16);
+}
+
+// back wall (z=0 plane, faces +Z)
+const backWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM.W, ROOM.H), wallMat(ROOM.W, ROOM.H));
+backWall.position.set(ROOM.W/2, ROOM.H/2, 0);
+backWall.receiveShadow = true;
+root.add(backWall);
+
+// left wall (x=0 plane, faces +X)
+const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM.D, ROOM.H), wallMat(ROOM.D, ROOM.H));
+leftWall.rotation.y = Math.PI/2;
+leftWall.position.set(0, ROOM.H/2, ROOM.D/2);
+leftWall.receiveShadow = true;
+root.add(leftWall);
+
+// right wall (x=W plane, faces -X)
+const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM.D, ROOM.H), wallMat(ROOM.D, ROOM.H));
+rightWall.rotation.y = -Math.PI/2;
+rightWall.position.set(ROOM.W, ROOM.H/2, ROOM.D/2);
+rightWall.receiveShadow = true;
+root.add(rightWall);
+
+// (front wall intentionally omitted — open cutaway for viewing)
+
+// baseboard-free; add a subtle window frame on the left wall (visual cue for natural light)
+(function leftWindow(){
+  const fr = matMatteBlack;
+  const wz = 3.0, wy = 5.0, ww = 2.6, wh = 3.2; // center z, center y, size
+  const t = 0.08;
+  // frame as four thin bars sitting just off the wall
+  const x = 0.06;
+  const mk=(h,d,cy,cz)=>{ const m=box(t,h,d,fr); m.position.set(x,cy,cz); m.castShadow=false; root.add(m); };
+  mk(wh, t, wy, wz-ww/2);
+  mk(wh, t, wy, wz+ww/2);
+  mk(t, ww, wy-wh/2, wz);
+  mk(t, ww, wy+wh/2, wz);
+  // faint glass pane
+  const pane = new THREE.Mesh(new THREE.PlaneGeometry(ww,wh),
+    new THREE.MeshStandardMaterial({color:'#dcebff', roughness:0.1, metalness:0, transparent:true, opacity:0.32, emissive:'#cfe3ff', emissiveIntensity:0.4}));
+  pane.rotation.y = Math.PI/2;
+  pane.position.set(0.04, wy, wz);
+  root.add(pane);
+})();
+
+/* =====================================================================
+   SHOWER — curb, bench, half wall, drain
+   ===================================================================== */
+// low curb at the open front edge of the shower (z = SHOWER.z1), x 0..4
+const curbMat = tileMat(floorTex, 4/8, 0.42/8);
+slab(SHOWER.x0, 0, SHOWER.z1-0.21, SHOWER.x1-SHOWER.x0, 0.33, 0.42, curbMat); // 4" tall, 5" wide curb
+// black Schluter cap on the curb
+slab(SHOWER.x0, 0.33, SHOWER.z1-0.21, SHOWER.x1-SHOWER.x0, 0.03, 0.42, matMatteBlack);
+
+// shower floor — very subtle inset (slope implied), darker grout zone reuse floor tile
+// (we leave the main floor tile to read through; add the centered drain)
+(function drain(){
+  const cx = (SHOWER.x0+SHOWER.x1)/2, cz=(SHOWER.z0+SHOWER.z1)/2;
+  const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.30,0.30,0.04,40), matMatteBlack);
+  ring.position.set(cx, 0.021, cz); ring.castShadow=false; ring.receiveShadow=true; root.add(ring);
+  const cover = new THREE.Mesh(new THREE.BoxGeometry(0.42,0.02,0.42), matMatteBlack);
+  cover.position.set(cx,0.035,cz); cover.castShadow=false; root.add(cover);
+  // slot detail on cover
+  for(let i=-1;i<=1;i++){
+    const s=new THREE.Mesh(new THREE.BoxGeometry(0.30,0.025,0.03), new THREE.MeshStandardMaterial({color:'#000', roughness:0.9, metalness:0.3}));
+    s.position.set(cx, 0.046, cz+i*0.1); root.add(s);
+  }
+})();
+
+// BENCH — full back wall of shower: x 0..4, depth 18" (z 0..1.5), height 17"
+(function bench(){
+  const bw = SHOWER.x1-SHOWER.x0;   // 4ft
+  const bd = 1.5;                    // 18"
+  const bh = 1.417;                  // 17"
+  const bm = tileMat(benchTex, bw/4, bh/16);   // vertical faces → 12×24 module
+  const top = tileMat(benchTex, bw/4, bd/8);   // horizontal top
+  // body (tiled sides) — build as a box, then lay a separate tiled top
+  const body = box(bw, bh, bd, bm);
+  body.position.set(SHOWER.x0+bw/2, bh/2, SHOWER.z0+bd/2);
+  root.add(body);
+  // tiled top surface
+  const topMesh = new THREE.Mesh(new THREE.PlaneGeometry(bw,bd), top);
+  topMesh.rotation.x=-Math.PI/2;
+  topMesh.position.set(SHOWER.x0+bw/2, bh+0.005, SHOWER.z0+bd/2);
+  topMesh.receiveShadow=true; root.add(topMesh);
+  // Schluter matte black edge trim on the front lip
+  slab(SHOWER.x0, bh-0.02, SHOWER.z0+bd-0.04, bw, 0.06, 0.05, matTrim);
+  // small vertical front-edge reveal trim
+  slab(SHOWER.x0, 0, SHOWER.z0+bd-0.03, bw, bh, 0.03, matTrim, {cast:false});
+})();
+
+// HALF WALL — 42" tall, separates shower from toilet, along x = SHOWER.x1
+(function halfWall(){
+  const hw = 0.42;       // 5" thick
+  const hh = 3.5;        // 42"
+  const z0 = 0;          // from back wall
+  const z1 = SHOWER.z1;  // to the shower entry
+  const len = z1 - z0;
+  const m = tileMat(wallTex, len/4, hh/16);
+  const wall = box(hw, hh, len, m);
+  wall.position.set(SHOWER.x1, hh/2, z0+len/2);
+  root.add(wall);
+  // matte black cap trim
+  slab(SHOWER.x1-hw/2-0.01, hh, z0, hw+0.02, 0.06, len, matMatteBlack);
+})();
+
+/* =====================================================================
+   RAIN HEAD SYSTEM — ceiling head + drop arm, thermostatic valve,
+   hand shower on slide bar (all matte black)
+   ===================================================================== */
+(function rainSystem(){
+  const cx = 2.0, cz = 2.2;     // over the open shower area
+  // drop arm from ceiling
+  const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.7,20), matMatteBlack);
+  arm.position.set(cx, ROOM.H-0.35, cz);
+  root.add(arm);
+  // ceiling escutcheon
+  const esc = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,0.04,24), matMatteBlack);
+  esc.position.set(cx, ROOM.H-0.02, cz); esc.castShadow=false; root.add(esc);
+  // large square rain head (16")
+  const headSize = 1.33;
+  const head = new THREE.Mesh(new THREE.BoxGeometry(headSize, 0.07, headSize), matMatteBlack);
+  head.position.set(cx, ROOM.H-0.72, cz);
+  head.castShadow=true; root.add(head);
+  // nozzle face on the underside
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(headSize*0.92, headSize*0.92), matGlassNozzle);
+  face.rotation.x = Math.PI/2;
+  face.position.set(cx, ROOM.H-0.755, cz);
+  root.add(face);
+})();
+
+// THERMOSTATIC VALVE — on left wall
+(function valve(){
+  const x = 0.02, y = 4.0, z = 2.6;   // 48" height
+  // escutcheon plate (rounded rectangle approximated with a thin box + cylinders)
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.10, 1.5, 0.55), matMatteBlack);
+  plate.position.set(x+0.05, y, z);
+  root.add(plate);
+  // thermostatic body
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.16,0.18,28), matMatteBlack);
+  body.rotation.z = Math.PI/2;
+  body.position.set(x+0.16, y+0.32, z);
+  root.add(body);
+  // temperature handle (lever)
+  const h1 = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.05,0.34,18), matMatteBlack);
+  h1.rotation.z = Math.PI/2;
+  h1.position.set(x+0.34, y+0.32, z);
+  root.add(h1);
+  // volume handle (lower round)
+  const body2 = new THREE.Mesh(new THREE.CylinderGeometry(0.14,0.14,0.16,28), matMatteBlack);
+  body2.rotation.z = Math.PI/2;
+  body2.position.set(x+0.16, y-0.34, z);
+  root.add(body2);
+  const lever = new THREE.Mesh(new THREE.BoxGeometry(0.30,0.06,0.06), matMatteBlack);
+  lever.position.set(x+0.34, y-0.34, z+0.12);
+  root.add(lever);
+})();
+
+// HAND SHOWER on slide bar — left wall
+(function handShower(){
+  const x = 0.02, z = 3.5;
+  // slide bar
+  const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,3.0,16), matMatteBlack);
+  bar.position.set(x+0.12, 4.6, z);
+  root.add(bar);
+  // brackets
+  [3.2,6.0].forEach(by=>{
+    const b=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.16,16), matMatteBlack);
+    b.rotation.x=Math.PI/2; b.position.set(x+0.07,by,z); root.add(b);
+  });
+  // sliding holder
+  const holder = new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,0.2,16), matMatteBlack);
+  holder.rotation.x=Math.PI/2; holder.position.set(x+0.16,4.5,z); root.add(holder);
+  // hand shower wand (angled)
+  const wand = new THREE.Group();
+  const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.05,0.6,16), matMatteBlack);
+  handle.position.set(0,-0.2,0);
+  const headH = new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.11,0.12,24), matMatteBlack);
+  headH.position.set(0,0.18,0.04); headH.rotation.x=0.4;
+  const faceH = new THREE.Mesh(new THREE.CircleGeometry(0.10,24), matGlassNozzle);
+  faceH.position.set(0,0.235,0.07); faceH.rotation.x=Math.PI/2 - 0.4;
+  wand.add(handle,headH,faceH);
+  wand.position.set(x+0.26,4.55,z);
+  wand.rotation.z = 0.25;
+  wand.traverse(o=>{ if(o.isMesh){o.castShadow=true;} });
+  root.add(wand);
+  // flexible hose hint
+  const hose = new THREE.Mesh(new THREE.TorusGeometry(0.15,0.03,8,24,Math.PI), matMatteBlack);
+  hose.position.set(x+0.2,4.2,z); hose.rotation.set(0,0,-0.6);
+  root.add(hose);
+})();
+
+/* =====================================================================
+   TOILET — right of the half wall, against back wall
+   ===================================================================== */
+(function toilet(){
+  const tx = 6.0, tz = 0.05;       // centered in the right zone, against back wall
+  const g = new THREE.Group();
+
+  // tank
+  const tank = new THREE.Mesh(new THREE.BoxGeometry(1.05, 1.0, 0.55), matCeramic);
+  tank.position.set(0, 2.05, 0.34);
+  // round the tank visually with a lid
+  const lid = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.12, 0.62), matCeramic);
+  lid.position.set(0, 2.58, 0.34);
+  // flush button
+  const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.06,20), matMatteBlack);
+  btn.position.set(0, 2.66, 0.34);
+
+  // bowl — lathe profile
+  const prof = [];
+  prof.push(new THREE.Vector2(0.06,0.0));
+  prof.push(new THREE.Vector2(0.30,0.02));
+  prof.push(new THREE.Vector2(0.34,0.18));
+  prof.push(new THREE.Vector2(0.22,0.5));
+  prof.push(new THREE.Vector2(0.30,0.95));
+  prof.push(new THREE.Vector2(0.55,1.18));
+  prof.push(new THREE.Vector2(0.62,1.30));
+  const bowlGeo = new THREE.LatheGeometry(prof, 40);
+  const bowl = new THREE.Mesh(bowlGeo, matCeramic);
+  bowl.scale.set(1.0,1.0,1.25);     // elongate front-to-back
+  bowl.position.set(0,0,-0.15);
+
+  // seat ring (flattened torus)
+  const seat = new THREE.Mesh(new THREE.TorusGeometry(0.42,0.10,16,40), matCeramic);
+  seat.rotation.x = Math.PI/2;
+  seat.scale.set(1.0,1.25,1.0);
+  seat.position.set(0,1.34,-0.15);
+  // seat lid (up) hint — thin rounded box behind
+  const seatLid = new THREE.Mesh(new THREE.BoxGeometry(0.9,0.05,0.95), matCeramic);
+  seatLid.position.set(0,1.36,-0.1);
+
+  g.add(tank,lid,btn,bowl,seat,seatLid);
+  g.traverse(o=>{ if(o.isMesh){o.castShadow=true; o.receiveShadow=true;} });
+  g.position.set(tx, 0, tz + 0.6);
+  root.add(g);
+
+  // toilet paper holder on right wall (matte black) — small detail
+  const tp = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,0.4,16), matMatteBlack);
+  tp.rotation.x=Math.PI/2; tp.position.set(ROOM.W-0.1, 2.4, 1.4); root.add(tp);
+})();
+
+/* =====================================================================
+   SMALL STYLING DETAILS — niche in shower wall, towel cue
+   ===================================================================== */
+(function niche(){
+  // recessed niche on the back wall inside shower (above bench)
+  const nx=1.2, ny=4.2, nz=0.02, nw=1.6, nh=1.0, nd=0.28;
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(nw,nh), tileMat(wallTex, nw/4, nh/16));
+  back.position.set(nx, ny, nz+nd);
+  root.add(back);
+  // niche box frame
+  const frameMat = matMatteBlack;
+  const t=0.04;
+  slab(nx-nw/2-t/2, ny-nh/2, nz, t, nh, nd, frameMat,{cast:false});
+  slab(nx+nw/2-t/2, ny-nh/2, nz, t, nh, nd, frameMat,{cast:false});
+  slab(nx-nw/2, ny-nh/2-t, nz, nw, t, nd, frameMat,{cast:false});
+  slab(nx-nw/2, ny+nh/2,   nz, nw, t, nd, frameMat,{cast:false});
+  // a couple of bottles as styling
+  const b1=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.34,16), new THREE.MeshStandardMaterial({color:'#2c3e34',roughness:0.3,metalness:0.1}));
+  b1.position.set(nx-0.4,ny-0.18,nz+0.15); root.add(b1);
+  const b2=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,0.42,16), new THREE.MeshStandardMaterial({color:'#1f1f22',roughness:0.4}));
+  b2.position.set(nx+0.0,ny-0.12,nz+0.15); root.add(b2);
+})();
+
+/* =====================================================================
+   ENVIRONMENT MAP — light room reflection for fixtures
+   ===================================================================== */
+(function envMap(){
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const envScene = new THREE.Scene();
+  // simple gradient room
+  const geo = new THREE.SphereGeometry(40,16,16);
+  const mat = new THREE.MeshBasicMaterial({side:THREE.BackSide});
+  const canv=document.createElement('canvas'); canv.width=8; canv.height=64;
+  const cx=canv.getContext('2d');
+  const grd=cx.createLinearGradient(0,0,0,64);
+  grd.addColorStop(0,'#ffffff'); grd.addColorStop(0.5,'#dfe6ef'); grd.addColorStop(1,'#9aa4b2');
+  cx.fillStyle=grd; cx.fillRect(0,0,8,64);
+  const tex=new THREE.CanvasTexture(canv); tex.colorSpace=THREE.SRGBColorSpace;
+  mat.map=tex;
+  envScene.add(new THREE.Mesh(geo,mat));
+  const env = pmrem.fromScene(envScene).texture;
+  scene.environment = env;
+})();
+
+/* =====================================================================
+   CAMERA PRESETS  (smooth tween via GSAP, manual-lerp fallback)
+   ===================================================================== */
+const VIEWS = {
+  entry:    { pos:new THREE.Vector3(6.6,5.0,7.6),  tgt:new THREE.Vector3(2.6,3.0,1.6) },
+  shower:   { pos:new THREE.Vector3(4.7,4.7,4.6),  tgt:new THREE.Vector3(1.4,3.2,0.9) },
+  overview: { pos:new THREE.Vector3(7.6,7.0,8.6),  tgt:new THREE.Vector3(3.2,2.3,2.8) },
+};
+let tweenT = null;
+function goTo(view){
+  const v = VIEWS[view]; if(!v) return;
+  controls.enabled = false;
+  const camStart = camera.position.clone();
+  const tgtStart = controls.target.clone();
+  if(window.gsap){
+    if(tweenT) tweenT.kill();
+    const o={t:0};
+    tweenT = gsap.to(o,{t:1,duration:1.15,ease:'power3.inOut',
+      onUpdate:()=>{
+        camera.position.lerpVectors(camStart, v.pos, o.t);
+        controls.target.lerpVectors(tgtStart, v.tgt, o.t);
+        controls.update();
+      },
+      onComplete:()=>{ controls.enabled=true; }
+    });
+  } else {
+    // manual lerp fallback
+    const dur=1100, t0=performance.now();
+    (function step(now){
+      let k=Math.min((now-t0)/dur,1);
+      k = k<0.5 ? 4*k*k*k : 1-Math.pow(-2*k+2,3)/2; // easeInOutCubic
+      camera.position.lerpVectors(camStart, v.pos, k);
+      controls.target.lerpVectors(tgtStart, v.tgt, k);
+      controls.update();
+      if(k<1) requestAnimationFrame(step); else controls.enabled=true;
+    })(t0);
+  }
+}
+document.querySelectorAll('.vbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    goTo(btn.dataset.view);
+  });
+});
+
+/* =====================================================================
+   UI — hint fade, loader
+   ===================================================================== */
+setTimeout(()=>document.getElementById('hint').classList.add('gone'), 3200);
+// any interaction also dismisses the hint
+['pointerdown','wheel'].forEach(ev=>renderer.domElement.addEventListener(ev,()=>{
+  document.getElementById('hint').classList.add('gone');
+},{once:true,passive:true}));
+
+/* =====================================================================
+   RESIZE + RENDER LOOP
+   ===================================================================== */
+addEventListener('resize',()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+function animate(){
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+// fade loader once the first frame is up
+requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const l=document.getElementById('loader');
+  l.classList.add('gone');
+  setTimeout(()=>l.remove(),800);
+}));
+</script>
+</body>
+</html>
