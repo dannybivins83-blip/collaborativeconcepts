@@ -425,8 +425,8 @@ document.addEventListener('DOMContentLoaded',function(){
 <div class="flex items-center gap-3"><span class="material-symbols-outlined text-3xl text-[#c0392b]">trending_down</span><h3 class="text-2xl font-bold text-[#c0392b]">Disregard it</h3></div>
 <p class="text-on-surface-variant mt-2 text-[15px]">What "we'll deal with it later" can actually cost.</p>
 <ul class="space-y-3 mt-6 text-on-surface text-[15px] flex-1">
-<li class="flex justify-between gap-4 border-b border-[#c0392b]/15 pb-3"><span>Serious violation (each)</span><span class="font-bold text-[#c0392b] whitespace-nowrap">up to ~$16,000</span></li>
-<li class="flex justify-between gap-4 border-b border-[#c0392b]/15 pb-3"><span>Failure-to-abate, <b>per day</b> past deadline</span><span class="font-bold text-[#c0392b] whitespace-nowrap">~$16,000/day</span></li>
+<li class="flex justify-between gap-4 border-b border-[#c0392b]/15 pb-3"><span>Serious violation (each)</span><span class="font-bold text-[#c0392b] whitespace-nowrap">up to ~$16,500</span></li>
+<li class="flex justify-between gap-4 border-b border-[#c0392b]/15 pb-3"><span>Failure-to-abate, <b>per day</b> past deadline</span><span class="font-bold text-[#c0392b] whitespace-nowrap">~$16,500/day</span></li>
 <li class="flex justify-between gap-4 border-b border-[#c0392b]/15 pb-3"><span>Willful or repeat violation</span><span class="font-bold text-[#c0392b] whitespace-nowrap">up to ~$165,000</span></li>
 <li class="flex justify-between gap-4 border-b border-[#c0392b]/15 pb-3"><span>Injury liability + insurance hikes</span><span class="font-bold text-[#c0392b] whitespace-nowrap">$$$+</span></li>
 <li class="flex justify-between gap-4"><span>Stop-work, delays, reputation</span><span class="font-bold text-[#c0392b] whitespace-nowrap">Hard to price</span></li>
@@ -684,6 +684,10 @@ document.addEventListener('DOMContentLoaded',function(){
   });
   if(new URLSearchParams(location.search).get('submitted')==='1') ev('generate_lead',{form:'wws_assessment'});
 })();
+</script>
+<script>
+  /* a11y: every Material Symbols icon on this page is decorative (paired with visible text or a labelled control), so hide them from assistive tech — otherwise screen readers announce the raw ligature text ("fact_check", "check_circle"…). */
+  (function(){try{document.querySelectorAll('.material-symbols-outlined').forEach(function(s){if(!s.hasAttribute('aria-hidden'))s.setAttribute('aria-hidden','true');});}catch(e){}})();
 </script>
 <script defer src="https://va.vercel-scripts.com/v1/script.js" data-website-id="prj_LkelimAuti9JBNu5B8zB7Rr1ILON"></script>
 </body></html>

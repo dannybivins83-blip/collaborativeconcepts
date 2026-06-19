@@ -501,6 +501,8 @@ def create_lead():
 
     clean = {}
     for k, v in fields.items():
+        if len(clean) >= 40:
+            break
         if k and not k.startswith("_") and str(v).strip():
             clean[k[:60]] = str(v)[:2000]
     lead = {
@@ -759,8 +761,20 @@ SEV = {"high": ("#b3261e", "HIGH"), "med": ("#b8860b", "MEDIUM"), "low": ("#1e7a
 
 
 def _fetch_img(url):
-    """Fetch a durable public image URL into a BytesIO for PDF embedding. Best-effort."""
+    """Fetch a durable public image URL into a BytesIO for PDF embedding.
+    Best-effort, with a light SSRF guard: http(s) only, no loopback/private hosts."""
     try:
+        from urllib.parse import urlparse
+        p = urlparse(url or "")
+        host = (p.hostname or "").lower()
+        if p.scheme not in ("http", "https") or not host:
+            return None
+        if host == "localhost" or host.startswith(("127.", "10.", "192.168.", "169.254.")):
+            return None
+        if host.startswith("172."):
+            seg = host.split(".")
+            if len(seg) > 1 and seg[1].isdigit() and 16 <= int(seg[1]) <= 31:
+                return None
         r = requests.get(url, timeout=8)
         if r.status_code < 300 and r.content:
             return io.BytesIO(r.content)
