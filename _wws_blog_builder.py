@@ -241,9 +241,14 @@ def build_post(p):
     secs = p[9] if len(p) > 9 else (("priority_high","Why it matters"),("event_repeat","How often it's checked"),("construction","How La Gala fixes it"))
     img = slug
     title_plain = title.replace("&amp;","&")
-    meta = (why[:150].rsplit(" ",1)[0]) + "…"
-    head = HEAD.format(title_plain=title_plain, meta=meta, marker=MARKER,
-                       canonical=f"https://wwslgc.collaborativeconceptsfl.com/guides/{slug}", img=img)
+    import re as _re, json as _json
+    meta = (_re.sub(r"<[^>]+>", "", (why or ""))[:150].rsplit(" ", 1)[0]) + "…"
+    canon = f"https://wwslgc.collaborativeconceptsfl.com/guides/{slug}"
+    head = HEAD.format(title_plain=title_plain, meta=meta, marker=MARKER, canonical=canon, img=img)
+    _img = f"https://wwslgc.collaborativeconceptsfl.com/assets/wws/{img}.jpg"
+    _ld = {"@context":"https://schema.org","@type":"Article","headline":title_plain,"description":meta,"image":_img,"author":{"@type":"Organization","name":"La Gala Construction"},"publisher":{"@type":"Organization","name":"La Gala Construction"},"mainEntityOfPage":canon}
+    _bc = {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Compliance guides","item":"https://wwslgc.collaborativeconceptsfl.com/guides"},{"@type":"ListItem","position":2,"name":title_plain,"item":canon}]}
+    head = head.replace("</head>", '<script type="application/ld+json">'+_json.dumps(_ld)+'</script>\n<script type="application/ld+json">'+_json.dumps(_bc)+'</script>\n</head>')
     credit_html = f'<p class="text-xs text-on-surface-variant/60 mt-3 italic">{credit}.</p>' if credit else ""
     foot_credit = f" {credit}." if credit else ""
     art = f"""<main class="overflow-x-hidden">
