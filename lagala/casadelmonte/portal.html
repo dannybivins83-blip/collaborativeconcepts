@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
+<!-- Shared secret for /api/portal/upload. Rotate by generating a new
+     random value (e.g. `openssl rand -hex 24`), setting it as the
+     CDM_PORTAL_SECRET env var on Vercel, AND replacing __REPLACE_ME__
+     here with the same value before redeploy. Both sides must match.
+     Static HTML so the value is technically visible to anyone who
+     views source -- the real open-relay protection lives in the
+     backend lot allowlist. -->
+<meta name="x-portal-secret" content="__REPLACE_ME__">
 <title>La Gala Construction — Owner Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1300,7 +1308,13 @@ async function doUpload(lot){
     fd.append('client_email', CASES[lot].email);
     fd.append('client_owner', CASES[lot].owner);
 
-    const r = await fetch('https://collaborativeconceptsfl.com/api/portal/upload', {method:'POST', body:fd});
+    const _secretEl = document.querySelector('meta[name="x-portal-secret"]');
+    const _secret = _secretEl ? _secretEl.getAttribute('content') : '';
+    const r = await fetch('https://collaborativeconceptsfl.com/api/portal/upload', {
+      method: 'POST',
+      headers: _secret ? {'X-Portal-Secret': _secret} : {},
+      body: fd,
+    });
     const j = await r.json().catch(()=>({error:'Non-JSON response'}));
     if(!r.ok || !j.ok) throw new Error(j.error||('HTTP '+r.status));
 

@@ -621,12 +621,85 @@ def _err_page(msg):
 # ─────────────────────────────────────────────────────────────────────────
 
 import base64
+import hmac
 import re
 from datetime import datetime, timezone
 
 RESEND_KEY  = os.environ.get("RESEND_API_KEY", "")
 RESEND_FROM = os.environ.get("RESEND_FROM_EMAIL", "updates@collaborativeconceptsfl.com")
 PORTAL_BASE = os.environ.get("PORTAL_BASE_URL", "https://casadelmonte.collaborativeconceptsfl.com")
+
+# Shared secret required on every /api/portal/upload call. Rotates by
+# bumping Vercel env var + the corresponding constant in
+# lagala/casadelmonte/portal.html, then redeploy. Layered with the
+# server-side lot allowlist below (which is the actual open-relay
+# kill) -- the secret stops drive-by scanners; the allowlist stops
+# anyone who reads the static HTML from relaying to arbitrary emails.
+CDM_PORTAL_SECRET = os.environ.get("CDM_PORTAL_SECRET", "")
+
+# Authoritative lot → notify-this-email map. When notify_client=1 the
+# request's `client_email` field is IGNORED and we send to the address
+# below instead -- the upload endpoint is never an open relay no
+# matter what the caller posts. Format: comma-separated 'lot=email'
+# pairs in the CDM_LOT_NOTIFY_EMAILS env var. Defaults below cover
+# the 4 currently active Casa Del Monte cases so the live portal
+# keeps working without any env-var setup. Adding a lot? Set the
+# env var with the full updated list (env wins over defaults).
+_LOT_NOTIFY_DEFAULT = (
+    "606=aviladorian82@yahoo.com,"
+    "1416=luiscalderon9956@gmail.com,"
+    "1417=rttalexx@gmail.com,"
+    "1433=josevazquezdope@icloud.com"
+)
+CDM_LOT_NOTIFY_EMAILS = {}
+for _pair in (os.environ.get("CDM_LOT_NOTIFY_EMAILS") or _LOT_NOTIFY_DEFAULT).split(","):
+    _k, _, _v = _pair.partition("=")
+    _k, _v = _k.strip(), _v.strip()
+    if _k and _v:
+        CDM_LOT_NOTIFY_EMAILS[_k] = _v
+
+# Generous-but-real email regex. Catches the obvious malformed inputs
+# (missing @, whitespace, control chars) without trying to be RFC 5321
+# perfect — Resend will reject anything we miss.
+_EMAIL_RE = re.compile(r"^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$")
+
+
+def _is_valid_email(addr):
+    if not addr or len(addr) > 254:
+        return False
+    return bool(_EMAIL_RE.match(addr))
+
+
+def _strip_crlf(s):
+    """Header-injection guard. CR/LF in any field that flows into an
+    email subject / header / displayed text gets stripped. Also caps
+    length to keep the email payload bounded."""
+    if not s:
+        return ""
+    return s.replace("\r", " ").replace("\n", " ")[:200]
+
+
+def _portal_secret_ok():
+    """Constant-time compare against the configured shared secret.
+    Returns False if either side is empty so a missing env var fails
+    closed instead of letting everyone in."""
+    if not CDM_PORTAL_SECRET:
+        return False
+    sent = request.headers.get("X-Portal-Secret", "")
+    if not sent:
+        return False
+    return hmac.compare_digest(sent, CDM_PORTAL_SECRET)
+
+
+def _portal_origin_ok():
+    """Browser cross-origin requests must come from one of the
+    allowlisted origins. Server-to-server callers (curl / scripts)
+    typically don't send Origin -- those pass this check and rely on
+    the shared secret below."""
+    origin = (request.headers.get("origin") or "").strip()
+    if not origin:
+        return True
+    return origin in _PORTAL_CORS_ORIGINS
 
 # Staff CC'd on every upload. Override via PORTAL_STAFF_EMAILS env.
 _STAFF_DEFAULT = (
@@ -760,25 +833,66 @@ def portal_status():
         "portal_base":       PORTAL_BASE,
         "staff_count":       len(PORTAL_STAFF),
         "max_file_mb":       MAX_FILE_BYTES // (1024 * 1024),
+        "auth":              "shared-secret",
+        "secret_configured": bool(CDM_PORTAL_SECRET),
+        "known_lots":        len(CDM_LOT_NOTIFY_EMAILS),
     }))
 
 
 @app.route("/api/portal/upload", methods=["POST"])
 def portal_upload():
+    # 1. Origin check. Browser callers must be on the casadelmonte
+    #    subdomain (CORS allowlist). Server-to-server callers with no
+    #    Origin header fall through to the secret check below.
+    if not _portal_origin_ok():
+        return jsonify({"error": "bad origin"}), 401
+
+    # 2. Shared-secret check. Stops drive-by scanners. Combined with
+    #    the lot allowlist below, the endpoint cannot be used as an
+    #    open relay even by someone who reads the static portal.html.
+    if not _portal_secret_ok():
+        return jsonify({"error": "unauthorized"}), 401
+
     f = request.files.get("file")
     if f is None:
         return jsonify({"error": "no file"}), 400
-    lot           = (request.form.get("lot") or "").strip()
-    category      = (request.form.get("category") or "Other").strip()
-    uploaded_by   = (request.form.get("uploaded_by") or "Staff").strip()
-    uploaded_role = (request.form.get("uploaded_by_role") or "").strip()
+
+    # Strip CR/LF on every text field that ends up in the email
+    # subject / body / header path. Defense-in-depth: Resend already
+    # sanitizes, but we never want to bet on a third party for
+    # header-injection prevention.
+    lot           = _strip_crlf((request.form.get("lot") or "").strip())
+    category      = _strip_crlf((request.form.get("category") or "Other").strip())
+    uploaded_by   = _strip_crlf((request.form.get("uploaded_by") or "Staff").strip())
+    uploaded_role = _strip_crlf((request.form.get("uploaded_by_role") or "").strip())
     internal_only = request.form.get("internal_only") == "1"
     notify        = request.form.get("notify_client") == "1"
-    client_email  = (request.form.get("client_email") or "").strip()
-    client_owner  = (request.form.get("client_owner") or "there").strip()
+    raw_client_email = (request.form.get("client_email") or "").strip()
+    client_owner  = _strip_crlf((request.form.get("client_owner") or "there").strip())
 
     if not lot:
         return jsonify({"error": "lot required"}), 400
+
+    # 3. Client email comes from the server-side allowlist, NOT from
+    #    the request body. Kills the open-relay completely: even an
+    #    attacker with the shared secret can only send to a lot they
+    #    don't control, and only to that lot's pre-authorized
+    #    recipient. The raw_client_email is validated for format
+    #    purely so we can return a useful 400 when the frontend
+    #    misbehaves.
+    if raw_client_email and not _is_valid_email(raw_client_email):
+        return jsonify({"error": "client_email malformed"}), 400
+
+    authorized_email = CDM_LOT_NOTIFY_EMAILS.get(lot)
+    if notify and not internal_only and authorized_email is None:
+        return jsonify({
+            "error": "unknown lot — cannot notify client for lots not in the server allowlist",
+            "lot":   lot,
+        }), 400
+    if authorized_email and not _is_valid_email(authorized_email):
+        # Misconfiguration on our end -- fail loud rather than try to
+        # send to garbage.
+        return jsonify({"error": "server-side allowlist has malformed email for this lot"}), 500
 
     file_bytes = f.read()
     if len(file_bytes) > MAX_FILE_BYTES:
@@ -791,10 +905,10 @@ def portal_upload():
         return jsonify({"error": "empty file"}), 400
 
     filename = _safe_name(f.filename or "document.bin")
-    client_addressed = (notify and not internal_only and bool(client_email))
+    client_addressed = (notify and not internal_only and authorized_email is not None)
 
     # Recipients
-    to_list = [client_email] if client_addressed else (PORTAL_STAFF[:1] or [RESEND_FROM])
+    to_list = [authorized_email] if client_addressed else (PORTAL_STAFF[:1] or [RESEND_FROM])
     if client_addressed:
         cc_list = list(PORTAL_STAFF)
     else:
