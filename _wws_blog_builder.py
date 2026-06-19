@@ -461,7 +461,7 @@ print("Posts:", ", ".join(p[0] for p in POSTS))
 # ---- sync the landing-page gallery from the same POSTS (single source of truth) ----
 def gallery_cards():
     out=""
-    for p in POSTS:
+    for p in POSTS[:8]:
         slug,title,std,short=p[0],p[1],p[2],p[4]
         alt=title.replace("&amp;","&")
         out+=('<a href="/guides/'+slug+'" class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all">'
