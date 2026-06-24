@@ -121,8 +121,28 @@
 
 <!-- sitecam -->
 <div class="bg-white rounded-xl border border-line p-5">
-<h2 class="font-bold text-primary mb-1 flex items-center gap-2"><span class="ms text-secondary">photo_camera</span> Field photos — SiteCam</h2>
+<h2 class="font-bold text-primary mb-1 flex items-center gap-2"><span class="ms text-secondary">photo_camera</span> Step 1 — Field capture (SiteCam)</h2>
+<p class="text-xs text-mute mb-2">On site, open SiteCam, confirm the address/job (auto-filled from this inspection), photograph every anchor and name each photo with its anchor number (A1, R1…). Pull them in here when done — names map straight to the anchor schedule.</p>
 <div id="sitecam"></div>
+<div id="photoGrid" class="mt-4"></div>
+</div>
+
+<!-- anchor schedule -->
+<div class="bg-white rounded-xl border border-line p-5">
+<div class="flex items-center justify-between mb-1"><h2 class="font-bold text-primary flex items-center gap-2"><span class="ms text-secondary">anchor</span> Anchor schedule</h2>
+<div class="flex items-center gap-2">
+<select id="anchorSeries" class="tx" style="width:auto;padding:.3rem .5rem"><option value="A">A · wall</option><option value="R">R · roof/davit</option></select>
+<button onclick="addAnchor()" class="text-sm text-secondary font-semibold inline-flex items-center gap-1"><span class="ms text-base">add</span> Add anchor</button>
+</div></div>
+<p class="text-xs text-mute mb-3">One row per anchor. Number, type, location, test result and any deflection. Photos and the roof plan below reference these numbers.</p>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="text-mute text-xs uppercase"><tr><th class="text-left font-semibold py-1 px-1">#</th><th class="text-left font-semibold px-1">Type</th><th class="text-left font-semibold px-1">Location</th><th class="text-left font-semibold px-1">Result</th><th class="text-left font-semibold px-1">Deflection</th><th class="text-left font-semibold px-1">Note</th><th></th></tr></thead><tbody id="anchors"></tbody></table></div>
+</div>
+
+<!-- roof anchor plan -->
+<div class="bg-white rounded-xl border border-line p-5">
+<h2 class="font-bold text-primary mb-1 flex items-center gap-2"><span class="ms text-secondary">map</span> Roof anchor plan</h2>
+<p class="text-xs text-mute mb-3">Upload your marked roof plan — e.g. a Google-Earth/Bluebeam screenshot with each anchor numbered.</p>
+<div id="diagramBox"></div>
 </div>
 
 </main>
@@ -142,7 +162,8 @@ function save(){
   api('/api/admin/inspection/'+ID,{method:'POST',body:JSON.stringify({
     property:INSP.property,client:INSP.client,inspector:INSP.inspector,pe:INSP.pe,
     findings:INSP.findings,corrective:INSP.corrective,summary:INSP.summary,
-    recommendations:INSP.recommendations,status:INSP.status})}).then(function(d){
+    recommendations:INSP.recommendations,status:INSP.status,
+    anchors:INSP.anchors,diagram:INSP.diagram,photos:INSP.photos})}).then(function(d){
     document.getElementById('saveState').textContent=d.ok?'Saved':'Save failed (storage on?)';
   }).catch(function(){document.getElementById('saveState').textContent='Save failed';});
 }
@@ -165,7 +186,7 @@ function renderAll(){
     el.addEventListener('input',function(){setField(el.getAttribute('data-p'),el.value);if(el.getAttribute('data-p')==='property.name')document.getElementById('ptitle').textContent=el.value||'New inspection';});
   });
   document.getElementById('statusSel').value=INSP.status||'draft';
-  renderStatus(); renderFindings(); renderItems(); renderSitecam();
+  renderStatus(); renderFindings(); renderItems(); renderSitecam(); renderAnchors(); renderDiagram();
 }
 function renderStatus(){
   var m={draft:'bg-white/15',field:'bg-amber-400 text-primary',complete:'bg-green-400 text-primary',sealed:'bg-secondary text-primary'};
@@ -213,6 +234,7 @@ function recalc(){var t=0;(INSP.corrective||[]).forEach(function(it){var n=parse
 var SCRESULTS=[];
 function renderSitecam(){
   var el=document.getElementById('sitecam'), sc=INSP.sitecam||{};
+  renderPhotos();
   if(!SCON){
     el.innerHTML='<p class="text-sm text-mute">SiteCam isn\'t connected yet. Once SiteCam is deployed and its API key is set, you can <b>link the SiteCam project</b> your field crew documented for this property and pull its photos straight into the report\'s photo log.</p>';
     return;
@@ -241,8 +263,77 @@ function linkProject(i){
     if(d.ok){ INSP.sitecam=d.sitecam; renderSitecam(); } else alert(d.error||'Link failed');
   });
 }
-function pullPhotos(){api('/api/admin/inspection/'+ID+'/sitecam/pull',{method:'POST',body:'{}'}).then(function(d){if(d.ok){INSP.photos=d.photos;renderSitecam();alert(d.photos.length+' photo(s) pulled into the report.');}else alert(d.error||'Pull failed');});}
+function pullPhotos(){api('/api/admin/inspection/'+ID+'/sitecam/pull',{method:'POST',body:'{}'}).then(function(d){if(d.ok){INSP.photos=d.photos;renderSitecam();renderPhotos();alert(d.photos.length+' photo(s) pulled into the report.');}else alert(d.error||'Pull failed');});}
 function startCapture(){var box=document.getElementById('scResults');if(box)box.innerHTML='<p class="text-sm text-mute">Creating SiteCam project…</p>';api('/api/admin/inspection/'+ID+'/sitecam/start',{method:'POST',body:'{}'}).then(function(d){if(d.ok){INSP.sitecam=d.sitecam;renderSitecam();}else{if(box)box.innerHTML='';alert(d.error||d.message||'Could not start capture');}});}
+
+/* ---- anchor schedule ---- */
+var ATYPES=['Wall','Roof davit','Tieback','RDS'];
+function nextAnchorNum(series){
+  var max=0;(INSP.anchors||[]).forEach(function(a){var m=String(a.num||'').match(new RegExp('^'+series+'(\\d+)$','i'));if(m){var n=parseInt(m[1],10);if(n>max)max=n;}});
+  return series+(max+1);
+}
+function renderAnchors(){
+  var rows=INSP.anchors||[];
+  document.getElementById('anchors').innerHTML=rows.length?rows.map(function(a,i){
+    var res=(a.result||'Untested');
+    var cell=res==='Pass'?'background:#dcfce7':res==='Fail'?'background:#fee2e2':'';
+    function opt(v,sel){return '<option value="'+esc(v)+'"'+(sel===v?' selected':'')+'>'+esc(v)+'</option>';}
+    return '<tr>'+
+      '<td class="py-1 pr-1"><input class="tx" style="width:64px" value="'+esc(a.num||'')+'" oninput="setAnchor('+i+',\'num\',this.value);refreshPhotoAnchorOpts()"/></td>'+
+      '<td class="px-1"><select class="tx" style="width:120px" onchange="setAnchor('+i+',\'type\',this.value)">'+ATYPES.map(function(t){return opt(t,a.type||'Wall');}).join('')+'</select></td>'+
+      '<td class="px-1"><input class="tx" value="'+esc(a.location||'')+'" oninput="setAnchor('+i+',\'location\',this.value)"/></td>'+
+      '<td class="px-1" style="'+cell+'"><select class="tx" style="width:100px;background:transparent" onchange="setAnchor('+i+',\'result\',this.value);renderAnchors()">'+['Untested','Pass','Fail'].map(function(t){return opt(t,res);}).join('')+'</select></td>'+
+      '<td class="px-1"><input class="tx" style="width:80px" placeholder="1/32&quot;" value="'+esc(a.deflection||'')+'" oninput="setAnchor('+i+',\'deflection\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" value="'+esc(a.note||'')+'" oninput="setAnchor('+i+',\'note\',this.value)"/></td>'+
+      '<td><button onclick="delAnchor('+i+')" class="text-mute hover:text-red-600"><span class="ms text-base">close</span></button></td></tr>';
+  }).join(''):'<tr><td colspan="7" class="py-3 text-sm text-mute">No anchors yet — pick a series and click &ldquo;Add anchor&rdquo;.</td></tr>';
+}
+function setAnchor(i,k,v){INSP.anchors[i][k]=v;markDirty();}
+function addAnchor(){if(!INSP.anchors)INSP.anchors=[];var s=document.getElementById('anchorSeries').value||'A';INSP.anchors.push({num:nextAnchorNum(s),type:s==='R'?'Roof davit':'Wall',location:'',result:'Untested',deflection:'',note:''});renderAnchors();refreshPhotoAnchorOpts();markDirty();}
+function delAnchor(i){INSP.anchors.splice(i,1);renderAnchors();refreshPhotoAnchorOpts();markDirty();}
+
+/* ---- roof anchor plan ---- */
+function renderDiagram(){
+  var box=document.getElementById('diagramBox');
+  if(INSP.diagram){
+    box.innerHTML='<div class="space-y-2"><img src="'+esc(INSP.diagram)+'" class="max-h-72 rounded-lg border border-line"/><div><button onclick="removeDiagram()" class="rbtn"><span class="ms text-base align-middle">delete</span> Remove</button></div></div>';
+  } else {
+    box.innerHTML='<label class="docbtn cursor-pointer"><span class="ms text-base">upload</span> Upload plan image<input type="file" accept="image/*" class="hidden" onchange="onDiagramFile(this)"/></label>';
+  }
+}
+function onDiagramFile(inp){
+  var f=inp.files&&inp.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){INSP.diagram=r.result;renderDiagram();markDirty();};
+  r.readAsDataURL(f);
+}
+function removeDiagram(){INSP.diagram='';renderDiagram();markDirty();}
+
+/* ---- photo → anchor tagging ---- */
+function anchorOptsHTML(sel){
+  var opts='<option value="">—</option>';
+  (INSP.anchors||[]).forEach(function(a){if(a.num)opts+='<option value="'+esc(a.num)+'"'+(sel===a.num?' selected':'')+'>'+esc(a.num)+'</option>';});
+  return opts;
+}
+function renderPhotos(){
+  var box=document.getElementById('photoGrid');if(!box)return;
+  var ph=INSP.photos||[];
+  if(!ph.length){box.innerHTML='<p class="text-sm text-mute">No photos yet — pull them from SiteCam above.</p>';return;}
+  box.innerHTML='<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">'+ph.map(function(p,i){
+    var src=p.url||p.thumb||p.src||'';
+    return '<div class="border border-line rounded-lg overflow-hidden">'+
+      (src?'<img src="'+esc(src)+'" class="w-full h-28 object-cover"/>':'<div class="w-full h-28 bg-surface flex items-center justify-center text-mute"><span class="ms">image</span></div>')+
+      '<div class="p-2 space-y-1">'+
+      (p.name?'<div class="text-[11px] text-mute truncate">'+esc(p.name)+'</div>':'')+
+      '<div class="flex gap-1"><select class="tx photoAnchorSel" style="padding:.2rem .3rem;font-size:12px" onchange="setPhoto('+i+',\'anchor\',this.value)">'+anchorOptsHTML(p.anchor||'')+'</select>'+
+      '<select class="tx" style="padding:.2rem .3rem;font-size:12px;width:auto" onchange="setPhoto('+i+',\'result\',this.value)"><option value=""'+(!p.result?' selected':'')+'>—</option><option value="Pass"'+(p.result==='Pass'?' selected':'')+'>Pass</option><option value="Fail"'+(p.result==='Fail'?' selected':'')+'>Fail</option></select></div>'+
+      '</div></div>';
+  }).join('')+'</div>';
+}
+function setPhoto(i,k,v){INSP.photos[i][k]=v;markDirty();}
+function refreshPhotoAnchorOpts(){
+  document.querySelectorAll('.photoAnchorSel').forEach(function(sel){var cur=sel.value;sel.innerHTML=anchorOptsHTML(cur);sel.value=cur;});
+}
 
 function doc(kind){ if(T){clearTimeout(T);save();} setTimeout(function(){window.open('/api/admin/inspection/'+ID+'/doc/'+kind,'_blank');},250); }
 
