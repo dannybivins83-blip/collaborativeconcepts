@@ -764,6 +764,10 @@ def _fetch_img(url):
     """Fetch a durable public image URL into a BytesIO for PDF embedding.
     Best-effort, with a light SSRF guard: http(s) only, no loopback/private hosts."""
     try:
+        if (url or "").startswith("data:"):
+            import base64 as _b64
+            b64 = url.partition(",")[2]
+            return io.BytesIO(_b64.b64decode(b64)) if b64 else None
         from urllib.parse import urlparse
         p = urlparse(url or "")
         host = (p.hostname or "").lower()
@@ -977,6 +981,32 @@ def doc_report(insp):
     story.append(bt); story.append(Spacer(1, 4))
     if insp.get("summary"):
         story.append(Paragraph("Summary", st["sect"])); story.append(Paragraph(_esc(insp["summary"]), st["body"]))
+    diagram = insp.get("diagram") or ""
+    anchors = insp.get("anchors") or []
+    if diagram:
+        story.append(Paragraph("Roof anchor plan", st["sect"]))
+        dbuf = _fetch_img(diagram) if _RL else None
+        if dbuf is not None:
+            try:
+                story.append(Image(dbuf, width=6.9 * inch, height=4.6 * inch, kind="proportional"))
+            except Exception:
+                pass
+    if anchors:
+        story.append(Paragraph("Anchor schedule", st["sect"]))
+        arows = [[Paragraph("#", st["thc"]), Paragraph("Type", st["th"]), Paragraph("Location", st["th"]),
+                  Paragraph("Result", st["thc"]), Paragraph("Deflection", st["thc"]), Paragraph("Note", st["th"])]]
+        for a in anchors:
+            res = (a.get("result") or "").lower()
+            rc = GREEN if res == "pass" else (RED if res == "fail" else GREY)
+            arows.append([Paragraph(_esc(a.get("num", "")), st["tdc"]), Paragraph(_esc(a.get("type", "")), st["td"]),
+                          Paragraph(_esc(a.get("location", "")), st["td"]),
+                          Paragraph('<font color="%s"><b>%s</b></font>' % (rc, _esc(a.get("result", "") or "—")), st["tdc"]),
+                          Paragraph(_esc(a.get("deflection", "")), st["tdc"]), Paragraph(_esc(a.get("note", "")), st["td"])])
+        at = Table(arows, colWidths=[0.5 * inch, 1.3 * inch, 1.8 * inch, 0.8 * inch, 0.9 * inch, 1.8 * inch], repeatRows=1)
+        at.setStyle(_dtable_style()); _dzebra(at, len(arows)); story.append(at)
+        npass = sum(1 for a in anchors if (a.get("result") or "").lower() == "pass")
+        nfail = sum(1 for a in anchors if (a.get("result") or "").lower() == "fail")
+        story.append(Paragraph("%d anchors - %d pass, %d fail." % (len(anchors), npass, nfail), st["disc"]))
     story.append(Paragraph("Findings", st["sect"]))
     if defs:
         rows = [[Paragraph("Standard", st["th"]), Paragraph("Finding", st["th"]), Paragraph("Severity", st["thc"]), Paragraph("Note", st["th"])]]
@@ -988,11 +1018,11 @@ def doc_report(insp):
         t.setStyle(_dtable_style()); _dzebra(t, len(rows)); story.append(t)
     else:
         story.append(Paragraph("No deficiencies were identified at the time of inspection.", st["body"]))
-    photos = insp.get("photos") or []
+    photos = sorted(insp.get("photos") or [], key=lambda p: (not p.get("anchor"), p.get("anchor", "")))
     if photos:
         story.append(Paragraph("Photo log", st["sect"]))
         cells = []
-        for ph in photos[:9]:
+        for ph in photos[:30]:
             img_url = ph.get("thumbUrl") or ph.get("url") or ""
             flow = []
             buf2 = _fetch_img(img_url) if (_RL and img_url) else None
@@ -1003,9 +1033,12 @@ def doc_report(insp):
                     flow.append(Paragraph(_esc(img_url), st["td"]))
             else:
                 flow.append(Paragraph(_esc(img_url or "captured in SiteCam"), st["td"]))
-            cap = _esc(ph.get("caption", ""))
-            if cap:
-                flow.append(Paragraph(cap, st["tdc"]))
+            anc = ph.get("anchor", ""); pres = (ph.get("result", "") or "")
+            if anc:
+                rc = GREEN if pres.lower() == "pass" else (RED if pres.lower() == "fail" else GREY)
+                flow.append(Paragraph('<font color="%s"><b>%s</b></font>' % (rc, _esc(anc + (" - " + pres if pres else ""))), st["tdc"]))
+            elif ph.get("caption"):
+                flow.append(Paragraph(_esc(ph.get("caption", "")), st["tdc"]))
             cells.append(flow)
         while len(cells) % 3 != 0:
             cells.append("")
@@ -1015,8 +1048,8 @@ def doc_report(insp):
                                 ("TOPPADDING", (0, 0), (-1, -1), 4), ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
                                 ("LEFTPADDING", (0, 0), (-1, -1), 3), ("RIGHTPADDING", (0, 0), (-1, -1), 3)]))
         story.append(gt)
-        if len(photos) > 9:
-            story.append(Paragraph("+ %d more photo(s) in SiteCam." % (len(photos) - 9), st["disc"]))
+        if len(photos) > 30:
+            story.append(Paragraph("+ %d more photo(s) in SiteCam." % (len(photos) - 30), st["disc"]))
     if insp.get("recommendations"):
         story.append(Paragraph("Recommendations", st["sect"])); story.append(Paragraph(_esc(insp["recommendations"]), st["body"]))
     story.append(Paragraph("La Gala Construction provides licensed contracting services; engineered inspection and anchorage load-test certification are performed and sealed by an independent licensed Florida professional engineer. La Gala does not provide engineering services. Not legal advice.", st["disc"]))
@@ -1153,7 +1186,7 @@ def insp_create():
         "property": prop, "client": client,
         "inspector": b.get("inspector") or {"name": s.get("name", ""), "license": "CGC059211"},
         "pe": b.get("pe") or {}, "findings": _seed_findings(),
-        "summary": "", "recommendations": "", "corrective": [], "photos": [], "sitecam": {},
+        "summary": "", "recommendations": "", "corrective": [], "photos": [], "anchors": [], "diagram": "", "sitecam": {},
         "source_lead_id": b.get("lead_id", ""), "source_request_id": b.get("request_id", ""),
     }
     if not _insp_save(insp):
@@ -1196,7 +1229,7 @@ def insp_update(iid):
     if not x:
         return jsonify({"error": "not found"}), 404
     b = request.get_json(force=True, silent=True) or {}
-    for k in ("property", "client", "inspector", "pe", "findings", "corrective", "photos", "summary", "recommendations", "status", "sitecam"):
+    for k in ("property", "client", "inspector", "pe", "findings", "corrective", "photos", "anchors", "diagram", "summary", "recommendations", "status", "sitecam"):
         if k in b:
             x[k] = b[k]
     _insp_save(x)
@@ -1263,7 +1296,11 @@ def _sitecam_fetch_photos(pid):
     raw = data.get("photos") if isinstance(data, dict) else (data if isinstance(data, list) else [])
     out = []
     for p in (raw or []):
+        desc = (p.get("description", "") or "").strip()
+        d = desc.upper().replace(" ", "")
+        anc = d if (d and len(d) <= 6 and ((d[0:1].isalpha() and d[1:].isdigit()) or d.isdigit())) else ""
         out.append({"url": p.get("url", ""), "thumbUrl": p.get("thumbUrl", ""),
+                    "anchor": anc, "result": "",
                     "caption": p.get("description", ""), "gps": p.get("gps", ""),
                     "ts": p.get("capturedAt")})
     return out
