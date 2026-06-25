@@ -158,11 +158,11 @@ leader("EXISTING 12\" CMU WALL", xy=(2.4, 6.4), xytext=(3.55, 6.9),
        ha="left", fs=8)
 # NEW 8" CMU GARAGE WALL leader — struck through in markup: removed.
 # DIAGONAL CRACK
-leader("DIAGONAL CRACK —\nAT NEW/EXISTING TIE-IN", xy=(6.45, 9.7),
-       xytext=(9.0, 8.9), ha="left")
+leader("DIAGONAL CRACK —\nAT NEW/EXISTING TIE-IN", xy=(6.6, 9.4),
+       xytext=(9.6, 9.0), ha="left")
 # EXIST. REBAR EXPOSED
 leader("EXIST. REBAR EXPOSED\nAT CRACK (V.I.F.)", xy=(5.7, 12.4),
-       xytext=(8.5, 13.3), ha="left")
+       xytext=(9.0, 13.3), ha="left")
 
 # ----------------------------------------------------------------------------
 # CLEAR-WIDTH dimensions — measured BETWEEN the hash-marked walls (the open
@@ -192,6 +192,9 @@ def clear_dim_v(x, ya, yb, text):
 clear_dim_h(2.4 + T12 / 2, 7.0 - T8 / 2, 4.6, "12\" WIDE")
 # Clear height of the left room bay, exterior-wall face down to room-stub face.
 clear_dim_v(0.95, 8.0 + T12 / 2, 14.7 - T12 / 2, "12\" WIDE")
+# Clear height of the right garage bay, exterior-wall face down to garage-stub
+# face — the circled span, dimensioned 8" WIDE.
+clear_dim_v(8.3, 8.4 + T8 / 2, 14.7 - T12 / 2, "8\" WIDE")
 
 # ----------------------------------------------------------------------------
 # North arrow — circled-N compass, pointing DOWN (north reoriented per markup)
