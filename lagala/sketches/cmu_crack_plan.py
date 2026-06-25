@@ -152,12 +152,11 @@ def leader(text, xy, xytext, ha="left", va="center", fs=8.5):
                 arrowprops=dict(arrowstyle="-", color=NAVY, lw=0.9,
                                 shrinkA=0, shrinkB=2))
 
-# EXISTING 12" CMU WALL leader — kept only in variant B (per markup, the
-# existing-wall leader was left un-struck; A replaces it with a width dim).
-if VARIANT == "B":
-    leader("EXISTING 12\" CMU WALL", xy=(2.4, 5.2), xytext=(3.05, 6.0),
-           ha="left")
-# NEW 8" CMU GARAGE WALL leader — struck through in markup: removed in A and B.
+# EXISTING 12" CMU WALL leader — kept (left un-struck in markup); placed in the
+# open channel so it clears the vertical clear-width dimension on the left.
+leader("EXISTING 12\" CMU WALL", xy=(2.4, 6.4), xytext=(3.55, 6.9),
+       ha="left", fs=8)
+# NEW 8" CMU GARAGE WALL leader — struck through in markup: removed.
 # DIAGONAL CRACK
 leader("DIAGONAL CRACK —\nAT NEW/EXISTING TIE-IN", xy=(6.45, 9.7),
        xytext=(9.0, 8.9), ha="left")
@@ -166,30 +165,33 @@ leader("EXIST. REBAR EXPOSED\nAT CRACK (V.I.F.)", xy=(5.7, 12.4),
        xytext=(8.5, 13.3), ha="left")
 
 # ----------------------------------------------------------------------------
-# Wall-WIDTH dimension callouts per markup: a double-headed dimension arrow
-# spanning the wall thickness + a boxed "X" WIDE" label on a thin leader.
-def width_dim(text, p0, p1, box_xy):
-    ax.annotate("", xy=p1, xytext=p0,
-                arrowprops=dict(arrowstyle="<|-|>", color=NAVY, lw=1.3,
-                                mutation_scale=10, shrinkA=0, shrinkB=0),
+# CLEAR-WIDTH dimensions — measured BETWEEN the hash-marked walls (the open
+# areas), NOT across the wall rectangles.  Double-arrow runs face-to-face; the
+# walls themselves act as the witness lines.
+def clear_dim_h(xa, xb, y, text):
+    ax.annotate("", xy=(xb, y), xytext=(xa, y),
+                arrowprops=dict(arrowstyle="<|-|>", color=NAVY, lw=1.4,
+                                mutation_scale=13, shrinkA=0, shrinkB=0),
                 zorder=11)
-    bx, by = box_xy
-    mid = ((p0[0] + p1[0]) / 2.0, (p0[1] + p1[1]) / 2.0)
-    ax.plot([bx, mid[0]], [by, mid[1]], color=NAVY, lw=0.8, zorder=10)
-    ax.text(bx, by, text, ha="center", va="center", fontsize=10,
-            color=NAVY, fontweight="bold", zorder=12,
-            bbox=dict(boxstyle="round,pad=0.28", fc="white", ec=NAVY, lw=1.2))
+    ax.text((xa + xb) / 2.0, y + 0.30, text, ha="center", va="bottom",
+            fontsize=10.5, color=NAVY, fontweight="bold", zorder=12,
+            bbox=dict(boxstyle="round,pad=0.26", fc="white", ec=NAVY, lw=1.1))
 
-# exterior wall — vertical thickness dim (12" WIDE); label ABOVE the wall in
-# open space so it clears the rebar leader below.
-width_dim("12\" WIDE", (10.0, 14.7 - T12 / 2), (10.0, 14.7 + T12 / 2),
-          (10.0, 15.75))
-# room wall — horizontal thickness dim (12" WIDE)
-width_dim("12\" WIDE", (2.4 - T12 / 2, 6.7), (2.4 + T12 / 2, 6.7),
-          (3.85, 6.7))
-# garage wall — horizontal thickness dim (8" WIDE, the only 8" wall)
-width_dim("8\" WIDE", (7.0 - T8 / 2, 6.7), (7.0 + T8 / 2, 6.7),
-          (8.35, 6.7))
+def clear_dim_v(x, ya, yb, text):
+    ax.annotate("", xy=(x, yb), xytext=(x, ya),
+                arrowprops=dict(arrowstyle="<|-|>", color=NAVY, lw=1.4,
+                                mutation_scale=13, shrinkA=0, shrinkB=0),
+                zorder=11)
+    ax.text(x + 0.30, (ya + yb) / 2.0, text, ha="left", va="center",
+            rotation=90, fontsize=10.5, color=NAVY, fontweight="bold",
+            zorder=12,
+            bbox=dict(boxstyle="round,pad=0.26", fc="white", ec=NAVY, lw=1.1))
+
+# Clear opening between the existing (room) wall and the new (garage) wall —
+# face-to-face across the area between them.
+clear_dim_h(2.4 + T12 / 2, 7.0 - T8 / 2, 4.6, "12\" WIDE")
+# Clear height of the left room bay, exterior-wall face down to room-stub face.
+clear_dim_v(0.95, 8.0 + T12 / 2, 14.7 - T12 / 2, "12\" WIDE")
 
 # ----------------------------------------------------------------------------
 # North arrow — circled-N compass, pointing DOWN (north reoriented per markup)
@@ -288,8 +290,8 @@ for (label, val), (lx, vx, cy) in zip(fields_right, rcells):
                fontsize=7.6, color=NAVY)
 
 # ----------------------------------------------------------------------------
-out_pdf = "cmu_crack_plan_SK-1_%s.pdf" % VARIANT
-out_png = "cmu_crack_plan_SK-1_%s.png" % VARIANT
+out_pdf = "cmu_crack_plan_SK-1.pdf"
+out_png = "cmu_crack_plan_SK-1.png"
 fig.savefig(out_pdf)
 fig.savefig(out_png, dpi=150)
 print("wrote", out_pdf, out_png)
