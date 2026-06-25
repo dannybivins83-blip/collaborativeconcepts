@@ -75,8 +75,13 @@ def cmu_segment(p0, p1, t, hatch="//"):
     poly.set_linewidth(1.6)
     ax.add_patch(poly)
 
-# Existing exterior wall (horizontal, 12")  (0.7,14.7) -> (11.5,14.7)
-cmu_segment((0.7, 14.7), (11.5, 14.7), T12)
+# Existing exterior wall (horizontal, 12")  — extended further right to read
+# as a continuing wall (0.7,14.7) -> (12.6,14.7)
+cmu_segment((0.7, 14.7), (12.6, 14.7), T12)
+# break marks at the right end to signify the wall continues beyond the sheet
+for bx in (12.15, 12.35):
+    ax.plot([bx - 0.10, bx + 0.10], [14.7 - 0.40, 14.7 + 0.40],
+            color=NAVY, lw=1.1, zorder=4)
 
 # Existing ROOM wall — L-shape, 12"
 #   stub (0.7,8.0)->(2.4,8.0) ; vertical (2.4,8.0)->(2.4,0.5)
@@ -97,12 +102,13 @@ ax.add_patch(Polygon(rebar, closed=True, facecolor="none",
                      edgecolor=RED, lw=1.1, hatch="xxxx", zorder=5))
 
 # ----------------------------------------------------------------------------
-# Crack notch (zigzag) IN the exterior wall — red, bold
-notch = [(4.7, 14.7), (4.95, 15.25), (5.15, 14.95), (5.4, 15.35),
-         (5.65, 15.0), (5.9, 14.7)]
+# Crack notch (zigzag) IN the exterior wall — red, bold.
+# Enlarged + sharpened per markup: taller, sharper sawtooth peaks.
+notch = [(4.55, 14.7), (4.85, 15.60), (5.1, 14.95), (5.4, 15.75),
+         (5.65, 14.95), (5.95, 15.55), (6.1, 14.7)]
 nx = [p[0] for p in notch]
 ny = [p[1] for p in notch]
-ax.plot(nx, ny, color=RED, lw=2.6, solid_capstyle="round",
+ax.plot(nx, ny, color=RED, lw=3.0, solid_capstyle="round",
         solid_joinstyle="round", zorder=8)
 
 # Diagonal crack — two parallel jagged lines to garage top corner (7.0,8.4)
@@ -118,16 +124,18 @@ for crack in (crackA, crackB):
 ax.plot(7.0, 8.4, "o", color=RED, ms=6, zorder=9)
 
 # ----------------------------------------------------------------------------
-# Area labels
-ax.text(1.4, 11.6, "ROOM\n(EXISTING)", ha="center", va="center",
-        fontsize=11, color=NAVY, fontweight="bold")
-ax.text(9.9, 11.6, "GARAGE\n(NEW)", ha="center", va="center",
-        fontsize=11, color=NAVY, fontweight="bold")
+# Area labels — placed INSIDE their spaces per markup.
+# ROOM sits in the narrow left bay, rotated to fit the column.
+ax.text(1.10, 4.0, "ROOM (EXISTING)", ha="center", va="center", rotation=90,
+        fontsize=15, color=NAVY, fontweight="bold")
+# GARAGE sits large in the open garage interior (right of the 8" wall).
+ax.text(10.0, 4.6, "GARAGE\n(NEW)", ha="center", va="center",
+        fontsize=17, color=NAVY, fontweight="bold")
 
 # Top centered title for the exterior wall
-ax.text(6.1, 16.35, "OUTSIDE WALL", ha="center", va="center",
+ax.text(6.1, 16.55, "OUTSIDE WALL", ha="center", va="center",
         fontsize=12.5, color=NAVY, fontweight="bold")
-ax.text(6.1, 15.85, "(EXTERIOR – EXISTING 12\" CMU)", ha="center",
+ax.text(6.1, 16.10, "(EXTERIOR – EXISTING 12\" CMU)", ha="center",
         va="center", fontsize=9, color=NAVY)
 
 # ----------------------------------------------------------------------------
@@ -152,25 +160,31 @@ leader("EXIST. REBAR EXPOSED\nAT CRACK (V.I.F.)", xy=(5.7, 12.4),
        xytext=(8.5, 13.3), ha="left")
 
 # ----------------------------------------------------------------------------
-# Thickness dimension callouts
+# Thickness dimension callouts — enlarged + bolder per markup so the
+# 12" (both existing walls) and 8" (the only new garage wall) read clearly.
 def thick_callout(text, x, y):
-    ax.text(x, y, text, ha="center", va="center", fontsize=7.5,
+    ax.text(x, y, text, ha="center", va="center", fontsize=11,
             color=NAVY, fontweight="bold", zorder=11,
-            bbox=dict(boxstyle="round,pad=0.18", fc="white",
-                      ec=NAVY, lw=0.7))
+            bbox=dict(boxstyle="round,pad=0.30", fc="white",
+                      ec=NAVY, lw=1.3))
 
-thick_callout("12\"", 9.4, 14.7)    # exterior wall (on centerline)
-thick_callout("12\"", 2.4, 6.7)     # room wall (on centerline)
-thick_callout("8\"", 7.0, 6.7)      # garage wall (on centerline)
+thick_callout("12\"", 9.4, 14.7)    # exterior wall — EXISTING 12"
+thick_callout("12\"", 2.4, 6.7)     # room wall    — EXISTING 12"
+thick_callout("8\"", 7.0, 6.7)      # garage wall  — NEW 8" (only 8" wall)
 
 # ----------------------------------------------------------------------------
-# North arrow (north = up)
-nax, nay = 11.9, 15.6
-ax.annotate("", xy=(nax, nay + 0.95), xytext=(nax, nay - 0.2),
-            arrowprops=dict(arrowstyle="-|>", color=NAVY, lw=1.8,
-                            mutation_scale=18))
-ax.text(nax, nay + 1.25, "N", ha="center", va="center", fontsize=11,
-        color=NAVY, fontweight="bold")
+# North arrow — circled-N compass, pointing DOWN (north reoriented per markup)
+from matplotlib.patches import Circle
+ncx, ncy, nr = 12.05, 16.40, 0.46
+ax.add_patch(Circle((ncx, ncy), nr, fill=False, edgecolor=NAVY, lw=1.6,
+                    zorder=10))
+# arrow through the circle pointing down
+ax.annotate("", xy=(ncx, ncy - nr - 0.30), xytext=(ncx, ncy + nr - 0.02),
+            arrowprops=dict(arrowstyle="-|>", color=NAVY, lw=2.0,
+                            mutation_scale=18), zorder=11)
+# "N" at the arrowhead (south-on-page = true north)
+ax.text(ncx, ncy - nr - 0.52, "N", ha="center", va="center", fontsize=12,
+        color=NAVY, fontweight="bold", zorder=11)
 
 # ----------------------------------------------------------------------------
 # NOTE box
