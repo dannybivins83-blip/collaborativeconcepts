@@ -189,9 +189,9 @@ def clear_dim_v(x, ya, yb, text):
 
 # Clear opening between the existing (room) wall and the new (garage) wall —
 # face-to-face across the area between them.
-clear_dim_h(2.4 + T12 / 2, 7.0 - T8 / 2, 4.6, "12\" WIDE")
+clear_dim_h(2.4 + T12 / 2, 7.0 - T8 / 2, 4.6, "8\" WIDE")
 # Clear height of the left room bay, exterior-wall face down to room-stub face.
-clear_dim_v(0.95, 8.0 + T12 / 2, 14.7 - T12 / 2, "12\" WIDE")
+clear_dim_v(0.95, 8.0 + T12 / 2, 14.7 - T12 / 2, "8\" WIDE")
 # Clear height of the right garage bay, exterior-wall face down to garage-stub
 # face — the circled span, dimensioned 8" WIDE.
 clear_dim_v(8.3, 8.4 + T8 / 2, 14.7 - T12 / 2, "8\" WIDE")
