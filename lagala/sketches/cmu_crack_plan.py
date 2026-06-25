@@ -8,6 +8,7 @@ Geometry reproduced from the provided hand-sketch coordinate spec.
 Origin bottom-left, drawing data space x:0-13, y:0-17, equal aspect.
 """
 
+import sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -15,6 +16,11 @@ from matplotlib.patches import Polygon, Rectangle, FancyArrow, PathPatch
 from matplotlib.path import Path
 from matplotlib.lines import Line2D
 import numpy as np
+
+# Variant per markup A/B question:
+#   A = drop BOTH wordy CMU-wall leaders, replace with "X" WIDE" dimensions
+#   B = keep "EXISTING 12" CMU WALL" leader; only drop the garage leader
+VARIANT = (sys.argv[1].upper() if len(sys.argv) > 1 else "A")
 
 # ----------------------------------------------------------------------------
 # Palette
@@ -146,12 +152,12 @@ def leader(text, xy, xytext, ha="left", va="center", fs=8.5):
                 arrowprops=dict(arrowstyle="-", color=NAVY, lw=0.9,
                                 shrinkA=0, shrinkB=2))
 
-# EXISTING 12" CMU WALL -> left interior wall (label sits in open middle channel)
-leader("EXISTING 12\" CMU WALL", xy=(2.4, 5.2), xytext=(3.05, 6.0),
-       ha="left")
-# NEW 8" CMU GARAGE WALL -> right interior wall (label in open garage interior)
-leader("NEW 8\" CMU GARAGE WALL", xy=(7.0, 5.2), xytext=(7.55, 4.0),
-       ha="left")
+# EXISTING 12" CMU WALL leader — kept only in variant B (per markup, the
+# existing-wall leader was left un-struck; A replaces it with a width dim).
+if VARIANT == "B":
+    leader("EXISTING 12\" CMU WALL", xy=(2.4, 5.2), xytext=(3.05, 6.0),
+           ha="left")
+# NEW 8" CMU GARAGE WALL leader — struck through in markup: removed in A and B.
 # DIAGONAL CRACK
 leader("DIAGONAL CRACK —\nAT NEW/EXISTING TIE-IN", xy=(6.45, 9.7),
        xytext=(9.0, 8.9), ha="left")
@@ -160,17 +166,30 @@ leader("EXIST. REBAR EXPOSED\nAT CRACK (V.I.F.)", xy=(5.7, 12.4),
        xytext=(8.5, 13.3), ha="left")
 
 # ----------------------------------------------------------------------------
-# Thickness dimension callouts — enlarged + bolder per markup so the
-# 12" (both existing walls) and 8" (the only new garage wall) read clearly.
-def thick_callout(text, x, y):
-    ax.text(x, y, text, ha="center", va="center", fontsize=11,
-            color=NAVY, fontweight="bold", zorder=11,
-            bbox=dict(boxstyle="round,pad=0.30", fc="white",
-                      ec=NAVY, lw=1.3))
+# Wall-WIDTH dimension callouts per markup: a double-headed dimension arrow
+# spanning the wall thickness + a boxed "X" WIDE" label on a thin leader.
+def width_dim(text, p0, p1, box_xy):
+    ax.annotate("", xy=p1, xytext=p0,
+                arrowprops=dict(arrowstyle="<|-|>", color=NAVY, lw=1.3,
+                                mutation_scale=10, shrinkA=0, shrinkB=0),
+                zorder=11)
+    bx, by = box_xy
+    mid = ((p0[0] + p1[0]) / 2.0, (p0[1] + p1[1]) / 2.0)
+    ax.plot([bx, mid[0]], [by, mid[1]], color=NAVY, lw=0.8, zorder=10)
+    ax.text(bx, by, text, ha="center", va="center", fontsize=10,
+            color=NAVY, fontweight="bold", zorder=12,
+            bbox=dict(boxstyle="round,pad=0.28", fc="white", ec=NAVY, lw=1.2))
 
-thick_callout("12\"", 9.4, 14.7)    # exterior wall — EXISTING 12"
-thick_callout("12\"", 2.4, 6.7)     # room wall    — EXISTING 12"
-thick_callout("8\"", 7.0, 6.7)      # garage wall  — NEW 8" (only 8" wall)
+# exterior wall — vertical thickness dim (12" WIDE); label ABOVE the wall in
+# open space so it clears the rebar leader below.
+width_dim("12\" WIDE", (10.0, 14.7 - T12 / 2), (10.0, 14.7 + T12 / 2),
+          (10.0, 15.75))
+# room wall — horizontal thickness dim (12" WIDE)
+width_dim("12\" WIDE", (2.4 - T12 / 2, 6.7), (2.4 + T12 / 2, 6.7),
+          (3.85, 6.7))
+# garage wall — horizontal thickness dim (8" WIDE, the only 8" wall)
+width_dim("8\" WIDE", (7.0 - T8 / 2, 6.7), (7.0 + T8 / 2, 6.7),
+          (8.35, 6.7))
 
 # ----------------------------------------------------------------------------
 # North arrow — circled-N compass, pointing DOWN (north reoriented per markup)
@@ -269,8 +288,8 @@ for (label, val), (lx, vx, cy) in zip(fields_right, rcells):
                fontsize=7.6, color=NAVY)
 
 # ----------------------------------------------------------------------------
-out_pdf = "cmu_crack_plan_SK-1.pdf"
-out_png = "cmu_crack_plan_SK-1.png"
+out_pdf = "cmu_crack_plan_SK-1_%s.pdf" % VARIANT
+out_png = "cmu_crack_plan_SK-1_%s.png" % VARIANT
 fig.savefig(out_pdf)
 fig.savefig(out_png, dpi=150)
 print("wrote", out_pdf, out_png)
