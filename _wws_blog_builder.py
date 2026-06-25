@@ -460,12 +460,20 @@ print("Posts:", ", ".join(p[0] for p in POSTS))
 
 # ---- sync the landing-page gallery from the same POSTS (single source of truth) ----
 def gallery_cards():
+    # Curated TOP 5 — most-cited + most relevant to La Gala's South-FL condo/anchor niche.
+    # (guide slug, title, std badge, short scope line, image slug = best-matching photo)
+    TOP5=[
+      ("damaged-surfaces","Spalling Concrete &amp; Walkways","§1910.22","Spalled concrete, exposed rebar, cracked balconies &amp; walkways.","damaged-surfaces"),
+      ("roof-anchors","Uncertified Roof &amp; RDS Anchors","§1910.27","Window-washing &amp; tie-off anchors never load-tested or certified.","window-washing"),
+      ("unprotected-edges","Unprotected Roof Edges","§1910.28","No guardrail or tie-off where a 4&nbsp;ft+ fall is possible.","unprotected-edges"),
+      ("guardrail-systems","Non-Compliant Guardrails","§1910.29","Rails that miss the 42&Prime; height or 200&nbsp;lb strength.","guardrail-systems"),
+      ("standing-water","Standing Water &amp; Drainage","§1910.22","Decks and walkways not kept dry or properly drained.","standing-water"),
+    ]
     out=""
-    for p in POSTS[:8]:
-        slug,title,std,short=p[0],p[1],p[2],p[4]
+    for slug,title,std,short,img in TOP5:
         alt=title.replace("&amp;","&")
         out+=('<a href="/guides/'+slug+'" class="group bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all">'
-              '<div class="aspect-[4/3] overflow-hidden relative"><img src="/assets/wws/'+slug+'.jpg" alt="'+alt+'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>'
+              '<div class="aspect-[4/3] overflow-hidden relative"><img src="/assets/wws/'+img+'.jpg" alt="'+alt+'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>'
               '<span class="absolute top-2 right-2 text-[10px] font-bold bg-secondary text-white px-2 py-0.5 rounded-full">'+std+'</span></div>'
               '<div class="p-4"><h3 class="font-bold text-primary text-[15px] leading-tight">'+title+'</h3>'
               '<p class="text-xs text-on-surface-variant mt-1.5 leading-snug">'+short+'</p></div></a>')
