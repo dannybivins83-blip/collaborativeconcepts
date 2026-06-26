@@ -210,6 +210,27 @@ ax.text(ncx, ncy - nr - 0.52, "N", ha="center", va="center", fontsize=12,
 # NOTE box — removed per request.
 
 # ----------------------------------------------------------------------------
+# FIELD PHOTO inset — embedded in the open lower-center channel between walls.
+# Drops in automatically when crack_photo.jpg is present in this folder.
+import os
+_photo = "crack_photo.jpg"
+if os.path.exists(_photo):
+    _img = plt.imread(_photo)
+    _ar = _img.shape[1] / _img.shape[0]          # width / height
+    _w = 3.9                                      # data-units wide
+    _h = _w / _ar
+    _cx, _top = 4.75, 3.05                         # centered, top edge
+    _x0, _x1 = _cx - _w / 2, _cx + _w / 2
+    _y1, _y0 = _top, _top - _h
+    ax.imshow(_img, extent=[_x0, _x1, _y0, _y1], origin="upper",
+              zorder=6, aspect="auto")
+    ax.add_patch(Rectangle((_x0, _y0), _w, _h, fill=False, edgecolor=NAVY,
+                           lw=1.4, zorder=7))
+    ax.text(_cx, _y1 + 0.12, "FIELD PHOTO — CRACK AT NEW/EXISTING TIE-IN (V.I.F.)",
+            ha="center", va="bottom", fontsize=7.5, color=NAVY,
+            fontweight="bold", zorder=7)
+
+# ----------------------------------------------------------------------------
 # Borders (figure-fraction on the sheet axes)
 def rect(x, y, w, h, ec, lw):
     sheet.add_patch(Rectangle((x, y), w, h, fill=False, edgecolor=ec, lw=lw))
