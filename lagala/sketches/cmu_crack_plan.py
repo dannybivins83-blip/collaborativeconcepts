@@ -152,10 +152,7 @@ def leader(text, xy, xytext, ha="left", va="center", fs=8.5):
                 arrowprops=dict(arrowstyle="-", color=NAVY, lw=0.9,
                                 shrinkA=0, shrinkB=2))
 
-# EXISTING 12" CMU WALL leader — kept (left un-struck in markup); placed in the
-# open channel so it clears the vertical clear-width dimension on the left.
-leader("EXISTING 12\" CMU WALL", xy=(2.4, 6.4), xytext=(3.55, 6.9),
-       ha="left", fs=8)
+# EXISTING 12" CMU WALL leader — removed per request.
 # NEW 8" CMU GARAGE WALL leader — struck through in markup: removed.
 # DIAGONAL CRACK
 leader("DIAGONAL CRACK —\nAT NEW/EXISTING TIE-IN", xy=(6.6, 9.4),
