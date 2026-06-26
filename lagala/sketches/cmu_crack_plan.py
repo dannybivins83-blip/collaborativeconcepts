@@ -207,18 +207,7 @@ ax.annotate("", xy=(ncx, ncy - nr - 0.30), xytext=(ncx, ncy + nr - 0.02),
 ax.text(ncx, ncy - nr - 0.52, "N", ha="center", va="center", fontsize=12,
         color=NAVY, fontweight="bold", zorder=11)
 
-# ----------------------------------------------------------------------------
-# NOTE box
-note = ("NOTE:  Crack initiates in the exterior wall and runs to\n"
-        "the new 8\" CMU garage wall at its tie-in to the existing\n"
-        "8\" structure; existing reinforcing exposed along the\n"
-        "crack; crack carries down into the foundation (visible\n"
-        "in crawlspace). Pattern consistent with differential\n"
-        "settlement. Contractor to field-verify; structural\n"
-        "engineer to evaluate.")
-ax.text(4.75, 1.9, note, ha="center", va="bottom", fontsize=7.0, color=NAVY,
-        bbox=dict(boxstyle="round,pad=0.4", fc="#FBFBF7", ec=NAVY, lw=0.9),
-        zorder=11)
+# NOTE box — removed per request.
 
 # ----------------------------------------------------------------------------
 # Borders (figure-fraction on the sheet axes)
