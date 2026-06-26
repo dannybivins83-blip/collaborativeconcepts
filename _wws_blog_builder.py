@@ -142,19 +142,19 @@ TOPICS = [
   "Five questions that tell you whether you're carrying an OSHA Subpart D violation right now.",
   "Walk your property and answer honestly: <strong>(1)</strong> Is every roof or balcony edge where someone could fall 4+ feet guarded or anchored? <strong>(2)</strong> Are your rooftop tie-off and window-washing anchors load-tested and certified within the last 10 years, with paperwork on file? <strong>(3)</strong> Are walkways, stairs and ramps free of spalling, standing water and trip hazards? <strong>(4)</strong> Do fixed ladders over 24 ft have a cage or fall-arrest system? <strong>(5)</strong> Could you produce inspection and training records if an inspector asked today? A &ldquo;no&rdquo; or &ldquo;not sure&rdquo; on any one is a citable Subpart D gap.",
   "Each &ldquo;no&rdquo; is a likely violation &mdash; citation or not. OSHA's fall-protection emphasis program lets an inspector open an inspection with no complaint and no advance notice, and every gap is its own penalty (about $16,550 per serious violation, more per day past an abatement deadline). The buildings that get hit aren't unlucky &mdash; they're the ones that never ran this check.",
-  "We turn the self-check into a documented, PE-sealed inspection, then self-perform the corrections &mdash; guardrail, anchors, concrete, drainage &mdash; to the engineer's spec, and hand you abatement-ready paperwork. One team, one contract. Start with a free assessment.",
+  "We turn the self-check into a documented, PE-sealed inspection, then self-perform the corrections &mdash; guardrail, anchors, concrete, drainage &mdash; to the engineer's spec, and hand you abatement-ready paperwork. One team, one contract. Start with a comprehensive assessment.",
   "",(("fact_check","The 2-minute self-check"),("warning","What a &ldquo;no&rdquo; really means"),("verified_user","How we close the gaps"))),
  ("fall-protection-emphasis-program","OSHA's Fall-Protection Emphasis Program, Explained","Enforcement","Warm",
   "Why an inspector can open a fall-protection case on your building with no complaint and no advance notice.",
   "OSHA runs a National Emphasis Program on falls (CPL 03-00-025) plus regional programs that direct inspectors to prioritize fall hazards. Fall protection is the most-cited area on OSHA's Top 10 list year after year, and it applies in general industry, not just construction. Under an emphasis program, fall hazards are a programmed inspection target, not just something OSHA reacts to after a complaint or an accident.",
   "It means an inspector doesn't need a worker complaint or an injury to open a case. If a compliance officer is on site for any reason &mdash; or even observes a hazard in plain view, like an unguarded roof edge or workers without tie-offs &mdash; fall protection is fair game. The first many owners hear of it is the citation, with an abatement deadline already attached.",
-  "You can't control when OSHA shows up &mdash; only what they find. A proactive PE-sealed inspection closes the gaps before they're cited and puts documentation on file. Our PE partner certifies it and our crews fix it, under one contract. Get a free assessment to find out where you stand.",
+  "You can't control when OSHA shows up &mdash; only what they find. A proactive PE-sealed inspection closes the gaps before they're cited and puts documentation on file. Our PE partner certifies it and our crews fix it, under one contract. Get a comprehensive assessment to find out where you stand.",
   "",(("gavel","What the emphasis program is"),("visibility_off","Why there's no heads-up"),("shield","How to stay ahead of it"))),
  ("osha-fall-protection-fines","OSHA Fall-Protection Fines in 2026","Penalties","Hot",
   "What an unprotected edge or missing tie-off actually costs.",
   "Fall protection is the most-cited area in all of OSHA enforcement, and the fines are not symbolic. For 2026 a single <strong>serious</strong> fall-protection violation runs up to <strong>$16,550</strong>, and because OSHA penalizes <strong>per violation</strong>, one walkthrough that flags an unguarded roof edge, a missing tie-off and an uncertified anchor can stack into five figures fast &mdash; before any injury or insurance fallout.",
   "OSHA cites fall hazards under Subpart D and the General Duty Clause, and an inspector doesn't need a complaint to do it &mdash; fall protection is a programmed emphasis-program target they can act on once they see an exposure 4 feet or more above a lower level. Penalties escalate from Serious to <strong>Willful or Repeat</strong> (up to $165,514), and Failure-to-Abate adds the serious amount again for <strong>each day</strong> past the deadline.",
-  "The only fine you can fully control is the one you never receive. La Gala closes fall-protection gaps under one contract &mdash; PE-sealed inspection, then self-performed guardrail, anchor and edge work &mdash; and documents the abatement the way OSHA wants to see it, so you hold proof the hazard was corrected. Start with a free assessment.",
+  "The only fine you can fully control is the one you never receive. La Gala closes fall-protection gaps under one contract &mdash; PE-sealed inspection, then self-performed guardrail, anchor and edge work &mdash; and documents the abatement the way OSHA wants to see it, so you hold proof the hazard was corrected. Start with a comprehensive assessment.",
   "",(("payments","What the fines run in 2026"),("gavel","How a fine becomes a bigger fine"),("verified_user","How to take the fine off the table")),"osha-penalties"),
  ("cost-of-osha-citation","What an OSHA Walking-Surface Citation Really Costs","Penalties","Warm",
   "The fine is only the first line on the bill.",
@@ -232,7 +232,7 @@ TOPICS = [
   "The walkthrough, the citation window, and your clock.",
   "An OSHA inspection usually moves in three steps: an <strong>opening conference</strong> where the compliance officer states the reason, a <strong>walkaround</strong> of the site, and a <strong>closing conference</strong>. For walking-working surfaces, the officer can cite anything in plain view &mdash; an unguarded edge, a spalled walkway, an uncertified anchor &mdash; without needing a complaint.",
   "Citations can be issued up to <strong>six months</strong> after the violation occurs (OSH Act §9(c)), and each arrives with a proposed penalty and an <strong>abatement deadline</strong>. Miss that date and Failure-to-Abate penalties accrue per day; the smartest position is to have your documentation ready before the officer ever arrives.",
-  "We get you inspection-ready ahead of time &mdash; a PE-sealed walking-surface review, corrected hazards, and an organized compliance file &mdash; and if a citation does land, we close it correctly with self-performed repair and abatement paperwork. Start with a free assessment.",
+  "We get you inspection-ready ahead of time &mdash; a PE-sealed walking-surface review, corrected hazards, and an organized compliance file &mdash; and if a citation does land, we close it correctly with self-performed repair and abatement paperwork. Start with a comprehensive assessment.",
   "",(("badge","The three-step inspection"),("schedule","Citations and your deadline"),("verified_user","How to be ready first")),"housekeeping"),
  ("annual-fall-protection-inspection","Annual Fall-Protection Inspection Requirements","§1910.140","Warm",
   "What has to be checked, and how often.",
@@ -244,7 +244,7 @@ TOPICS = [
   "Which inspections are required, how often, and the deadlines already on the clock.",
   "Compliance isn't one-and-done &mdash; once a hazard exists, keeping it in check is an ongoing duty. The cadence: <strong>fall-arrest gear</strong> (harnesses, lanyards, SRLs) is inspected <strong>before every use</strong> under §1910.140, with a documented check yearly (ANSI Z359 best practice). <strong>Rope-descent and window-washing anchors</strong> get a <strong>yearly</strong> qualified-person inspection and <strong>certification at least every 10 years</strong> (§1910.27(b)). <strong>Walking surfaces, guardrails, stairs and edges</strong> must be inspected &lsquo;regularly&rsquo; under §1910.22(d) &mdash; we recommend <strong>semi-annually</strong> (yearly at a minimum), and <strong>quarterly</strong> for parking decks and high-traffic coastal surfaces where salt air speeds the wear. Structural recertification runs on the building's age.",
   "The five things that fail most on South-Florida buildings: <strong>(1)</strong> unprotected roof edges and low-slope rooftop access; <strong>(2)</strong> corroded or uncertified rooftop anchors; <strong>(3)</strong> spalling concrete walkways, balconies and parking decks; <strong>(4)</strong> guardrails that miss 42&Prime; or 200 lb of strength; <strong>(5)</strong> caged fixed ladders not yet retrofitted. The deadlines already on the clock: <strong>now</strong> &mdash; new and replaced fixed ladders must already use a fall-arrest or ladder-safety system, and rope-descent anchors need a current (10-year) certification on file; <strong>every year</strong> &mdash; the rope-descent anchor inspection; <strong>at the building's age</strong> &mdash; the Florida Milestone at 30 years (25 near salt water) then every 10, plus the Miami-Dade (30/25) and Broward (25) county recertifications; and <strong>November 18, 2036</strong> &mdash; every fixed ladder over 24 ft must have a fall-arrest or ladder-safety system.",
-  "You can't track all of that building-by-building from a spreadsheet &mdash; so we do it for you. La Gala puts your property on a documented inspect-and-maintain schedule: gear and anchor checks, PE-sealed certifications through our engineering partner, walking-surface walkthroughs, and the records to prove every one &mdash; turning a pile of deadlines into one predictable line item. Start with a free assessment.",
+  "You can't track all of that building-by-building from a spreadsheet &mdash; so we do it for you. La Gala puts your property on a documented inspect-and-maintain schedule: gear and anchor checks, PE-sealed certifications through our engineering partner, walking-surface walkthroughs, and the records to prove every one &mdash; turning a pile of deadlines into one predictable line item. Start with a comprehensive assessment.",
   "",(("event_available","What's required &mdash; and how often"),("priority_high","The top 5 failures &amp; the deadlines"),("event_repeat","How we keep you on schedule")),"damaged-surfaces"),
 ]
 
@@ -290,7 +290,7 @@ HEAD = """<!DOCTYPE html>
 <a class="text-secondary font-semibold border-b-2 border-secondary pb-0.5" href="/guides">Guides</a>
 <a class="text-primary opacity-80 hover:text-secondary transition-colors font-semibold" href="tel:+15614758615">(561)&nbsp;475-8615</a>
 </div>
-<a href="/#assessment" class="hidden md:inline-flex bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary-container hover:text-on-secondary-fixed transition-all whitespace-nowrap">Free Inspection</a>
+<a href="/#assessment" class="hidden md:inline-flex bg-secondary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-secondary-container hover:text-on-secondary-fixed transition-all whitespace-nowrap">Comprehensive Assessment</a>
 <button id="navToggle" type="button" class="md:hidden p-2 -mr-1 text-primary" aria-label="Open menu" aria-expanded="false"><span class="material-symbols-outlined text-3xl">menu</span></button>
 </div>
 <div id="mobileMenu" class="hidden md:hidden border-t border-outline-variant/20 bg-surface-container-lowest px-6 pb-4 pt-1">
@@ -299,7 +299,7 @@ HEAD = """<!DOCTYPE html>
 <a class="block py-2.5 text-primary font-medium border-b border-outline-variant/15" href="/#plans">Plans</a>
 <a class="block py-2.5 text-secondary font-semibold border-b border-outline-variant/15" href="/guides">Guides</a>
 <a class="block py-2.5 text-primary font-semibold" href="tel:+15614758615">(561)&nbsp;475-8615</a>
-<a href="/#assessment" class="block mt-3 text-center bg-secondary text-white py-3 rounded-xl font-semibold">Free Inspection</a>
+<a href="/#assessment" class="block mt-3 text-center bg-secondary text-white py-3 rounded-xl font-semibold">Comprehensive Assessment</a>
 </div>
 </nav>
 <script>
@@ -310,7 +310,7 @@ HEAD = """<!DOCTYPE html>
 FOOTER = """<footer class="w-full py-12 px-6 sm:px-8 flex flex-col items-center text-center space-y-5 bg-[#1a1a2e] text-[#f8f7f5]">
 <a href="/" class="inline-block"><img src="/assets/lagala-logo.png" alt="La Gala Construction" class="h-11 w-auto" style="filter:brightness(0) invert(1)"/></a>
 <p class="text-sm text-[#f8f7f5]/70 max-w-xl">Concrete Restoration &middot; Waterproofing &middot; Fall-Protection &amp; Compliance &mdash; South Florida.</p>
-<div class="flex flex-wrap justify-center gap-6 text-sm"><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/guides">All guides</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#plans">Build a plan</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#assessment">Free assessment</a></div>
+<div class="flex flex-wrap justify-center gap-6 text-sm"><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/guides">All guides</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#plans">Build a plan</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#assessment">Comprehensive assessment</a></div>
 <p class="text-xs text-[#f8f7f5]/50">25 SE 7th Street, Ste 12 &middot; Deerfield Beach, FL 33441 &middot; (561) 475-8615 &middot; danny@lagalacon.com</p>
 <p class="text-xs text-[#f8f7f5]/40 max-w-3xl">La Gala Construction is a Florida State Certified General Contractor (CGC 059211). Engineering certifications referenced are performed and sealed by an independent, licensed Florida professional engineer; La Gala does not provide engineering services.{credit}</p>
 <p class="text-sm text-[#f8f7f5]/60">&copy; 2026 La Gala Construction (Tilt Patchers, Inc.). Licensed &middot; Bonded &middot; Insured.</p>
@@ -323,9 +323,9 @@ FOOTER = """<footer class="w-full py-12 px-6 sm:px-8 flex flex-col items-center 
 def cta():
     return """<div class="bg-primary text-on-primary rounded-2xl p-8 sm:p-10 mt-12 text-center">
 <h2 class="text-2xl sm:text-3xl font-extrabold">Got this on a citation — or want to get ahead of it?</h2>
-<p class="text-on-primary/75 mt-3 max-w-2xl mx-auto">Our PE partner certifies it and our crews fix it, under one contract. Start with a free, no-obligation assessment, or build a custom compliance plan in two minutes.</p>
+<p class="text-on-primary/75 mt-3 max-w-2xl mx-auto">Our PE partner certifies it and our crews fix it, under one contract. Start with a comprehensive, no-obligation assessment, or build a custom compliance plan in two minutes.</p>
 <div class="flex flex-wrap gap-4 justify-center mt-7">
-<a href="/#assessment" class="bg-secondary text-white px-7 py-3.5 rounded-xl font-bold hover:bg-secondary-container hover:text-on-secondary-fixed transition-colors">Get a free assessment</a>
+<a href="/#assessment" class="bg-secondary text-white px-7 py-3.5 rounded-xl font-bold hover:bg-secondary-container hover:text-on-secondary-fixed transition-colors">Get a comprehensive assessment</a>
 <a href="/#plans" class="border-2 border-secondary-fixed text-secondary-fixed px-7 py-3.5 rounded-xl font-bold hover:bg-secondary-fixed hover:text-on-secondary-fixed transition-colors">Build a plan</a>
 </div></div>"""
 
@@ -388,7 +388,7 @@ def build_index():
 <span class="text-sm font-semibold text-primary mt-4 inline-flex items-center gap-1 group-hover:text-secondary">Download PDF <span class="material-symbols-outlined text-base">download</span></span></a>
 <a href="/collateral/Free_Assessment_Offer.pdf" target="_blank" rel="noopener" class="group bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-6 hover:border-secondary hover:shadow-lg transition-all flex flex-col">
 <span class="material-symbols-outlined text-4xl text-secondary">redeem</span>
-<h3 class="font-bold text-primary mt-4">Free Assessment Offer</h3>
+<h3 class="font-bold text-primary mt-4">Comprehensive Assessment Offer</h3>
 <p class="text-sm text-on-surface-variant mt-1 flex-1">Our no-cost, no-obligation compliance assessment.</p>
 <span class="text-sm font-semibold text-primary mt-4 inline-flex items-center gap-1 group-hover:text-secondary">Download PDF <span class="material-symbols-outlined text-base">download</span></span></a>
 <a href="/collateral/Subpart_D_Inspection_Checklist_LaGala.pdf" target="_blank" rel="noopener" class="group bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-6 hover:border-secondary hover:shadow-lg transition-all flex flex-col">
