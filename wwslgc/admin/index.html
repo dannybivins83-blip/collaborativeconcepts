@@ -236,28 +236,6 @@ function switchTab(t){
   if(t==='insp') loadInspections();
 }
 
-  btn.disabled=true; btn.innerHTML='<span class="ms animate-spin">progress_activity</span>Sending…';
-  api('/api/admin/dev-request',{method:'POST',body:JSON.stringify({
-    project:document.getElementById('devProject').value,
-    priority:document.getElementById('devPriority').value,
-    request:req
-  })}).then(function(d){
-    btn.disabled=false; btn.innerHTML='<span class="ms">send</span>Send to dev agent';
-    if(d.ok){
-      document.getElementById('devReq').value='';
-      msg.className='mt-3 rounded-lg px-4 py-3 text-sm bg-green-50 border border-green-300 text-green-800';
-      msg.innerHTML='<b>Sent.</b> Request <span class="font-mono text-xs">'+esc(d.id)+'</span> is queued for the dev agent\'s next run.';
-    } else {
-      msg.className='mt-3 rounded-lg px-4 py-3 text-sm bg-red-50 border border-red-300 text-red-800';
-      msg.textContent=d.error||'Could not send — try again.';
-    }
-    msg.classList.remove('hidden');
-  }).catch(function(){
-    btn.disabled=false; btn.innerHTML='<span class="ms">send</span>Send to dev agent';
-    msg.className='mt-3 rounded-lg px-4 py-3 text-sm bg-red-50 border border-red-300 text-red-800';
-    msg.textContent='Network error — try again.'; msg.classList.remove('hidden');
-  });
-}
 function loadInspections(){
   api('/api/admin/inspections').then(function(d){
     var rows=d.inspections||[];
