@@ -141,7 +141,7 @@ ax.text(10.0, 4.6, "GARAGE\n(NEW)", ha="center", va="center",
 # Top centered title for the exterior wall
 ax.text(6.1, 16.55, "OUTSIDE WALL", ha="center", va="center",
         fontsize=12.5, color=NAVY, fontweight="bold")
-ax.text(6.1, 16.10, "(EXTERIOR – EXISTING 12\" CMU)", ha="center",
+ax.text(6.1, 16.10, "(EXTERIOR – EXISTING 8\" CMU)", ha="center",
         va="center", fontsize=9, color=NAVY)
 
 # ----------------------------------------------------------------------------
@@ -211,7 +211,7 @@ ax.text(ncx, ncy - nr - 0.52, "N", ha="center", va="center", fontsize=12,
 # NOTE box
 note = ("NOTE:  Crack initiates in the exterior wall and runs to\n"
         "the new 8\" CMU garage wall at its tie-in to the existing\n"
-        "12\" structure; existing reinforcing exposed along the\n"
+        "8\" structure; existing reinforcing exposed along the\n"
         "crack; crack carries down into the foundation (visible\n"
         "in crawlspace). Pattern consistent with differential\n"
         "settlement. Contractor to field-verify; structural\n"
