@@ -48,8 +48,6 @@
 <button data-tab="leads" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-secondary text-primary">Leads <span id="cLeads" class="text-mute font-normal"></span></button>
 <button data-tab="reqs" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspection requests <span id="cReqs" class="text-mute font-normal"></span></button>
 <button data-tab="insp" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspections <span id="cInsp" class="text-mute font-normal"></span></button>
-<button data-tab="dev" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary inline-flex items-center gap-1"><span class="ms text-base">smart_toy</span>Dev Agent</button>
-<button data-tab="candys" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary inline-flex items-center gap-1"><span class="ms text-base">cake</span>Candy's <span id="cCandys" class="text-mute font-normal"></span></button>
 <button onclick="loadLeads()" class="ml-auto text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">refresh</span> Refresh</button>
 </div>
 
@@ -101,63 +99,6 @@
 </div>
 </section>
 
-<!-- dev agent -->
-<section id="tab-dev" class="hidden">
-<div class="grid md:grid-cols-5 gap-5">
-<div class="md:col-span-3 bg-white rounded-xl border border-line p-5">
-<h2 class="text-lg font-extrabold text-primary flex items-center gap-2"><span class="ms text-secondary">smart_toy</span>Call the dev agent</h2>
-<p class="text-sm text-mute mt-1 mb-4">Describe a fix or change on any Collaborative Concept property. It routes straight to Claude, who makes the change and reports back.</p>
-<label class="block text-xs uppercase tracking-wide text-mute mb-1">Project</label>
-<select id="devProject" class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm mb-3">
-<option>Candy's Cake Pops site</option>
-<option>WWS landing page / CRM</option>
-<option>Collaborative Concept apex site</option>
-<option>Casa Del Monte portal</option>
-<option>Other / not sure</option>
-</select>
-<label class="block text-xs uppercase tracking-wide text-mute mb-1">Priority</label>
-<select id="devPriority" class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm mb-3">
-<option value="normal">Normal — next agent run</option>
-<option value="high">High — broken in front of customers</option>
-<option value="low">Low — nice to have</option>
-</select>
-<label class="block text-xs uppercase tracking-wide text-mute mb-1">What needs fixing or changing?</label>
-<textarea id="devReq" rows="5" placeholder="e.g. The corporate page pricing tier should say $4.25, and swap the hero photo for the gold gift box shot…" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none resize-y"></textarea>
-<button onclick="submitDevRequest()" id="devBtn" class="w-full mt-4 bg-primary text-white py-3 rounded-xl font-bold hover:bg-primaryc transition-colors inline-flex items-center justify-center gap-2"><span class="ms">send</span>Send to dev agent</button>
-<div id="devMsg" class="hidden mt-3 rounded-lg px-4 py-3 text-sm"></div>
-</div>
-<div class="md:col-span-2 bg-white rounded-xl border border-line p-5 text-sm">
-<h3 class="font-extrabold text-primary mb-2">How it works</h3>
-<ol class="space-y-2 text-mute list-decimal list-inside">
-<li>Your request is tagged <span class="font-mono text-xs bg-surface px-1.5 py-0.5 rounded">[DEV-AGENT]</span> and lands in the owner inbox instantly.</li>
-<li>A scheduled Claude dev agent picks it up on its next run, opens the right repo, and makes the change.</li>
-<li>The thread is labeled <span class="font-mono text-xs bg-surface px-1.5 py-0.5 rounded">dev-agent/done</span> with a summary of exactly what changed.</li>
-</ol>
-<p class="mt-3 text-mute">Urgent and the agent hasn't run yet? Open a Claude session and say <em>“check dev requests”</em>.</p>
-</div>
-</div>
-</section>
-
-<!-- candys orders -->
-<section id="tab-candys" class="hidden">
-<div id="candysKvWarn" class="hidden mb-4 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 px-4 py-3 text-sm flex items-start gap-2">
-<span class="ms text-amber-600">warning</span>
-<div><b>Order storage isn't switched on yet.</b> The client portal needs it to show real orders (demo code DEMO still works). Vercel → Storage → create an Upstash Redis → redeploy.</div>
-</div>
-<div class="flex flex-wrap justify-between items-center gap-2 mb-3">
-<p class="text-sm text-mute">Candy's Cake Pops orders — create an order, post progress notes, and share the portal link. Clients watch at <a href="https://candys-cake-pops.vercel.app/portal" target="_blank" class="text-secondary underline">candys-cake-pops.vercel.app/portal</a>.</p>
-<button onclick="openCandysOrder()" class="bg-primary text-white text-sm font-semibold px-4 py-2 rounded-lg inline-flex items-center gap-1 hover:bg-primaryc"><span class="ms text-base">add</span> New order</button>
-</div>
-<div class="bg-white rounded-xl border border-line overflow-hidden">
-<div class="overflow-x-auto"><table class="w-full text-sm">
-<thead class="bg-surface text-mute text-left text-xs uppercase tracking-wide"><tr>
-<th class="px-3 py-2 font-semibold">Code</th><th class="px-3 py-2 font-semibold">Client</th><th class="px-3 py-2 font-semibold hidden sm:table-cell">Order</th><th class="px-3 py-2 font-semibold">Status</th><th class="px-3 py-2 font-semibold hidden md:table-cell">Recurring</th><th class="px-3 py-2 font-semibold">Updated</th>
-</tr></thead>
-<tbody id="candysRows"></tbody>
-</table></div>
-<div id="candysEmpty" class="hidden p-10 text-center text-mute">No orders yet. Click “New order” to create the first one and get a shareable portal code.</div>
-</div>
-</section>
 </main>
 
 <!-- lead drawer -->
@@ -292,81 +233,9 @@ function switchTab(t){
   document.getElementById('tab-leads').classList.toggle('hidden',t!=='leads');
   document.getElementById('tab-reqs').classList.toggle('hidden',t!=='reqs');
   document.getElementById('tab-insp').classList.toggle('hidden',t!=='insp');
-  document.getElementById('tab-dev').classList.toggle('hidden',t!=='dev');
-  document.getElementById('tab-candys').classList.toggle('hidden',t!=='candys');
   if(t==='insp') loadInspections();
-  if(t==='candys') loadCandys();
 }
 
-/* ---- Candy's orders ---- */
-var CANDYS={orders:[],stages:[],base:'https://candys-cake-pops.vercel.app/portal'};
-var CANDYS_SC={proof:'bg-blue-100 text-blue-800',approved:'bg-violet-100 text-violet-800',baking:'bg-amber-100 text-amber-800',decorating:'bg-pink-100 text-pink-800',packed:'bg-orange-100 text-orange-800',delivered:'bg-green-100 text-green-700'};
-function loadCandys(){
-  api('/api/admin/candys/orders').then(function(d){
-    if(!d.ok){ alert(d.error||'Not authorized'); return; }
-    CANDYS=d; CANDYS.base=d.portal_base||CANDYS.base;
-    document.getElementById('candysKvWarn').classList.toggle('hidden', d.configured!==false);
-    document.getElementById('cCandys').textContent='('+d.orders.length+')';
-    document.getElementById('candysEmpty').classList.toggle('hidden', d.orders.length>0);
-    document.getElementById('candysRows').innerHTML=d.orders.map(function(o){
-      var rec=o.recurring&&o.recurring.active?'<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">'+esc(o.recurring.freq||'yes')+'</span>':'<span class="text-mute text-xs">—</span>';
-      return '<tr class="border-t border-line hover:bg-surface cursor-pointer" onclick="openCandysOrder(\''+o.code+'\')">'+
-        '<td class="px-3 py-2 font-mono text-xs font-bold text-primary">'+esc(o.code)+'</td>'+
-        '<td class="px-3 py-2"><div class="font-semibold text-primary">'+esc((o.client||{}).name||'—')+'</div><div class="text-mute text-xs">'+esc((o.client||{}).email||'')+'</div></td>'+
-        '<td class="px-3 py-2 hidden sm:table-cell text-mute text-xs max-w-[220px] truncate">'+esc(o.item||'')+'</td>'+
-        '<td class="px-3 py-2"><span class="inline-block text-[11px] font-bold px-2 py-0.5 rounded-full '+(CANDYS_SC[o.status]||'bg-gray-100 text-gray-600')+'">'+esc((o.status||'proof').toUpperCase())+'</span></td>'+
-        '<td class="px-3 py-2 hidden md:table-cell">'+rec+'</td>'+
-        '<td class="px-3 py-2 text-mute text-xs whitespace-nowrap">'+esc(o.updated||o.created||'')+'</td></tr>';
-    }).join('');
-  });
-}
-function candysField(id,label,val,ph,type){return '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">'+label+'</label><input id="'+id+'" type="'+(type||'text')+'" value="'+esc(val||'')+'" placeholder="'+(ph||'')+'" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>';}
-function openCandysOrder(code){
-  var o=code?CANDYS.orders.find(function(x){return x.code===code;})||{}:{};
-  var isNew=!code;
-  var stages=(CANDYS.stages||[]).map(function(s){return '<option value="'+s+'"'+(s===(o.status||'proof')?' selected':'')+'>'+s+'</option>';}).join('');
-  var notes=(o.notes||[]).slice().reverse().map(function(n){return '<div class="bg-surface rounded-lg px-3 py-2 text-sm"><div>'+esc(n.text)+'</div>'+(n.photo?'<img src="'+esc(n.photo)+'" class="mt-2 rounded-lg max-h-28"/>':'')+'<div class="text-mute text-[11px] mt-1">'+esc(n.ts||'')+' · '+esc(n.by||'')+'</div></div>';}).join('')||'<div class="text-mute text-sm">No notes yet.</div>';
-  var r=o.recurring||{};
-  var portal=CANDYS.base+'?code='+(o.code||'');
-  document.getElementById('drawerBody').innerHTML=
-    '<div class="flex items-center justify-between mb-4"><h2 class="text-xl font-extrabold text-primary">'+(isNew?'New Candy\'s order':esc(o.code))+'</h2><button onclick="closeDrawer()" class="text-mute hover:text-primary"><span class="ms">close</span></button></div>'+
-    (isNew?'':'<div class="mb-4 flex flex-wrap gap-2 items-center"><input readonly value="'+esc(portal)+'" class="flex-1 min-w-[220px] rounded-lg border border-line bg-surface px-3 py-2 text-xs font-mono"/><button onclick="navigator.clipboard.writeText(\''+esc(portal)+'\');this.textContent=\'Copied!\'" class="bg-secondary text-white px-3 py-2 rounded-lg text-xs font-semibold">Copy portal link</button></div>')+
-    '<div class="space-y-3 text-sm">'+
-      candysField('coName','Client name',(o.client||{}).name)+
-      candysField('coEmail','Client email',(o.client||{}).email,'','email')+
-      candysField('coItem','Order summary',o.item,'e.g. 10 dozen logo pops + Oreos')+
-      candysField('coTotal','Total',o.total,'$0.00')+
-      candysField('coEvent','Event / needed-by date',o.event_date,'','date')+
-      '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">Status</label><select id="coStatus" class="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm">'+stages+'</select></div>'+
-      '<div class="rounded-xl border border-line p-3"><label class="flex items-center gap-2 text-sm font-semibold text-primary"><input id="coRecActive" type="checkbox" '+(r.active?'checked':'')+'/> Recurring plan</label>'+
-      '<div class="grid grid-cols-3 gap-2 mt-2">'+candysField('coRecFreq','Frequency',r.freq,'Quarterly')+candysField('coRecAmt','Amount',r.amount,'$468')+candysField('coRecNext','Next date',r.next,'','date')+'</div>'+
-      '<p class="text-[11px] text-mute mt-1">Invoiced via Square — payment rails connect later; this tracks the plan.</p></div>'+
-      '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">Add progress note (client sees this)</label><textarea id="coNote" rows="2" class="w-full rounded-lg border border-line px-3 py-2 text-sm" placeholder="Batch one is dipped — decals tomorrow…"></textarea></div>'+
-      candysField('coNotePhoto','Note photo URL (optional)','','https://…jpg')+
-    '</div>'+
-    '<button onclick="saveCandysOrder(\''+(o.code||'')+'\')" id="coBtn" class="w-full mt-4 bg-secondary text-white py-3 rounded-xl font-bold hover:bg-primary transition-colors">'+(isNew?'Create order + portal code':'Save changes')+'</button>'+
-    (isNew?'':'<div class="mt-4"><div class="text-xs uppercase tracking-wide text-mute mb-1">Progress notes</div><div class="space-y-2">'+notes+'</div></div>');
-  document.getElementById('scrim').classList.remove('hidden');
-  document.getElementById('drawer').classList.remove('translate-x-full');
-}
-function saveCandysOrder(code){
-  var v=function(id){return ((document.getElementById(id)||{}).value||'').trim();};
-  var body={code:code||undefined,
-    client:{name:v('coName'),email:v('coEmail')},
-    item:v('coItem'),total:v('coTotal'),event_date:v('coEvent'),
-    status:v('coStatus'),
-    recurring:{active:document.getElementById('coRecActive').checked,freq:v('coRecFreq'),amount:v('coRecAmt'),next:v('coRecNext')},
-    note:v('coNote'),note_photo:v('coNotePhoto')};
-  var btn=document.getElementById('coBtn'); btn.disabled=true; btn.textContent='Saving…';
-  api('/api/admin/candys/order',{method:'POST',body:JSON.stringify(body)}).then(function(d){
-    if(d.ok){ closeDrawer(); loadCandys(); if(!code){ setTimeout(function(){ openCandysOrder(d.order.code); loadCandys(); },300);} }
-    else { btn.disabled=false; btn.textContent='Save'; alert(d.error||'Could not save'); }
-  }).catch(function(){ btn.disabled=false; btn.textContent='Save'; alert('Network error'); });
-}
-function submitDevRequest(){
-  var req=(document.getElementById('devReq').value||'').trim();
-  var msg=document.getElementById('devMsg'), btn=document.getElementById('devBtn');
-  if(req.length<5){ msg.className='mt-3 rounded-lg px-4 py-3 text-sm bg-amber-50 border border-amber-300 text-amber-900'; msg.textContent='Describe the fix or change first.'; msg.classList.remove('hidden'); return; }
   btn.disabled=true; btn.innerHTML='<span class="ms animate-spin">progress_activity</span>Sending…';
   api('/api/admin/dev-request',{method:'POST',body:JSON.stringify({
     project:document.getElementById('devProject').value,
