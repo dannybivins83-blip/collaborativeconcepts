@@ -973,6 +973,40 @@ footer strong{color:var(--blue2)}
               <div class="result-price">$650 – $950</div>
               <div class="result-note"><span class="en">Set fee · Paid before we start · ~5–10 business days for PBC response</span><span class="es">Tarifa fija · Pago antes de comenzar · ~5–10 días hábiles</span></div>
             </div>
+            <!-- T&C Agreement — must be checked before submit -->
+            <div id="tcBox" style="background:rgba(0,0,0,.25);border:1px solid rgba(61,126,170,.3);border-radius:10px;padding:14px 16px;margin-bottom:16px">
+              <div style="max-height:140px;overflow-y:auto;font-size:12px;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:12px;padding-right:4px" id="tcScroll">
+                <strong style="color:var(--white);font-size:13px;display:block;margin-bottom:8px"><span class="en">Service Terms &amp; Agreement</span><span class="es">Términos de Servicio y Acuerdo</span></strong>
+                <span class="en">
+                  <strong>1. Paid-Per-Phase:</strong> Phase 1 ($650–$950) is a non-refundable retainer. No work begins on any phase without confirmed payment.<br>
+                  <strong>2. No Guaranteed Outcome:</strong> La Gala Construction coordinates the permit correction process but cannot guarantee a specific outcome from Palm Beach County.<br>
+                  <strong>3. Permit Agent Authorization:</strong> By enrolling, you authorize La Gala Construction and its licensed engineers to act as your permit agent with Palm Beach County.<br>
+                  <strong>4. Accurate Information:</strong> You certify that all information provided is accurate to the best of your knowledge. False information may void this agreement.<br>
+                  <strong>5. Document Cooperation:</strong> You agree to provide required documents (deed, NOV, photos) in a timely manner to avoid delays to your case.<br>
+                  <strong>6. Not Legal Advice:</strong> La Gala Construction is a licensed general contractor (CGC 059211), not an attorney. Nothing here constitutes legal advice.
+                </span>
+                <span class="es" style="display:none">
+                  <strong>1. Pago por Fase:</strong> La Fase 1 ($650–$950) es un anticipo no reembolsable. No se inicia ningún trabajo sin pago confirmado.<br>
+                  <strong>2. Sin Garantía de Resultado:</strong> La Gala coordina el proceso de corrección de permisos pero no puede garantizar un resultado específico del Condado de Palm Beach.<br>
+                  <strong>3. Autorización de Agente de Permisos:</strong> Al inscribirse, autoriza a La Gala Construction y sus ingenieros a actuar como su agente ante el Condado de Palm Beach.<br>
+                  <strong>4. Información Exacta:</strong> Certifica que toda la información proporcionada es correcta. La información falsa puede anular este acuerdo.<br>
+                  <strong>5. Cooperación de Documentos:</strong> Acepta proporcionar documentos requeridos (escritura, NOV, fotos) oportunamente para evitar demoras.<br>
+                  <strong>6. No Es Asesoría Legal:</strong> La Gala Construction es un contratista general con licencia (CGC 059211), no un abogado.
+                </span>
+              </div>
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:var(--white)">
+                <input type="checkbox" id="tcCheck" style="margin-top:3px;width:16px;height:16px;flex-shrink:0;accent-color:var(--blue2)">
+                <span>
+                  <span class="en">I have read and agree to the Service Terms above. I understand Phase 1 is non-refundable and authorize La Gala to act as my permit agent.</span>
+                  <span class="es">He leído y acepto los Términos de Servicio. Entiendo que la Fase 1 no es reembolsable y autorizo a La Gala a actuar como mi agente de permisos.</span>
+                </span>
+              </label>
+              <div id="tcError" style="display:none;color:#fc8181;font-size:12px;margin-top:8px;padding:6px 10px;background:rgba(192,57,43,.15);border-radius:6px">
+                <span class="en">⚠ Please read and check the agreement above before submitting.</span>
+                <span class="es">⚠ Por favor lea y acepte el acuerdo antes de enviar.</span>
+              </div>
+            </div>
+
             <div class="submit-box">
               <h4><span class="en">Sending to Your La Gala Team</span><span class="es">Enviando a Su Equipo La Gala</span></h4>
               <p style="margin-bottom:16px">Daniel Bivins (561) 475-8615 · Keith La Gala (954) 553-5535 · Alex Torres (754) 242-3636</p>
@@ -1328,8 +1362,19 @@ function submitForm(){
     if(span) viols.push(span.textContent.trim());
   });
 
+  // Validate T&C checkbox
+  var tcCheck = document.getElementById('tcCheck');
+  var tcError = document.getElementById('tcError');
+  if(!tcCheck || !tcCheck.checked){
+    if(tcError) tcError.style.display = 'block';
+    if(tcCheck) tcCheck.focus();
+    return;
+  }
+  if(tcError) tcError.style.display = 'none';
+
   // Generate case number
   var caseNum = 'LGC-' + (lot||'XXXX').toUpperCase() + '-' + Date.now().toString().slice(-4);
+  var termsAt = new Date().toISOString();
 
   // Build form data
   var fd = new FormData();
@@ -1347,6 +1392,8 @@ function submitForm(){
   fd.append('Readiness', ready||'Not selected');
   fd.append('Notes', notes||'None');
   fd.append('Source', 'Casa Del Monte Violation Portal');
+  fd.append('Terms Accepted', 'Yes — Service Terms v1');
+  fd.append('Terms Accepted At', termsAt);
   if(email) fd.append('_replyto', email);
 
   btn.textContent = 'Sending...';
