@@ -523,6 +523,28 @@ body{font-family:'Barlow',Arial,sans-serif;background:var(--off);color:var(--nav
 #tcTimestamp{
   font-size:10px;color:var(--muted);text-align:center;margin-top:10px;
 }
+/* ── SESSION RE-CONFIRM BANNER ── */
+#tcSessionBanner{
+  position:sticky;top:0;z-index:40;
+  background:#fffbeb;border-bottom:2px solid #f59e0b;
+  padding:10px 20px;display:flex;align-items:center;
+  gap:12px;flex-wrap:wrap;
+}
+#tcSessionBanner .tcb-text{
+  flex:1;min-width:200px;font-size:13px;color:#92400e;line-height:1.4;
+}
+#tcSessionBanner .tcb-text strong{color:#78350f}
+#tcSessionBanner .tcb-btn{
+  flex-shrink:0;padding:8px 18px;border:none;border-radius:8px;
+  background:#d97706;color:#fff;font-family:'Barlow',sans-serif;
+  font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
+  transition:background .15s;
+}
+#tcSessionBanner .tcb-btn:hover{background:#b45309}
+#tcSessionBanner .tcb-dismiss{
+  flex-shrink:0;font-size:18px;color:#b45309;cursor:pointer;
+  line-height:1;padding:4px;opacity:.6;
+}
 </style>
 </head>
 <body>
@@ -1447,19 +1469,81 @@ pages['admin-case'] = 'Case File';
 // ── TERMS & CONDITIONS GATE ──
 (function initTermsGate(){
   var TC_KEY     = 'lgTermsAccepted_v1';
+  var TC_SESSION = 'lgTermsSession_v1';
   var TC_VERSION = 'Service Terms v1 — June 2026';
 
-  // Check if already accepted
-  var stored = localStorage.getItem(TC_KEY);
-  if(stored){
-    // Already accepted — show subtle indicator in sidebar
+  var stored  = localStorage.getItem(TC_KEY);
+  var session = sessionStorage.getItem(TC_SESSION);
+
+  // ── Helper: sidebar badge ─────────────────────────────────────────────────
+  function showTermsBadge(record){
+    try {
+      var data = typeof record === 'string' ? JSON.parse(record) : record;
+      var date = new Date(data.acceptedAt);
+      var label = date.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      var sidebarUser = document.querySelector('.sidebar-user');
+      if(sidebarUser && !document.getElementById('termsBadge')){
+        var badge = document.createElement('div');
+        badge.id = 'termsBadge';
+        badge.style.cssText = 'font-size:10px;color:#4ade80;padding:6px 20px 8px;letter-spacing:.5px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:5px';
+        badge.innerHTML = '<span style="font-size:9px">✓</span> Terms signed ' + label;
+        sidebarUser.insertAdjacentElement('afterend', badge);
+      }
+    } catch(e){}
+  }
+
+  // ── Helper: session re-confirm banner ─────────────────────────────────────
+  function showSessionBanner(){
+    var content = document.querySelector('.content') || document.querySelector('.main') || document.body;
+    if(document.getElementById('tcSessionBanner')) return;
+    var banner = document.createElement('div');
+    banner.id = 'tcSessionBanner';
+    banner.innerHTML =
+      '<div class="tcb-text">' +
+        '<strong>Please confirm your service agreement for this session.</strong><br>' +
+        '<span style="font-size:12px">Confirme su acuerdo de servicio para esta sesión.</span>' +
+      '</div>' +
+      '<button class="tcb-btn" onclick="confirmTcSession()">✓ I\'ve Reviewed My Agreement</button>' +
+      '<span class="tcb-dismiss" onclick="dismissTcBanner()" title="Dismiss">✕</span>';
+    content.insertAdjacentElement('afterbegin', banner);
+  }
+
+  window.confirmTcSession = function(){
+    sessionStorage.setItem(TC_SESSION, '1');
+    var el = document.getElementById('tcSessionBanner');
+    if(el){ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(function(){el.remove()},300); }
+    // Update sidebar badge to show last confirmed
+    var badge = document.getElementById('termsBadge');
+    if(badge) badge.style.color = '#4ade80';
+  };
+
+  window.dismissTcBanner = function(){
+    // Dismiss without confirming — banner comes back next page load
+    var el = document.getElementById('tcSessionBanner');
+    if(el){ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(function(){el.remove()},300); }
+  };
+
+  // ── Route: returning user, already confirmed this session ─────────────────
+  if(stored && session){
     showTermsBadge(stored);
     return;
   }
 
-  // Show the modal
-  var modal = document.getElementById('tcModal');
-  var body  = document.getElementById('tcBody');
+  // ── Route: returning user, new session — compact banner ───────────────────
+  if(stored && !session){
+    showTermsBadge(stored);
+    // Defer until DOM is ready
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', showSessionBanner);
+    } else {
+      setTimeout(showSessionBanner, 400);
+    }
+    return;
+  }
+
+  // ── Route: first-ever visit — full blocking modal ─────────────────────────
+  var modal    = document.getElementById('tcModal');
+  var body     = document.getElementById('tcBody');
   var scrollNote = document.getElementById('tcScrollNote');
   var checkbox   = document.getElementById('tcCheckbox');
   var acceptBtn  = document.getElementById('tcAcceptBtn');
@@ -1505,27 +1589,11 @@ pages['admin-case'] = 'Case File';
       name: (document.querySelector('.user-name')||{}).textContent || 'unknown'
     });
     localStorage.setItem(TC_KEY, record);
+    sessionStorage.setItem(TC_SESSION, '1');
     modal.classList.remove('show');
     document.body.style.overflow = '';
     showTermsBadge(record);
   };
-
-  function showTermsBadge(record){
-    try {
-      var data = typeof record === 'string' ? JSON.parse(record) : record;
-      var date = new Date(data.acceptedAt);
-      var label = date.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-      // Add a small "Terms signed" note under the sidebar user block
-      var sidebarUser = document.querySelector('.sidebar-user');
-      if(sidebarUser && !document.getElementById('termsBadge')){
-        var badge = document.createElement('div');
-        badge.id = 'termsBadge';
-        badge.style.cssText = 'font-size:10px;color:#4ade80;padding:6px 20px 8px;letter-spacing:.5px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:5px';
-        badge.innerHTML = '<span style="font-size:9px">✓</span> Terms signed ' + label;
-        sidebarUser.insertAdjacentElement('afterend', badge);
-      }
-    } catch(e){}
-  }
 })();
 
 // ── ADMIN MODE: replace sidebar identity with current staff member ──
