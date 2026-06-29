@@ -525,6 +525,42 @@ def create_lead():
     return redirect("/?submitted=1#assessment")
 
 
+# ---- admin activity log ----
+WWS_ACTIVITY_KEY = "wws:admin_activity"
+WWS_ACTIVITY_MAX = 1000
+
+
+def _admin_name():
+    s = read_session() or {}
+    return (s.get("admin_name") or s.get("name") or s.get("email") or "unknown").split("@")[0]
+
+
+def _log_activity(action, detail="", name=None):
+    try:
+        entry = json.dumps({
+            "ts": _now_ms(),
+            "name": name or _admin_name(),
+            "action": action,
+            "detail": (detail or "")[:300],
+            "ip": ((request.headers.get("x-forwarded-for") or "") + " " + (request.remote_addr or "")).strip()[:80],
+        })
+        _kv_cmd(["LPUSH", WWS_ACTIVITY_KEY, entry])
+        _kv_cmd(["LTRIM", WWS_ACTIVITY_KEY, 0, WWS_ACTIVITY_MAX - 1])
+    except Exception:
+        pass
+
+
+@app.get("/api/admin/activity")
+def admin_activity():
+    if not _is_admin(): return jsonify({"ok": False, "error": "forbidden"}), 403
+    raw = _kv_cmd(["LRANGE", WWS_ACTIVITY_KEY, 0, 199]) or []
+    entries = []
+    for r in raw:
+        try: entries.append(json.loads(r))
+        except: pass
+    return jsonify({"ok": True, "entries": entries})
+
+
 # ---- admin (gated by WWS_ADMIN_EMAILS or shared PIN) ----
 @app.get("/api/admin/session")
 def admin_session():
@@ -534,7 +570,7 @@ def admin_session():
     return jsonify({
         "authed": bool(s.get("email")) or pin_ok,
         "email": s.get("email", ""),
-        "name": s.get("name", "team"),
+        "name": s.get("admin_name") or s.get("name", "Team"),
         "admin": pin_ok or email_ok,
     })
 
@@ -546,10 +582,14 @@ def admin_pin():
         return jsonify({"ok": False, "error": "PIN not configured (set ADMIN_PIN in Vercel env vars)"}), 503
     body = request.get_json(force=True, silent=True) or {}
     if (body.get("pin") or "").strip() != expected:
+        _log_activity("login_fail", "Wrong access code", name="unknown")
         return jsonify({"ok": False, "error": "Wrong code"}), 401
+    name = (body.get("name") or "Team").strip()[:50] or "Team"
     s = read_session() or {}
     s["pin_admin"] = True
-    resp = make_response(jsonify({"ok": True}))
+    s["admin_name"] = name
+    _log_activity("login", "Signed in via access code", name=name)
+    resp = make_response(jsonify({"ok": True, "name": name}))
     write_session(resp, s)
     return resp
 
@@ -638,6 +678,7 @@ def admin_lead_update():
     m["updated"] = _now_ms()
     meta[lid] = m
     _kv_cmd(["SET", WWS_LEAD_META_KEY, json.dumps(meta)])
+    _log_activity("lead_update", f"Lead {lid[:8]} → {st or 'note'}" + (f": {note[:80]}" if note else ""))
     return jsonify({"ok": True, "meta": m})
 
 
@@ -812,45 +853,46 @@ def portal_invoices():
 
 @app.get("/api/admin/invoices")
 def admin_invoices():
-    s = read_session()
-    if not s or not s.get("email"): return jsonify({"ok": False, "error": "auth required"}), 401
+    if not _is_admin(): return jsonify({"ok": False, "error": "auth required"}), 401
     ids = _kv_cmd(["LRANGE", WWS_INV_ALL_KEY, 0, -1]) or []
     return jsonify({"ok": True, "invoices": _inv_list(ids)})
 
 
 @app.post("/api/admin/invoice")
 def admin_create_invoice():
-    s = read_session()
-    if not s or not s.get("email"): return jsonify({"ok": False, "error": "auth required"}), 401
+    if not _is_admin(): return jsonify({"ok": False, "error": "auth required"}), 401
     body = request.get_json(force=True, silent=True) or {}
     email = (body.get("client_email") or "").strip().lower()[:200]
     if not email: return jsonify({"ok": False, "error": "client_email required"}), 400
     try: cents = int(float(body.get("amount") or 0) * 100)
     except: cents = 0
+    desc = (body.get("description") or "").strip()[:500]
     inv = {
         "id": _gen_id(), "created_ts": _now_ms(),
         "client_email": email,
         "client_name": (body.get("client_name") or "").strip()[:200],
-        "description": (body.get("description") or "").strip()[:500],
+        "description": desc,
         "amount_cents": cents,
         "due_date": (body.get("due_date") or "").strip()[:20],
         "pay_url": (body.get("pay_url") or "").strip()[:500],
         "status": "open",
-        "created_by": s.get("email", ""),
+        "created_by": _admin_name(),
     }
     _inv_save(inv)
+    _log_activity("invoice_create", f"${cents/100:.2f} for {email} — {desc[:60]}")
     return jsonify({"ok": True, "invoice": inv})
 
 
 @app.post("/api/admin/invoice/<iid>/status")
 def admin_invoice_status(iid):
-    s = read_session()
-    if not s or not s.get("email"): return jsonify({"ok": False, "error": "auth required"}), 401
+    if not _is_admin(): return jsonify({"ok": False, "error": "auth required"}), 401
     inv = _inv_get(iid)
     if not inv: return jsonify({"ok": False, "error": "not found"}), 404
     body = request.get_json(force=True, silent=True) or {}
-    inv["status"] = (body.get("status") or inv["status"])
+    new_status = (body.get("status") or inv["status"])
+    inv["status"] = new_status
     _inv_save(inv)
+    _log_activity("invoice_status", f"Invoice {iid[:8]} → {new_status} for {inv.get('client_email','')}")
     return jsonify({"ok": True, "invoice": inv})
 
 
@@ -1306,6 +1348,7 @@ def insp_create():
     }
     if not _insp_save(insp):
         return jsonify({"ok": False, "error": "store not configured", "inspection": insp}), 200
+    _log_activity("insp_create", f"Inspection {iid[:8]} for {insp.get('property',{}).get('address','')[:80]}")
     return jsonify({"ok": True, "inspection": insp})
 
 
