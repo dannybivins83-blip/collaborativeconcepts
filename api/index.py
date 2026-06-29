@@ -424,7 +424,9 @@ def _gen_id():
 
 def _is_admin():
     s = read_session()
-    return bool(s and s.get("email", "").lower() in WWS_ADMIN_EMAILS)
+    if not s: return False
+    if s.get("pin_admin"): return True
+    return s.get("email", "").lower() in WWS_ADMIN_EMAILS
 
 
 def _notify(subject, text):
@@ -523,16 +525,42 @@ def create_lead():
     return redirect("/?submitted=1#assessment")
 
 
-# ---- admin (gated by WWS_ADMIN_EMAILS) ----
+# ---- admin (gated by WWS_ADMIN_EMAILS or shared PIN) ----
 @app.get("/api/admin/session")
 def admin_session():
     s = read_session() or {}
+    pin_ok = bool(s.get("pin_admin"))
+    email_ok = s.get("email", "").lower() in WWS_ADMIN_EMAILS
     return jsonify({
-        "authed": bool(s.get("email")),
+        "authed": bool(s.get("email")) or pin_ok,
         "email": s.get("email", ""),
-        "name": s.get("name", ""),
-        "admin": s.get("email", "").lower() in WWS_ADMIN_EMAILS,
+        "name": s.get("name", "team"),
+        "admin": pin_ok or email_ok,
     })
+
+
+@app.post("/api/admin/pin")
+def admin_pin():
+    expected = (os.environ.get("ADMIN_PIN") or "").strip()
+    if not expected:
+        return jsonify({"ok": False, "error": "PIN not configured (set ADMIN_PIN in Vercel env vars)"}), 503
+    body = request.get_json(force=True, silent=True) or {}
+    if (body.get("pin") or "").strip() != expected:
+        return jsonify({"ok": False, "error": "Wrong code"}), 401
+    s = read_session() or {}
+    s["pin_admin"] = True
+    resp = make_response(jsonify({"ok": True}))
+    write_session(resp, s)
+    return resp
+
+
+@app.get("/api/admin/pin/logout")
+def admin_pin_logout():
+    s = read_session() or {}
+    s.pop("pin_admin", None)
+    resp = make_response(redirect("/admin"))
+    write_session(resp, s)
+    return resp
 
 
 def _load_leads():

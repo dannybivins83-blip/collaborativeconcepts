@@ -24,12 +24,19 @@
 </div>
 </header>
 
-<!-- gate (signed out / not authorized) -->
-<div id="gate" class="hidden max-w-md mx-auto mt-24 px-6 text-center">
-<span class="ms text-6xl text-secondary">lock</span>
-<h1 class="text-2xl font-extrabold text-primary mt-3" id="gateTitle">Admin sign-in</h1>
-<p class="text-mute mt-2" id="gateMsg">Sign in with the Google account authorized for La Gala.</p>
-<a id="gateBtn" href="/api/login/google?basic=1&next=/admin" class="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-semibold mt-6 hover:bg-primaryc transition-colors"><span class="ms">login</span> Sign in with Google</a>
+<!-- gate (access code) -->
+<div id="gate" class="hidden max-w-sm mx-auto mt-24 px-6 text-center">
+<span class="ms text-6xl text-secondary">shield_lock</span>
+<h1 class="text-2xl font-extrabold text-primary mt-3">WWS Admin</h1>
+<p class="text-mute mt-2">Enter your access code to continue.</p>
+<div class="mt-6 flex gap-2">
+<input id="pinInput" type="password" placeholder="Access code" autocomplete="current-password"
+  class="flex-1 rounded-xl border border-line px-4 py-3 text-sm focus:ring-2 focus:ring-secondary focus:outline-none text-center tracking-widest text-lg"
+  onkeydown="if(event.key==='Enter')submitPin()"/>
+<button onclick="submitPin()" class="bg-primary text-white px-5 rounded-xl font-semibold hover:bg-primaryc transition-colors">Enter</button>
+</div>
+<p id="pinErr" class="hidden text-red-600 text-sm mt-3">Wrong code — try again.</p>
+<p class="text-xs text-mute/60 mt-6">La Gala Construction · OSHA WWS Compliance CRM</p>
 </div>
 
 <!-- dashboard -->
@@ -134,21 +141,26 @@ function api(p,opts){return fetch(p,Object.assign({headers:{'Content-Type':'appl
 
 function boot(){
   api('/api/admin/session').then(function(s){
-    if(!s.authed){ gate('Admin sign-in','Sign in with the Google account authorized for La Gala.'); return; }
-    if(!s.admin){ gate('Not authorized', esc(s.email)+' isn\'t on the admin list. Sign in with the La Gala account.','/api/logout'); return; }
-    document.getElementById('who').innerHTML='<span class="text-white/70">'+esc(s.email)+'</span><a href="/api/logout" class="text-white/60 hover:text-white inline-flex items-center gap-1"><span class="ms text-base">logout</span></a>';
+    if(!s.authed||!s.admin){ showGate(); return; }
+    document.getElementById('who').innerHTML='<span class="text-white/70">'+(s.email?esc(s.email):'Team')+'</span><a href="/api/admin/pin/logout" class="text-white/60 hover:text-white inline-flex items-center gap-1 ml-2"><span class="ms text-base">logout</span></a>';
     document.getElementById('gate').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     loadLeads();
-  }).catch(function(){ gate('Sign-in','Please sign in to continue.'); });
+  }).catch(function(){ showGate(); });
 }
-function gate(title,msg,btnHref){
+function showGate(){
   document.getElementById('app').classList.add('hidden');
-  var g=document.getElementById('gate'); g.classList.remove('hidden');
-  document.getElementById('gateTitle').textContent=title;
-  document.getElementById('gateMsg').innerHTML=msg;
-  var b=document.getElementById('gateBtn');
-  if(btnHref){ b.textContent='Switch account'; b.setAttribute('href',btnHref); }
+  document.getElementById('gate').classList.remove('hidden');
+  setTimeout(function(){ var i=document.getElementById('pinInput'); if(i) i.focus(); }, 100);
+}
+function submitPin(){
+  var pin=(document.getElementById('pinInput').value||'').trim();
+  if(!pin) return;
+  document.getElementById('pinErr').classList.add('hidden');
+  api('/api/admin/pin',{method:'POST',body:JSON.stringify({pin:pin})}).then(function(d){
+    if(d.ok){ document.getElementById('pinInput').value=''; boot(); }
+    else{ document.getElementById('pinErr').classList.remove('hidden'); document.getElementById('pinInput').select(); }
+  }).catch(function(){ document.getElementById('pinErr').classList.remove('hidden'); });
 }
 
 function loadLeads(){
