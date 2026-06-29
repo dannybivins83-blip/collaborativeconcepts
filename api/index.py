@@ -740,6 +740,93 @@ def portal_inspection_doc(iid, kind):
 
 
 # ==========================================================================
+# WWS invoices & payments
+# ==========================================================================
+WWS_INV_ALL_KEY = "wws:inv:all"
+
+
+def _inv_key(iid): return "wws:inv:" + iid
+def _inv_client_key(email): return "wws:inv:client:" + (email or "").lower().strip()
+
+
+def _inv_get(iid):
+    raw = _kv_cmd(["GET", _inv_key(iid)])
+    if not raw: return None
+    try: return json.loads(raw)
+    except: return None
+
+
+def _inv_save(inv):
+    _kv_cmd(["SET", _inv_key(inv["id"]), json.dumps(inv)])
+    _kv_cmd(["LREM", WWS_INV_ALL_KEY, 0, inv["id"]])
+    _kv_cmd(["RPUSH", WWS_INV_ALL_KEY, inv["id"]])
+    ck = _inv_client_key(inv.get("client_email", ""))
+    _kv_cmd(["LREM", ck, 0, inv["id"]])
+    _kv_cmd(["RPUSH", ck, inv["id"]])
+
+
+def _inv_list(ids):
+    out = []
+    for iid in (ids or []):
+        x = _inv_get(iid)
+        if x: out.append(x)
+    return sorted(out, key=lambda i: i.get("created_ts", 0), reverse=True)
+
+
+@app.get("/api/portal/invoices")
+def portal_invoices():
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"authed": False, "invoices": []})
+    ids = _kv_cmd(["LRANGE", _inv_client_key(s["email"]), 0, -1]) or []
+    return jsonify({"authed": True, "invoices": _inv_list(ids)})
+
+
+@app.get("/api/admin/invoices")
+def admin_invoices():
+    s = read_session()
+    if not s or not s.get("email"): return jsonify({"ok": False, "error": "auth required"}), 401
+    ids = _kv_cmd(["LRANGE", WWS_INV_ALL_KEY, 0, -1]) or []
+    return jsonify({"ok": True, "invoices": _inv_list(ids)})
+
+
+@app.post("/api/admin/invoice")
+def admin_create_invoice():
+    s = read_session()
+    if not s or not s.get("email"): return jsonify({"ok": False, "error": "auth required"}), 401
+    body = request.get_json(force=True, silent=True) or {}
+    email = (body.get("client_email") or "").strip().lower()[:200]
+    if not email: return jsonify({"ok": False, "error": "client_email required"}), 400
+    try: cents = int(float(body.get("amount") or 0) * 100)
+    except: cents = 0
+    inv = {
+        "id": _gen_id(), "created_ts": _now_ms(),
+        "client_email": email,
+        "client_name": (body.get("client_name") or "").strip()[:200],
+        "description": (body.get("description") or "").strip()[:500],
+        "amount_cents": cents,
+        "due_date": (body.get("due_date") or "").strip()[:20],
+        "pay_url": (body.get("pay_url") or "").strip()[:500],
+        "status": "open",
+        "created_by": s.get("email", ""),
+    }
+    _inv_save(inv)
+    return jsonify({"ok": True, "invoice": inv})
+
+
+@app.post("/api/admin/invoice/<iid>/status")
+def admin_invoice_status(iid):
+    s = read_session()
+    if not s or not s.get("email"): return jsonify({"ok": False, "error": "auth required"}), 401
+    inv = _inv_get(iid)
+    if not inv: return jsonify({"ok": False, "error": "not found"}), 404
+    body = request.get_json(force=True, silent=True) or {}
+    inv["status"] = (body.get("status") or inv["status"])
+    _inv_save(inv)
+    return jsonify({"ok": True, "invoice": inv})
+
+
+# ==========================================================================
 # WWS field inspections + pre-filled documents (reportlab, server-side)
 # ==========================================================================
 import io
