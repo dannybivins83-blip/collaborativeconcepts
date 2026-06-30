@@ -70,17 +70,12 @@ licensing, permitting, and consumer-protection laws relating to roofing sales in
 
 ## 3. Commission — Compensation
 
-> **⚠️ CONFIRM THE FLAGGED ITEM.** The schedule below reflects the revised terms.
-> The one item still to confirm is the **back-end (second 50%) trigger on re-roofs**
-> — see Section 3.6 and the notes after the table.
-
 ### 3.1 Commission Schedule
 
-| Sale type | Commission rate | Basis |
+| Sale type | Commission rate | How it is paid |
 |---|---|---|
-| **Re-roofing sales** (all re-roofs, all volume) | **7%** *(flat, across the board)* | of the contract sale price |
-| **Service / repair sales** (all non-re-roof roofing service work) | **10%** *(flat, across the board)* | of the contract sale price |
-| **Wood / decking replacement ("wood bills")** on re-roof jobs | **`[7% — confirm rate]`** | of the wood-bill amount billed to the customer |
+| **Re-roofing sales** (all re-roofs, all volume) | **7%** *(flat, across the board)* | split **50/50** — see 3.5 |
+| **Service / repair sales** (all non-re-roof roofing service work) | **10%** *(flat, across the board)* | in full on final payment — see 3.5 |
 
 3.2 **Re-roof sales.** All re-roofing sales originated by Representative are commissioned
 at a **flat 7%**, across the board, with no volume tier and no rate change over time.
@@ -88,37 +83,43 @@ at a **flat 7%**, across the board, with no volume tier and no rate change over 
 3.3 **Service sales.** All roofing service and repair sales (non-re-roof) are
 commissioned at a **flat 10%**, across the board.
 
-3.4 **Wood bills & material ordering.** On re-roof jobs, **Representative handles the
-"wood bills"** (the customer billing for replacement of rotten/damaged wood decking
-discovered during a re-roof) **and handles material ordering** for those jobs.
-Representative **is paid commission on the wood bills** at the rate shown above.
-*(Confirm: (a) that this clause describes the Representative ("Sebre's"), not the
-Company; (b) the wood-bill commission rate; and (c) the scope of "ordering" Rep handles.)*
+3.4 **Wood bills & material ordering.** On re-roof jobs, replacement of rotten/damaged
+wood decking ("**wood bills**") is **not** an upfront line item — it is discovered and
+billed **during the job**, which raises the job's **final** contract total. Because the
+front-end commission is calculated on the original contract price (before the wood is
+known) and the back-end commission is calculated on the **final total** (which includes
+the wood), Representative is automatically paid commission on the wood through the
+back-end calculation in Section 3.5 — i.e., the wood earns the **back-end 3.5%**.
+Representative **handles the wood bills and material ordering** for re-roof jobs.
 
-3.5 **Commission basis.** "Contract sale price" means the gross amount of the signed
-customer contract (and, for wood bills, the gross amount billed to the customer for
-wood/decking replacement), **excluding** sales tax and any third-party financing fees
-passed through to the customer.
-*(Confirm whether commission is calculated on gross contract price or on net/profit.)*
+3.5 **Re-roof payment timing — 50/50 (front end / back end).** Each re-roof commission
+(7% total) is paid in two equal halves:
 
-### 3.6 Payment Timing & Schedule
+- **Front-end half = 3.5%**, calculated on the **original contract price**, paid upon
+  Company's **collection of the customer's initial deposit**.
+- **Back-end half = 3.5%**, calculated on the **final total project amount** (the final
+  contract price **including** any wood bills / decking upcharges added during the job),
+  paid **once the job's final payment is collected in full** ("done done").
 
-**Re-roof commissions (7%)** — split **50/50, front end and back end**:
+  **Net effect:** Representative earns the full **7% on the base contract price**, plus
+  an additional **3.5% on any wood/decking** added during the job (the wood only catches
+  the back-end half because it arises after the deposit).
 
-- The **front-end 50%** is paid upon Company's **collection of the customer's initial
-  deposit** on the job.
-- The **back-end 50%** is paid upon **`[ — CONFIRM: also upon the initial deposit
-  (i.e., the full 7% releases once the deposit is collected), OR upon Company's
-  collection of final payment / job completion ]`**.
+3.6 **Service payment timing.** Each service / repair commission (10%) is paid **in full
+upon Company's collection of the customer's final payment** on the job.
 
-**Service commissions (10%)** — paid in **full upon Company's collection of final
-payment** on the job.
+3.7 **Commission basis.** Commission is calculated on the gross contract amount (original
+contract price for the front-end half; final total including wood for the back-end half),
+**excluding** sales tax and any third-party financing fees passed through to the customer.
+*(Confirm whether commission is on gross contract amount or on net/profit.)*
 
-**Pay day — every Friday by 4:00 PM.** All commission amounts that have become payable
-during a given week are disbursed **every Friday by 4:00 PM**, by
-**`[check / direct deposit]`**, accompanied by a statement showing the jobs and amounts paid.
+3.8 **Pay day — every Friday by 4:00 PM.** All commission amounts that have become
+payable during a given week (re-roof front-end halves on jobs whose deposit was
+collected, re-roof back-end halves on jobs paid in full, and service commissions on jobs
+paid in full) are disbursed **every Friday by 4:00 PM**, by **`[check / direct deposit]`**,
+accompanied by a statement showing the jobs and amounts paid.
 
-3.7 **No draw / advance** is provided unless agreed in a separate written addendum signed
+3.9 **No draw / advance** is provided unless agreed in a separate written addendum signed
 by both Parties.
 
 ---
@@ -282,8 +283,6 @@ Title: **`[Owner / Independent Contractor]`**
 
 ### Notes / open items to confirm before signing
 1. **Exact legal name** of the Representative/entity ("Sebre's Roofing"? "Sibris"? sole proprietor vs. LLC).
-2. **Re-roof back-end 50% trigger** (Section 3.6): does the second 50% also release on the *initial deposit* (full 7% paid once deposit is collected), or on *final payment / completion*?
-3. **Wood bills** (Section 3.4): confirm the Representative — not the Company — handles wood bills and ordering and is paid on them, and confirm the wood-bill commission rate.
-4. **Commission basis:** gross contract price vs. net/profit.
-5. **Geographic scope** and **durations** for the non-compete (Section 6).
-6. Company and Rep **addresses**, **signatory names**, **effective date**, and **payment method**.
+2. **Commission basis:** gross contract amount vs. net/profit (Section 3.7).
+3. **Geographic scope** and **durations** for the non-compete (Section 6).
+4. Company and Rep **addresses**, **signatory names**, **effective date**, and **payment method** (check vs. direct deposit).
