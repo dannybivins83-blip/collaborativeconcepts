@@ -70,46 +70,55 @@ licensing, permitting, and consumer-protection laws relating to roofing sales in
 
 ## 3. Commission — Compensation
 
-> **⚠️ CONFIRM THESE FIGURES.** The schedule below reflects the terms as dictated.
-> The flagged items (re-roof tier jump from 7% to 26%, and the "50/50 upon deposit"
-> payment timing) should be confirmed before signing — see the notes after the table.
+> **⚠️ CONFIRM THE FLAGGED ITEM.** The schedule below reflects the revised terms.
+> The one item still to confirm is the **back-end (second 50%) trigger on re-roofs**
+> — see Section 3.6 and the notes after the table.
 
 ### 3.1 Commission Schedule
 
 | Sale type | Commission rate | Basis |
 |---|---|---|
-| **Re-roofing sales** — first **`[$1,000,000]`** of cumulative re-roof revenue originated by Rep | **7%** | of the contract sale price |
-| **Re-roofing sales** — all cumulative re-roof revenue **above `[$1,000,000]`** | **26%** *(stays at 26% thereafter)* | of the contract sale price |
-| **Service / repair sales** (all non-re-roof roofing service work) | **10%** *(flat, all volume)* | of the contract sale price |
+| **Re-roofing sales** (all re-roofs, all volume) | **7%** *(flat, across the board)* | of the contract sale price |
+| **Service / repair sales** (all non-re-roof roofing service work) | **10%** *(flat, across the board)* | of the contract sale price |
+| **Wood / decking replacement ("wood bills")** on re-roof jobs | **`[7% — confirm rate]`** | of the wood-bill amount billed to the customer |
 
-3.2 **Re-roof tier.** The 7% rate applies to Representative's cumulative re-roofing
-sales until those sales reach **`[$1,000,000]`**. Once cumulative re-roofing sales
-exceed **`[$1,000,000]`**, the commission rate on all subsequent re-roofing sales
-increases to **26%** and **remains at 26%** for the remainder of the engagement (the
-rate does not reset).
+3.2 **Re-roof sales.** All re-roofing sales originated by Representative are commissioned
+at a **flat 7%**, across the board, with no volume tier and no rate change over time.
 
 3.3 **Service sales.** All roofing service and repair sales (non-re-roof) are
-commissioned at a **flat 10%**, regardless of cumulative volume.
+commissioned at a **flat 10%**, across the board.
 
-3.4 **Commission basis.** "Contract sale price" means the gross amount of the signed
-customer contract for the work Representative originated, **excluding** sales tax and
-any third-party financing fees passed through to the customer.
-*(Confirm whether commission is calculated on gross contract price or on net/profit —
-this materially changes payout.)*
+3.4 **Wood bills & material ordering.** On re-roof jobs, **Representative handles the
+"wood bills"** (the customer billing for replacement of rotten/damaged wood decking
+discovered during a re-roof) **and handles material ordering** for those jobs.
+Representative **is paid commission on the wood bills** at the rate shown above.
+*(Confirm: (a) that this clause describes the Representative ("Sebre's"), not the
+Company; (b) the wood-bill commission rate; and (c) the scope of "ordering" Rep handles.)*
 
-### 3.5 Payment Timing — 50 / 50
+3.5 **Commission basis.** "Contract sale price" means the gross amount of the signed
+customer contract (and, for wood bills, the gross amount billed to the customer for
+wood/decking replacement), **excluding** sales tax and any third-party financing fees
+passed through to the customer.
+*(Confirm whether commission is calculated on gross contract price or on net/profit.)*
 
-Each earned commission is paid in two equal installments:
+### 3.6 Payment Timing & Schedule
 
-- **50%** is paid upon Company's **collection of the customer's deposit** on the job; and
-- the remaining **50%** is paid upon **`[Company's collection of final payment / job
-  completion — confirm which trigger]`**.
+**Re-roof commissions (7%)** — split **50/50, front end and back end**:
 
-Company will pay due commission installments within **`[15]`** days after the
-triggering event, by **`[check / direct deposit]`**, accompanied by a statement
-showing the jobs and amounts paid.
+- The **front-end 50%** is paid upon Company's **collection of the customer's initial
+  deposit** on the job.
+- The **back-end 50%** is paid upon **`[ — CONFIRM: also upon the initial deposit
+  (i.e., the full 7% releases once the deposit is collected), OR upon Company's
+  collection of final payment / job completion ]`**.
 
-3.6 **No draw / advance** is provided unless agreed in a separate written addendum signed
+**Service commissions (10%)** — paid in **full upon Company's collection of final
+payment** on the job.
+
+**Pay day — every Friday by 4:00 PM.** All commission amounts that have become payable
+during a given week are disbursed **every Friday by 4:00 PM**, by
+**`[check / direct deposit]`**, accompanied by a statement showing the jobs and amounts paid.
+
+3.7 **No draw / advance** is provided unless agreed in a separate written addendum signed
 by both Parties.
 
 ---
@@ -273,8 +282,8 @@ Title: **`[Owner / Independent Contractor]`**
 
 ### Notes / open items to confirm before signing
 1. **Exact legal name** of the Representative/entity ("Sebre's Roofing"? "Sibris"? sole proprietor vs. LLC).
-2. **Re-roof tier:** 7% on the first $1,000,000, then **26%** above $1,000,000 — confirm 26% (not 2.6%) and that it never resets.
-3. **Commission basis:** gross contract price vs. net/profit.
-4. **"50/50" timing:** second 50% paid on *final payment* or on *job completion*?
+2. **Re-roof back-end 50% trigger** (Section 3.6): does the second 50% also release on the *initial deposit* (full 7% paid once deposit is collected), or on *final payment / completion*?
+3. **Wood bills** (Section 3.4): confirm the Representative — not the Company — handles wood bills and ordering and is paid on them, and confirm the wood-bill commission rate.
+4. **Commission basis:** gross contract price vs. net/profit.
 5. **Geographic scope** and **durations** for the non-compete (Section 6).
-6. Company and Rep **addresses**, **signatory names**, **effective date**, and **payment method/terms**.
+6. Company and Rep **addresses**, **signatory names**, **effective date**, and **payment method**.
