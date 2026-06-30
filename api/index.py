@@ -1089,7 +1089,94 @@ def _money(v):
 
 def doc_checklist(insp):
     st = _dstyles(); buf, doc = _dnew("Completed OSHA Subpart D Checklist"); story = []
-    _dheader(story, st, "OSHA 1910 Subpart D - field compliance record", "Completed Inspection Checklist", insp)
+    _dheader(story, st, "OSHA 1910 Subpart D / 1910.140 · ANSI/IWCA I-14.1 · ASME A120.1", "Anchor & Davit Visual Inspection Checklist", insp)
+
+    # ---- building-level visual inspection fields ----
+    vc = insp.get("visual_check") or {}
+    def _yn(v): return v if v else "—"
+    story.append(Paragraph("Building information &amp; engineered drawings", st["sect"]))
+    brows = [
+        [Paragraph("Parapet height", st["td"]), Paragraph(_esc(_yn(vc.get("parapet_height"))), st["td"]),
+         Paragraph("Parapet type", st["td"]), Paragraph(_esc(_yn(vc.get("parapet_type"))), st["td"])],
+        [Paragraph("Photos taken", st["td"]), Paragraph(_esc(_yn(vc.get("photos_taken"))), st["td"]),
+         Paragraph("Windows on drawings", st["td"]), Paragraph(_esc(_yn(vc.get("windows_on_drawing"))), st["td"])],
+        [Paragraph("Engineered drawing on site", st["td"]), Paragraph(_esc(_yn(vc.get("drawing_on_site"))), st["td"]),
+         Paragraph("Drawing stamped / dated / signed", st["td"]), Paragraph(_esc(_yn(vc.get("drawing_stamped"))), st["td"])],
+        [Paragraph("Accurate roof layout on drawing", st["td"]), Paragraph(_esc(_yn(vc.get("drawing_accurate"))), st["td"]),
+         Paragraph("Rigging restrictions noted", st["td"]), Paragraph(_esc(_yn(vc.get("rigging_restrictions"))), st["td"])],
+        [Paragraph("Adequate safety approach", st["td"]), Paragraph(_esc(_yn(vc.get("safety_approach"))), st["td"]),
+         Paragraph("", st["td"]), Paragraph("", st["td"])],
+    ]
+    bt = Table(brows, colWidths=[2.3*inch, 0.9*inch, 2.3*inch, 0.9*inch])
+    bt.setStyle(_dtable_style()); _dzebra(bt, len(brows)); story.append(bt)
+
+    # ---- per-anchor visual inspection ----
+    anchors = insp.get("anchors") or []
+    if anchors:
+        story.append(Paragraph("Anchor visual inspection  ·  Failure threshold: &gt;1/16″ permanent deflection", st["sect"]))
+        arows = [[Paragraph("#", st["thc"]), Paragraph("Type", st["th"]), Paragraph("Location", st["th"]),
+                  Paragraph("Pins", st["thc"]), Paragraph("Threads", st["thc"]),
+                  Paragraph("Plates", st["thc"]), Paragraph("Rust", st["thc"]),
+                  Paragraph("Result", st["thc"]), Paragraph("Deflection", st["thc"]), Paragraph("Note", st["th"])]]
+        for a in anchors:
+            res = (a.get("result") or "").lower()
+            rc = GREEN if res == "pass" else (RED if res == "fail" else GREY)
+            def _ync(v):
+                if v == "Y": return '<font color="%s"><b>Y</b></font>' % GREEN
+                if v == "N": return '<font color="%s"><b>N</b></font>' % RED
+                return _esc(v or "—")
+            arows.append([
+                Paragraph(_esc(a.get("num", "")), st["tdc"]),
+                Paragraph(_esc(a.get("type", "")), st["td"]),
+                Paragraph(_esc(a.get("location", "")), st["td"]),
+                Paragraph(_ync(a.get("pins", "")), st["tdc"]),
+                Paragraph(_ync(a.get("threads", "")), st["tdc"]),
+                Paragraph(_ync(a.get("plates", "")), st["tdc"]),
+                Paragraph(_ync(a.get("rust", "")), st["tdc"]),
+                Paragraph('<font color="%s"><b>%s</b></font>' % (rc, (a.get("result") or "—").upper()), st["tdc"]),
+                Paragraph(_esc(a.get("deflection", "") or "—"), st["tdc"]),
+                Paragraph(_esc(a.get("note", "")), st["td"]),
+            ])
+        at = Table(arows, colWidths=[0.45*inch, 1.0*inch, 1.3*inch, 0.45*inch, 0.55*inch, 0.45*inch, 0.45*inch, 0.65*inch, 0.65*inch, 1.15*inch], repeatRows=1)
+        at.setStyle(_dtable_style()); _dzebra(at, len(arows)); story.append(at)
+
+    # ---- per-davit visual inspection ----
+    davits = insp.get("davits") or []
+    if davits:
+        story.append(Paragraph("Davit schedule  ·  Test load = 2× working load  ·  ASME A120.1", st["sect"]))
+        drows = [[Paragraph("#", st["thc"]), Paragraph("Location", st["th"]), Paragraph("Height", st["thc"]),
+                  Paragraph("Outreach", st["thc"]), Paragraph("Capacity", st["thc"]),
+                  Paragraph("W/L (lbs)", st["thc"]), Paragraph("Test (2×)", st["thc"]),
+                  Paragraph("Pins", st["thc"]), Paragraph("Rust", st["thc"]),
+                  Paragraph("Result", st["thc"]), Paragraph("Deflection", st["thc"]), Paragraph("Note", st["th"])]]
+        for d in davits:
+            res = (d.get("result") or "").lower()
+            rc = GREEN if res == "pass" else (RED if res == "fail" else GREY)
+            wl = d.get("working_load", "")
+            try: tl = str(int(float(wl) * 2)) + " lbs"
+            except: tl = "—"
+            def _ync2(v):
+                if v == "Y": return '<font color="%s"><b>Y</b></font>' % GREEN
+                if v == "N": return '<font color="%s"><b>N</b></font>' % RED
+                return _esc(v or "—")
+            drows.append([
+                Paragraph(_esc(d.get("num", "")), st["tdc"]),
+                Paragraph(_esc(d.get("location", "")), st["td"]),
+                Paragraph(_esc(d.get("height", "") or "—"), st["tdc"]),
+                Paragraph(_esc(d.get("outreach", "") or "—"), st["tdc"]),
+                Paragraph(_esc(d.get("capacity", "") or "—"), st["tdc"]),
+                Paragraph(_esc(str(wl) or "—"), st["tdc"]),
+                Paragraph(tl, st["tdc"]),
+                Paragraph(_ync2(d.get("pins", "")), st["tdc"]),
+                Paragraph(_ync2(d.get("rust", "")), st["tdc"]),
+                Paragraph('<font color="%s"><b>%s</b></font>' % (rc, (d.get("result") or "—").upper()), st["tdc"]),
+                Paragraph(_esc(d.get("deflection", "") or "—"), st["tdc"]),
+                Paragraph(_esc(d.get("note", "")), st["td"]),
+            ])
+        dvt = Table(drows, colWidths=[0.4*inch, 1.1*inch, 0.55*inch, 0.6*inch, 0.6*inch, 0.6*inch, 0.65*inch, 0.45*inch, 0.45*inch, 0.65*inch, 0.65*inch, 0.9*inch], repeatRows=1)
+        dvt.setStyle(_dtable_style()); _dzebra(dvt, len(drows)); story.append(dvt)
+
+    # ---- Subpart D findings checklist ----
     findings = insp.get("findings") or _seed_findings()
     secs, order = {}, []
     for f in findings:
@@ -1097,9 +1184,10 @@ def doc_checklist(insp):
         if s not in secs:
             secs[s] = []; order.append(s)
         secs[s].append(f)
+    story.append(Paragraph("Subpart D field findings (.22–.30)", st["sect"]))
     for s in order:
         std = secs[s][0].get("std", "")
-        story.append(Paragraph(_esc(s) + "  ·  " + _esc(std), st["sect"]))
+        story.append(Paragraph(_esc(s) + "  ·  " + _esc(std), st["sub"] if hasattr(st.get("sub"), "fontName") else st["body"]))
         rows = [[Paragraph("Inspection item", st["th"]), Paragraph("Result", st["thc"]), Paragraph("Note", st["th"])]]
         for f in secs[s]:
             res = (f.get("result") or "").lower()
@@ -1111,6 +1199,7 @@ def doc_checklist(insp):
         t = Table(rows, colWidths=[3.7 * inch, 0.8 * inch, 2.6 * inch], repeatRows=1)
         t.setStyle(_dtable_style()); _dzebra(t, len(rows))
         story.append(t)
+
     defs = [f for f in findings if (f.get("result") or "").lower() == "def"]
     story.append(Paragraph("Deficiencies to correct (%d)" % len(defs), st["sect"]))
     if defs:
@@ -1122,7 +1211,7 @@ def doc_checklist(insp):
     story.append(Paragraph("Inspector signature: ______________________________     Date: ____________", st["body"]))
     story.append(Spacer(1, 6))
     story.append(Paragraph("Owner / manager acknowledgment: ______________________________     Date: ____________", st["body"]))
-    story.append(Paragraph("Field compliance record only. Anchorage load-test certification (§1910.27) and any structural repair must be performed and sealed by a licensed Florida professional engineer. Thresholds per 29 CFR 1910 Subpart D.", st["disc"]))
+    story.append(Paragraph("Field compliance record per OSHA 29 CFR 1910 Subpart D, 1910.140, ANSI/IWCA I-14.1, and ASME A120.1. Anchorage load-test certification and structural repair must be performed and sealed by a licensed Florida PE. Failure threshold: &gt;1/16″ permanent deflection.", st["disc"]))
     return _dfinish(buf, doc, story)
 
 
@@ -1343,7 +1432,7 @@ def insp_create():
         "property": prop, "client": client,
         "inspector": b.get("inspector") or {"name": s.get("name", ""), "license": "CGC059211"},
         "pe": b.get("pe") or {}, "findings": _seed_findings(),
-        "summary": "", "recommendations": "", "corrective": [], "photos": [], "anchors": [], "diagram": "", "sitecam": {},
+        "summary": "", "recommendations": "", "corrective": [], "photos": [], "anchors": [], "davits": [], "visual_check": {}, "diagram": "", "sitecam": {},
         "source_lead_id": b.get("lead_id", ""), "source_request_id": b.get("request_id", ""),
     }
     if not _insp_save(insp):
@@ -1387,7 +1476,7 @@ def insp_update(iid):
     if not x:
         return jsonify({"error": "not found"}), 404
     b = request.get_json(force=True, silent=True) or {}
-    for k in ("property", "client", "inspector", "pe", "findings", "corrective", "photos", "anchors", "diagram", "summary", "recommendations", "status", "sitecam"):
+    for k in ("property", "client", "inspector", "pe", "findings", "corrective", "photos", "anchors", "davits", "visual_check", "diagram", "summary", "recommendations", "status", "sitecam"):
         if k in b:
             x[k] = b[k]
     _insp_save(x)

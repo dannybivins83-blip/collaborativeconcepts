@@ -127,15 +127,63 @@
 <div id="photoGrid" class="mt-4"></div>
 </div>
 
+<!-- UES visual inspection checklist (building-level) -->
+<div class="bg-white rounded-xl border border-line p-5">
+<h2 class="font-bold text-primary flex items-center gap-2 mb-1"><span class="ms text-secondary">fact_check</span> Visual inspection checklist <span class="text-xs font-normal text-mute ml-1">OSHA 1910.140 · ANSI/IWCA I-14.1</span></h2>
+<p class="text-xs text-mute mb-4">Building-level fields — complete before recording individual anchor results.</p>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+<div><label class="block text-xs text-mute mb-0.5">Parapet height</label><input data-p="visual_check.parapet_height" class="tx w-full" placeholder='e.g. 36"'/></div>
+<div><label class="block text-xs text-mute mb-0.5">Parapet type</label>
+<select data-p="visual_check.parapet_type" class="tx w-full"><option value="">—</option><option>Structural</option><option>Non-Structural</option><option>N/A</option></select></div>
+<div><label class="block text-xs text-mute mb-0.5">Photos taken</label>
+<select data-p="visual_check.photos_taken" class="tx w-full"><option value="">—</option><option>Yes</option><option>No</option></select></div>
+<div><label class="block text-xs text-mute mb-0.5">Engineered drawing on site</label>
+<select data-p="visual_check.drawing_on_site" class="tx w-full"><option value="">—</option><option>Yes</option><option>No</option><option>N/A</option></select></div>
+<div><label class="block text-xs text-mute mb-0.5">Drawing stamped/dated/signed</label>
+<select data-p="visual_check.drawing_stamped" class="tx w-full"><option value="">—</option><option>Yes</option><option>No</option><option>N/A</option></select></div>
+<div><label class="block text-xs text-mute mb-0.5">Accurate roof layout on drawing</label>
+<select data-p="visual_check.drawing_accurate" class="tx w-full"><option value="">—</option><option>Yes</option><option>No</option><option>N/A</option></select></div>
+<div><label class="block text-xs text-mute mb-0.5">Windows shown on drawings</label>
+<select data-p="visual_check.windows_on_drawing" class="tx w-full"><option value="">—</option><option>Yes</option><option>No</option><option>N/A</option></select></div>
+<div><label class="block text-xs text-mute mb-0.5">Rigging restrictions noted</label>
+<select data-p="visual_check.rigging_restrictions" class="tx w-full"><option value="">—</option><option>Yes</option><option>No</option><option>N/A</option></select></div>
+<div><label class="block text-xs text-mute mb-0.5">Adequate safety approach</label>
+<select data-p="visual_check.safety_approach" class="tx w-full"><option value="">—</option><option>Yes</option><option>No</option><option>N/A</option></select></div>
+</div>
+</div>
+
 <!-- anchor schedule -->
 <div class="bg-white rounded-xl border border-line p-5">
 <div class="flex items-center justify-between mb-1"><h2 class="font-bold text-primary flex items-center gap-2"><span class="ms text-secondary">anchor</span> Anchor schedule</h2>
 <div class="flex items-center gap-2">
-<select id="anchorSeries" class="tx" style="width:auto;padding:.3rem .5rem"><option value="A">A · wall</option><option value="R">R · roof/davit</option></select>
+<select id="anchorSeries" class="tx" style="width:auto;padding:.3rem .5rem"><option value="A">A · wall</option><option value="R">R · roof</option></select>
 <button onclick="addAnchor()" class="text-sm text-secondary font-semibold inline-flex items-center gap-1"><span class="ms text-base">add</span> Add anchor</button>
 </div></div>
-<p class="text-xs text-mute mb-3">One row per anchor. Number, type, location, test result and any deflection. Photos and the roof plan below reference these numbers.</p>
-<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="text-mute text-xs uppercase"><tr><th class="text-left font-semibold py-1 px-1">#</th><th class="text-left font-semibold px-1">Type</th><th class="text-left font-semibold px-1">Location</th><th class="text-left font-semibold px-1">Result</th><th class="text-left font-semibold px-1">Deflection</th><th class="text-left font-semibold px-1">Note</th><th></th></tr></thead><tbody id="anchors"></tbody></table></div>
+<p class="text-xs text-mute mb-3">One row per anchor. Visual check columns: Pins = tamper-proof pins, Thrd = threads deformed, Plts = back plates &amp; lock washers visible, Rust = rust observed. Failure threshold: &gt;1/16″ deflection.</p>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="text-mute text-xs uppercase"><tr><th class="text-left font-semibold py-1 px-1">#</th><th class="text-left font-semibold px-1">Type</th><th class="text-left font-semibold px-1">Location</th><th class="text-left font-semibold px-1" title="Tamper-proof pins installed">Pins</th><th class="text-left font-semibold px-1" title="Threads properly deformed">Thrd</th><th class="text-left font-semibold px-1" title="Back plates & lock washers visible">Plts</th><th class="text-left font-semibold px-1" title="Rust observed">Rust</th><th class="text-left font-semibold px-1">Result</th><th class="text-left font-semibold px-1">Deflection</th><th class="text-left font-semibold px-1">Note</th><th></th></tr></thead><tbody id="anchors"></tbody></table></div>
+</div>
+
+<!-- davit schedule -->
+<div class="bg-white rounded-xl border border-line p-5">
+<div class="flex items-center justify-between mb-1"><h2 class="font-bold text-primary flex items-center gap-2"><span class="ms text-secondary">construction</span> Davit schedule <span class="text-xs font-normal text-mute ml-1">ASME A120.1 · test load = 2× working load</span></h2>
+<button onclick="addDavit()" class="text-sm text-secondary font-semibold inline-flex items-center gap-1"><span class="ms text-base">add</span> Add davit</button>
+</div>
+<p class="text-xs text-mute mb-3">One row per davit post/arm. Test load = 2× working load. Failure threshold: &gt;1/16″ permanent deflection under load.</p>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="text-mute text-xs uppercase"><tr>
+<th class="text-left font-semibold py-1 px-1">#</th>
+<th class="text-left font-semibold px-1">Location</th>
+<th class="text-left font-semibold px-1">Height</th>
+<th class="text-left font-semibold px-1">Outreach</th>
+<th class="text-left font-semibold px-1">Capacity</th>
+<th class="text-left font-semibold px-1">Working load</th>
+<th class="text-left font-semibold px-1">Test load (2×)</th>
+<th class="text-left font-semibold px-1">Pins</th>
+<th class="text-left font-semibold px-1">Rust</th>
+<th class="text-left font-semibold px-1">Result</th>
+<th class="text-left font-semibold px-1">Deflection</th>
+<th class="text-left font-semibold px-1">Note</th>
+<th></th>
+</tr></thead><tbody id="davits"></tbody></table></div>
 </div>
 
 <!-- roof anchor plan -->
@@ -163,7 +211,7 @@ function save(){
     property:INSP.property,client:INSP.client,inspector:INSP.inspector,pe:INSP.pe,
     findings:INSP.findings,corrective:INSP.corrective,summary:INSP.summary,
     recommendations:INSP.recommendations,status:INSP.status,
-    anchors:INSP.anchors,diagram:INSP.diagram,photos:INSP.photos})}).then(function(d){
+    anchors:INSP.anchors,davits:INSP.davits,visual_check:INSP.visual_check,diagram:INSP.diagram,photos:INSP.photos})}).then(function(d){
     document.getElementById('saveState').textContent=d.ok?'Saved':'Save failed (storage on?)';
   }).catch(function(){document.getElementById('saveState').textContent='Save failed';});
 }
@@ -186,7 +234,7 @@ function renderAll(){
     el.addEventListener('input',function(){setField(el.getAttribute('data-p'),el.value);if(el.getAttribute('data-p')==='property.name')document.getElementById('ptitle').textContent=el.value||'New inspection';});
   });
   document.getElementById('statusSel').value=INSP.status||'draft';
-  renderStatus(); renderFindings(); renderItems(); renderSitecam(); renderAnchors(); renderDiagram();
+  renderStatus(); renderFindings(); renderItems(); renderSitecam(); renderAnchors(); renderDavits(); renderDiagram();
 }
 function renderStatus(){
   var m={draft:'bg-white/15',field:'bg-amber-400 text-primary',complete:'bg-green-400 text-primary',sealed:'bg-secondary text-primary'};
@@ -267,7 +315,9 @@ function pullPhotos(){api('/api/admin/inspection/'+ID+'/sitecam/pull',{method:'P
 function startCapture(){var box=document.getElementById('scResults');if(box)box.innerHTML='<p class="text-sm text-mute">Creating SiteCam project…</p>';api('/api/admin/inspection/'+ID+'/sitecam/start',{method:'POST',body:'{}'}).then(function(d){if(d.ok){INSP.sitecam=d.sitecam;renderSitecam();}else{if(box)box.innerHTML='';alert(d.error||d.message||'Could not start capture');}});}
 
 /* ---- anchor schedule ---- */
-var ATYPES=['Wall','Roof davit','Tieback','RDS'];
+var ATYPES=['Wall','Roof tieback','Davit sleeve','RDS'];
+var YNA=['','Y','N','N/A'];
+function yna(val,field,i,type){var fn=(type==='davit'?'setDavit':'setAnchor');return '<select class="tx" style="width:52px;padding:.15rem .2rem" onchange="'+fn+'('+i+',\''+field+'\',this.value)">'+YNA.map(function(o){return '<option'+(val===o?' selected':'')+'>'+o+'</option>';}).join('')+'</select>';}
 function nextAnchorNum(series){
   var max=0;(INSP.anchors||[]).forEach(function(a){var m=String(a.num||'').match(new RegExp('^'+series+'(\\d+)$','i'));if(m){var n=parseInt(m[1],10);if(n>max)max=n;}});
   return series+(max+1);
@@ -279,18 +329,56 @@ function renderAnchors(){
     var cell=res==='Pass'?'background:#dcfce7':res==='Fail'?'background:#fee2e2':'';
     function opt(v,sel){return '<option value="'+esc(v)+'"'+(sel===v?' selected':'')+'>'+esc(v)+'</option>';}
     return '<tr>'+
-      '<td class="py-1 pr-1"><input class="tx" style="width:64px" value="'+esc(a.num||'')+'" oninput="setAnchor('+i+',\'num\',this.value);refreshPhotoAnchorOpts()"/></td>'+
-      '<td class="px-1"><select class="tx" style="width:120px" onchange="setAnchor('+i+',\'type\',this.value)">'+ATYPES.map(function(t){return opt(t,a.type||'Wall');}).join('')+'</select></td>'+
-      '<td class="px-1"><input class="tx" value="'+esc(a.location||'')+'" oninput="setAnchor('+i+',\'location\',this.value)"/></td>'+
-      '<td class="px-1" style="'+cell+'"><select class="tx" style="width:100px;background:transparent" onchange="setAnchor('+i+',\'result\',this.value);renderAnchors()">'+['Untested','Pass','Fail'].map(function(t){return opt(t,res);}).join('')+'</select></td>'+
-      '<td class="px-1"><input class="tx" style="width:80px" placeholder="1/32&quot;" value="'+esc(a.deflection||'')+'" oninput="setAnchor('+i+',\'deflection\',this.value)"/></td>'+
-      '<td class="px-1"><input class="tx" value="'+esc(a.note||'')+'" oninput="setAnchor('+i+',\'note\',this.value)"/></td>'+
+      '<td class="py-1 pr-1"><input class="tx" style="width:52px" value="'+esc(a.num||'')+'" oninput="setAnchor('+i+',\'num\',this.value);refreshPhotoAnchorOpts()"/></td>'+
+      '<td class="px-1"><select class="tx" style="width:110px" onchange="setAnchor('+i+',\'type\',this.value)">'+ATYPES.map(function(t){return opt(t,a.type||'Wall tieback');}).join('')+'</select></td>'+
+      '<td class="px-1"><input class="tx" style="width:110px" value="'+esc(a.location||'')+'" oninput="setAnchor('+i+',\'location\',this.value)"/></td>'+
+      '<td class="px-1">'+yna(a.pins||'',     'pins',     i)+'</td>'+
+      '<td class="px-1">'+yna(a.threads||'',  'threads',  i)+'</td>'+
+      '<td class="px-1">'+yna(a.plates||'',   'plates',   i)+'</td>'+
+      '<td class="px-1">'+yna(a.rust||'',     'rust',     i)+'</td>'+
+      '<td class="px-1" style="'+cell+'"><select class="tx" style="width:90px;background:transparent" onchange="setAnchor('+i+',\'result\',this.value);renderAnchors()">'+['Untested','Pass','Fail'].map(function(t){return opt(t,res);}).join('')+'</select></td>'+
+      '<td class="px-1"><input class="tx" style="width:72px" placeholder=">1/16&quot;?" value="'+esc(a.deflection||'')+'" oninput="setAnchor('+i+',\'deflection\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" style="min-width:100px" value="'+esc(a.note||'')+'" oninput="setAnchor('+i+',\'note\',this.value)"/></td>'+
       '<td><button onclick="delAnchor('+i+')" class="text-mute hover:text-red-600"><span class="ms text-base">close</span></button></td></tr>';
   }).join(''):'<tr><td colspan="7" class="py-3 text-sm text-mute">No anchors yet — pick a series and click &ldquo;Add anchor&rdquo;.</td></tr>';
 }
 function setAnchor(i,k,v){INSP.anchors[i][k]=v;markDirty();}
-function addAnchor(){if(!INSP.anchors)INSP.anchors=[];var s=document.getElementById('anchorSeries').value||'A';INSP.anchors.push({num:nextAnchorNum(s),type:s==='R'?'Roof davit':'Wall',location:'',result:'Untested',deflection:'',note:''});renderAnchors();refreshPhotoAnchorOpts();markDirty();}
+function addAnchor(){if(!INSP.anchors)INSP.anchors=[];var s=document.getElementById('anchorSeries').value||'A';INSP.anchors.push({num:nextAnchorNum(s),type:s==='R'?'Roof tieback':'Wall tieback',location:'',pins:'',threads:'',plates:'',rust:'',result:'Untested',deflection:'',note:''});renderAnchors();refreshPhotoAnchorOpts();markDirty();}
 function delAnchor(i){INSP.anchors.splice(i,1);renderAnchors();refreshPhotoAnchorOpts();markDirty();}
+
+/* ---- davit schedule ---- */
+function renderDavits(){
+  var rows=INSP.davits||[];
+  var cell;
+  document.getElementById('davits').innerHTML=rows.length?rows.map(function(d,i){
+    var res=d.result||'Untested';
+    cell=res==='Pass'?'background:#dcfce7':res==='Fail'?'background:#fee2e2':'';
+    var wl=parseFloat(d.working_load)||0;
+    var testLbl=wl?(Math.round(wl*2)+' lbs'):'—';
+    return '<tr class="border-t border-line/60">'+
+      '<td class="py-1 pr-1"><input class="tx" style="width:48px" value="'+esc(d.num||'')+'" oninput="setDavit('+i+',\'num\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" style="width:110px" value="'+esc(d.location||'')+'" oninput="setDavit('+i+',\'location\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" style="width:64px" placeholder="6 ft" value="'+esc(d.height||'')+'" oninput="setDavit('+i+',\'height\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" style="width:64px" placeholder="6.5 ft" value="'+esc(d.outreach||'')+'" oninput="setDavit('+i+',\'outreach\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" style="width:72px" placeholder="1,250 lbs" value="'+esc(d.capacity||'')+'" oninput="setDavit('+i+',\'capacity\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" style="width:72px" placeholder="lbs" value="'+esc(d.working_load||'')+'" oninput="setDavit('+i+',\'working_load\',this.value);renderDavits()"/></td>'+
+      '<td class="px-1 text-mute text-xs font-semibold">'+testLbl+'</td>'+
+      '<td class="px-1">'+yna(d.pins||'',  'pins', i, 'davit')+'</td>'+
+      '<td class="px-1">'+yna(d.rust||'',  'rust', i, 'davit')+'</td>'+
+      '<td class="px-1" style="'+cell+'"><select class="tx" style="width:90px;background:transparent" onchange="setDavit('+i+',\'result\',this.value);renderDavits()">'+['Untested','Pass','Fail'].map(function(t){return '<option'+(res===t?' selected':'')+'>'+t+'</option>';}).join('')+'</select></td>'+
+      '<td class="px-1"><input class="tx" style="width:72px" placeholder=">1/16&quot;?" value="'+esc(d.deflection||'')+'" oninput="setDavit('+i+',\'deflection\',this.value)"/></td>'+
+      '<td class="px-1"><input class="tx" style="min-width:100px" value="'+esc(d.note||'')+'" oninput="setDavit('+i+',\'note\',this.value)"/></td>'+
+      '<td><button onclick="delDavit('+i+')" class="text-mute hover:text-red-600"><span class="ms text-base">close</span></button></td></tr>';
+  }).join(''):'<tr><td colspan="13" class="py-3 text-sm text-mute">No davits yet — click "Add davit" to log a post or arm.</td></tr>';
+}
+function setDavit(i,k,v){if(!INSP.davits)INSP.davits=[];INSP.davits[i][k]=v;markDirty();}
+function addDavit(){
+  if(!INSP.davits)INSP.davits=[];
+  var n='D'+(INSP.davits.length+1);
+  INSP.davits.push({num:n,location:'',height:'',outreach:'',capacity:'',working_load:'',pins:'',rust:'',result:'Untested',deflection:'',note:''});
+  renderDavits();markDirty();
+}
+function delDavit(i){INSP.davits.splice(i,1);renderDavits();markDirty();}
 
 /* ---- roof anchor plan ---- */
 function renderDiagram(){
