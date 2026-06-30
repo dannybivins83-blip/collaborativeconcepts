@@ -1,11 +1,6 @@
 # INDEPENDENT SALES REPRESENTATIVE AGREEMENT
 ### (1099 Independent Contractor — Roofing Sales)
 
-> **DRAFT FOR REVIEW — NOT YET EXECUTED.** This document is a working draft prepared
-> at the direction of Daniel P. Bivins (Collaborative Concept LLC). It is **not legal
-> advice**. Items marked in **`[brackets]`** must be confirmed before signing, and the
-> parties should have this reviewed by a Florida-licensed attorney before execution.
-
 ---
 
 This Independent Sales Representative Agreement (the "**Agreement**") is entered into
@@ -56,7 +51,7 @@ hours of his own sales activity and is not subject to Company's direction or con
 the details or means by which that activity is performed. Except for the Company-Provided
 Items that Company elects to furnish under Section 1.6 (a company vehicle, Gas Card,
 Company Card, and cell phone), Representative furnishes his own basic sales tools and pays
-his own routine business expenses — including all Rep-Funded Marketing under Section 5.5 —
+his own routine business expenses — including all Rep-Funded Marketing under Section 4.5 —
 except as the Parties agree in writing or as otherwise provided in Section 1.6. The Parties
 acknowledge that Company's provision of the Company-Provided Items is for Company's business
 convenience and does not convert Representative into an employee; Representative retains
@@ -93,34 +88,14 @@ suspension, revocation, or restriction of his license, of any lapse in coverage,
 accident involving the vehicle. License suspension or loss of authorized-driver status is
 grounds for immediate suspension of vehicle use.
 
-1.6.3 **Personal use.** **Personal use of the company vehicle is not permitted** — the
-vehicle is for Company business use only. Reasonable, incidental personal use of the cell
-phone is permitted. The **Company Card and Gas Card are for approved Company business
-expenses only** and may not be used for personal purchases. To the extent any personal use
-of a Company-Provided Item results in taxable value to Representative, that value will be
-reported and borne by Representative as provided in Section 1.3, and Representative shall
-maintain and furnish a contemporaneous mileage/use log on request.
-
-1.6.4 **Representative responsibility.** Representative is responsible for, and shall
-promptly pay or reimburse Company for, all parking tickets, traffic citations, red-light and
-toll-camera violations, tolls, fines, towing/impound charges, and similar amounts incurred
-by Representative, and for any loss, damage, or expense arising from Representative's misuse
-of the vehicle, the Company Card, the Gas Card, or any other Company-Provided Item
-(including unauthorized, personal, or non-business charges). Company may pay any such amount
-and recover it from Representative; any offset against amounts otherwise payable to
-Representative is governed by, and limited by, **Section 8.6 — which protects
-Representative's earned and trailing commissions under Section 8.4** — and Company's remedy
-for amounts it cannot lawfully offset is recovery of the amount owed (including by an action
-for the property or the debt).
-
-1.6.5 **Company property; return on termination.** All Company-Provided Items — including
+1.6.3 **Company property; return on termination.** All Company-Provided Items — including
 the vehicle, keys and access devices, Gas Card, Company Card, cell phone, SIM, and any
 related equipment or accessories — remain the **sole property of Company** at all times, and
 Representative acquires no ownership interest in them. Representative shall return all
-Company-Provided Items as provided in Section 8.6 (Return of Company Property), which applies
+Company-Provided Items as provided in Section 7.6 (Return of Company Property), which applies
 on termination or expiration for any reason or earlier upon Company's written request.
 
-1.6.6 **No change to independent-contractor status.** Company's provision of the
+1.6.4 **No change to independent-contractor status.** Company's provision of the
 Company-Provided Items is an administrative convenience and tool of trade and is **not**
 intended to, and does not, convert Representative into an employee or otherwise alter the
 independent-contractor relationship described in Sections 1.2 through 1.4. Representative
@@ -205,73 +180,59 @@ accompanied by a statement showing the jobs and amounts paid.
 3.9 **No draw / advance** is provided unless agreed in a separate written addendum signed
 by both Parties.
 
----
-
-## 4. Credit, Chargebacks & Cancellations
-
-4.1 **Credit for a sale.** A sale is credited to Representative when he is the
-originating/closing rep on a customer contract submitted through Company's process and
-the customer's deposit is collected.
-
-4.2 **Cancellations / refunds.** If a customer cancels, rescinds (including any
-statutory right-to-cancel period), or a contract is voided before Company collects
-payment, no commission is earned on the cancelled amount. If a commission installment
-was already paid on amounts later refunded to the customer, Representative will repay
-that portion, or Company may offset it against future commissions ("**chargeback**").
-
-4.3 **No chargeback for Company's choices.** No chargeback applies to losses caused
-solely by Company's own decision to discount, write off, or not pursue collection of a
-validly closed job, except where the customer is genuinely unable to pay.
+3.10 **No chargeback for Company's choices.** No commission chargeback or clawback applies
+to losses caused solely by Company's own decision to discount, write off, or not pursue
+collection of a validly closed job, except where the customer is genuinely unable to pay.
 
 ---
 
-## 5. Leads & Lead Ownership
+## 4. Leads & Lead Ownership
 
 > Reflects the intent that Representative is treated fairly and his own pipeline is protected.
 
-5.1 **Company-provided leads.** Leads, advertising responses, and marketing inquiries
+4.1 **Company-provided leads.** Leads, advertising responses, and marketing inquiries
 generated by or paid for by Company ("**Company Leads**") remain Company's property.
 Commissions on closed Company Leads are paid to Representative at the rates in Section 3.
 "Paid for by Company" means leads from marketing or advertising funded by Company's own
 budget; it **excludes** Rep-Funded Marketing that Representative pays for with his own funds
-(which are Rep Leads under Sections 5.2 and 5.5), even where Representative also uses a
+(which are Rep Leads under Sections 4.2 and 4.5), even where Representative also uses a
 Company-Provided Item. The Company Card and Gas Card shall not be used for Representative's
 personal lead-generation marketing.
 
-5.2 **Rep-generated leads.** Leads and customers that Representative personally sources
+4.2 **Rep-generated leads.** Leads and customers that Representative personally sources
 and develops ("**Rep Leads**") will be **credited to Representative** for commission
 purposes, and Company will not reassign a Rep Lead to another representative to avoid
 paying Representative the commission he earned on it. Rep Leads include leads generated
-through Rep-Funded Marketing under Section 5.5 (marketing Representative pays for with his
+through Rep-Funded Marketing under Section 4.5 (marketing Representative pays for with his
 own funds), regardless of Representative's use of any Company-Provided Item in working them,
 and Company shall not treat such Rep-funded leads as Company Leads.
 
-5.3 **No diversion ("won't steal ads").** Representative shall **not** divert,
+4.3 **No diversion ("won't steal ads").** Representative shall **not** divert,
 redirect, or convert Company's advertising, marketing, or Company Leads to himself, to
 any competitor, or to any business other than Company during the Term. Company likewise
 shall not strip Representative of credit for sales he has properly originated and
 submitted.
 
-5.4 **Good-faith dealing.** Company will administer lead assignment and commission
+4.4 **Good-faith dealing.** Company will administer lead assignment and commission
 crediting in good faith and will not act to deprive Representative of commissions he has
 fairly earned.
 
-5.5 **Representative-Funded Marketing for Self-Generated Leads.** Representative may, at his
+4.5 **Representative-Funded Marketing for Self-Generated Leads.** Representative may, at his
 **own expense** and in his discretion, conduct marketing and advertising to generate his own
 leads. Leads and customers so generated are **Rep Leads** credited to Representative under
-Section 5.2.
+Section 4.2.
 
-5.5.1 **Rep's own cost; no reimbursement.** All costs of Representative's self-funded
+4.5.1 **Rep's own cost; no reimbursement.** All costs of Representative's self-funded
 marketing and advertising ("**Rep-Funded Marketing**") are borne **solely by Representative**
 and are **not** reimbursed by Company unless Company agrees in advance and in writing to
 reimburse a specific expense. Rep-Funded Marketing must be paid with Representative's own
 funds and **not** with the Company Card or Gas Card. Leads generated through Rep-Funded
-Marketing are **Rep Leads** credited to Representative under Section 5.2 and are **not**
-Company Leads under Section 5.1, regardless of Representative's use of any Company-Provided
+Marketing are **Rep Leads** credited to Representative under Section 4.2 and are **not**
+Company Leads under Section 4.1, regardless of Representative's use of any Company-Provided
 Item in working them. Company shall not reclassify a Rep Lead as a Company Lead except by a
 writing signed by both Parties.
 
-5.5.2 **Lawful marketing; no misuse of Company licenses or branding.** Representative's
+4.5.2 **Lawful marketing; no misuse of Company licenses or branding.** Representative's
 marketing must be lawful, truthful, and not misleading, and must comply with all applicable
 advertising, licensing, and consumer-protection laws (including Florida contractor-
 advertising and FDUTPA requirements). Representative shall **not** use Company's name, logos,
@@ -281,7 +242,7 @@ Company's **prior written permission**; any permitted use shall conform to Compa
 reasonable branding and licensing requirements. Representative shall indemnify Company for
 advertising, licensing, or consumer claims arising from his Rep-Funded Marketing.
 
-5.5.3 **Rep Leads survive termination.** Consistent with Section 8.4 (Trailing commissions),
+4.5.3 **Rep Leads survive termination.** Consistent with Section 7.4 (Trailing commissions),
 Rep Leads remain credited to Representative, and Representative remains entitled to
 commissions on jobs he originated from Rep Leads and submitted before the termination date,
 even after this Agreement ends, paid at the Section 3 rates and on the Section 3.5 schedule
@@ -289,28 +250,28 @@ as Company collects payment.
 
 ---
 
-## 6. Non-Compete & Non-Solicitation
+## 5. Non-Compete & Non-Solicitation
 
-6.1 **During the engagement only.** The restrictions in this Section apply **only while
+5.1 **During the engagement only.** The restrictions in this Section apply **only while
 this Agreement is in effect (during the Term)** and **end upon termination** — there is
 **no post-termination non-compete**.
 
-6.2 **During the Term**, Representative shall not, directly or indirectly, sell or
+5.2 **During the Term**, Representative shall not, directly or indirectly, sell or
 solicit roofing or solar work in competition with Company, nor divert Company customers,
 Company Leads, or Company advertising responses to any competitor or to any business
 other than Company. *("Won't steal ads.")*
 
-6.3 **No solicitation of personnel (during the Term).** While this Agreement is in
+5.3 **No solicitation of personnel (during the Term).** While this Agreement is in
 effect, neither Party shall solicit the other's employees or contractors to leave.
 
-6.4 **After termination.** After this Agreement ends, Representative is free to compete
+5.4 **After termination.** After this Agreement ends, Representative is free to compete
 and to sell roofing/solar for any business, subject only to the surviving
-confidentiality obligation in Section 7 (Representative may not use Company's confidential
+confidentiality obligation in Section 6 (Representative may not use Company's confidential
 customer lists or trade secrets).
 
 ---
 
-## 7. Confidentiality
+## 6. Confidentiality
 
 Representative shall keep confidential, during and after the Term, Company's customer
 lists, pricing, lead sources, advertising data, vendor terms, and other non-public
@@ -318,19 +279,19 @@ business information, and shall use it solely to perform under this Agreement.
 
 ---
 
-## 8. Term & Termination
+## 7. Term & Termination
 
-8.1 **Term.** This Agreement begins on the Effective Date and continues until
+7.1 **Term.** This Agreement begins on the Effective Date and continues until
 terminated under this Section ("**Term**").
 
-8.2 **Termination for convenience.** Either Party may terminate on **`[30]`** days'
+7.2 **Termination for convenience.** Either Party may terminate on **`[30]`** days'
 written notice.
 
-8.3 **Termination for cause.** Either Party may terminate immediately for a material
+7.3 **Termination for cause.** Either Party may terminate immediately for a material
 breach not cured within **`[10]`** days of written notice, or immediately for fraud,
 theft, or a material violation of law.
 
-8.4 **Trailing commissions ("won't screw him over").** Upon termination for any reason
+7.4 **Trailing commissions ("won't screw him over").** Upon termination for any reason
 **other than** Representative's fraud, theft, or willful misconduct, Representative
 remains entitled to commissions on **all jobs he originated and submitted before the
 termination date**, paid at the Section 3 rates and on the Section 3.5 schedule as
@@ -338,13 +299,13 @@ Company collects payment — including the second (final) 50% installment on job
 deposited, and commission on jobs already signed but not yet started. Company will pay
 these trailing commissions in the ordinary course as customer payments are collected.
 
-8.5 **Survival.** Sections 3 (as to earned/trailing commissions), 4, 5.5.2 (no misuse of
-Company licenses/branding and related indemnity), 7, 8.4, 8.6 (return of Company property),
-1.6.3–1.6.6 (personal-use tax responsibility, Representative responsibility, return of
-Company-Provided Items, and the worker-reclassification indemnity), and 9 survive
-termination. *(Section 6 does not survive — the non-compete ends at termination.)*
+7.5 **Survival.** Sections 3 (as to earned/trailing commissions, including 3.10), 4.5.2
+(no misuse of Company licenses/branding and related indemnity), 6, 7.4, 7.6 (return of
+Company property), 1.6.3–1.6.4 (return of Company-Provided Items and the worker-
+reclassification indemnity), and 8 survive termination. *(Section 5 does not survive —
+the non-compete ends at termination.)*
 
-8.6 **Return of Company Property.** Upon termination or expiration of this Agreement for any
+7.6 **Return of Company Property.** Upon termination or expiration of this Agreement for any
 reason, Representative shall promptly (and in any event within **five (5) days**) return to
 Company all **Company-Provided Items** and other Company property — including the company
 vehicle (with keys and all access devices), the cell phone and SIM, the Company Card, the
@@ -356,7 +317,7 @@ the Company Card or Gas Card that is not a legitimate Company business expense i
 before termination, and for the documented value (actually incurred) of any Company-Provided
 Item not returned or returned damaged beyond ordinary wear and tear. **Company shall not
 offset any such amount against Representative's earned or trailing commissions under
-Sections 3 and 8.4; the trailing-commission obligation in Section 8.4 is independent of, and
+Sections 3 and 7.4; the trailing-commission obligation in Section 7.4 is independent of, and
 not conditioned on, the return-of-property obligation.** Company may offset documented
 amounts only against other non-commission amounts (if any) then owed to Representative, or
 with Representative's separate written consent; for all other recovery — including the
@@ -365,40 +326,31 @@ recovery of the amounts owed.
 
 ---
 
-## 9. General Provisions
+## 8. General Provisions
 
-9.1 **Governing law.** This Agreement is governed by the laws of the **State of Florida**,
+8.1 **Governing law.** This Agreement is governed by the laws of the **State of Florida**,
 without regard to conflict-of-laws rules.
 
-9.2 **Dispute resolution.** The Parties will first attempt to resolve any dispute in
+8.2 **Dispute resolution.** The Parties will first attempt to resolve any dispute in
 good faith. Any unresolved dispute shall be mediated and, if still unresolved, litigated
 in the state courts of **Palm Beach County, Florida** (where both Parties are located).
 
-9.3 **Independent legal advice.** Each Party has had the opportunity to obtain
+8.3 **Independent legal advice.** Each Party has had the opportunity to obtain
 independent legal advice before signing.
 
-9.4 **Indemnification.** Representative shall indemnify Company against losses arising
-from Representative's unauthorized representations, misconduct, or violation of law;
-Company shall indemnify Representative against losses arising from Company's performance
-of the customer contracts and Company's own misconduct.
-
-9.5 **Assignment.** Representative may not assign this Agreement without Company's prior
+8.4 **Assignment.** Representative may assign this Agreement without Company's prior
 written consent.
 
-9.6 **Entire agreement.** This Agreement is the entire agreement between the Parties on
+8.5 **Entire agreement.** This Agreement is the entire agreement between the Parties on
 its subject matter and supersedes all prior discussions. It may be amended only by a
 writing signed by both Parties.
 
-9.7 **Severability.** If any provision is held unenforceable, the rest remains in
-effect, and a court may reduce any overbroad restriction (including in Section 6) to the
-extent needed to make it enforceable.
-
-9.8 **Counterparts / e-signature.** This Agreement may be signed in counterparts and by
+8.6 **Counterparts / e-signature.** This Agreement may be signed in counterparts and by
 electronic signature, each of which is an original.
 
 ---
 
-## 10. Signatures
+## 9. Signatures
 
 **COMPANY — SEABREEZE ROOFING & SOLAR**
 
@@ -432,17 +384,16 @@ Title: **`[Managing Member / Owner]`**
 - Commission on **gross contract** (not net/profit) — **set**.
 - Non-compete applies **during the engagement only**, no post-termination restriction — **set**.
 - Dispute venue: **Palm Beach County, FL** — **set**.
-- **Company provides a vehicle, Gas Card, Company Card, and cell phone** (Company-Provided Items) at Company expense, returned on termination (§1.6, §8.6) — **set**.
-- **Representative funds his own marketing** (Rep-Funded Marketing) for self-generated Rep Leads credited to him (§5.5) — **set**.
-- Vehicle **personal use prohibited**; phone incidental personal use OK (§1.6.3) — **set**.
+- **Company provides a vehicle, Gas Card, Company Card, and cell phone** (Company-Provided Items) at Company expense, returned on termination (§1.6, §7.6) — **set**.
+- **Representative funds his own marketing** (Rep-Funded Marketing) for self-generated Rep Leads credited to him (§4.5) — **set**.
 
 ### Open items to confirm before signing
 - **SeaBreeze's authorized signer name & title** (Company signature block) — entered at signing.
 - **Commercial auto insurance limit** (§1.6.2 — draft uses $1,000,000 CSL) and that the policy lists Representative as an authorized non-employee driver.
 - **Company Card / Gas Card** spending limit, approved categories, and receipt cadence.
-- Term/notice periods in §8.2 (30 days), §8.3 (10-day cure), and the §8.6 return window (5 days) — reasonable defaults; adjust if desired.
+- Term/notice periods in §7.2 (30 days), §7.3 (10-day cure), and the §7.6 return window (5 days) — reasonable defaults; adjust if desired.
 
 ### Attorney review — items counsel should confirm
-- **1099 classification:** a company-owned/insured vehicle + phone + cards are employee-leaning factors; the recitals (§1.2, §1.6.6), Rep's self-funded marketing (entrepreneurial risk), non-exclusivity, and the reclassification indemnity are drafted to support 1099 status — confirm sufficiency.
+- **1099 classification:** a company-owned/insured vehicle + phone + cards are employee-leaning factors; the recitals (§1.2, §1.6.4), Rep's self-funded marketing (entrepreneurial risk), non-exclusivity, and the reclassification indemnity are drafted to support 1099 status — confirm sufficiency.
 - **Florida dangerous-instrumentality doctrine:** as title owner, Company can be vicariously liable for Rep's at-fault accidents; consider robust insurance/additional-insured status or titling/leasing the vehicle to Representative.
-- **Commission-deduction law:** §8.6 is drafted so unreturned-property/fine amounts are **not** offset against earned/trailing commissions (recovery via conversion/replevin instead) — confirm compliance.
+- **Commission-deduction law:** §7.6 is drafted so unreturned-property/fine amounts are **not** offset against earned/trailing commissions (recovery via conversion/replevin instead) — confirm compliance.
