@@ -2,22 +2,24 @@
 ### (1099 Independent Contractor — Roofing Sales)
 
 > **DRAFT FOR REVIEW — NOT YET EXECUTED.** This document is a working draft prepared
-> at the direction of Collaborative Concepts. It is **not legal advice**. Commission
-> figures, names, and dates marked in **`[brackets]`** must be confirmed before
-> signing, and the parties should have this reviewed by a Florida-licensed attorney
-> before execution.
+> at the direction of Daniel P. Bivins (Collaborative Concept LLC). It is **not legal
+> advice**. Items marked in **`[brackets]`** must be confirmed before signing, and the
+> parties should have this reviewed by a Florida-licensed attorney before execution.
 
 ---
 
 This Independent Sales Representative Agreement (the "**Agreement**") is entered into
 as of **`[Effective Date]`** (the "**Effective Date**"), by and between:
 
-- **Collaborative Concepts, LLC**, a Florida limited liability company, with a
-  principal place of business at **`[Company Address]`** ("**Company**"); and
+- **SeaBreeze Roofing & Solar**, a Florida licensed roofing and solar contractor
+  (FL Roofing License **CCC1328689**; FL Solar License **CVC57073**), with a principal
+  place of business at **2600 High Ridge Rd, Boynton Beach, FL 33426** ("**Company**");
+  *(confirm exact registered legal entity name & type — LLC / Inc. / d/b/a)*; and
 
-- **`[Sebre's Roofing — confirm exact legal name & entity type]`**, an independent
-  contractor with a principal place of business / address at **`[Rep Address]`**
-  ("**Representative**" or "**Rep**").
+- **Collaborative Concept LLC**, a Florida limited liability company, acting by and
+  through **Daniel P. Bivins**, with a principal place of business at
+  **`[Rep business address — confirm]`**, email dannybivins83@gmail.com, phone
+  (561) 475-8615 ("**Representative**" or "**Rep**").
 
 Company and Representative are each a "**Party**" and together the "**Parties**."
 
@@ -259,30 +261,35 @@ electronic signature, each of which is an original.
 
 ## 10. Signatures
 
-**COLLABORATIVE CONCEPTS, LLC**
+**COMPANY — SEABREEZE ROOFING & SOLAR**
 
 By: ______________________________  Date: ____________
 
 Name: **`[Signatory Name]`**
 
-Title: **`[e.g., Managing Member]`**
+Title: **`[Owner / Authorized Officer]`**
 
 
-**`[SEBRE'S ROOFING / REPRESENTATIVE]`**
+**REPRESENTATIVE — COLLABORATIVE CONCEPT LLC**
 
 By: ______________________________  Date: ____________
 
-Name: **`[Representative Name]`**
+Name: **Daniel P. Bivins**
 
-Title: **`[Owner / Independent Contractor]`**
+Title: **`[Managing Member / Owner]`**
 
 ---
 
 ### Exhibit A — IRS Form W-9
 *(Representative completes and attaches a current Form W-9 before first payment.)*
 
+### Confirmed from records (Google Drive)
+- **Company:** SeaBreeze Roofing & Solar — 2600 High Ridge Rd, Boynton Beach, FL 33426; FL Roofing License CCC1328689; FL Solar License CVC57073; seabreezeroof.com.
+- **Representative:** Collaborative Concept LLC, by Daniel P. Bivins — dannybivins83@gmail.com; (561) 475-8615; collaborativeconceptsfl.com.
+
 ### Notes / open items to confirm before signing
-1. **Exact legal name** of the Representative/entity ("Sebre's Roofing"? "Sibris"? sole proprietor vs. LLC).
-2. **Commission basis:** gross contract amount vs. net/profit (Section 3.7).
-3. **Geographic scope** and **durations** for the non-compete (Section 6).
-4. Company and Rep **addresses**, **signatory names**, **effective date**, and **payment method** (check vs. direct deposit).
+1. **SeaBreeze's exact registered entity** (LLC / Inc. / d/b/a) and its **authorized signer's name & title**.
+2. **Collaborative Concept LLC's business mailing address** for the Rep block.
+3. **Commission basis:** gross contract amount vs. net/profit (Section 3.7).
+4. **Geographic scope** and **durations** for the non-compete (Section 6).
+5. **Effective date** and **payment method** (check vs. direct deposit).
