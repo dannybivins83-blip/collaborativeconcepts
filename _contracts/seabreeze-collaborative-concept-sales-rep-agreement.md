@@ -9,16 +9,15 @@
 ---
 
 This Independent Sales Representative Agreement (the "**Agreement**") is entered into
-as of **`[Effective Date]`** (the "**Effective Date**"), by and between:
+as of **June 30, 2026** (the "**Effective Date**"), by and between:
 
 - **SeaBreeze Roofing & Solar**, a Florida licensed roofing and solar contractor
   (FL Roofing License **CCC1328689**; FL Solar License **CVC57073**), with a principal
-  place of business at **2600 High Ridge Rd, Boynton Beach, FL 33426** ("**Company**");
-  *(confirm exact registered legal entity name & type — LLC / Inc. / d/b/a)*; and
+  place of business at **2600 High Ridge Rd, Boynton Beach, FL 33426** ("**Company**"); and
 
 - **Collaborative Concept LLC**, a Florida limited liability company, acting by and
   through **Daniel P. Bivins**, with a principal place of business at
-  **`[Rep business address — confirm]`**, email dannybivins83@gmail.com, phone
+  **513 W Drew St, Lantana, FL 33462**, email dannybivins83@gmail.com, phone
   (561) 475-8615 ("**Representative**" or "**Rep**").
 
 Company and Representative are each a "**Party**" and together the "**Parties**."
@@ -110,15 +109,17 @@ Representative **handles the wood bills and material ordering** for re-roof jobs
 3.6 **Service payment timing.** Each service / repair commission (10%) is paid **in full
 upon Company's collection of the customer's final payment** on the job.
 
-3.7 **Commission basis.** Commission is calculated on the gross contract amount (original
-contract price for the front-end half; final total including wood for the back-end half),
-**excluding** sales tax and any third-party financing fees passed through to the customer.
-*(Confirm whether commission is on gross contract amount or on net/profit.)*
+3.7 **Commission basis.** Commission is calculated on the **gross contract amount**
+(original contract price for the front-end half; final total including wood for the
+back-end half), **excluding** only sales tax and any third-party financing fees passed
+through to the customer. Commission is **not** reduced by Company's job costs, materials,
+labor, overhead, or profit margin.
 
 3.8 **Pay day — every Friday by 4:00 PM.** All commission amounts that have become
 payable during a given week (re-roof front-end halves on jobs whose deposit was
 collected, re-roof back-end halves on jobs paid in full, and service commissions on jobs
-paid in full) are disbursed **every Friday by 4:00 PM**, by **`[check / direct deposit]`**,
+paid in full) are disbursed **every Friday by 4:00 PM**, **beginning the first Friday on
+or after the Effective Date (Friday, July 3, 2026)**, by check or direct deposit,
 accompanied by a statement showing the jobs and amounts paid.
 
 3.9 **No draw / advance** is provided unless agreed in a separate written addendum signed
@@ -171,24 +172,22 @@ fairly earned.
 
 ## 6. Non-Compete & Non-Solicitation
 
-6.1 **During the Term.** While this Agreement is in effect, Representative shall not,
-directly or indirectly, sell or solicit roofing work in competition with Company within
-**`[geographic area — e.g., the Florida counties Rep services]`** in a way that diverts
-Company customers, Company Leads, or Company advertising responses to a competitor.
+6.1 **During the engagement only.** The restrictions in this Section apply **only while
+this Agreement is in effect (during the Term)** and **end upon termination** — there is
+**no post-termination non-compete**.
 
-6.2 **After termination.** For **`[12]`** months after termination, Representative
-shall not solicit, for a competing roofing business, any customer or active lead that
-Representative worked on through Company, nor use Company's confidential customer lists
-or advertising responses to compete. *(Florida enforces reasonable restrictive covenants
-under Fla. Stat. § 542.335; the duration and geographic scope must be reasonable to be
-enforceable — confirm with counsel.)*
+6.2 **During the Term**, Representative shall not, directly or indirectly, sell or
+solicit roofing or solar work in competition with Company, nor divert Company customers,
+Company Leads, or Company advertising responses to any competitor or to any business
+other than Company. *("Won't steal ads.")*
 
-6.3 **No solicitation of personnel.** During the Term and for **`[12]`** months
-after, neither Party shall solicit the other's employees or contractors to leave.
+6.3 **No solicitation of personnel (during the Term).** While this Agreement is in
+effect, neither Party shall solicit the other's employees or contractors to leave.
 
-6.4 **Reasonableness.** The Parties agree the restrictions in this Section are
-reasonable and necessary to protect Company's legitimate business interests, including
-its customer relationships, confidential information, and advertising investment.
+6.4 **After termination.** After this Agreement ends, Representative is free to compete
+and to sell roofing/solar for any business, subject only to the surviving
+confidentiality obligation in Section 7 (Representative may not use Company's confidential
+customer lists or trade secrets).
 
 ---
 
@@ -220,8 +219,8 @@ Company collects payment — including the second (final) 50% installment on job
 deposited, and commission on jobs already signed but not yet started. Company will pay
 these trailing commissions in the ordinary course as customer payments are collected.
 
-8.5 **Survival.** Sections 3 (as to earned/trailing commissions), 4, 6, 7, 8.4, and 9
-survive termination.
+8.5 **Survival.** Sections 3 (as to earned/trailing commissions), 4, 7, 8.4, and 9
+survive termination. *(Section 6 does not survive — the non-compete ends at termination.)*
 
 ---
 
@@ -231,9 +230,8 @@ survive termination.
 without regard to conflict-of-laws rules.
 
 9.2 **Dispute resolution.** The Parties will first attempt to resolve any dispute in
-good faith. Any unresolved dispute shall be **`[mediated, then litigated in the state
-courts of [County] County, Florida / resolved by binding arbitration in [County] County,
-Florida]`** — confirm preference.
+good faith. Any unresolved dispute shall be mediated and, if still unresolved, litigated
+in the state courts of **Palm Beach County, Florida** (where both Parties are located).
 
 9.3 **Independent legal advice.** Each Party has had the opportunity to obtain
 independent legal advice before signing.
@@ -287,9 +285,13 @@ Title: **`[Managing Member / Owner]`**
 - **Company:** SeaBreeze Roofing & Solar — 2600 High Ridge Rd, Boynton Beach, FL 33426; FL Roofing License CCC1328689; FL Solar License CVC57073; seabreezeroof.com.
 - **Representative:** Collaborative Concept LLC, by Daniel P. Bivins — dannybivins83@gmail.com; (561) 475-8615; collaborativeconceptsfl.com.
 
-### Notes / open items to confirm before signing
-1. **SeaBreeze's exact registered entity** (LLC / Inc. / d/b/a) and its **authorized signer's name & title**.
-2. **Collaborative Concept LLC's business mailing address** for the Rep block.
-3. **Commission basis:** gross contract amount vs. net/profit (Section 3.7).
-4. **Geographic scope** and **durations** for the non-compete (Section 6).
-5. **Effective date** and **payment method** (check vs. direct deposit).
+### Status — all key terms filled in
+- Parties, addresses, licenses — **set**.
+- Effective date **June 30, 2026**; pay every **Friday by 4:00 PM**, first payout **Fri July 3, 2026** — **set**.
+- Commission on **gross contract** (not net/profit) — **set**.
+- Non-compete applies **during the engagement only**, no post-termination restriction — **set**.
+- Dispute venue: **Palm Beach County, FL** — **set**.
+
+### Only blank left
+- **SeaBreeze's authorized signer name & title** (Company signature block) — to be entered at signing.
+- Term/notice periods in §8.2 (30 days) and §8.3 (10-day cure) are reasonable defaults — adjust if desired.
