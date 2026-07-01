@@ -76,7 +76,15 @@ The startup hook will pick it up automatically on the next session.
 ## Local tooling
 
 - Python: 3.11+, deps in `requirements.txt`
-- Static site, no build step
+- Static site. **One build step for WWS public pages:** they load a prebuilt
+  `/assets/wws.css` (Tailwind) instead of the runtime CDN. **If you add/change a
+  Tailwind class on any `wwslgc/*.html` or `wwslgc/guides/*.html` page, run
+  `npm run build:css`** or the new class won't be styled. Config in
+  `tailwind.config.js` + `src/tailwind-input.css`; `node_modules` gitignored.
+  The admin/portal/send/design tools still use the runtime CDN (they build class
+  names dynamically in JS), so no rebuild is needed for those.
+- WWS images are WebP-wrapped: public pages use `<picture><source webp><img jpg></picture>`.
+  Regenerate WebP with `sharp` if you add images to `assets/wws/`.
 - Tests / linters: none currently wired
 
 <!-- OVERLORD-BUS v1 -->
