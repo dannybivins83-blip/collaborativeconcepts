@@ -2510,3 +2510,111 @@ def candys_squad(code):
     if code == "DEMO":
         count = max(count, 2)  # demo shows a nearly-complete squad
     return _candys_resp({"ok": True, "count": count, "storage": configured})
+
+
+# ==================================================================
+#  The Range House — food-delivery affiliate referral program
+#  Guests order in from the apps they already use; the venue runs each
+#  as a partner referral link and earns a bonus per order. Links route
+#  through /api/food/go so every click is tracked in KV, then 302 to the
+#  partner's affiliate URL. Admin view at /admin/food-referrals reads
+#  /api/food/stats. Real affiliate URLs come from env vars (never
+#  committed) with the public site as a safe fallback; bonus-per-order
+#  values are editable estimates until each partner program is finalized.
+# ==================================================================
+FOODREF_CLICKS_KEY = "rangehouse:foodref:clicks"   # hash  app -> click count
+FOODREF_LOG_KEY = "rangehouse:foodref:log"         # list  recent click events
+FOODREF_LOG_MAX = 1000
+
+FOOD_PARTNERS = {
+    "doordash":  {"name": "DoorDash",  "url_env": "FOODREF_DOORDASH_URL",  "fallback": "https://www.doordash.com/",  "bonus": 5.0},
+    "ubereats":  {"name": "Uber Eats", "url_env": "FOODREF_UBEREATS_URL",  "fallback": "https://www.ubereats.com/",  "bonus": 5.0},
+    "grubhub":   {"name": "Grubhub",   "url_env": "FOODREF_GRUBHUB_URL",   "fallback": "https://www.grubhub.com/",   "bonus": 5.0},
+    "instacart": {"name": "Instacart", "url_env": "FOODREF_INSTACART_URL", "fallback": "https://www.instacart.com/", "bonus": 8.0},
+}
+
+
+def _foodref_is_admin():
+    s = read_session() or {}
+    return bool(s.get("pin_admin")) or s.get("email", "").lower() in WWS_ADMIN_EMAILS
+
+
+def _foodref_url(app_key):
+    p = FOOD_PARTNERS[app_key]
+    return (os.environ.get(p["url_env"]) or "").strip() or p["fallback"]
+
+
+@app.get("/api/food/go")
+def food_go():
+    """Track a food-app click, then redirect to that partner's affiliate URL."""
+    app_key = (request.args.get("app") or "").strip().lower()
+    if app_key not in FOOD_PARTNERS:
+        return redirect("/projects/the-range-house")
+    try:
+        _kv_cmd(["HINCRBY", FOODREF_CLICKS_KEY, app_key, 1])
+        entry = json.dumps({
+            "ts": _now_ms(),
+            "app": app_key,
+            "ref": (request.args.get("ref") or "")[:40],
+            "ip": ((request.headers.get("x-forwarded-for") or "") + " " + (request.remote_addr or "")).strip()[:80],
+            "ua": (request.headers.get("user-agent") or "")[:160],
+        })
+        _kv_cmd(["LPUSH", FOODREF_LOG_KEY, entry])
+        _kv_cmd(["LTRIM", FOODREF_LOG_KEY, 0, FOODREF_LOG_MAX - 1])
+    except Exception:
+        pass
+    return redirect(_foodref_url(app_key), code=302)
+
+
+@app.get("/api/food/partners")
+def food_partners():
+    """Public: active partners so the page (or other clients) can render cards."""
+    return jsonify({"partners": [
+        {"key": k, "name": p["name"], "go": "/api/food/go?app=" + k}
+        for k, p in FOOD_PARTNERS.items()
+    ]})
+
+
+@app.get("/api/food/stats")
+def food_stats():
+    """Admin-only: click counts + estimated referral bonus per partner."""
+    if not _foodref_is_admin():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    counts_raw, configured = _kv_cmd(["HGETALL", FOODREF_CLICKS_KEY])
+    counts = {}
+    if isinstance(counts_raw, list):
+        for i in range(0, len(counts_raw) - 1, 2):
+            try:
+                counts[counts_raw[i]] = int(counts_raw[i + 1])
+            except Exception:
+                pass
+    elif isinstance(counts_raw, dict):
+        for k, v in counts_raw.items():
+            try:
+                counts[k] = int(v)
+            except Exception:
+                pass
+    partners, total_clicks, total_bonus = [], 0, 0.0
+    for key, p in FOOD_PARTNERS.items():
+        c = counts.get(key, 0)
+        total_clicks += c
+        total_bonus += c * p["bonus"]
+        partners.append({
+            "key": key, "name": p["name"], "clicks": c,
+            "bonus_per": p["bonus"], "bonus_total": round(c * p["bonus"], 2),
+            "url_configured": bool((os.environ.get(p["url_env"]) or "").strip()),
+        })
+    log_raw, _ = _kv_cmd(["LRANGE", FOODREF_LOG_KEY, 0, 99])
+    recent = []
+    for r in (log_raw or []):
+        try:
+            recent.append(json.loads(r))
+        except Exception:
+            pass
+    return jsonify({
+        "ok": True, "configured": configured,
+        "partners": partners,
+        "total_clicks": total_clicks,
+        "total_bonus_estimate": round(total_bonus, 2),
+        "recent": recent,
+    })

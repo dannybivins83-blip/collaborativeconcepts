@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Food-Delivery Referrals — Operator Dashboard | The Range House</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2305152b'/%3E%3Ctext x='50%25' y='58%25' text-anchor='middle' font-family='Arial' font-size='34' font-weight='800' fill='%237c5730'%3ECC%3C/text%3E%3C/svg%3E"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: { primary:"#05152b","primary-container":"#1b2a41",secondary:"#7c5730",surface:"#faf9f8","surface-2":"#f4f3f2","on-surface":"#1a1c1c","on-surface-variant":"#44474d","outline":"#c5c6ce",success:"#0f7a3d" },
+  fontFamily: { headline:["Manrope"], body:["Inter"] } } } }
+</script>
+<style>body{font-family:'Inter',sans-serif}h1,h2,h3{font-family:'Manrope',sans-serif}</style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<div class="max-w-5xl mx-auto px-5 py-8">
+
+  <div class="flex items-center justify-between mb-1">
+    <div>
+      <div class="text-secondary text-xs font-bold tracking-widest uppercase">The Range House · Operator</div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-primary mt-1">Food-Delivery Referrals</h1>
+    </div>
+    <a href="/projects/the-range-house" class="text-sm text-on-surface-variant hover:text-secondary">← Back to page</a>
+  </div>
+  <p class="text-on-surface-variant text-sm mb-6">Clicks routed through the venue's partner links, and the referral bonus they represent.</p>
+
+  <!-- GATE -->
+  <div id="gate" class="hidden bg-white border border-outline/50 rounded-xl p-6 sm:p-8 max-w-md shadow-sm">
+    <h2 class="text-lg font-bold text-primary mb-1">Operator access</h2>
+    <p class="text-sm text-on-surface-variant mb-4">Enter the team access code to view referral tracking.</p>
+    <label class="block text-xs font-semibold text-primary mb-1">Your name</label>
+    <input id="name" type="text" placeholder="Danny" class="w-full mb-3 px-3 py-2.5 bg-surface-2 rounded-lg border-0"/>
+    <label class="block text-xs font-semibold text-primary mb-1">Access code</label>
+    <input id="pin" type="password" inputmode="numeric" placeholder="••••" class="w-full mb-3 px-3 py-2.5 bg-surface-2 rounded-lg border-0"/>
+    <button id="pinBtn" class="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-container transition-colors">Sign in</button>
+    <p id="pinErr" class="text-sm text-red-600 mt-2 hidden"></p>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dash" class="hidden">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div class="bg-primary text-white rounded-xl p-4">
+        <div id="kTotalClicks" class="text-3xl font-extrabold">—</div>
+        <div class="text-xs uppercase tracking-wider text-white/60 mt-1">Total clicks</div>
+      </div>
+      <div class="bg-secondary text-white rounded-xl p-4">
+        <div id="kTotalBonus" class="text-3xl font-extrabold">—</div>
+        <div class="text-xs uppercase tracking-wider text-white/70 mt-1">Est. bonus</div>
+      </div>
+      <div class="bg-white border border-outline/50 rounded-xl p-4">
+        <div id="kPartners" class="text-3xl font-extrabold text-primary">—</div>
+        <div class="text-xs uppercase tracking-wider text-on-surface-variant mt-1">Partners</div>
+      </div>
+      <div class="bg-white border border-outline/50 rounded-xl p-4">
+        <div id="kLive" class="text-3xl font-extrabold text-primary">—</div>
+        <div class="text-xs uppercase tracking-wider text-on-surface-variant mt-1">Live links</div>
+      </div>
+    </div>
+
+    <div id="storeWarn" class="hidden bg-amber-50 border border-amber-300 text-amber-800 text-sm rounded-lg px-4 py-3 mb-4"></div>
+
+    <div class="bg-white border border-outline/50 rounded-xl overflow-hidden mb-6">
+      <table class="w-full text-sm">
+        <thead class="bg-surface-2 text-on-surface-variant text-xs uppercase tracking-wider">
+          <tr>
+            <th class="text-left font-semibold px-4 py-3">Partner</th>
+            <th class="text-right font-semibold px-4 py-3">Clicks</th>
+            <th class="text-right font-semibold px-4 py-3">Bonus / order</th>
+            <th class="text-right font-semibold px-4 py-3">Est. bonus</th>
+            <th class="text-center font-semibold px-4 py-3">Affiliate link</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <h3 class="text-sm font-bold text-primary mb-2 uppercase tracking-wider">Recent clicks</h3>
+    <div class="bg-white border border-outline/50 rounded-xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-surface-2 text-on-surface-variant text-xs uppercase tracking-wider">
+          <tr>
+            <th class="text-left font-semibold px-4 py-3">When</th>
+            <th class="text-left font-semibold px-4 py-3">Partner</th>
+            <th class="text-left font-semibold px-4 py-3">Ref</th>
+          </tr>
+        </thead>
+        <tbody id="recent"></tbody>
+      </table>
+    </div>
+
+    <p class="text-xs text-on-surface-variant/70 mt-5 leading-relaxed">
+      "Est. bonus" is clicks &times; an assumed per-order bonus and is an estimate, not confirmed revenue &mdash; actual payouts depend on completed orders in each partner's affiliate program. Connect real affiliate links by setting <span class="font-mono">FOODREF_DOORDASH_URL</span>, <span class="font-mono">FOODREF_UBEREATS_URL</span>, <span class="font-mono">FOODREF_GRUBHUB_URL</span>, <span class="font-mono">FOODREF_INSTACART_URL</span> in Vercel env vars. Until then links point to each partner's public site and clicks still track.
+    </p>
+    <button id="logout" class="text-xs text-on-surface-variant hover:text-secondary mt-4 underline">Sign out</button>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function money(n){ return "$" + (Number(n)||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function ago(ts){ const s=(Date.now()-ts)/1000; if(s<60)return Math.floor(s)+"s ago"; if(s<3600)return Math.floor(s/60)+"m ago"; if(s<86400)return Math.floor(s/3600)+"h ago"; return Math.floor(s/86400)+"d ago"; }
+
+async function init(){
+  let authed=false;
+  try { const r=await fetch("/api/admin/session"); const j=await r.json(); authed=!!j.admin; } catch(e){}
+  if(authed){ show(); } else { $("gate").classList.remove("hidden"); }
+}
+function show(){ $("gate").classList.add("hidden"); $("dash").classList.remove("hidden"); load(); }
+
+$("pinBtn").addEventListener("click", async ()=>{
+  $("pinErr").classList.add("hidden");
+  const pin=$("pin").value.trim(), name=$("name").value.trim()||"Team";
+  if(!pin){ return; }
+  try {
+    const r=await fetch("/api/admin/pin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin,name})});
+    const j=await r.json();
+    if(j.ok){ show(); } else { $("pinErr").textContent=j.error||"Wrong code"; $("pinErr").classList.remove("hidden"); }
+  } catch(e){ $("pinErr").textContent="Network error"; $("pinErr").classList.remove("hidden"); }
+});
+$("pin").addEventListener("keydown", e=>{ if(e.key==="Enter") $("pinBtn").click(); });
+
+async function load(){
+  let j;
+  try { const r=await fetch("/api/food/stats"); j=await r.json(); } catch(e){ return; }
+  if(!j.ok) return;
+  $("kTotalClicks").textContent = j.total_clicks;
+  $("kTotalBonus").textContent = money(j.total_bonus_estimate);
+  $("kPartners").textContent = j.partners.length;
+  $("kLive").textContent = j.partners.filter(p=>p.url_configured).length;
+
+  if(j.configured===false){
+    $("storeWarn").textContent = "KV storage isn't configured — counts won't persist. Enable Upstash Redis in Vercel → Storage.";
+    $("storeWarn").classList.remove("hidden");
+  }
+
+  $("rows").innerHTML = j.partners.map(p=>`
+    <tr class="border-t border-outline/30">
+      <td class="px-4 py-3 font-semibold text-primary">${esc(p.name)}</td>
+      <td class="px-4 py-3 text-right">${p.clicks}</td>
+      <td class="px-4 py-3 text-right text-on-surface-variant">${money(p.bonus_per)}</td>
+      <td class="px-4 py-3 text-right font-semibold text-secondary">${money(p.bonus_total)}</td>
+      <td class="px-4 py-3 text-center">${p.url_configured
+        ? '<span class="text-success text-xs font-bold">● Live</span>'
+        : '<span class="text-on-surface-variant/60 text-xs">public site</span>'}</td>
+    </tr>`).join("");
+
+  $("recent").innerHTML = (j.recent||[]).length
+    ? j.recent.map(e=>`<tr class="border-t border-outline/30">
+        <td class="px-4 py-2.5 text-on-surface-variant">${ago(e.ts)}</td>
+        <td class="px-4 py-2.5 font-medium text-primary">${esc((j.partners.find(p=>p.key===e.app)||{}).name||e.app)}</td>
+        <td class="px-4 py-2.5 text-on-surface-variant font-mono text-xs">${esc(e.ref||"—")}</td>
+      </tr>`).join("")
+    : `<tr><td colspan="3" class="px-4 py-6 text-center text-on-surface-variant">No clicks yet.</td></tr>`;
+}
+
+$("logout").addEventListener("click", ()=>{ location.href="/api/admin/pin/logout"; });
+init();
+</script>
+</body></html>
