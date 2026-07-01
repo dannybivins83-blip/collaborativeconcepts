@@ -570,6 +570,48 @@ def _notify(subject, text):
         pass
 
 
+PORTAL_URL = os.environ.get("PORTAL_URL", "https://wwslgc.collaborativeconceptsfl.com/portal")
+
+
+def _notify_client(to_email, subject, headline, body_line, cta_label="Open your portal", cta_url=None):
+    """Best-effort, on-brand client email via Resend. Self-contained (reads env
+    vars directly rather than relying on helpers defined later in the module).
+    Never raises — a failed notification must never break the underlying action."""
+    try:
+        to_email = (to_email or "").strip()
+        if not to_email:
+            return False
+        api_key = os.environ.get("RESEND_API_KEY", "")
+        sender = os.environ.get("RESEND_FROM_EMAIL", "") or "updates@collaborativeconceptsfl.com"
+        if not api_key:
+            return False
+        url = cta_url or PORTAL_URL
+        html = (
+            "<div style='font-family:Arial,sans-serif;max-width:560px;margin:0 auto'>"
+            "<div style='background:#13233f;padding:22px 28px'>"
+            "<h1 style='color:#fff;font-size:18px;margin:0'>LA GALA CONSTRUCTION</h1>"
+            "<p style='color:#c9a227;font-size:11px;margin:4px 0 0;letter-spacing:1px;text-transform:uppercase'>WWS Compliance · Client Portal</p>"
+            "</div>"
+            "<div style='padding:26px 28px;color:#1f2733;font-size:14px;line-height:1.6;background:#fff'>"
+            "<p style='margin:0 0 12px;font-size:17px;font-weight:700;color:#13233f'>{headline}</p>"
+            "<p style='margin:0 0 20px'>{body}</p>"
+            "<p><a href='{url}' style='background:#c9a227;color:#13233f;text-decoration:none;padding:12px 22px;border-radius:8px;display:inline-block;font-weight:700'>{cta}</a></p>"
+            "<p style='font-size:12px;color:#5b6573;margin-top:26px'>Questions? Call (561) 475-8615.</p>"
+            "<p style='margin:20px 0 4px'>— La Gala Construction</p>"
+            "<p style='margin:0;color:#5b6573;font-size:12px'>CGC059211 · Licensed &amp; Insured</p>"
+            "</div></div>"
+        ).format(headline=headline, body=body_line, url=url, cta=cta_label)
+        r = requests.post(
+            "https://api.resend.com/emails",
+            headers={"Authorization": "Bearer " + api_key, "Content-Type": "application/json"},
+            json={"from": sender, "to": [to_email], "subject": subject, "html": html},
+            timeout=10,
+        )
+        return r.status_code < 300
+    except Exception:
+        return False
+
+
 def _lead_summary(d):
     lines = []
     for k in ("name", "email", "phone", "company", "property", "message"):
@@ -900,6 +942,50 @@ def portal_inspections():
     return jsonify({"authed": True, "email": email, "name": s.get("name", ""), "inspections": out})
 
 
+@app.get("/api/portal/summary")
+def portal_summary():
+    """Lightweight dashboard summary for the signed-in client: next upcoming
+    inspection, open-invoice count/total, and the most recently added document."""
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"authed": False})
+    email = s.get("email", "")
+
+    # Upcoming inspection = most recently created inspection not yet complete/sealed.
+    upcoming = None
+    latest_doc = None
+    for iid in (_insp_index() or []):
+        x = _insp_get(iid)
+        if not x or not _client_owns(x, email):
+            continue
+        st = (x.get("status") or "draft").lower()
+        prop = x.get("property", {})
+        if st in ("draft", "field"):
+            if not upcoming or (x.get("created_ts", 0) > upcoming.get("created_ts", 0)):
+                upcoming = {"id": x["id"], "status": st, "created_ts": x.get("created_ts", 0),
+                            "property": {"name": prop.get("name", ""), "address": prop.get("address", "")}}
+        ld = x.get("last_doc")
+        if ld and ld.get("ts"):
+            cand = {"kind": ld.get("kind", ""), "label": ld.get("label", ld.get("kind", "")),
+                    "ts": ld.get("ts", 0), "inspection_id": x["id"],
+                    "url": "/api/portal/inspection/%s/doc/%s" % (x["id"], ld.get("kind", ""))}
+            if not latest_doc or cand["ts"] > latest_doc["ts"]:
+                latest_doc = cand
+
+    # Open invoices for this client.
+    ids = _kv_cmd(["LRANGE", _inv_client_key(email), 0, -1]) or []
+    open_invoices = [i for i in _inv_list(ids) if i.get("status") == "open"]
+    open_total_cents = sum(i.get("amount_cents", 0) for i in open_invoices)
+
+    return jsonify({
+        "authed": True,
+        "upcoming_inspection": upcoming,
+        "open_invoice_count": len(open_invoices),
+        "open_invoice_total_cents": open_total_cents,
+        "latest_document": latest_doc,
+    })
+
+
 @app.get("/api/portal/inspection/<iid>/doc/<kind>")
 def portal_inspection_doc(iid, kind):
     s = read_session()
@@ -992,6 +1078,20 @@ def admin_create_invoice():
     }
     _inv_save(inv)
     _log_activity("invoice_create", f"${cents/100:.2f} for {email} — {desc[:60]}")
+    try:
+        amt_str = "${:,.2f}".format(cents / 100)
+        _notify_client(
+            email, "New invoice from La Gala Construction — " + amt_str,
+            "A new invoice is ready.",
+            "{} is due{}. {}".format(
+                amt_str,
+                (" on " + inv["due_date"]) if inv.get("due_date") else "",
+                (desc if desc else "")
+            ).strip(),
+            cta_label="View invoice",
+        )
+    except Exception:
+        pass
     return jsonify({"ok": True, "invoice": inv})
 
 
@@ -1588,10 +1688,25 @@ def insp_update(iid):
     if not x:
         return jsonify({"error": "not found"}), 404
     b = request.get_json(force=True, silent=True) or {}
+    prev_status = x.get("status", "draft")
     for k in ("property", "client", "inspector", "pe", "findings", "corrective", "photos", "anchors", "davits", "visual_check", "diagram", "summary", "recommendations", "status", "sitecam"):
         if k in b:
             x[k] = b[k]
     _insp_save(x)
+    if x.get("status") == "complete" and prev_status != "complete":
+        try:
+            client_email = (x.get("client", {}) or {}).get("email", "")
+            if client_email:
+                _notify_client(
+                    client_email, "Your inspection is complete — La Gala Construction",
+                    "Your inspection is complete.",
+                    "The walking-working-surfaces inspection for {} has been completed. "
+                    "Your report and documentation are available in your client portal.".format(
+                        x.get("property", {}).get("address", "") or "your property"),
+                    cta_label="View documents",
+                )
+        except Exception:
+            pass
     return jsonify({"ok": True, "inspection": x})
 
 
@@ -1615,6 +1730,28 @@ def insp_doc(iid, kind):
     resp = make_response(pdf)
     resp.headers["Content-Type"] = "application/pdf"
     resp.headers["Content-Disposition"] = 'inline; filename="LaGala_WWS_%s_%s.pdf"' % (kind, base)
+    # First-generation notification only (avoid re-emailing on every re-download/view).
+    try:
+        notified = x.get("docs_notified") or []
+        if kind not in notified:
+            client_email = (x.get("client", {}) or {}).get("email", "")
+            DOC_LABEL = {"report": "inspection report", "checklist": "completed checklist",
+                         "cert": "certification", "proposal": "proposal"}
+            if client_email:
+                sent = _notify_client(
+                    client_email, "New document ready — La Gala Construction",
+                    "A new document has been added to your file.",
+                    "Your {} for {} is now available in your client portal.".format(
+                        DOC_LABEL.get(kind, kind), x.get("property", {}).get("address", "") or "your property"),
+                    cta_label="View in portal",
+                )
+                if sent:
+                    notified.append(kind)
+                    x["docs_notified"] = notified
+                    x["last_doc"] = {"kind": kind, "label": DOC_LABEL.get(kind, kind), "ts": _now_ms()}
+                    _insp_save(x)
+    except Exception:
+        pass
     return resp
 
 
