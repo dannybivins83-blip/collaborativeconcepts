@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Collaborative Concept — Coastal Florida Development, Software &amp; Roof Consulting</title>
+<meta name="description" content="One accountable Florida operator, four disciplined lines of business — coastal development, custom operations software, roof consulting, and solar-loan exit. Now raising capital on a Madeira Beach double-lot redevelopment." />
+<link rel="canonical" href="https://collaborativeconceptsfl.com/previews/home-v29" />
+<meta name="robots" content="noindex,nofollow" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Collaborative Concept" />
+<meta property="og:title" content="Collaborative Concept — Coastal Florida Development, Software &amp; Roof Consulting" />
+<meta property="og:description" content="One operator, four disciplines. Coastal development, custom software, roof consulting, and solar-loan exit — plus a live Madeira Beach raise." />
+<meta property="og:url" content="https://collaborativeconceptsfl.com/previews/home-v29" />
+<meta property="og:image" content="https://collaborativeconceptsfl.com/og/default.png" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Collaborative Concept — Coastal Florida Development, Software &amp; Roof Consulting" />
+<meta name="twitter:description" content="One operator, four disciplines. Coastal development, custom software, roof consulting, and solar-loan exit — plus a live Madeira Beach raise." />
+<meta name="twitter:image" content="https://collaborativeconceptsfl.com/og/default.png" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Collaborative Concept LLC",
+  "alternateName": "Collaborative Concept",
+  "url": "https://collaborativeconceptsfl.com",
+  "email": "sales@collaborativeconceptsfl.com",
+  "telephone": "+1-561-475-8615",
+  "founder": { "@type": "Person", "name": "Danny Bivins" },
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Lantana",
+    "addressRegion": "FL",
+    "addressCountry": "US"
+  },
+  "areaServed": "Florida",
+  "knowsAbout": [
+    "Coastal real estate development",
+    "Off-market deal structuring",
+    "Custom operations software",
+    "Roof consulting",
+    "Florida solar loan exit"
+  ]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --ink:#0a0c10;          /* near-black ink */
+    --ink-2:#0d1218;
+    --ink-3:#050708;
+    --page:#f7f6f2;         /* bright off-white */
+    --paper:#ffffff;
+    --sand:#e5e2d8;
+    --mid:#3a3f47;
+    --soft:#5c626b;
+    --accent:#12325b;       /* deep navy — primary accent */
+    --accent-2:#1c4478;
+    --clay:#b3411f;         /* red-clay — secondary punch accent */
+    --clay-2:#c94f28;
+    --accent-soft:#9fc0e8;
+    --line:rgba(255,255,255,.18);
+    --hair:#dcd8cc;
+    --shadow:0 24px 60px -24px rgba(0,0,0,.6);
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
+  body{
+    background:var(--page);
+    color:var(--ink);
+    font-family:"Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  img{ max-width:100%; display:block; }
+  a{ color:inherit; text-decoration:none; }
+  h1,h2,h3{ font-family:"Fraunces", Georgia, serif; font-weight:800; line-height:.98; letter-spacing:-.03em; }
+  .tnum{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, monospace; }
+  .wrap{ max-width:var(--maxw); margin-inline:auto; padding-inline:24px; }
+
+  .track-label{
+    letter-spacing:.22em; text-transform:uppercase; font-weight:800;
+    font-size:.6875rem; font-family:"Manrope", system-ui, sans-serif;
+  }
+  .kicker{
+    display:inline-flex; align-items:center; gap:9px;
+    font-size:12px; font-weight:800; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--clay); margin-bottom:18px;
+  }
+  .kicker::before{ content:""; width:30px; height:3px; background:var(--clay); border-radius:1px; }
+
+  /* ============================================================
+     PREVIEW RIBBON
+  ============================================================ */
+  .ribbon{ position:fixed; top:0; right:0; z-index:1200; pointer-events:none; user-select:none; }
+  .ribbon span{
+    display:block; background:var(--clay); color:#fff; padding:7px 18px;
+    letter-spacing:.14em; text-transform:uppercase; font-weight:800; font-size:11px;
+    clip-path:polygon(16px 0, 100% 0, 100% 100%, 0 100%);
+    box-shadow:0 2px 10px rgba(0,0,0,.35);
+  }
+
+  /* ============================================================
+     NAV — fade-on-scroll, high contrast
+  ============================================================ */
+  .nav{
+    position:fixed; top:0; left:0; right:0; z-index:1000;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px clamp(18px,5vw,48px);
+    transition:background .3s ease, backdrop-filter .3s ease, padding .3s ease, border-color .3s ease;
+    border-bottom:1px solid transparent;
+  }
+  .nav.scrolled{
+    background:rgba(10,12,16,.92);
+    backdrop-filter:saturate(1.1) blur(12px);
+    border-bottom:2px solid var(--clay);
+    padding-top:12px; padding-bottom:12px;
+  }
+  .brand{ display:flex; align-items:center; gap:12px; color:#fff; }
+  .brand .mono-mark{
+    width:44px; height:44px; border-radius:8px; flex:none;
+    display:grid; place-items:center;
+    background:var(--clay);
+    color:#fff; font-family:"Fraunces"; font-weight:900; font-size:19px;
+    box-shadow:0 6px 18px rgba(179,65,31,.5);
+  }
+  .brand .b-name{ font-family:"Fraunces"; font-weight:800; font-size:19px; letter-spacing:-.02em; display:block; line-height:1.05; color:#fff; }
+  .brand .b-sub{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.62); }
+  .nav-links{ display:flex; align-items:center; gap:6px; }
+  .nav-links a{
+    color:rgba(255,255,255,.88); font-weight:700; font-size:14.5px;
+    padding:9px 14px; border-radius:6px; transition:.18s;
+  }
+  .nav-links a:hover{ color:#fff; background:rgba(255,255,255,.1); }
+  .nav-cta{
+    background:var(--clay); color:#fff !important; font-weight:800 !important;
+    padding:11px 20px !important; border-radius:99px;
+    box-shadow:0 8px 22px rgba(179,65,31,.4);
+  }
+  .nav-cta:hover{ background:var(--clay-2) !important; transform:translateY(-1px); }
+  .burger{ display:none; flex-direction:column; gap:5px; background:none; border:0; cursor:pointer; padding:8px; }
+  .burger span{ width:24px; height:3px; background:#fff; border-radius:1px; transition:.25s; }
+
+  /* full-screen mobile menu */
+  .mobile-menu{
+    position:fixed; inset:0; z-index:1100;
+    background:rgba(5,7,8,.98); backdrop-filter:blur(6px);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    opacity:0; pointer-events:none; transition:opacity .28s ease;
+  }
+  .mobile-menu.open{ opacity:1; pointer-events:auto; }
+  .mobile-menu a{ color:#fff; font-family:"Fraunces"; font-weight:800; font-size:28px; padding:12px 20px; }
+  .mobile-menu a.cta{ color:var(--clay); }
+  .mobile-menu .close{ position:absolute; top:22px; right:22px; font-size:34px; color:#fff; background:none; border:0; cursor:pointer; line-height:1; }
+
+  /* ============================================================
+     HERO — cinematic full-bleed, bolder headline
+  ============================================================ */
+  .hero{
+    position:relative;
+    min-height:clamp(600px, 92vh, 820px);
+    display:flex; align-items:flex-end;
+    background-color:var(--ink);
+    background-image:
+      linear-gradient(180deg, rgba(5,7,8,.62) 0%, rgba(5,7,8,.44) 42%, rgba(5,7,8,.95) 100%),
+      url("https://images.unsplash.com/photo-1505142468610-359e7d316be0?auto=format&fit=crop&w=1600&q=70");
+    background-size:cover; background-position:center;
+    color:#fff; overflow:hidden;
+  }
+  @media(min-width:1024px){ .hero{ background-attachment:fixed; } }
+  .hero-inner{
+    max-width:var(--maxw); margin-inline:auto; width:100%;
+    padding:0 24px 96px;
+  }
+  .hero h1{
+    font-size:clamp(2.9rem, 7.4vw, 5.6rem); color:#fff; font-weight:900; letter-spacing:-.035em;
+    max-width:15ch; text-shadow:0 2px 30px rgba(0,0,0,.4);
+  }
+  .hero .subhead{
+    font-size:clamp(1.05rem, 2.1vw, 1.32rem); color:rgba(255,255,255,.92);
+    line-height:1.5; margin:24px 0 0; max-width:52ch; font-weight:600;
+  }
+  .hero-cta{ display:flex; flex-wrap:wrap; gap:14px; margin-top:36px; align-items:center; }
+  .btn-pill{
+    display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    background:var(--clay); color:#fff; padding:17px 30px;
+    font-weight:800; font-size:14.5px; letter-spacing:-.01em; border-radius:99px;
+    box-shadow:0 14px 34px rgba(179,65,31,.45);
+    transition:background .2s ease, transform .2s ease;
+  }
+  .btn-pill:hover{ background:var(--clay-2); transform:translateY(-2px); }
+  .btn-pill .arw{ transition:transform .22s ease; }
+  .btn-pill:hover .arw{ transform:translateX(4px); }
+  .btn-outline{
+    display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    border:2px solid #fff; color:#fff; padding:15px 28px;
+    font-weight:800; font-size:14.5px; letter-spacing:-.01em; border-radius:99px;
+    background:transparent;
+    transition:background .2s ease, color .2s ease;
+  }
+  .btn-outline:hover{ background:#fff; color:var(--ink); }
+  .btn-outline .arw{ transition:transform .22s ease; }
+  .btn-outline:hover .arw{ transform:translateX(4px); }
+  .scroll-hint{
+    position:absolute; bottom:26px; left:50%; transform:translateX(-50%); z-index:3;
+    color:rgba(255,255,255,.78); font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    display:flex; flex-direction:column; align-items:center; gap:8px; font-weight:700;
+  }
+  .scroll-hint .mouse{ width:22px; height:34px; border:2px solid rgba(255,255,255,.6); border-radius:12px; position:relative; }
+  .scroll-hint .mouse::after{ content:""; position:absolute; top:6px; left:50%; transform:translateX(-50%); width:3px; height:7px; background:var(--clay); border-radius:2px; animation:wheel 1.5s infinite; }
+  @keyframes wheel{ 0%{opacity:0;transform:translate(-50%,0)} 40%{opacity:1} 100%{opacity:0;transform:translate(-50%,10px)} }
+
+  /* ============================================================
+     SECTION SHELL
+  ============================================================ */
+  .band{ padding:96px 0; border-top:1px solid var(--hair); }
+  .sec-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; margin-bottom:38px; }
+  .sec-head h2{ font-size:clamp(1.9rem,4.2vw,2.9rem); color:var(--ink); max-width:18ch; font-weight:800; }
+  .sec-head p.sub{ color:var(--mid); font-size:1rem; margin-top:12px; max-width:52ch; font-weight:600; }
+
+  /* ============================================================
+     THE FOUR VERTICALS — visual bento grid
+  ============================================================ */
+  .bento{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    grid-auto-rows:200px;
+    gap:14px;
+  }
+  .tile{
+    position:relative; overflow:hidden; border-radius:6px;
+    border:1px solid var(--hair);
+    display:flex; flex-direction:column; justify-content:flex-end;
+    color:inherit;
+    background-color:var(--ink-2);
+    background-size:cover; background-position:center;
+    transition:transform .32s cubic-bezier(.2,.7,.2,1), box-shadow .32s ease, border-color .2s ease;
+  }
+  a.tile{ cursor:pointer; }
+  .tile.photo{ color:#fff; }
+  .tile.photo::before{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(5,7,8,.2) 0%, rgba(5,7,8,.34) 42%, rgba(5,7,8,.92) 100%);
+    transition:background .32s ease;
+  }
+  a.tile.photo:hover::before{
+    background:linear-gradient(180deg, rgba(5,7,8,.36) 0%, rgba(179,65,31,.32) 55%, rgba(5,7,8,.95) 100%);
+  }
+  a.tile:hover{ transform:translateY(-5px); box-shadow:0 22px 46px -20px rgba(5,7,8,.6); border-color:var(--clay); }
+  a.tile:focus-visible{ outline:2px solid var(--clay); outline-offset:3px; }
+
+  .tile-body{ position:relative; z-index:2; padding:22px; }
+  .tile .kick{ letter-spacing:.22em; text-transform:uppercase; font-weight:800; font-size:.625rem; opacity:.95; }
+  .tile.photo .kick{ color:var(--accent-soft); }
+  .tile h3{ margin:9px 0 0; font-weight:800; line-height:1.05; font-size:1.32rem; letter-spacing:-.02em; }
+  .tile p.mini{ margin:8px 0 0; font-size:12.5px; line-height:1.45; opacity:.94; max-width:34ch; font-family:"Manrope",sans-serif; font-weight:600; }
+  .learn{
+    display:inline-flex; align-items:center; gap:7px; margin-top:16px;
+    font-family:"Manrope",sans-serif; font-weight:800; font-size:11.5px; letter-spacing:.03em; text-transform:uppercase;
+    background:var(--clay); color:#fff; padding:8px 14px; border-radius:99px;
+    transition:gap .2s ease, background .2s ease;
+  }
+  a.tile:hover .learn{ gap:10px; background:var(--clay-2); }
+  .learn .arw{ transition:transform .2s ease; }
+  a.tile:hover .learn .arw{ transform:translateX(3px); }
+
+  /* metric tiles */
+  .tile.metric{ justify-content:center; }
+  .tile.metric .tile-body{ padding:24px; }
+  .tile.metric .m-fig{ font-family:"Fraunces"; font-size:clamp(1.7rem,3.3vw,2.3rem); font-weight:800; letter-spacing:-.02em; line-height:1; }
+  .tile.metric .m-fig .u{ color:var(--accent-soft); }
+  .tile.metric .m-lab{ margin-top:13px; font-size:.65rem; letter-spacing:.2em; text-transform:uppercase; font-weight:800; }
+  .tile.metric.ink{ background:var(--ink-2); color:#fff; border-color:var(--ink-2); }
+  .tile.metric.ink .m-lab{ color:#9aa6b4; }
+  .tile.metric.clay{ background:var(--clay); color:#fff; border-color:var(--clay); }
+  .tile.metric.clay .m-fig .u{ color:rgba(255,255,255,.75); }
+  .tile.metric.clay .m-lab{ color:rgba(255,255,255,.8); }
+  .tile.metric.navy{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .tile.metric.navy .m-lab{ color:var(--accent-soft); }
+
+  /* spans */
+  .sp-2{ grid-column:span 2; } .sp-3{ grid-column:span 3; }
+  .rs-2{ grid-row:span 2; }
+
+  /* ============================================================
+     MADEIRA FLAGSHIP — immersive scene
+  ============================================================ */
+  .flagship{
+    position:relative; color:#fff; overflow:hidden;
+    display:flex; align-items:center;
+    padding:clamp(96px,13vw,160px) clamp(20px,6vw,90px);
+    background-color:var(--ink);
+    background-image:url("https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=1600&q=70");
+    background-size:cover; background-position:center;
+    border-top:4px solid var(--clay);
+  }
+  @media(min-width:1024px){ .flagship{ background-attachment:fixed; } }
+  .flagship::before{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(120deg, rgba(5,7,8,.92) 0%, rgba(5,7,8,.68) 55%, rgba(5,7,8,.8) 100%);
+  }
+  .flagship .inner{ position:relative; z-index:2; width:100%; max-width:var(--maxw); margin:0 auto; }
+  .flagship h2{ font-size:clamp(2.2rem,5.6vw,3.8rem); color:#fff; max-width:14ch; font-weight:900; }
+  .flagship .lede{ font-size:clamp(1.05rem,2.2vw,1.28rem); color:rgba(255,255,255,.92); margin-top:20px; max-width:52ch; font-weight:600; }
+  .status-pill{
+    display:inline-flex; align-items:center; gap:8px; margin-top:26px;
+    background:var(--clay); border:none; color:#fff;
+    font-weight:800; font-size:13px; letter-spacing:.04em; padding:9px 18px; border-radius:99px;
+  }
+  .status-pill .dot{ width:9px; height:9px; border-radius:50%; background:#fff; box-shadow:0 0 0 4px rgba(255,255,255,.3); animation:pulse 2s infinite; }
+  @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.4} }
+  .stats{ display:flex; flex-wrap:wrap; gap:14px; margin-top:30px; }
+  .stat{
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.24);
+    border-radius:8px; padding:18px 22px; min-width:160px; backdrop-filter:blur(4px);
+  }
+  .stat .n{ font-family:"Fraunces"; font-size:clamp(1.5rem,3.2vw,2.1rem); color:#fff; font-weight:800; line-height:1; }
+  .stat .n .u{ color:var(--accent-soft); }
+  .stat .l{ font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:rgba(255,255,255,.7); margin-top:9px; font-weight:800; }
+  .flag-learn{
+    display:inline-flex; align-items:center; gap:9px; margin-top:32px;
+    font-weight:800; font-size:15px; color:#fff; padding:16px 30px; border-radius:99px;
+    background:var(--clay); box-shadow:0 14px 34px rgba(179,65,31,.45); transition:.22s;
+  }
+  .flag-learn:hover{ background:var(--clay-2); transform:translateY(-2px); }
+  .flag-learn .arw{ transition:transform .22s; }
+  .flag-learn:hover .arw{ transform:translateX(5px); }
+  .flag-note{ color:rgba(255,255,255,.6); font-size:12px; margin-top:20px; max-width:52ch; font-weight:600; }
+
+  /* ============================================================
+     SOFTWARE PROOF STRIP
+  ============================================================ */
+  .proof{
+    position:relative; color:#fff; overflow:hidden;
+    padding:clamp(60px,7.5vw,88px) clamp(20px,6vw,90px);
+    background-color:var(--accent);
+    background-image:linear-gradient(90deg, rgba(18,50,91,.96), rgba(18,50,91,.78)),
+      url("https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=70");
+    background-size:cover; background-position:center;
+    border-top:4px solid var(--clay); border-bottom:4px solid var(--clay);
+  }
+  .proof .inner{ max-width:var(--maxw); margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:28px; flex-wrap:wrap; }
+  .proof .p-fig{ font-family:"Fraunces"; font-size:clamp(2.6rem,5.4vw,3.7rem); font-weight:900; color:#fff; line-height:1; }
+  .proof .p-fig .u{ color:var(--accent-soft); font-size:.5em; }
+  .proof .p-copy h2{ font-size:clamp(1.6rem,3.3vw,2.3rem); color:#fff; font-weight:800; }
+  .proof .p-copy p{ color:rgba(255,255,255,.86); font-size:1rem; margin-top:12px; max-width:46ch; font-weight:600; }
+  .proof .p-side{ display:flex; flex-direction:column; gap:8px; }
+  .proof .p-side .p-lab{ font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:rgba(255,255,255,.68); font-weight:800; margin-top:6px; }
+  .proof .p-learn{
+    display:inline-flex; align-items:center; gap:8px; margin-top:16px; align-self:flex-start;
+    font-weight:800; font-size:13px; letter-spacing:.02em; text-transform:uppercase; color:#fff;
+    background:var(--clay); padding:11px 20px; border-radius:99px; transition:.2s;
+  }
+  .proof .p-learn:hover{ background:var(--clay-2); }
+  .proof .p-learn .arw{ transition:transform .2s ease; }
+  .proof .p-learn:hover .arw{ transform:translateX(4px); }
+
+  /* ============================================================
+     EXECUTION PARTNERS — clean 3-up
+  ============================================================ */
+  .exec{ background:var(--paper); }
+  .partners{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:8px; }
+  .pcard{
+    background:#fff; border:2px solid var(--ink); border-radius:8px; padding:30px 28px;
+    box-shadow:6px 6px 0 var(--ink); transition:.2s;
+  }
+  .pcard:hover{ transform:translate(-3px,-3px); box-shadow:9px 9px 0 var(--clay); border-color:var(--clay); }
+  .pcard h3{ font-size:1.4rem; color:var(--ink); font-weight:800; letter-spacing:-.02em; }
+  .pcard p{ color:var(--soft); font-size:.96rem; margin-top:10px; font-weight:600; }
+  .pcard .lic{
+    display:inline-block; margin-top:16px; font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px; font-weight:700; letter-spacing:.03em; color:#fff;
+    background:var(--accent); padding:7px 13px; border-radius:5px;
+  }
+
+  /* ============================================================
+     OPERATOR + CLOSING CTA — photographic band
+  ============================================================ */
+  .close{
+    position:relative; color:#fff; overflow:hidden;
+    padding:clamp(88px,12vw,150px) clamp(20px,6vw,90px);
+    background-color:var(--ink);
+    background-image:url("https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=1600&q=70");
+    background-size:cover; background-position:center;
+    border-top:4px solid var(--clay);
+  }
+  .close::before{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,7,8,.88), rgba(5,7,8,.96)); }
+  .close .inner{ position:relative; z-index:2; max-width:var(--maxw); margin:0 auto; display:grid; grid-template-columns:auto 1fr; gap:40px; align-items:center; }
+  .monogram{
+    height:118px; width:118px; border-radius:10px; flex:none;
+    display:grid; place-items:center;
+    background:var(--clay);
+    font-family:"Fraunces"; font-weight:900; font-size:2.6rem; color:#fff;
+    box-shadow:0 16px 34px rgba(179,65,31,.5);
+  }
+  .close h2{ font-size:clamp(1.9rem,4.4vw,2.9rem); color:#fff; max-width:18ch; font-weight:800; }
+  .close .role{ color:var(--clay); font-weight:800; font-size:12px; letter-spacing:.16em; text-transform:uppercase; margin-bottom:14px; }
+  .close p{ color:rgba(255,255,255,.88); font-size:1.05rem; margin-top:8px; max-width:58ch; font-weight:600; }
+  .close-cta{ display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+  .op-contact{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+  .op-contact a{
+    display:inline-flex; align-items:center; gap:8px; font-size:14px; font-weight:700; color:#fff;
+    background:rgba(255,255,255,.08); border:1px solid var(--line); padding:11px 18px; border-radius:99px; transition:.2s;
+  }
+  .op-contact a:hover{ background:var(--clay); border-color:var(--clay); }
+
+  /* ============================================================
+     FOOTER
+  ============================================================ */
+  footer.site{ background:var(--ink-3); color:rgba(255,255,255,.78); }
+  .foot-wrap{ max-width:var(--maxw); margin-inline:auto; padding:66px 24px 36px; }
+  .foot-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px; }
+  .foot-brand .brand{ margin-bottom:16px; }
+  .foot-brand p{ color:rgba(255,255,255,.62); font-size:14px; line-height:1.6; margin:14px 0 0; max-width:32ch; font-weight:600; }
+  .foot-brand .fb-meta{ color:rgba(255,255,255,.62); font-size:13px; line-height:1.6; margin-top:16px; font-weight:600; }
+  .foot-col h4{ font-family:"Manrope"; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--clay); margin-bottom:18px; font-weight:800; }
+  .foot-col a{ display:block; color:rgba(255,255,255,.75); font-size:14.5px; padding:6px 0; transition:.16s; font-weight:600; }
+  .foot-col a:hover{ color:#fff; padding-left:4px; }
+  .foot-ext{ display:inline-flex; align-items:center; gap:5px; }
+  .foot-bottom{
+    max-width:var(--maxw); margin:48px auto 0; padding-top:26px; border-top:2px solid rgba(255,255,255,.14);
+    display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center;
+    font-size:13px; color:rgba(255,255,255,.55); font-weight:600;
+  }
+  .foot-bottom .ext{ color:rgba(255,255,255,.65); }
+  .foot-bottom .ext:hover{ color:var(--clay); }
+
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--clay); outline-offset:3px; }
+
+  /* ============================================================
+     RESPONSIVE
+  ============================================================ */
+  @media (max-width:1000px){
+    .bento{ grid-template-columns:repeat(2,1fr); grid-auto-rows:184px; }
+    .sp-3{ grid-column:span 2; }
+    .partners{ grid-template-columns:1fr; }
+    .proof .inner{ flex-direction:column; align-items:flex-start; }
+  }
+  @media (max-width:880px){
+    .nav-links{ display:none; }
+    .burger{ display:flex; }
+    .close .inner{ grid-template-columns:1fr; gap:26px; }
+    .monogram{ height:96px; width:96px; font-size:2.1rem; }
+    .foot-grid{ grid-template-columns:1fr 1fr; gap:32px; }
+    .foot-brand{ grid-column:1 / -1; }
+  }
+  @media (max-width:560px){
+    .bento{ grid-template-columns:1fr; grid-auto-rows:180px; }
+    .sp-2, .sp-3{ grid-column:span 1; }
+    .rs-2{ grid-row:span 1; }
+    .foot-grid{ grid-template-columns:1fr; }
+    .hero-inner{ padding-bottom:72px; }
+    .band{ padding:72px 0; }
+    .pcard{ box-shadow:4px 4px 0 var(--ink); }
+    .pcard:hover{ box-shadow:6px 6px 0 var(--clay); }
+  }
+</style>
+</head>
+
+<body>
+
+<!-- PREVIEW RIBBON -->
+<div class="ribbon"><span>PREVIEW v29 — Combined / Bold Contrast</span></div>
+
+<!-- =========================== NAV =========================== -->
+<nav class="nav" id="nav">
+  <a class="brand" href="/">
+    <span class="mono-mark">CC</span>
+    <span><span class="b-name">Collaborative Concept</span><span class="b-sub">Lantana, Florida</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="/">About</a>
+    <a href="/properties">Project Management</a>
+    <a href="/solutions">Operation Solutions</a>
+    <a class="nav-cta" href="/contact">Investor Inquiries</a>
+  </div>
+  <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="close" id="closeMenu" aria-label="Close menu">&times;</button>
+  <a href="/">About</a>
+  <a href="/properties">Project Management</a>
+  <a href="/solutions">Operation Solutions</a>
+  <a href="/invest">The Madeira Deal</a>
+  <a class="cta" href="/contact">Investor Inquiries</a>
+</div>
+
+<main>
+
+<!-- =========================== HERO =========================== -->
+<header class="hero" aria-label="Introduction">
+  <div class="hero-inner">
+    <span class="kicker">One Florida operator · Four disciplines</span>
+    <h1>We source it, build it, and structure the deal.</h1>
+    <p class="subhead">
+      Coastal development, custom software, roof consulting, and solar-loan relief — run with a builder's
+      discipline out of Lantana, FL.
+    </p>
+    <div class="hero-cta">
+      <a href="/contact" class="btn-pill">Investor Inquiries
+        <svg class="arw" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+      </a>
+      <a href="/invest" class="btn-outline">See the flagship deal
+        <svg class="arw" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="scroll-hint"><div class="mouse"></div>Scroll to explore</div>
+</header>
+
+<!-- =========================== THE FOUR VERTICALS (bento) =========================== -->
+<section class="band" aria-label="Four lines of business">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="kicker">What we run</span>
+        <h2>Four lines of business — pick a lane.</h2>
+      </div>
+      <p class="sub">Every vertical is real work with named partners and clean paperwork. Tap through to learn more.</p>
+    </div>
+
+    <div class="bento">
+
+      <!-- 1. Development & Deals (large) -->
+      <a href="/properties" class="tile photo sp-2 rs-2" style="background-image:url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=70');">
+        <div class="tile-body">
+          <p class="kick">01 · Development &amp; Deals</p>
+          <h3>Coastal builds &amp; off-market deals.</h3>
+          <p class="mini">We source land that never hits the MLS, then package and build.</p>
+          <span class="learn">Learn more <span class="arw">→</span></span>
+        </div>
+      </a>
+
+      <!-- Metric: profit -->
+      <div class="tile metric clay">
+        <div class="tile-body">
+          <div class="m-fig tnum">$600K–$1M<span class="u">+</span></div>
+          <div class="m-lab">Projected flagship profit</div>
+        </div>
+      </div>
+
+      <!-- Metric: hold -->
+      <div class="tile metric ink">
+        <div class="tile-body">
+          <div class="m-fig tnum">9–14<span class="u"> mo</span></div>
+          <div class="m-lab">Build-and-exit window</div>
+        </div>
+      </div>
+
+      <!-- 2. Operation Solutions (wide) -->
+      <a href="/solutions" class="tile photo sp-2" style="background-image:url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=70');">
+        <div class="tile-body">
+          <p class="kick">02 · Operation Solutions</p>
+          <h3>Software that fires your SaaS bill.</h3>
+          <p class="mini">One client cut $5,200/mo. Own the build, stop paying rent.</p>
+          <span class="learn">Learn more <span class="arw">→</span></span>
+        </div>
+      </a>
+
+      <!-- Metric: split -->
+      <div class="tile metric navy">
+        <div class="tile-body">
+          <div class="m-fig tnum">50/50</div>
+          <div class="m-lab">Back-end profit split</div>
+        </div>
+      </div>
+
+      <!-- 3. Roof Consulting -->
+      <a href="/contact" class="tile photo" style="background-image:url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=70');">
+        <div class="tile-body">
+          <p class="kick">03 · Roof Consulting</p>
+          <h3>Reports &amp; permits, done right.</h3>
+          <span class="learn">Learn more <span class="arw">→</span></span>
+        </div>
+      </a>
+
+      <!-- 4. Solar Exit (external) -->
+      <a href="https://solarexit.collaborativeconceptsfl.com" target="_blank" rel="noopener" class="tile photo" style="background-image:url('https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1600&q=70');">
+        <div class="tile-body">
+          <p class="kick">04 · Solar Exit</p>
+          <h3>Out of a bad solar loan.</h3>
+          <span class="learn">Learn more <span class="arw">↗</span></span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- =========================== MADEIRA FLAGSHIP =========================== -->
+<section class="flagship" aria-label="Flagship redevelopment">
+  <div class="inner">
+    <span class="kicker">Flagship raise</span>
+    <h2>The Madeira Beach double-lot.</h2>
+    <p class="lede">Two coastal homes on a double lot. The numbers, in the open — no closed-deal spin.</p>
+    <div><span class="status-pill"><span class="dot"></span>Active — Raising Capital</span></div>
+
+    <div class="stats tnum">
+      <div class="stat"><div class="n">$1.9M<span class="u">–</span>$2.2M</div><div class="l">Project cost</div></div>
+      <div class="stat"><div class="n">$600K<span class="u">–</span>$1M+</div><div class="l">Projected profit</div></div>
+      <div class="stat"><div class="n">$1.3M<span class="u">–</span>$1.6M</div><div class="l">Per-home exit</div></div>
+      <div class="stat"><div class="n">9<span class="u">–</span>14 mo</div><div class="l">Timeline · 2 homes</div></div>
+    </div>
+
+    <a href="/invest" class="flag-learn">See the deal
+      <svg class="arw" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+    </a>
+    <p class="flag-note">Projected figures under active underwriting — a live raise, not a closed or guaranteed return.</p>
+  </div>
+</section>
+
+<!-- =========================== SOFTWARE PROOF STRIP =========================== -->
+<section class="proof" aria-label="Software track record">
+  <div class="inner">
+    <div class="p-copy">
+      <span class="kicker">The proof</span>
+      <h2>11 systems shipped.</h2>
+      <p>Custom operations software built to replace pricey SaaS — real tools running in real businesses today.</p>
+      <a href="/solutions" class="p-learn">See our software
+        <svg class="arw" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+      </a>
+    </div>
+    <div class="p-side">
+      <div class="p-fig tnum">$5,200<span class="u">/mo</span></div>
+      <div class="p-lab">SaaS cut for one reference client</div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== EXECUTION PARTNERS =========================== -->
+<section class="band exec" aria-label="Execution partners">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="kicker">Who executes</span>
+        <h2>Licensed, named partners on every build.</h2>
+      </div>
+      <p class="sub">No vague "partners" — the license numbers and the equity terms, on one row.</p>
+    </div>
+
+    <div class="partners">
+      <div class="pcard">
+        <h3>La Gala Construction</h3>
+        <p>General contractor — ground-up coastal builds and renovations, 25+ years in Florida.</p>
+        <span class="lic mono tnum">FL CGC 059211 · Keith La Gala</span>
+      </div>
+      <div class="pcard">
+        <h3>SeaBreeze Roofing &amp; Sheet Metal</h3>
+        <p>HVHZ-ready roofing execution — reports, replacements, and permit-clean work.</p>
+        <span class="lic mono tnum">CCC1328689 · CVC57073</span>
+      </div>
+      <div class="pcard">
+        <h3>K5 Investment Group</h3>
+        <p>Equity &amp; structuring — 20–25% in 2nd position, 50/50 split, 12–24 month hold.</p>
+        <span class="lic mono tnum">Capital &amp; structuring partner</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== OPERATOR + CLOSING CTA =========================== -->
+<section class="close" aria-label="The operator and closing call to action">
+  <div class="inner">
+    <div class="monogram" aria-hidden="true">DB</div>
+    <div>
+      <div class="role">The operator · Collaborative Concept</div>
+      <h2>Danny Bivins runs it end to end.</h2>
+      <p>
+        Sources the deals, structures the equity, builds the software, and stands behind the paperwork —
+        one accountable operator who answers the phone himself.
+      </p>
+      <div class="op-contact">
+        <a href="tel:+15614758615" class="tnum">&#9742; (561) 475-8615</a>
+        <a href="mailto:sales@collaborativeconceptsfl.com">&#9993; sales@collaborativeconceptsfl.com</a>
+      </div>
+      <div class="close-cta">
+        <a href="/contact" class="btn-pill">Investor Inquiries
+          <svg class="arw" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </a>
+        <a href="/invest" class="btn-outline">See the Madeira deal
+          <svg class="arw" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- =========================== FOOTER =========================== -->
+<footer class="site">
+  <div class="foot-wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="/">
+          <span class="mono-mark">CC</span>
+          <span><span class="b-name">Collaborative Concept</span><span class="b-sub">Lantana, Florida</span></span>
+        </a>
+        <p>A Florida operator running four disciplined lines of business — development, software, roof consulting, and solar-exit relief.</p>
+        <div class="fb-meta tnum">
+          Lantana, FL<br/>
+          (561) 475-8615 · sales@collaborativeconceptsfl.com
+        </div>
+      </div>
+
+      <div class="foot-col">
+        <h4>Company</h4>
+        <a href="/">About</a>
+        <a href="/team">Team</a>
+        <a href="/blog">Blog</a>
+      </div>
+
+      <div class="foot-col">
+        <h4>Work</h4>
+        <a href="/properties">Project Management</a>
+        <a href="/solutions">Operation Solutions</a>
+        <a href="https://solarexit.collaborativeconceptsfl.com" target="_blank" rel="noopener" class="foot-ext">Solar Exit
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+        </a>
+      </div>
+
+      <div class="foot-col">
+        <h4>Connect</h4>
+        <a href="/contact">Contact</a>
+        <a href="tel:+15614758615">(561) 475-8615</a>
+        <a href="mailto:sales@collaborativeconceptsfl.com">sales@collaborativeconceptsfl.com</a>
+      </div>
+    </div>
+
+    <div class="foot-bottom">
+      <span>© 2026 Collaborative Concept LLC.</span>
+      <a class="ext" href="https://solarexit.collaborativeconceptsfl.com" target="_blank" rel="noopener">solarexit.collaborativeconceptsfl.com &#8599;</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Nav: transparent → blurred dark bar on scroll
+  (function(){
+    var nav = document.getElementById('nav');
+    window.addEventListener('scroll', function(){
+      if(window.scrollY > 40){ nav.classList.add('scrolled'); }
+      else { nav.classList.remove('scrolled'); }
+    }, {passive:true});
+
+    // Full-screen mobile menu
+    var menu = document.getElementById('mobileMenu');
+    var burger = document.getElementById('burger');
+    var closeBtn = document.getElementById('closeMenu');
+    function openMenu(){ menu.classList.add('open'); burger.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; }
+    function closeMenu(){ menu.classList.remove('open'); burger.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
+    burger.addEventListener('click', openMenu);
+    closeBtn.addEventListener('click', closeMenu);
+    Array.prototype.forEach.call(menu.querySelectorAll('a'), function(a){ a.addEventListener('click', closeMenu); });
+    window.addEventListener('resize', function(){ if(window.innerWidth > 880) closeMenu(); });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMenu(); });
+  })();
+</script>
+</body>
+</html>
