@@ -193,6 +193,18 @@
 <div id="diagramBox"></div>
 </div>
 
+<!-- client messages -->
+<div class="bg-white rounded-xl border border-line p-5">
+<h2 class="font-bold text-primary mb-1 flex items-center gap-2"><span class="ms text-secondary">forum</span> Client messages</h2>
+<p class="text-xs text-mute mb-3">Threaded messages with the client on this inspection. They see this in their portal; replying here emails them.</p>
+<div id="msgList" class="space-y-2 max-h-80 overflow-y-auto"></div>
+<div class="flex gap-2 mt-3">
+<label for="msgInput" class="sr-only">Reply to client</label>
+<input id="msgInput" type="text" placeholder="Reply to client…" class="tx flex-1" onkeydown="if(event.key==='Enter'){event.preventDefault();sendAdminMessage();}"/>
+<button onclick="sendAdminMessage()" class="docbtn">Send</button>
+</div>
+</div>
+
 </main>
 
 <style>.docbtn{display:inline-flex;align-items:center;gap:.3rem;background:#13233f;color:#fff;font-size:13px;font-weight:600;padding:.45rem .8rem;border-radius:.55rem}.docbtn:hover{background:#1e3a5f}.rbtn{font-size:12px;font-weight:700;padding:.2rem .5rem;border-radius:.4rem;border:1px solid #e3e6ea;color:#54606f}.rbtn.on-ok{background:#dcfce7;color:#15803d;border-color:#86efac}.rbtn.on-def{background:#fee2e2;color:#b91c1c;border-color:#fca5a5}.rbtn.on-na{background:#e5e7eb;color:#4b5563;border-color:#d1d5db}</style>
@@ -222,7 +234,35 @@ function boot(){
     INSP=d.inspection; SCON=d.sitecam_on;
     document.getElementById('app').classList.remove('hidden');
     renderAll();
+    loadMessages();
   }).catch(function(){document.getElementById('gate').classList.remove('hidden');});
+}
+
+/* ---- client messages ---- */
+function loadMessages(){
+  api('/api/admin/inspection/'+ID+'/messages').then(function(d){
+    renderMessages(d.messages||[]);
+  }).catch(function(){});
+}
+function renderMessages(msgs){
+  var box=document.getElementById('msgList'); if(!box) return;
+  if(!msgs.length){ box.innerHTML='<p class="text-sm text-mute">No messages yet.</p>'; return; }
+  box.innerHTML=msgs.map(function(m){
+    var mine=m.author==='admin';
+    return '<div class="rounded-lg px-3 py-2 text-sm '+(mine?'bg-surface':'bg-blue-50')+'">'+
+      '<div class="font-semibold text-primary text-xs">'+esc(m.author_name||(mine?'Team':'Client'))+'</div>'+
+      '<div class="mt-0.5">'+esc(m.text)+'</div>'+
+      '<div class="text-mute text-[11px] mt-1">'+esc(new Date(m.ts).toLocaleString())+'</div></div>';
+  }).join('');
+  box.scrollTop=box.scrollHeight;
+}
+function sendAdminMessage(){
+  var inp=document.getElementById('msgInput'); var text=(inp.value||'').trim(); if(!text) return;
+  inp.disabled=true;
+  api('/api/admin/inspection/'+ID+'/message',{method:'POST',body:JSON.stringify({text:text})}).then(function(d){
+    inp.disabled=false;
+    if(d.ok){ inp.value=''; loadMessages(); } else alert(d.error||'Could not send message.');
+  }).catch(function(){ inp.disabled=false; alert('Network error — please try again.'); });
 }
 
 function renderAll(){

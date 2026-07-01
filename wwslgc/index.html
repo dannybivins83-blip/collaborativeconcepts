@@ -636,6 +636,12 @@ document.addEventListener('DOMContentLoaded',function(){
     else if(h.indexOf('#plans')!==-1) ev('cta_click',{cta:'plans'});
     else if(h.indexOf('/guides/')!==-1) ev('guide_open',{guide:h.split('/').pop()});
   },true);
+  /* referral credit ledger — capture ?ref= from a shared client portal link and
+     persist it so it survives navigation to this assessment form */
+  (function(){
+    var ref=new URLSearchParams(location.search).get('ref');
+    if(ref){ try{ localStorage.setItem('wws_ref_code', ref.trim().slice(0,40)); }catch(e){} }
+  })();
   var f=document.getElementById('assessForm');
   if(f) f.addEventListener('submit',function(e){
     e.preventDefault();
@@ -644,7 +650,10 @@ document.addEventListener('DOMContentLoaded',function(){
     if(btn){btn.disabled=true;btn.textContent='Sending…';}
     var fields={}; new FormData(f).forEach(function(v,k){ if(v) fields[k]=v; });
     var pc=document.getElementById('planConfig'); if(pc&&pc.value) fields['Plan Configuration']=pc.value;
-    fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:fields,source:location.pathname+location.search})})
+    var refCode=''; try{ refCode=localStorage.getItem('wws_ref_code')||''; }catch(e){}
+    var payload={fields:fields,source:location.pathname+location.search};
+    if(refCode) payload.ref=refCode;
+    fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
       .then(function(r){return r.json().catch(function(){return {ok:r.ok};});})
       .then(function(){
         ev('generate_lead',{form:'wws_assessment'});
