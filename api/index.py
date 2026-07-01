@@ -587,6 +587,9 @@ def _lead_summary(d):
 def create_lead():
     """Public — the WWS Free Assessment form posts here. Stores the lead in KV
     and emails a notification. Accepts JSON (fetch) or form-encoded (no-JS)."""
+    _allowed, _retry = _rate_limit("lead:ip:" + _client_ip(), 20, 3600)
+    if not _allowed:
+        return _rate_limited_response(_retry)
     if request.is_json:
         body = request.get_json(force=True, silent=True) or {}
     else:
@@ -837,6 +840,11 @@ def portal_request():
     s = read_session()
     if not s or not s.get("email"):
         return jsonify({"ok": False, "error": "sign in required"}), 401
+    if s.get("readonly"):
+        return jsonify({"ok": False, "error": "read-only access cannot submit requests"}), 403
+    _allowed, _retry = _rate_limit("portal_request:" + s["email"].lower(), 20, 3600)
+    if not _allowed:
+        return _rate_limited_response(_retry)
     body = request.get_json(force=True, silent=True) or {}
     req = {
         "id": _gen_id(), "ts": _now_ms(), "kind": "inspection_request",
@@ -863,13 +871,26 @@ def portal_request():
     return jsonify({"ok": True})
 
 
+def _effective_email(s):
+    """The email whose data should be shown: the delegate's owner if this is
+    a read-only delegate session, otherwise the signed-in user's own email.
+    Purely additive — existing (non-delegate) sessions are unaffected since
+    s.get('readonly') is absent/false for them."""
+    s = s or {}
+    if s.get("readonly") and s.get("delegate_owner"):
+        return s["delegate_owner"]
+    return s.get("email", "")
+
+
 @app.get("/api/portal/requests")
 def portal_requests():
     s = read_session()
     if not s or not s.get("email"):
         return jsonify({"authed": False, "requests": []})
-    mine = [r for r in _load_requests() if r.get("email", "").lower() == s.get("email", "").lower()]
-    return jsonify({"authed": True, "email": s.get("email"), "name": s.get("name", ""), "requests": mine})
+    owner_email = _effective_email(s)
+    mine = [r for r in _load_requests() if r.get("email", "").lower() == owner_email.lower()]
+    return jsonify({"authed": True, "email": s.get("email"), "name": s.get("name", ""),
+                    "readonly": bool(s.get("readonly")), "requests": mine})
 
 
 def _client_owns(x, email):
@@ -884,7 +905,7 @@ def portal_inspections():
     s = read_session()
     if not s or not s.get("email"):
         return jsonify({"authed": False, "inspections": []})
-    email = s.get("email", "")
+    email = _effective_email(s)
     out = []
     for iid in (_insp_index() or []):
         x = _insp_get(iid)
@@ -897,7 +918,8 @@ def portal_inspections():
                     "property": {"name": prop.get("name", ""), "address": prop.get("address", "")},
                     "photos": photos, "docs": ["report", "checklist", "proposal"]})
     out.sort(key=lambda i: i.get("created_ts", 0), reverse=True)
-    return jsonify({"authed": True, "email": email, "name": s.get("name", ""), "inspections": out})
+    return jsonify({"authed": True, "email": s.get("email", ""), "name": s.get("name", ""),
+                    "readonly": bool(s.get("readonly")), "inspections": out})
 
 
 @app.get("/api/portal/inspection/<iid>/doc/<kind>")
@@ -906,7 +928,7 @@ def portal_inspection_doc(iid, kind):
     if not s or not s.get("email"):
         return jsonify({"error": "sign in required"}), 401
     x = _insp_get(iid)
-    if not x or not _client_owns(x, s.get("email", "")):
+    if not x or not _client_owns(x, _effective_email(s)):
         return jsonify({"error": "not found"}), 404
     if kind not in DOC_BUILDERS or not _RL:
         return jsonify({"error": "unavailable"}), 400
@@ -959,8 +981,8 @@ def portal_invoices():
     s = read_session()
     if not s or not s.get("email"):
         return jsonify({"authed": False, "invoices": []})
-    ids = _kv_cmd(["LRANGE", _inv_client_key(s["email"]), 0, -1]) or []
-    return jsonify({"authed": True, "invoices": _inv_list(ids)})
+    ids = _kv_cmd(["LRANGE", _inv_client_key(_effective_email(s)), 0, -1]) or []
+    return jsonify({"authed": True, "readonly": bool(s.get("readonly")), "invoices": _inv_list(ids)})
 
 
 @app.get("/api/admin/invoices")
@@ -973,6 +995,9 @@ def admin_invoices():
 @app.post("/api/admin/invoice")
 def admin_create_invoice():
     if not _is_admin(): return jsonify({"ok": False, "error": "auth required"}), 401
+    _allowed, _retry = _rate_limit("admin_invoice:" + _admin_name(), 60, 3600)
+    if not _allowed:
+        return _rate_limited_response(_retry)
     body = request.get_json(force=True, silent=True) or {}
     email = (body.get("client_email") or "").strip().lower()[:200]
     if not email: return jsonify({"ok": False, "error": "client_email required"}), 400
@@ -1006,6 +1031,351 @@ def admin_invoice_status(iid):
     _inv_save(inv)
     _log_activity("invoice_status", f"Invoice {iid[:8]} → {new_status} for {inv.get('client_email','')}")
     return jsonify({"ok": True, "invoice": inv})
+
+
+# ==========================================================================
+# KV-based sliding-window rate limiter
+#
+# Applied to: new email/OTP login routes, plus existing POST /api/lead,
+# POST /api/admin/invoice, and POST /api/portal/request (best-effort — the
+# limiter itself never breaks the request if KV is unconfigured/unreachable).
+# ==========================================================================
+def _client_ip():
+    fwd = request.headers.get("x-forwarded-for", "")
+    return (fwd.split(",")[0].strip() if fwd else (request.remote_addr or ""))[:64]
+
+
+def _rate_limit(key, max_requests, window_seconds):
+    """Sliding-window-ish limiter backed by KV INCR + EXPIRE (fixed window,
+    which is a fine approximation for abuse prevention here). Returns
+    (allowed: bool, retry_after_seconds: int). Fails OPEN (allowed=True) if
+    KV is not configured or errors, so a store outage never blocks the site."""
+    rk = "ratelimit:" + key
+    try:
+        count, configured = _kv_cmd(["INCR", rk])
+        if not configured:
+            return True, 0
+        count = int(count or 0)
+        if count == 1:
+            _kv_cmd(["EXPIRE", rk, window_seconds])
+        if count > max_requests:
+            ttl, _ = _kv_cmd(["TTL", rk])
+            return False, max(1, int(ttl or window_seconds))
+        return True, 0
+    except Exception:
+        return True, 0
+
+
+def _rate_limited_response(retry_after):
+    resp = jsonify({"ok": False, "error": "Too many requests. Please try again shortly."})
+    resp.status_code = 429
+    resp.headers["Retry-After"] = str(retry_after)
+    return resp
+
+
+# ==========================================================================
+# CSRF protection — issued per-session, checked on new state-changing POSTs
+# added in this batch only (email OTP verify, delegate create/revoke).
+# Existing routes are intentionally left untouched.
+# ==========================================================================
+def _check_csrf(body):
+    s = read_session() or {}
+    tok = s.get("csrf")
+    sent = (body or {}).get("csrf") or request.headers.get("X-CSRF-Token")
+    return bool(tok) and bool(sent) and secrets.compare_digest(tok, sent)
+
+
+@app.get("/api/csrf")
+def get_csrf():
+    """Issue (or return the existing) per-session CSRF token for the signed-in
+    client. Frontend calls this once and includes the token on new
+    state-changing POSTs (email OTP verify isn't signed in yet, so it uses its
+    own short-lived per-request token instead — see /api/login/email/start)."""
+    s = read_session() or {}
+    if not s.get("email") and not s.get("pin_admin"):
+        return jsonify({"ok": False, "error": "sign in required"}), 401
+    if not s.get("csrf"):
+        s["csrf"] = secrets.token_urlsafe(24)
+    resp = make_response(jsonify({"ok": True, "csrf": s["csrf"]}))
+    write_session(resp, s)
+    return resp
+
+
+# ==========================================================================
+# Non-Google sign-in: email + one-time PIN (adds a second path into the SAME
+# session shape the Google OAuth callback produces — {"provider", "email",
+# "name", ...} — so every downstream read of session.email behaves the same
+# regardless of which login path was used. Does not touch the Google or
+# Microsoft OAuth code paths at all.)
+# ==========================================================================
+OTP_KEY_PREFIX = "wws:otp:"          # wws:otp:<email> -> {"code","ts","tries"}
+OTP_TTL_SECONDS = 10 * 60            # 10 minutes
+OTP_MAX_TRIES = 5                    # wrong-code attempts per issued code
+
+
+def _otp_key(email):
+    return OTP_KEY_PREFIX + (email or "").strip().lower()
+
+
+@app.post("/api/login/email/start")
+def login_email_start():
+    body = request.get_json(force=True, silent=True) or {}
+    email = (body.get("email") or "").strip().lower()[:200]
+    if not email or "@" not in email:
+        return jsonify({"ok": False, "error": "valid email required"}), 400
+
+    # Rate-limit: max 5 code requests/hour per email, plus a coarser per-IP
+    # guard so one IP can't hammer many different addresses.
+    allowed, retry = _rate_limit("otp_start:email:" + email, 5, 3600)
+    if not allowed:
+        return _rate_limited_response(retry)
+    allowed_ip, retry_ip = _rate_limit("otp_start:ip:" + _client_ip(), 20, 3600)
+    if not allowed_ip:
+        return _rate_limited_response(retry_ip)
+
+    code = "{:06d}".format(secrets.randbelow(1000000))
+    record = {"code": code, "ts": _now_ms(), "tries": 0}
+    try:
+        _kv_cmd(["SET", _otp_key(email), json.dumps(record)])
+        _kv_cmd(["EXPIRE", _otp_key(email), OTP_TTL_SECONDS])
+    except Exception:
+        return jsonify({"ok": False, "error": "sign-in temporarily unavailable"}), 503
+
+    ok, info = _resend_send({
+        "from": RESEND_FROM if RESEND_KEY else "",
+        "to": [email],
+        "subject": "Your La Gala portal sign-in code",
+        "html": (
+            "<div style='font-family:Arial,sans-serif;color:#1f2733'>"
+            "<p>Your one-time sign-in code for the La Gala WWS client portal is:</p>"
+            "<p style='font-size:28px;font-weight:800;letter-spacing:4px;color:#13233f'>{}</p>"
+            "<p style='color:#5b6573;font-size:13px'>This code expires in 10 minutes. If you didn't "
+            "request this, you can ignore this email.</p></div>"
+        ).format(code),
+    }) if RESEND_KEY else (False, "RESEND_API_KEY not configured")
+
+    if not ok:
+        # Don't leak whether the store/email is misconfigured to the client;
+        # log server-side only.
+        _log_activity("otp_send_fail", info, name=email)
+        return jsonify({"ok": False, "error": "Could not send the code. Please call (561) 475-8615."}), 502
+
+    return jsonify({"ok": True, "sent_to": email})
+
+
+@app.post("/api/login/email/verify")
+def login_email_verify():
+    body = request.get_json(force=True, silent=True) or {}
+    email = (body.get("email") or "").strip().lower()[:200]
+    code = (body.get("code") or "").strip()[:12]
+    if not email or not code:
+        return jsonify({"ok": False, "error": "email and code required"}), 400
+
+    allowed, retry = _rate_limit("otp_verify:email:" + email, 10, 3600)
+    if not allowed:
+        return _rate_limited_response(retry)
+
+    try:
+        raw, configured = _kv_cmd(["GET", _otp_key(email)])
+    except Exception:
+        configured = False
+    if not configured:
+        return jsonify({"ok": False, "error": "sign-in temporarily unavailable"}), 503
+    if not raw:
+        return jsonify({"ok": False, "error": "Code expired or not found. Request a new one."}), 400
+    try:
+        record = json.loads(raw)
+    except Exception:
+        return jsonify({"ok": False, "error": "Code expired or not found. Request a new one."}), 400
+
+    if record.get("tries", 0) >= OTP_MAX_TRIES:
+        _kv_cmd(["DEL", _otp_key(email)])
+        return jsonify({"ok": False, "error": "Too many attempts. Request a new code."}), 429
+
+    if not secrets.compare_digest(str(record.get("code", "")), code):
+        record["tries"] = record.get("tries", 0) + 1
+        try:
+            _kv_cmd(["SET", _otp_key(email), json.dumps(record)])
+            _kv_cmd(["EXPIRE", _otp_key(email), OTP_TTL_SECONDS])
+        except Exception:
+            pass
+        return jsonify({"ok": False, "error": "Incorrect code."}), 401
+
+    # success — consume the code and open the SAME session shape the Google
+    # OAuth callback writes, so every existing session.email read works
+    # identically regardless of login path.
+    try:
+        _kv_cmd(["DEL", _otp_key(email)])
+    except Exception:
+        pass
+    resp = make_response(jsonify({"ok": True, "email": email}))
+    write_session(resp, {"provider": "email_otp", "access_token": "otp", "email": email, "name": email.split("@")[0]})
+    _log_activity("login", "Signed in via email code", name=email)
+    return resp
+
+
+# ==========================================================================
+# Read-only delegate access — a signed-in client can invite a named
+# recipient to view (not submit/pay) their own requests/inspections/invoices
+# via a scoped magic-link token. Session payload gains an ADDITIVE
+# "readonly"/"delegate_owner" flag on the recipient's session only; existing
+# session fields and the Google/Microsoft OAuth paths are untouched.
+# ==========================================================================
+DELEGATE_KEY_PREFIX = "wws:delegate:"          # wws:delegate:<token> -> {owner_email, recipient_email, created_ts, scope}
+DELEGATE_OWNER_INDEX = "wws:delegate:owner:"   # wws:delegate:owner:<owner_email> -> LIST of tokens
+
+
+def _delegate_key(token):
+    return DELEGATE_KEY_PREFIX + token
+
+
+def _delegate_owner_index_key(owner_email):
+    return DELEGATE_OWNER_INDEX + (owner_email or "").strip().lower()
+
+
+@app.post("/api/portal/delegate/invite")
+def portal_delegate_invite():
+    s = read_session() or {}
+    owner_email = s.get("email", "")
+    if not owner_email:
+        return jsonify({"ok": False, "error": "sign in required"}), 401
+    if s.get("readonly"):
+        return jsonify({"ok": False, "error": "read-only delegates cannot invite further delegates"}), 403
+
+    body = request.get_json(force=True, silent=True) or {}
+    if not _check_csrf(body):
+        return jsonify({"ok": False, "error": "session expired, please refresh and try again"}), 403
+
+    recipient = (body.get("email") or "").strip().lower()[:200]
+    if not recipient or "@" not in recipient:
+        return jsonify({"ok": False, "error": "valid recipient email required"}), 400
+    if recipient == owner_email.lower():
+        return jsonify({"ok": False, "error": "enter someone else's email"}), 400
+
+    allowed, retry = _rate_limit("delegate_invite:" + owner_email.lower(), 10, 3600)
+    if not allowed:
+        return _rate_limited_response(retry)
+
+    token = secrets.token_urlsafe(32)
+    record = {
+        "token": token,
+        "owner_email": owner_email.lower(),
+        "owner_name": s.get("name", ""),
+        "recipient_email": recipient,
+        "created_ts": _now_ms(),
+        "scope": "readonly",
+        "revoked": False,
+    }
+    try:
+        _kv_cmd(["SET", _delegate_key(token), json.dumps(record)])
+        _kv_cmd(["RPUSH", _delegate_owner_index_key(owner_email), token])
+    except Exception:
+        return jsonify({"ok": False, "error": "store not configured"}), 503
+
+    link = base_url() + "/api/portal/delegate/accept/" + token
+    _resend_send({
+        "from": RESEND_FROM if RESEND_KEY else "",
+        "to": [recipient],
+        "subject": "You've been given read-only access to a La Gala compliance portal",
+        "html": (
+            "<div style='font-family:Arial,sans-serif;color:#1f2733'>"
+            "<p><strong>{owner}</strong> ({owner_email}) has given you read-only access to their "
+            "La Gala Construction OSHA compliance portal — you'll be able to view their inspection "
+            "requests, documents, and invoices, but not submit or pay on their behalf.</p>"
+            "<p><a href='{link}' style='background:#13233f;color:#fff;text-decoration:none;"
+            "padding:12px 24px;border-radius:6px;display:inline-block;font-weight:600'>"
+            "View the portal</a></p>"
+            "<p style='color:#5b6573;font-size:13px'>If you weren't expecting this, you can ignore this email.</p>"
+            "</div>"
+        ).format(owner=s.get("name") or owner_email, owner_email=owner_email, link=link),
+    }) if RESEND_KEY else None
+
+    _log_activity("delegate_invite", "{} invited {}".format(owner_email, recipient), name=owner_email)
+    return jsonify({"ok": True, "invited": recipient})
+
+
+@app.get("/api/portal/delegate/accept/<token>")
+def portal_delegate_accept(token):
+    try:
+        raw, configured = _kv_cmd(["GET", _delegate_key(token)])
+    except Exception:
+        configured = False
+    if not configured or not raw:
+        return _err_page("This invite link is invalid or has expired.")
+    try:
+        record = json.loads(raw)
+    except Exception:
+        return _err_page("This invite link is invalid or has expired.")
+    if record.get("revoked"):
+        return _err_page("This invite link has been revoked by its owner.")
+
+    resp = make_response(redirect("/portal"))
+    write_session(resp, {
+        "provider": "delegate", "access_token": "readonly", "email": record["recipient_email"],
+        "name": record["recipient_email"].split("@")[0],
+        "readonly": True, "delegate_owner": record["owner_email"], "delegate_token": token,
+    })
+    _log_activity("delegate_accept", "{} accepted delegate link from {}".format(
+        record["recipient_email"], record["owner_email"]), name=record["recipient_email"])
+    return resp
+
+
+@app.get("/api/portal/delegate/list")
+def portal_delegate_list():
+    s = read_session() or {}
+    owner_email = s.get("email", "")
+    if not owner_email:
+        return jsonify({"ok": False, "error": "sign in required"}), 401
+    try:
+        tokens, configured = _kv_cmd(["LRANGE", _delegate_owner_index_key(owner_email), 0, -1])
+    except Exception:
+        configured = False
+    if not configured:
+        return jsonify({"ok": True, "delegates": []})
+    out = []
+    for t in (tokens or []):
+        try:
+            raw, _ = _kv_cmd(["GET", _delegate_key(t)])
+            rec = json.loads(raw) if raw else None
+        except Exception:
+            rec = None
+        if rec:
+            out.append({"token": rec["token"][:8] + "…", "full_token": rec["token"],
+                        "recipient_email": rec.get("recipient_email", ""),
+                        "created_ts": rec.get("created_ts"), "revoked": rec.get("revoked", False)})
+    out.sort(key=lambda x: x.get("created_ts", 0), reverse=True)
+    return jsonify({"ok": True, "delegates": out})
+
+
+@app.post("/api/portal/delegate/revoke")
+def portal_delegate_revoke():
+    s = read_session() or {}
+    owner_email = s.get("email", "")
+    if not owner_email:
+        return jsonify({"ok": False, "error": "sign in required"}), 401
+    body = request.get_json(force=True, silent=True) or {}
+    if not _check_csrf(body):
+        return jsonify({"ok": False, "error": "session expired, please refresh and try again"}), 403
+    token = (body.get("token") or "").strip()
+    if not token:
+        return jsonify({"ok": False, "error": "token required"}), 400
+    try:
+        raw, configured = _kv_cmd(["GET", _delegate_key(token)])
+    except Exception:
+        configured = False
+    if not configured or not raw:
+        return jsonify({"ok": False, "error": "not found"}), 404
+    try:
+        record = json.loads(raw)
+    except Exception:
+        return jsonify({"ok": False, "error": "not found"}), 404
+    if record.get("owner_email") != owner_email.lower():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    record["revoked"] = True
+    _kv_cmd(["SET", _delegate_key(token), json.dumps(record)])
+    _log_activity("delegate_revoke", "{} revoked delegate for {}".format(
+        owner_email, record.get("recipient_email", "")), name=owner_email)
+    return jsonify({"ok": True})
 
 
 # ==========================================================================
