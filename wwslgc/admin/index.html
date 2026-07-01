@@ -66,6 +66,7 @@
 <button data-tab="insp" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspections <span id="cInsp" class="text-mute font-normal"></span></button>
 <button data-tab="inv" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Invoices <span id="cInv" class="text-mute font-normal"></span></button>
 <button data-tab="activity" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Activity</button>
+<button data-tab="coi" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">COI requests <span id="cCoi" class="text-mute font-normal"></span></button>
 <button data-tab="settings" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Settings</button>
 <button onclick="openClientProperties()" class="ml-auto text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">domain</span> Client properties</button>
 <button onclick="loadLeads()" class="text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">refresh</span> Refresh</button>
@@ -150,6 +151,19 @@
 <tbody id="activityRows"></tbody>
 </table></div>
 <div id="activityEmpty" class="hidden p-10 text-center text-mute">No activity logged yet.</div>
+</div>
+</section>
+
+<!-- certificate of insurance requests -->
+<section id="tab-coi" class="hidden">
+<div class="bg-white rounded-xl border border-line overflow-hidden">
+<div class="overflow-x-auto"><table class="w-full text-sm">
+<thead class="bg-surface text-mute text-left text-xs uppercase tracking-wide"><tr>
+<th class="px-3 py-2 font-semibold">When</th><th class="px-3 py-2 font-semibold">Client</th><th class="px-3 py-2 font-semibold">Certificate holder</th><th class="px-3 py-2 font-semibold hidden sm:table-cell">Coverage</th><th class="px-3 py-2 font-semibold hidden md:table-cell">Wording / notes</th><th class="px-3 py-2 font-semibold">Status</th><th class="px-3 py-2 font-semibold"></th>
+</tr></thead>
+<tbody id="coiRows"></tbody>
+</table></div>
+<div id="coiEmpty" class="hidden p-10 text-center text-mute">No certificate-of-insurance requests yet.</div>
 </div>
 </section>
 
@@ -330,10 +344,12 @@ function switchTab(t){
   document.getElementById('tab-insp').classList.toggle('hidden',t!=='insp');
   document.getElementById('tab-inv').classList.toggle('hidden',t!=='inv');
   document.getElementById('tab-activity').classList.toggle('hidden',t!=='activity');
+  document.getElementById('tab-coi').classList.toggle('hidden',t!=='coi');
   document.getElementById('tab-settings').classList.toggle('hidden',t!=='settings');
   if(t==='insp') loadInspections();
   if(t==='inv') loadInvoices();
   if(t==='activity') loadActivity();
+  if(t==='coi') loadCoiRequests();
   if(t==='settings') loadSettings();
 }
 
@@ -397,6 +413,32 @@ function loadInvoices(){
 }
 function markInvoicePaid(id){
   api('/api/admin/invoice/'+id+'/status',{method:'POST',body:JSON.stringify({status:'paid'})}).then(function(d){if(d.ok)loadInvoices();else alert(d.error||'Error');});
+}
+
+var COI_LABELS={general_liability:'General liability',workers_comp:'Workers comp',auto_liability:'Auto liability',umbrella:'Umbrella'};
+function loadCoiRequests(){
+  api('/api/admin/coi-requests').then(function(d){
+    var rows=d.requests||[];
+    document.getElementById('cCoi').textContent='('+rows.length+')';
+    document.getElementById('coiEmpty').classList.toggle('hidden',rows.length>0);
+    var sc={requested:'bg-amber-100 text-amber-800',sent:'bg-green-100 text-green-700'};
+    document.getElementById('coiRows').innerHTML=rows.map(function(x){
+      var cov=(x.coverage_types||[]).map(function(c){return COI_LABELS[c]||c;}).join(', ');
+      var flags=[x.additional_insured?'Additional insured':'',x.waiver_of_subrogation?'Waiver of subrogation':''].filter(Boolean).join(' · ');
+      var notes=[x.notes||'',flags].filter(Boolean).join(' — ');
+      return '<tr class="border-t border-line">'+
+        '<td class="px-3 py-2 text-mute whitespace-nowrap text-xs">'+esc(ago(x.created_ts))+'</td>'+
+        '<td class="px-3 py-2"><div class="font-semibold text-primary text-xs">'+esc(x.client_name||x.client_email)+'</div><div class="text-mute text-xs">'+esc(x.client_email)+'</div></td>'+
+        '<td class="px-3 py-2"><div class="font-semibold text-primary text-xs">'+esc(x.holder_name||'—')+'</div>'+(x.project_name?'<div class="text-mute text-xs">'+esc(x.project_name)+'</div>':'')+'</td>'+
+        '<td class="px-3 py-2 hidden sm:table-cell text-mute text-xs">'+esc(cov)+'</td>'+
+        '<td class="px-3 py-2 hidden md:table-cell text-mute text-xs max-w-[240px] truncate">'+esc(notes||'—')+'</td>'+
+        '<td class="px-3 py-2"><span class="text-[11px] font-bold px-2 py-0.5 rounded-full '+(sc[x.status]||'bg-gray-200 text-gray-500')+'">'+esc((x.status||'requested').toUpperCase())+'</span></td>'+
+        '<td class="px-3 py-2 whitespace-nowrap">'+(x.status==='requested'?'<button onclick="markCoiSent(\''+x.id+'\')" class="text-xs text-green-700 font-semibold hover:underline">Mark sent</button>':'')+'</td></tr>';
+    }).join('');
+  });
+}
+function markCoiSent(id){
+  api('/api/admin/coi-request/'+id+'/status',{method:'POST',body:JSON.stringify({status:'sent'})}).then(function(d){if(d.ok)loadCoiRequests();else alert(d.error||'Error');});
 }
 function openCreateInvoice(){
   document.getElementById('drawerBody').innerHTML=

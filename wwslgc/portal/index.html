@@ -153,6 +153,47 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </div>
 </div>
 
+<!-- certificate of insurance requests -->
+<div class="mt-10">
+<h2 class="text-lg font-bold text-primary mb-3">Certificate of insurance</h2>
+<div class="grid lg:grid-cols-5 gap-6">
+<div id="coiFormWrap" class="lg:col-span-3">
+<div class="bg-white rounded-2xl border border-line p-6 shadow-sm">
+<p class="text-sm text-mute mb-4">Need a COI to give your GC, property manager, or lender? Tell us the coverage and the exact wording they require and we'll have it issued by our broker.</p>
+<form id="coiForm" class="space-y-4">
+<div>
+<label class="block text-sm font-semibold mb-1">Coverage needed <span class="text-secondary" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>
+<div class="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+<label class="inline-flex items-center gap-2"><input type="checkbox" name="coverage" value="general_liability" class="rounded"/> General liability</label>
+<label class="inline-flex items-center gap-2"><input type="checkbox" name="coverage" value="workers_comp" class="rounded"/> Workers compensation</label>
+<label class="inline-flex items-center gap-2"><input type="checkbox" name="coverage" value="auto_liability" class="rounded"/> Auto liability</label>
+<label class="inline-flex items-center gap-2"><input type="checkbox" name="coverage" value="umbrella" class="rounded"/> Umbrella</label>
+</div>
+</div>
+<div class="grid sm:grid-cols-2 gap-4">
+<div><label for="coi_holder_name" class="block text-sm font-semibold mb-1">Certificate holder name <span class="text-secondary" aria-hidden="true">*</span><span class="sr-only">(required)</span></label><input id="coi_holder_name" required placeholder="Company to be named on the certificate" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
+<div><label for="coi_project" class="block text-sm font-semibold mb-1">Project / property</label><input id="coi_project" placeholder="Project name or address" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
+</div>
+<div><label for="coi_holder_address" class="block text-sm font-semibold mb-1">Certificate holder address</label><input id="coi_holder_address" placeholder="Street, city, state, zip" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
+<div class="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+<label class="inline-flex items-center gap-2"><input type="checkbox" id="coi_addl_insured" class="rounded"/> Must be named as additional insured</label>
+<label class="inline-flex items-center gap-2"><input type="checkbox" id="coi_waiver" class="rounded"/> Waiver of subrogation required</label>
+</div>
+<div><label for="coi_notes" class="block text-sm font-semibold mb-1">Exact wording / special requirements</label><textarea id="coi_notes" rows="3" placeholder="Paste any specific verbiage your GC, PM, or lender requires on the certificate…" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none resize-y"></textarea></div>
+<div id="coiConfirm" class="hidden rounded-xl bg-green-50 border border-green-300 text-green-800 px-4 py-3 text-sm flex items-start gap-2"><span class="ms text-green-600" aria-hidden="true">task_alt</span><div><b>Request received.</b> We'll have your certificate issued and emailed to you.</div></div>
+<div id="coiErr" class="hidden text-red-600 text-xs"></div>
+<button type="submit" id="coiSubmitBtn" class="tap-target w-full bg-secondary text-white py-3 rounded-xl font-bold hover:bg-primary transition-colors">Request certificate of insurance</button>
+</form>
+</div>
+</div>
+<div class="lg:col-span-2">
+<h3 class="text-sm font-bold text-mute uppercase tracking-wide mb-3">Your COI requests</h3>
+<div id="coiReqList" class="space-y-3"></div>
+<div id="coiReqNone" class="hidden text-mute text-sm bg-white rounded-xl border border-line p-5 text-center">No certificate requests yet.</div>
+</div>
+</div>
+</div>
+
 <!-- inspections & documents -->
 <div id="docsWrap" class="hidden mt-10">
 <h2 class="text-lg font-bold text-primary mb-3" data-i18n="insp_h2">Your inspections &amp; documents</h2>
@@ -282,6 +323,7 @@ function boot(){
     if(READONLY){
       document.getElementById('readonlyBanner').classList.remove('hidden');
       document.getElementById('reqFormWrap').classList.add('hidden');
+      document.getElementById('coiFormWrap').classList.add('hidden');
       document.getElementById('helloSub').textContent='Viewing this account\'s compliance records (read-only).';
       document.getElementById('delegateWrap').classList.add('hidden');
     } else {
@@ -296,6 +338,7 @@ function boot(){
       loadComplianceScore();
       loadReferral();
       loadCredentials();
+      loadCoiRequests();
       applyI18n();
     });
   }).catch(function(){ document.getElementById('gate').classList.remove('hidden'); });
@@ -613,6 +656,53 @@ document.getElementById('reqForm').addEventListener('submit',function(e){
     else if(d.error&&/sign in/i.test(d.error)){ location.href='/api/login/google?basic=1&next=/portal'; }
     else alert(d.error||'Something went wrong. Please call (561) 475-8615.');
   }).catch(function(){ btn.disabled=false; btn.textContent=lbl; alert('Network error. Please call (561) 475-8615.'); });
+});
+
+/* ---- certificate of insurance requests ---- */
+var COI_LABELS={general_liability:'General liability',workers_comp:'Workers comp',auto_liability:'Auto liability',umbrella:'Umbrella'};
+var COI_STATUS_C={requested:'bg-amber-100 text-amber-800',sent:'bg-green-100 text-green-700'};
+function loadCoiRequests(){
+  api('/api/portal/coi-requests').then(function(d){
+    var rows=d.requests||[];
+    document.getElementById('coiReqNone').classList.toggle('hidden', rows.length>0);
+    document.getElementById('coiReqList').innerHTML=rows.map(function(r){
+      var cov=(r.coverage_types||[]).map(function(c){return COI_LABELS[c]||c;}).join(', ');
+      var badge='<span class="text-[11px] font-bold px-2 py-0.5 rounded-full '+(COI_STATUS_C[r.status]||'bg-gray-100 text-gray-600')+'">'+esc((r.status||'requested').toUpperCase())+'</span>';
+      return '<div class="bg-white rounded-xl border border-line p-4">'+
+        '<div class="flex items-center justify-between gap-2"><span class="font-semibold text-primary text-sm">'+esc(r.holder_name||'Certificate holder')+'</span>'+badge+'</div>'+
+        (r.project_name?'<div class="text-mute text-xs mt-0.5">'+esc(r.project_name)+'</div>':'')+
+        '<div class="text-mute text-xs mt-2">'+esc(cov)+'</div>'+
+        '<div class="text-mute text-[11px] mt-2">'+esc(ago(r.created_ts))+'</div></div>';
+    }).join('');
+  }).catch(function(){});
+}
+document.getElementById('coiForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var f=e.target, btn=document.getElementById('coiSubmitBtn'), lbl=btn.textContent;
+  var errEl=document.getElementById('coiErr'); errEl.classList.add('hidden');
+  var coverage=Array.prototype.slice.call(f.querySelectorAll('input[name="coverage"]:checked')).map(function(c){return c.value;});
+  var holderName=(document.getElementById('coi_holder_name').value||'').trim();
+  if(!coverage.length){ errEl.textContent='Select at least one coverage type.'; errEl.classList.remove('hidden'); return; }
+  if(!holderName){ errEl.textContent='Certificate holder name is required.'; errEl.classList.remove('hidden'); return; }
+  var body={
+    coverage_types:coverage, holder_name:holderName,
+    holder_address:(document.getElementById('coi_holder_address').value||'').trim(),
+    project_name:(document.getElementById('coi_project').value||'').trim(),
+    additional_insured:document.getElementById('coi_addl_insured').checked,
+    waiver_of_subrogation:document.getElementById('coi_waiver').checked,
+    notes:(document.getElementById('coi_notes').value||'').trim(),
+  };
+  btn.disabled=true; btn.textContent='Sending…';
+  api('/api/portal/coi-request',{method:'POST',body:JSON.stringify(body)}).then(function(d){
+    btn.disabled=false; btn.textContent=lbl;
+    if(d.ok){
+      f.reset();
+      document.getElementById('coiConfirm').classList.remove('hidden');
+      document.getElementById('coiConfirm').scrollIntoView({behavior:'smooth',block:'center'});
+      loadCoiRequests();
+    } else if(d.error&&/sign in/i.test(d.error)){ location.href='/api/login/google?basic=1&next=/portal'; }
+    else { errEl.textContent=d.error||'Something went wrong. Please call (561) 475-8615.'; errEl.classList.remove('hidden'); }
+  }).catch(function(){ btn.disabled=false; btn.textContent=lbl; errEl.textContent='Network error. Please call (561) 475-8615.'; errEl.classList.remove('hidden'); });
 });
 
 /* ---- 4. EN/ES toggle (client-facing UI strings only; OSHA/PE/CGC left untranslated) ---- */

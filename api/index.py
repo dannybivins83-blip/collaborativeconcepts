@@ -1028,6 +1028,119 @@ def portal_request():
     return jsonify({"ok": True})
 
 
+# ==========================================================================
+# Certificate of Insurance (COI) requests — client tells La Gala exactly what
+# coverage + exact verbiage a GC/property manager needs on the certificate
+# (certificate holder, additional insured, waiver of subrogation, project
+# name). This is an intake/tracking tool, not a document generator — the
+# actual ACORD 25 certificate is issued by La Gala's insurance broker.
+# ==========================================================================
+WWS_COI_ALL_KEY = "wws:coireq:all"
+
+
+def _coi_key(cid): return "wws:coireq:" + cid
+def _coi_client_key(email): return "wws:coireq:client:" + (email or "").lower().strip()
+
+
+def _coi_get(cid):
+    raw = _kv_cmd(["GET", _coi_key(cid)])
+    if not raw: return None
+    try: return json.loads(raw)
+    except Exception: return None
+
+
+def _coi_save(rec):
+    _kv_cmd(["SET", _coi_key(rec["id"]), json.dumps(rec)])
+    _kv_cmd(["LREM", WWS_COI_ALL_KEY, 0, rec["id"]])
+    _kv_cmd(["RPUSH", WWS_COI_ALL_KEY, rec["id"]])
+    ck = _coi_client_key(rec.get("client_email", ""))
+    _kv_cmd(["LREM", ck, 0, rec["id"]])
+    _kv_cmd(["RPUSH", ck, rec["id"]])
+
+
+def _coi_list(ids):
+    out = []
+    for cid in (ids or []):
+        x = _coi_get(cid)
+        if x: out.append(x)
+    return sorted(out, key=lambda r: r.get("created_ts", 0), reverse=True)
+
+
+COI_COVERAGE_TYPES = ("general_liability", "workers_comp", "auto_liability", "umbrella")
+
+
+@app.post("/api/portal/coi-request")
+def portal_coi_request():
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"ok": False, "error": "sign in required"}), 401
+    if s.get("readonly"):
+        return jsonify({"ok": False, "error": "read-only access cannot submit requests"}), 403
+    owner_email = _effective_email(s)
+    _allowed, _retry = _rate_limit("coi_request:" + owner_email.lower(), 20, 3600)
+    if not _allowed:
+        return _rate_limited_response(_retry)
+    body = request.get_json(force=True, silent=True) or {}
+    coverage = [c for c in (body.get("coverage_types") or []) if c in COI_COVERAGE_TYPES]
+    holder_name = (body.get("holder_name") or "").strip()[:200]
+    if not coverage or not holder_name:
+        return jsonify({"ok": False, "error": "at least one coverage type and a certificate holder name are required"}), 400
+    rec = {
+        "id": _gen_id(), "created_ts": _now_ms(), "status": "requested",
+        "client_email": owner_email, "client_name": s.get("name", ""),
+        "coverage_types": coverage,
+        "holder_name": holder_name,
+        "holder_address": (body.get("holder_address") or "").strip()[:400],
+        "project_name": (body.get("project_name") or "").strip()[:300],
+        "additional_insured": bool(body.get("additional_insured")),
+        "waiver_of_subrogation": bool(body.get("waiver_of_subrogation")),
+        "notes": (body.get("notes") or "").strip()[:2000],
+    }
+    _coi_save(rec)
+    _notify("WWS certificate of insurance request — " + (rec["client_name"] or rec["client_email"]),
+            "A client requested a certificate of insurance via the portal:\n\n"
+            "From: {} <{}>\nCoverage: {}\nCertificate holder: {}\nHolder address: {}\n"
+            "Project / property: {}\nAdditional insured: {}\nWaiver of subrogation: {}\n\n"
+            "Special wording / notes:\n{}".format(
+                rec["client_name"], rec["client_email"], ", ".join(coverage), rec["holder_name"],
+                rec["holder_address"], rec["project_name"],
+                "Yes" if rec["additional_insured"] else "No",
+                "Yes" if rec["waiver_of_subrogation"] else "No", rec["notes"]))
+    return jsonify({"ok": True, "request": rec})
+
+
+@app.get("/api/portal/coi-requests")
+def portal_coi_requests():
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"authed": False, "requests": []})
+    owner_email = _effective_email(s)
+    ids = _kv_cmd(["LRANGE", _coi_client_key(owner_email), 0, -1]) or []
+    return jsonify({"authed": True, "requests": _coi_list(ids)})
+
+
+@app.get("/api/admin/coi-requests")
+def admin_coi_requests():
+    if not _is_admin(): return jsonify({"ok": False, "error": "auth required"}), 401
+    ids = _kv_cmd(["LRANGE", WWS_COI_ALL_KEY, 0, -1]) or []
+    return jsonify({"ok": True, "requests": _coi_list(ids)})
+
+
+@app.post("/api/admin/coi-request/<cid>/status")
+def admin_coi_request_status(cid):
+    if not _is_admin(): return jsonify({"ok": False, "error": "auth required"}), 401
+    rec = _coi_get(cid)
+    if not rec: return jsonify({"ok": False, "error": "not found"}), 404
+    body = request.get_json(force=True, silent=True) or {}
+    new_status = (body.get("status") or rec["status"])
+    rec["status"] = new_status
+    if new_status == "sent" and not rec.get("sent_ts"):
+        rec["sent_ts"] = _now_ms()
+    _coi_save(rec)
+    _log_activity("coi_request_status", "COI request {} -> {} for {}".format(cid[:8], new_status, rec.get("client_email", "")))
+    return jsonify({"ok": True, "request": rec})
+
+
 def _effective_email(s):
     """The email whose data should be shown: the delegate's owner if this is
     a read-only delegate session, otherwise the signed-in user's own email.
