@@ -178,6 +178,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </div>
 </div>
 
+<!-- contractor credentials -->
+<div class="mt-10">
+<h2 class="text-lg font-bold text-primary mb-3">Contractor credentials</h2>
+<div id="credsPanel" class="bg-white rounded-xl border border-line p-5 flex flex-wrap gap-x-8 gap-y-3 text-sm"></div>
+</div>
+
 <!-- compliance library -->
 <div class="mt-10">
 <div class="flex items-center justify-between gap-2 mb-3">
@@ -237,6 +243,7 @@ function boot(){
       loadSummary();
       loadComplianceScore();
       loadReferral();
+      loadCredentials();
       applyI18n();
     });
   }).catch(function(){ document.getElementById('gate').classList.remove('hidden'); });
@@ -265,6 +272,34 @@ function loadComplianceScore(){
     var bodyEnc=encodeURIComponent('Hi Danny,\n\nI\'d like to talk about locking in a multi-year compliance plan for our properties ('+ok+' of '+total+' currently compliant).\n\nProperties:\n'+(sc.properties||[]).map(function(p){return '- '+(p.name||p.address||'Property')+' — '+(p.compliant?'compliant':'needs attention');}).join('\n')+'\n\n');
     document.getElementById('scoreCta').href='mailto:danny@lagalacon.com?subject='+subjEnc+'&body='+bodyEnc;
   }).catch(function(){});
+}
+
+/* ---- 3. Recertification countdown + contractor credentials panel ---- */
+var RECERT_C={green:'bg-green-100 text-green-700',amber:'bg-amber-100 text-amber-800',red:'bg-red-100 text-red-700'};
+var RECERT_ICON={green:'check_circle',amber:'schedule',red:'error'};
+function recertBadge(r){
+  if(!r) return '';
+  var label = r.days_left<0 ? 'Expired '+Math.abs(r.days_left)+'d ago' : r.days_left+'d to recert';
+  return '<span class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full '+(RECERT_C[r.level]||RECERT_C.green)+'" title="Recertification due '+esc(r.expires)+'"><span class="ms text-sm" aria-hidden="true">'+RECERT_ICON[r.level]+'</span>'+esc(label)+'</span>';
+}
+
+var PORTAL_PES=[];
+var PORTAL_CREDS=null;
+function loadCredentials(){
+  api('/api/portal/credentials').then(function(d){
+    if(!d.ok) return;
+    PORTAL_CREDS=d;
+    renderCredentials();
+  }).catch(function(){});
+}
+function renderCredentials(){
+  var d=PORTAL_CREDS; var panel=document.getElementById('credsPanel'); if(!d||!panel) return;
+  var lapsedFlag=d.coi_lapsed?'<span class="inline-flex items-center gap-1 text-red-700 font-bold text-xs"><span class="ms text-base" aria-hidden="true">warning</span>Lapsed — needs renewal</span>':'';
+  var peHtml=PORTAL_PES.length?('<div><div class="text-mute text-xs uppercase tracking-wide">Professional engineer</div>'+PORTAL_PES.map(function(pe){return '<div class="font-semibold text-primary">'+esc(pe.name)+(pe.license?(' <span class="text-mute font-normal">· FL PE #'+esc(pe.license)+'</span>'):'')+'</div>';}).join('')+'</div>'):'';
+  panel.innerHTML=
+    '<div><div class="text-mute text-xs uppercase tracking-wide">License</div><div class="font-semibold text-primary">FL '+esc(d.cgc_license||'—')+'</div></div>'+
+    '<div><div class="text-mute text-xs uppercase tracking-wide">Certificate of insurance</div><div class="font-semibold text-primary">'+(d.coi_expiration?('Valid through '+esc(d.coi_expiration)):'On file — TBD')+'</div>'+lapsedFlag+'</div>'+
+    peHtml;
 }
 
 /* ---- 2. Referral credit ledger ---- */
@@ -335,9 +370,13 @@ function loadInspections(){
   api('/api/portal/inspections'+propQS()).then(function(d){
     if(!d.authed) return;
     var rows=d.inspections||[];
+    var seen={};
+    PORTAL_PES=rows.filter(function(x){return x.pe&&x.pe.name;}).map(function(x){return x.pe;})
+      .filter(function(pe){var k=pe.name+'|'+pe.license; if(seen[k])return false; seen[k]=true; return true;});
+    renderCredentials();
     document.getElementById('docsWrap').classList.toggle('hidden',!rows.length);
     if(!rows.length) return;
-    var DOCN={report:'Inspection report',checklist:'Completed checklist',proposal:'Proposal'};
+    var DOCN={report:'Inspection report',checklist:'Completed checklist',proposal:'Proposal',compliance:'Certificate of compliance'};
     document.getElementById('inspList').innerHTML=rows.map(function(x){
       var p=x.property||{};
       var pics=x.photos||[];
@@ -346,6 +385,7 @@ function loadInspections(){
       var morePhotos = pics.length>12 ? '<div class="w-20 h-20 rounded-lg border border-line flex items-center justify-center text-xs font-semibold text-mute bg-surface">+'+(pics.length-12)+'</div>' : '';
       var docs=(x.docs||[]).map(function(k){return '<a href="/api/portal/inspection/'+esc(x.id)+'/doc/'+esc(k)+'" target="_blank" rel="noopener" class="tap-target inline-flex items-center gap-1 text-sm bg-white border border-line rounded-lg px-3 py-1.5 hover:border-secondary"><span class="ms text-base text-secondary" aria-hidden="true">picture_as_pdf</span>'+(DOCN[k]||k)+'</a>';}).join('');
       var packetBtn=(x.docs&&x.docs.length)?'<a href="/api/portal/inspection/'+esc(x.id)+'/board-packet" target="_blank" rel="noopener" class="tap-target inline-flex items-center gap-1 text-sm bg-primary text-white rounded-lg px-3 py-1.5 hover:bg-primaryc"><span class="ms text-base" aria-hidden="true">folder_zip</span>Download board packet</a>':'';
+      var verifyLink=x.verify_url?'<a href="'+esc(x.verify_url)+'" target="_blank" rel="noopener" class="tap-target inline-flex items-center gap-1 text-sm text-mute hover:text-secondary"><span class="ms text-base" aria-hidden="true">qr_code_2</span>Verify online</a>':'';
       var acceptUI;
       if(x.proposal_accepted){
         var acc=x.acceptance||{};
@@ -366,9 +406,9 @@ function loadInspections(){
         '</div>';
       return '<div class="bg-white rounded-xl border border-line p-5">'+
         '<div class="flex items-start justify-between gap-2 flex-wrap"><div><div class="font-semibold text-primary">'+esc(p.name||p.address||'Inspection')+'</div><div class="text-mute text-xs">'+esc(p.address||'')+(p.address?' · ':'')+esc(ago(x.created_ts))+'</div></div>'+
-        '<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">'+esc((x.status||'draft').toUpperCase())+'</span></div>'+
+        '<div class="flex items-center gap-2 flex-wrap"><span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">'+esc((x.status||'draft').toUpperCase())+'</span>'+recertBadge(x.recert)+'</div></div>'+
         (photos?('<div class="mt-3"><div class="text-xs font-semibold text-mute uppercase tracking-wide mb-2">Field photos</div><div class="flex flex-wrap gap-2">'+photos+morePhotos+'</div></div>'):'<p class="text-mute text-xs mt-3" data-i18n="insp_photos_none">Field photos will appear here once your inspection is documented.</p>')+
-        (docs?'<div class="flex flex-wrap gap-2 mt-3">'+docs+(packetBtn?(' '+packetBtn):'')+'</div>':'')+
+        (docs?'<div class="flex flex-wrap gap-2 mt-3 items-center">'+docs+(packetBtn?(' '+packetBtn):'')+(verifyLink?(' '+verifyLink):'')+'</div>':'')+
         acceptUI+
         threadUI+
         '</div>';

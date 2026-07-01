@@ -8,6 +8,7 @@
   ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/index" },
+    { "source": "/verify/:path*", "destination": "/api/index" },
     { "source": "/", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc/index.html" },
     { "source": "/:path*", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc/:path*" }
   ],

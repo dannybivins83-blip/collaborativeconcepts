@@ -66,6 +66,7 @@
 <button data-tab="insp" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspections <span id="cInsp" class="text-mute font-normal"></span></button>
 <button data-tab="inv" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Invoices <span id="cInv" class="text-mute font-normal"></span></button>
 <button data-tab="activity" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Activity</button>
+<button data-tab="settings" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Settings</button>
 <button onclick="openClientProperties()" class="ml-auto text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">domain</span> Client properties</button>
 <button onclick="loadLeads()" class="text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">refresh</span> Refresh</button>
 </div>
@@ -149,6 +150,21 @@
 <tbody id="activityRows"></tbody>
 </table></div>
 <div id="activityEmpty" class="hidden p-10 text-center text-mute">No activity logged yet.</div>
+</div>
+</section>
+
+<!-- settings — contractor credentials -->
+<section id="tab-settings" class="hidden">
+<div class="bg-white rounded-xl border border-line p-5 max-w-md">
+<h2 class="font-bold text-primary mb-1">Contractor credentials</h2>
+<p class="text-sm text-mute mb-4">CGC license is fixed from site copy. Set the certificate-of-insurance expiration here — it's shown to clients in the portal and flagged red here if it's lapsed.</p>
+<div class="space-y-3">
+<div><label class="fl block text-xs font-semibold text-mute uppercase tracking-wide mb-1">CGC license</label><div id="settCgc" class="font-semibold text-primary"></div></div>
+<div><label class="fl block text-xs font-semibold text-mute uppercase tracking-wide mb-1">COI expiration date</label>
+<div class="flex gap-2"><input id="coiInput" type="date" class="rounded-lg border border-line px-3 py-2 text-sm flex-1"/><button onclick="saveCoi()" class="bg-primary text-white text-sm font-semibold px-4 rounded-lg hover:bg-primaryc">Save</button></div>
+<div id="coiState" class="text-xs mt-1"></div>
+</div>
+</div>
 </div>
 </section>
 
@@ -314,9 +330,33 @@ function switchTab(t){
   document.getElementById('tab-insp').classList.toggle('hidden',t!=='insp');
   document.getElementById('tab-inv').classList.toggle('hidden',t!=='inv');
   document.getElementById('tab-activity').classList.toggle('hidden',t!=='activity');
+  document.getElementById('tab-settings').classList.toggle('hidden',t!=='settings');
   if(t==='insp') loadInspections();
   if(t==='inv') loadInvoices();
   if(t==='activity') loadActivity();
+  if(t==='settings') loadSettings();
+}
+
+function loadSettings(){
+  api('/api/admin/settings').then(function(d){
+    if(!d.ok) return;
+    document.getElementById('settCgc').textContent='FL '+d.cgc_license;
+    document.getElementById('coiInput').value=d.coi_expiration||'';
+    renderCoiState(d.coi_expiration);
+  });
+}
+function renderCoiState(exp){
+  var el=document.getElementById('coiState');
+  if(!exp){ el.textContent='No expiration on file — shown to clients as "TBD".'; el.className='text-xs mt-1 text-mute'; return; }
+  var days=Math.floor((new Date(exp+'T00:00:00')-new Date(new Date().toDateString()))/86400000);
+  if(days<0){ el.textContent='Lapsed '+Math.abs(days)+' day(s) ago — renew and update this.'; el.className='text-xs mt-1 text-red-600 font-semibold'; }
+  else{ el.textContent='Valid, '+days+' day(s) remaining.'; el.className='text-xs mt-1 text-green-700'; }
+}
+function saveCoi(){
+  var v=document.getElementById('coiInput').value||'';
+  api('/api/admin/settings/coi',{method:'POST',body:JSON.stringify({coi_expiration:v})}).then(function(d){
+    if(d.ok) renderCoiState(d.coi_expiration); else alert(d.error||'Save failed');
+  });
 }
 
 var ACTION_LABELS={login:'Sign-in',login_fail:'Failed sign-in',lead_update:'Lead update',insp_create:'Inspection created',invoice_create:'Invoice created',invoice_status:'Invoice status'};
