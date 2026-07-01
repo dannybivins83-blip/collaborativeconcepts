@@ -661,16 +661,25 @@ def create_lead():
             break
         if k and not k.startswith("_") and str(v).strip():
             clean[k[:60]] = str(v)[:2000]
+    ref_code = g("ref", "ref_code")[:40]
     lead = {
         "id": _gen_id(), "ts": _now_ms(), "name": name, "email": email, "phone": phone,
         "company": company, "property": prop, "message": message, "fields": clean,
         "source": (g("source") or request.headers.get("Referer", ""))[:300],
         "ua": request.headers.get("User-Agent", "")[:300],
+        "ref_code": ref_code,
     }
     try:
         _, configured = _kv_cmd(["RPUSH", WWS_LEADS_KEY, json.dumps(lead)])
     except Exception:
         configured = False
+    if ref_code:
+        try:
+            referrer_email = _ref_email_for_code(ref_code)
+            if referrer_email:
+                _ref_credit_add_referral(referrer_email, lead["id"])
+        except Exception:
+            pass
     _notify("New WWS lead — " + (name or company or email or phone),
             "New Free Assessment request from the WWS site:\n\n" + _lead_summary(lead))
 
@@ -2216,6 +2225,276 @@ def sitecam_pull(iid):
         return jsonify({"ok": True, "configured": True, "photos": photos})
     except Exception as e:
         return jsonify({"ok": False, "configured": True, "error": str(e)}), 502
+
+
+# ==========================================================================
+# Portfolio compliance score + multi-year plan CTA
+# ==========================================================================
+# Simple compliance model derived from existing inspection records (no
+# separate countdown/recert data model exists yet in this worktree):
+#   - "compliant" property = an inspection whose status is complete/sealed
+#     AND has zero unresolved deficiencies (findings with result == "def").
+#   - anything else (draft/field status, or any open "def" finding) counts
+#     as not-yet-compliant.
+# This is intentionally simple v1 scoring, not a recert-date engine.
+def _compliance_score(email):
+    props = {}
+    for iid in (_insp_index() or []):
+        x = _insp_get(iid)
+        if not x or not _client_owns(x, email):
+            continue
+        p = x.get("property", {})
+        key = (p.get("address") or p.get("name") or x["id"]).strip().lower()
+        defects = sum(1 for f in (x.get("findings") or []) if (f.get("result") or "").lower() == "def")
+        compliant = (x.get("status") in ("complete", "sealed")) and defects == 0
+        prev = props.get(key)
+        if prev is None or x.get("updated_ts", 0) >= prev.get("_ts", 0):
+            props[key] = {"name": p.get("name") or p.get("address") or "Property", "address": p.get("address", ""),
+                          "compliant": compliant, "status": x.get("status", "draft"), "defects": defects,
+                          "_ts": x.get("updated_ts", 0)}
+    total = len(props)
+    compliant_n = sum(1 for v in props.values() if v["compliant"])
+    return {"total": total, "compliant": compliant_n,
+            "properties": [{"name": v["name"], "address": v["address"], "compliant": v["compliant"],
+                            "status": v["status"], "defects": v["defects"]} for v in props.values()]}
+
+
+@app.get("/api/portal/compliance_score")
+def portal_compliance_score():
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"authed": False}), 200
+    score = _compliance_score(s["email"])
+    return jsonify({"authed": True, "email": s["email"], "score": score})
+
+
+# ==========================================================================
+# Referral credit ledger
+# ==========================================================================
+WWS_REFCODE_KEY = "wws:refcodes"        # JSON map { email: code }
+WWS_REFCODE_REV_KEY = "wws:refcodes_rev"  # JSON map { code: email }
+WWS_REFCREDIT_KEY = "wws:ref_credits"   # JSON map { email: {balance, referred:[emails/ids], updated} }
+
+
+def _ref_code_for(email):
+    email = (email or "").lower().strip()
+    if not email:
+        return ""
+    raw, configured = _kv_cmd(["GET", WWS_REFCODE_KEY])
+    if not configured:
+        # degrade to a deterministic (non-persisted) code so the UI still works
+        return (email.split("@")[0][:10] + "-" + hashlib.sha256(email.encode()).hexdigest()[:6]).upper()
+    try:
+        m = json.loads(raw) if raw else {}
+    except Exception:
+        m = {}
+    code = m.get(email)
+    if not code:
+        code = (email.split("@")[0][:10] + "-" + hashlib.sha256(email.encode()).hexdigest()[:6]).upper()
+        m[email] = code
+        _kv_cmd(["SET", WWS_REFCODE_KEY, json.dumps(m)])
+        rev_raw, _ = _kv_cmd(["GET", WWS_REFCODE_REV_KEY])
+        try:
+            rev = json.loads(rev_raw) if rev_raw else {}
+        except Exception:
+            rev = {}
+        rev[code] = email
+        _kv_cmd(["SET", WWS_REFCODE_REV_KEY, json.dumps(rev)])
+    return code
+
+
+def _ref_email_for_code(code):
+    code = (code or "").strip().upper()
+    if not code:
+        return ""
+    raw, configured = _kv_cmd(["GET", WWS_REFCODE_REV_KEY])
+    if not configured or not raw:
+        return ""
+    try:
+        rev = json.loads(raw)
+    except Exception:
+        rev = {}
+    return rev.get(code, "")
+
+
+def _ref_credit_get(email):
+    email = (email or "").lower().strip()
+    raw, configured = _kv_cmd(["GET", WWS_REFCREDIT_KEY])
+    if not configured:
+        return {"balance": 0, "referred": []}
+    try:
+        m = json.loads(raw) if raw else {}
+    except Exception:
+        m = {}
+    return m.get(email, {"balance": 0, "referred": []})
+
+
+def _ref_credit_add_referral(referrer_email, lead_id):
+    """Tag a new lead as referred by referrer_email. Does not touch balance —
+    admin manually adjusts credit (v1 keeps this visible-only)."""
+    referrer_email = (referrer_email or "").lower().strip()
+    if not referrer_email:
+        return
+    raw, configured = _kv_cmd(["GET", WWS_REFCREDIT_KEY])
+    if not configured:
+        return
+    try:
+        m = json.loads(raw) if raw else {}
+    except Exception:
+        m = {}
+    rec = m.get(referrer_email, {"balance": 0, "referred": []})
+    if lead_id and lead_id not in rec["referred"]:
+        rec["referred"].append(lead_id)
+    m[referrer_email] = rec
+    _kv_cmd(["SET", WWS_REFCREDIT_KEY, json.dumps(m)])
+
+
+@app.get("/api/portal/referral")
+def portal_referral():
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"authed": False}), 200
+    email = s["email"]
+    code = _ref_code_for(email)
+    credit = _ref_credit_get(email)
+    share_url = base_url() + "/wwslgc?ref=" + requests.utils.quote(code)
+    return jsonify({"authed": True, "email": email, "code": code, "link": share_url,
+                    "referral_count": len(credit.get("referred", [])), "credit_balance": credit.get("balance", 0)})
+
+
+@app.post("/api/admin/referral/adjust")
+def admin_referral_adjust():
+    """Admin manually adjusts a client's referral credit balance (v1: visible-only,
+    never auto-applied to invoices)."""
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    b = request.get_json(force=True, silent=True) or {}
+    email = (b.get("email") or "").strip().lower()
+    if not email:
+        return jsonify({"ok": False, "error": "email required"}), 400
+    try:
+        delta = float(b.get("delta") or 0)
+    except Exception:
+        delta = 0
+    raw, configured = _kv_cmd(["GET", WWS_REFCREDIT_KEY])
+    if not configured:
+        return jsonify({"ok": False, "error": "store not configured"}), 200
+    try:
+        m = json.loads(raw) if raw else {}
+    except Exception:
+        m = {}
+    rec = m.get(email, {"balance": 0, "referred": []})
+    rec["balance"] = round(rec.get("balance", 0) + delta, 2)
+    rec["updated"] = _now_ms()
+    m[email] = rec
+    _kv_cmd(["SET", WWS_REFCREDIT_KEY, json.dumps(m)])
+    _log_activity("referral_adjust", f"{email}: {'+' if delta>=0 else ''}{delta} → balance {rec['balance']}")
+    return jsonify({"ok": True, "email": email, "balance": rec["balance"]})
+
+
+@app.get("/api/admin/referral/<email>")
+def admin_referral_lookup(email):
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    email = (email or "").strip().lower()
+    credit = _ref_credit_get(email)
+    return jsonify({"ok": True, "email": email, "code": _ref_code_for(email), "credit": credit})
+
+
+# ==========================================================================
+# In-portal messaging thread per inspection
+# ==========================================================================
+def _msg_key(iid):
+    return "wws:insp_msgs:" + iid
+
+
+def _msg_list(iid):
+    raw, configured = _kv_cmd(["LRANGE", _msg_key(iid), 0, -1])
+    if not configured:
+        return []
+    out = []
+    for item in (raw or []):
+        try:
+            out.append(json.loads(item))
+        except Exception:
+            pass
+    return out
+
+
+def _msg_append(iid, author, author_name, text):
+    entry = {"ts": _now_ms(), "author": author, "author_name": author_name[:120], "text": text[:3000]}
+    _kv_cmd(["RPUSH", _msg_key(iid), json.dumps(entry)])
+    return entry
+
+
+@app.get("/api/portal/inspection/<iid>/messages")
+def portal_inspection_messages_get(iid):
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"authed": False, "messages": []}), 200
+    x = _insp_get(iid)
+    if not x or not _client_owns(x, s.get("email", "")):
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"authed": True, "messages": _msg_list(iid)})
+
+
+@app.post("/api/portal/inspection/<iid>/message")
+def portal_inspection_message_post(iid):
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"ok": False, "error": "sign in required"}), 401
+    x = _insp_get(iid)
+    if not x or not _client_owns(x, s.get("email", "")):
+        return jsonify({"ok": False, "error": "not found"}), 404
+    body = request.get_json(force=True, silent=True) or {}
+    text = (body.get("text") or "").strip()
+    if not text:
+        return jsonify({"ok": False, "error": "message required"}), 400
+    entry = _msg_append(iid, "client", s.get("name") or s.get("email", ""), text)
+    prop = x.get("property", {})
+    _notify("WWS portal message — " + (prop.get("name") or prop.get("address") or iid),
+            "{} <{}> replied on their inspection thread:\n\n{}\n\nOpen: {}/admin/inspection?id={}".format(
+                s.get("name", ""), s.get("email", ""), text, base_url(), iid))
+    return jsonify({"ok": True, "message": entry})
+
+
+@app.get("/api/admin/inspection/<iid>/messages")
+def admin_inspection_messages_get(iid):
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    x = _insp_get(iid)
+    if not x:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"ok": True, "messages": _msg_list(iid)})
+
+
+@app.post("/api/admin/inspection/<iid>/message")
+def admin_inspection_message_post(iid):
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    x = _insp_get(iid)
+    if not x:
+        return jsonify({"ok": False, "error": "not found"}), 404
+    body = request.get_json(force=True, silent=True) or {}
+    text = (body.get("text") or "").strip()
+    if not text:
+        return jsonify({"ok": False, "error": "message required"}), 400
+    entry = _msg_append(iid, "admin", _admin_name(), text)
+    client = x.get("client", {})
+    client_email = client.get("email", "")
+    prop = x.get("property", {})
+    if client_email:
+        subj = "Update on your inspection — " + (prop.get("name") or prop.get("address") or "La Gala WWS")
+        html = ("<p>Hi {},</p><p>{} left a new message on your inspection thread:</p>"
+                "<blockquote style='border-left:3px solid #c9a227;padding-left:12px;color:#1f2733'>{}</blockquote>"
+                "<p><a href='{}/portal'>Open your portal</a></p><p>— La Gala Construction</p>").format(
+            _esc(client.get("name", "") or "there"), _esc(_admin_name()), _esc(text), base_url())
+        try:
+            _resend_send({"from": RESEND_FROM, "to": [client_email], "subject": subj, "html": html})
+        except Exception:
+            pass
+    _log_activity("insp_message", f"Reply on inspection {iid[:8]}: {text[:80]}")
+    return jsonify({"ok": True, "message": entry})
 
 
 @app.get("/api/logout")

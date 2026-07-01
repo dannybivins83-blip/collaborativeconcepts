@@ -22,27 +22,37 @@ input,select,textarea,button,.tap-target{min-height:44px}
 textarea{min-height:80px}
 a.tap-target,button.tap-target{display:inline-flex;align-items:center;justify-content:center}
 .photo-thumb{min-width:44px;min-height:44px}
+/* WCAG 2.1 AA — visible focus ring on every interactive element, not just default UA styles */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid #c9a227;outline-offset:2px;border-radius:4px;
+}
 </style>
 </head>
 <body class="bg-surface text-ink min-h-screen flex flex-col">
 
+<a href="#main" class="sr-only-focusable">Skip to main content</a>
+<style>.sr-only-focusable{position:absolute;left:-9999px;top:0;background:#fff;color:#13233f;padding:.6rem 1rem;z-index:100;border-radius:0 0 .5rem 0;font-weight:600}.sr-only-focusable:focus{left:0}</style>
+
 <header class="bg-primary text-white">
 <div class="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
-<a href="/" class="flex items-center gap-2"><img src="/assets/lagala-logo.png" alt="La Gala" class="h-9 w-auto" style="filter:brightness(0) invert(1)"/><span class="text-white/40 text-sm hidden sm:inline">|</span><span class="font-h font-bold text-sm hidden sm:inline">Client Portal</span></a>
+<a href="/" class="flex items-center gap-2" aria-label="La Gala Construction home"><img src="/assets/lagala-logo.png" alt="La Gala Construction" class="h-9 w-auto" style="filter:brightness(0) invert(1)"/><span class="text-white/40 text-sm hidden sm:inline" aria-hidden="true">|</span><span class="font-h font-bold text-sm hidden sm:inline">Client Portal</span></a>
+<div class="flex items-center gap-3">
+<button id="langToggle" type="button" onclick="toggleLang()" aria-label="Switch language / Cambiar idioma" class="text-xs font-semibold border border-white/30 rounded-full px-3 py-1 hover:bg-white/10 transition-colors">EN / ES</button>
 <div id="who" class="text-sm"></div>
+</div>
 </div>
 </header>
 
-<main class="flex-1 w-full">
+<main id="main" class="flex-1 w-full">
 
 <!-- signed out -->
 <section id="gate" class="hidden max-w-lg mx-auto px-6 py-20 text-center">
-<span class="ms text-6xl text-secondary">verified_user</span>
-<h1 class="text-3xl font-extrabold text-primary mt-4">Request your walking-surface inspection.</h1>
-<p class="text-mute leading-relaxed mt-3">Sign in to request a PE-sealed OSHA Subpart D inspection, track your requests, and keep your compliance documentation in one place.</p>
-<a href="/api/login/google?basic=1&next=/portal" class="tap-target inline-flex items-center gap-2 bg-primary text-white px-7 py-3.5 rounded-xl font-semibold mt-7 hover:bg-primaryc transition-colors"><span class="ms">login</span> Sign in with Google</a>
-<p class="text-xs text-mute/70 mt-4">We only use your name and email to manage your request. No mailbox access is requested.</p>
-<p class="text-sm text-mute mt-8">Prefer to talk? Call <a href="tel:+15614758615" class="text-secondary font-semibold">(561) 475-8615</a> or use the <a href="/#assessment" class="text-secondary font-semibold">comprehensive assessment form</a>.</p>
+<span class="ms text-6xl text-secondary" aria-hidden="true">verified_user</span>
+<h1 data-i18n="gate_h1" class="text-3xl font-extrabold text-primary mt-4">Request your walking-surface inspection.</h1>
+<p data-i18n="gate_p" class="text-mute leading-relaxed mt-3">Sign in to request a PE-sealed OSHA Subpart D inspection, track your requests, and keep your compliance documentation in one place.</p>
+<a href="/api/login/google?basic=1&next=/portal" class="tap-target inline-flex items-center gap-2 bg-primary text-white px-7 py-3.5 rounded-xl font-semibold mt-7 hover:bg-primaryc transition-colors"><span class="ms" aria-hidden="true">login</span> <span data-i18n="gate_signin">Sign in with Google</span></a>
+<p data-i18n="gate_privacy" class="text-xs text-mute/70 mt-4">We only use your name and email to manage your request. No mailbox access is requested.</p>
+<p class="text-sm text-mute mt-8"><span data-i18n="gate_call_prefix">Prefer to talk? Call</span> <a href="tel:+15614758615" class="text-secondary font-semibold">(561) 475-8615</a> <span data-i18n="gate_call_or">or use the</span> <a href="/#assessment" class="text-secondary font-semibold" data-i18n="gate_call_form">comprehensive assessment form</a>.</p>
 </section>
 
 <!-- signed in -->
@@ -50,7 +60,7 @@ a.tap-target,button.tap-target{display:inline-flex;align-items:center;justify-co
 <div class="flex items-start justify-between gap-4 flex-wrap">
 <div>
 <h1 id="hello" class="text-2xl sm:text-3xl font-extrabold text-primary">Welcome.</h1>
-<p class="text-mute mt-1">Request an inspection below — we'll confirm scheduling by email, usually within one business day.</p>
+<p data-i18n="welcome_sub" class="text-mute mt-1">Request an inspection below — we'll confirm scheduling by email, usually within one business day.</p>
 </div>
 <div id="propSwitcherWrap" class="hidden shrink-0">
 <label class="block text-xs font-semibold text-mute mb-1">Property</label>
@@ -58,18 +68,30 @@ a.tap-target,button.tap-target{display:inline-flex;align-items:center;justify-co
 </div>
 </div>
 
+<!-- portfolio compliance score badge + multi-year plan CTA -->
+<div id="scoreWrap" class="hidden mt-5 bg-white rounded-2xl border border-line p-5 flex flex-wrap items-center gap-4 justify-between">
+<div class="flex items-center gap-4">
+<div id="scoreBadge" class="w-16 h-16 rounded-full flex flex-col items-center justify-center font-h font-extrabold text-lg shrink-0" role="img" aria-label="Compliance score"></div>
+<div>
+<div id="scoreLabel" class="font-bold text-primary"></div>
+<div id="scoreSub" class="text-mute text-xs mt-0.5"></div>
+</div>
+</div>
+<a id="scoreCta" href="#" class="inline-flex items-center gap-2 bg-secondary text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-primary transition-colors whitespace-nowrap"><span class="ms text-base" aria-hidden="true">workspace_premium</span><span data-i18n="score_cta">Lock in a multi-year compliance plan</span></a>
+</div>
+
 <!-- dashboard summary -->
 <div id="summaryWrap" class="hidden grid sm:grid-cols-3 gap-3 mt-6">
 <div class="bg-white rounded-2xl border border-line p-4 flex items-start gap-3">
-<span class="ms text-2xl text-secondary">event_upcoming</span>
+<span class="ms text-2xl text-secondary" aria-hidden="true">event_upcoming</span>
 <div class="min-w-0"><div class="text-xs font-semibold text-mute uppercase tracking-wide">Next inspection</div><div id="sumInspection" class="font-bold text-primary text-sm mt-0.5">—</div></div>
 </div>
 <div class="bg-white rounded-2xl border border-line p-4 flex items-start gap-3">
-<span class="ms text-2xl text-secondary">receipt_long</span>
+<span class="ms text-2xl text-secondary" aria-hidden="true">receipt_long</span>
 <div class="min-w-0"><div class="text-xs font-semibold text-mute uppercase tracking-wide">Open invoices</div><div id="sumInvoices" class="font-bold text-primary text-sm mt-0.5">—</div></div>
 </div>
 <div class="bg-white rounded-2xl border border-line p-4 flex items-start gap-3">
-<span class="ms text-2xl text-secondary">description</span>
+<span class="ms text-2xl text-secondary" aria-hidden="true">description</span>
 <div class="min-w-0"><div class="text-xs font-semibold text-mute uppercase tracking-wide">Latest document</div><div id="sumDoc" class="font-bold text-primary text-sm mt-0.5">—</div></div>
 </div>
 </div>
@@ -77,36 +99,36 @@ a.tap-target,button.tap-target{display:inline-flex;align-items:center;justify-co
 <div class="grid lg:grid-cols-5 gap-6 mt-7">
 <!-- request form -->
 <div class="lg:col-span-3">
-<div id="confirm" class="hidden mb-4 rounded-xl bg-green-50 border border-green-300 text-green-800 px-4 py-3 text-sm flex items-start gap-2"><span class="ms text-green-600">task_alt</span><div><b>Request received.</b> We'll be in touch to confirm scheduling. You can see it in “Your requests.”</div></div>
+<div id="confirm" class="hidden mb-4 rounded-xl bg-green-50 border border-green-300 text-green-800 px-4 py-3 text-sm flex items-start gap-2"><span class="ms text-green-600" aria-hidden="true">task_alt</span><div><b data-i18n="confirm_b">Request received.</b> <span data-i18n="confirm_p">We'll be in touch to confirm scheduling. You can see it in "Your requests."</span></div></div>
 <div class="bg-white rounded-2xl border border-line p-6 shadow-sm">
-<h2 class="text-lg font-bold text-primary mb-4">Request an inspection</h2>
+<h2 class="text-lg font-bold text-primary mb-4" data-i18n="form_h2">Request an inspection</h2>
 <form id="reqForm" class="space-y-4">
 <div class="grid sm:grid-cols-2 gap-4">
-<div><label class="block text-sm font-semibold mb-1">Company / owner</label><input name="company" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
-<div><label class="block text-sm font-semibold mb-1">Urgency</label><select name="urgency" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"><option value="">Select…</option><option>Routine / proactive</option><option>I have an open OSHA citation</option><option>Abatement deadline approaching</option><option>Insurance / lender requirement</option></select></div>
+<div><label for="f_company" class="block text-sm font-semibold mb-1" data-i18n="f_company_lbl">Company / owner</label><input id="f_company" name="company" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
+<div><label for="f_urgency" class="block text-sm font-semibold mb-1" data-i18n="f_urgency_lbl">Urgency</label><select id="f_urgency" name="urgency" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"><option value="" data-i18n="f_urgency_opt0">Select…</option><option data-i18n="f_urgency_opt1">Routine / proactive</option><option data-i18n="f_urgency_opt2">I have an open OSHA citation</option><option data-i18n="f_urgency_opt3">Abatement deadline approaching</option><option data-i18n="f_urgency_opt4">Insurance / lender requirement</option></select></div>
 </div>
-<div><label class="block text-sm font-semibold mb-1">Property address <span class="text-secondary">*</span></label><input name="property" required placeholder="Street, city, county" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
+<div><label for="f_property" class="block text-sm font-semibold mb-1"><span data-i18n="f_property_lbl">Property address</span> <span class="text-secondary" aria-hidden="true">*</span><span class="sr-only">(required)</span></label><input id="f_property" name="property" required placeholder="Street, city, county" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
 <div class="grid sm:grid-cols-2 gap-4">
-<div><label class="block text-sm font-semibold mb-1"># Buildings</label><input name="buildings" inputmode="numeric" placeholder="1" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
-<div><label class="block text-sm font-semibold mb-1">Stories (tallest)</label><input name="stories" inputmode="numeric" placeholder="e.g. 4" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
+<div><label for="f_buildings" class="block text-sm font-semibold mb-1" data-i18n="f_buildings_lbl"># Buildings</label><input id="f_buildings" name="buildings" inputmode="numeric" placeholder="1" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
+<div><label for="f_stories" class="block text-sm font-semibold mb-1" data-i18n="f_stories_lbl">Stories (tallest)</label><input id="f_stories" name="stories" inputmode="numeric" placeholder="e.g. 4" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
 </div>
-<div><label class="block text-sm font-semibold mb-1">Anything we should know?</label><textarea name="notes" rows="3" placeholder="Open citation details, roof access, anchor points, deadlines…" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none resize-y"></textarea></div>
-<button type="submit" id="reqBtn" class="w-full bg-secondary text-white py-3 rounded-xl font-bold hover:bg-primary transition-colors">Submit inspection request</button>
+<div><label for="f_notes" class="block text-sm font-semibold mb-1" data-i18n="f_notes_lbl">Anything we should know?</label><textarea id="f_notes" name="notes" rows="3" placeholder="Open citation details, roof access, anchor points, deadlines…" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none resize-y"></textarea></div>
+<button type="submit" id="reqBtn" class="w-full bg-secondary text-white py-3 rounded-xl font-bold hover:bg-primary transition-colors" data-i18n="f_submit">Submit inspection request</button>
 </form>
 </div>
 </div>
 
 <!-- your requests -->
 <div class="lg:col-span-2">
-<h2 class="text-lg font-bold text-primary mb-3">Your requests</h2>
+<h2 class="text-lg font-bold text-primary mb-3" data-i18n="reqs_h2">Your requests</h2>
 <div id="reqList" class="space-y-3"></div>
-<div id="reqNone" class="hidden text-mute text-sm bg-white rounded-xl border border-line p-5 text-center">No requests yet. Submit one and it'll appear here.</div>
+<div id="reqNone" class="hidden text-mute text-sm bg-white rounded-xl border border-line p-5 text-center" data-i18n="reqs_none">No requests yet. Submit one and it'll appear here.</div>
 </div>
 </div>
 
 <!-- inspections & documents -->
 <div id="docsWrap" class="hidden mt-10">
-<h2 class="text-lg font-bold text-primary mb-3">Your inspections &amp; documents</h2>
+<h2 class="text-lg font-bold text-primary mb-3" data-i18n="insp_h2">Your inspections &amp; documents</h2>
 <div id="inspList" class="space-y-4"></div>
 </div>
 
@@ -128,30 +150,47 @@ a.tap-target,button.tap-target{display:inline-flex;align-items:center;justify-co
 <!-- invoices & payments -->
 <div id="invoicesWrap" class="hidden mt-10">
 <div class="flex items-center justify-between gap-2 mb-3">
-<h2 class="text-lg font-bold text-primary">Invoices &amp; payments</h2>
+<h2 class="text-lg font-bold text-primary" data-i18n="inv_h2">Invoices &amp; payments</h2>
 <div class="inline-flex rounded-lg border border-line bg-white p-0.5 text-sm">
 <button id="invTabOpen" onclick="setInvTab('open')" class="px-3 py-1 rounded-md font-semibold">Open</button>
 <button id="invTabPaid" onclick="setInvTab('paid')" class="px-3 py-1 rounded-md font-semibold">Paid history</button>
 </div>
 </div>
 <div id="invoiceList" class="space-y-3"></div>
-<div id="invoiceNone" class="hidden text-mute text-sm bg-white rounded-xl border border-line p-5 text-center">No open invoices.</div>
+<div id="invoiceNone" class="hidden text-mute text-sm bg-white rounded-xl border border-line p-5 text-center" data-i18n="inv_none">No open invoices.</div>
 <div id="invoicePaidNone" class="hidden text-mute text-sm bg-white rounded-xl border border-line p-5 text-center">No paid invoices yet.</div>
+</div>
+
+<!-- referral credits -->
+<div class="mt-10">
+<h2 class="text-lg font-bold text-primary mb-3" data-i18n="ref_h2">Referral credits</h2>
+<div class="bg-white rounded-2xl border border-line p-5">
+<p class="text-mute text-sm" data-i18n="ref_intro">Share your link. When a referral requests an assessment, it's tagged to your account and shows up here.</p>
+<div class="mt-3 flex flex-wrap items-center gap-2">
+<input id="refLink" type="text" readonly aria-label="Your referral link" class="flex-1 min-w-[220px] rounded-lg border border-line bg-surface px-3 py-2.5 text-sm font-mono"/>
+<button type="button" onclick="copyRefLink()" class="inline-flex items-center gap-1 bg-primary text-white px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-primaryc transition-colors"><span class="ms text-base" aria-hidden="true">content_copy</span><span data-i18n="ref_copy">Copy link</span></button>
+</div>
+<div id="refCopied" role="status" class="hidden text-green-700 text-xs mt-2" data-i18n="ref_copied">Link copied.</div>
+<div class="grid sm:grid-cols-2 gap-3 mt-4">
+<div class="bg-surface rounded-xl p-4"><div class="text-2xl font-extrabold text-primary font-h" id="refCount">0</div><div class="text-xs uppercase tracking-wide text-mute" data-i18n="ref_count_lbl">Referrals so far</div></div>
+<div class="bg-surface rounded-xl p-4"><div class="text-2xl font-extrabold text-primary font-h" id="refBalance">$0</div><div class="text-xs uppercase tracking-wide text-mute" data-i18n="ref_balance_lbl">Credit balance</div></div>
+</div>
+</div>
 </div>
 
 <!-- compliance library -->
 <div class="mt-10">
 <div class="flex items-center justify-between gap-2 mb-3">
-<h2 class="text-lg font-bold text-primary">Compliance library</h2>
-<a href="/guides" target="_blank" class="text-sm text-secondary font-semibold hover:underline">All guides &rarr;</a>
+<h2 class="text-lg font-bold text-primary" data-i18n="lib_h2">Compliance library</h2>
+<a href="/guides" target="_blank" class="text-sm text-secondary font-semibold hover:underline"><span data-i18n="lib_all">All guides</span> &rarr;</a>
 </div>
 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-<a href="/guides/is-my-building-exposed" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary">fact_check</span><div class="font-semibold text-primary text-sm mt-1">Is my building exposed?</div><div class="text-mute text-xs mt-0.5">A 2-minute self-check.</div></a>
-<a href="/guides/osha-penalties" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary">payments</span><div class="font-semibold text-primary text-sm mt-1">2026 penalty amounts</div><div class="text-mute text-xs mt-0.5">What a citation actually costs.</div></a>
-<a href="/guides/fall-protection-emphasis-program" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary">visibility_off</span><div class="font-semibold text-primary text-sm mt-1">Why OSHA shows up unannounced</div><div class="text-mute text-xs mt-0.5">The fall-protection emphasis program.</div></a>
-<a href="/guides/four-foot-rule" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary">straighten</span><div class="font-semibold text-primary text-sm mt-1">The 4-foot rule</div><div class="text-mute text-xs mt-0.5">When fall protection kicks in.</div></a>
-<a href="/guides/inspection-checklist" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary">checklist</span><div class="font-semibold text-primary text-sm mt-1">Free inspection checklist</div><div class="text-mute text-xs mt-0.5">The field checklist we audit against.</div></a>
-<a href="/guides/florida-recertification" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary">event_repeat</span><div class="font-semibold text-primary text-sm mt-1">Florida recertification</div><div class="text-mute text-xs mt-0.5">Anchor re-test &amp; renewal cycle.</div></a>
+<a href="/guides/is-my-building-exposed" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary" aria-hidden="true">fact_check</span><div class="font-semibold text-primary text-sm mt-1" data-i18n="lib1_t">Is my building exposed?</div><div class="text-mute text-xs mt-0.5" data-i18n="lib1_s">A 2-minute self-check.</div></a>
+<a href="/guides/osha-penalties" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary" aria-hidden="true">payments</span><div class="font-semibold text-primary text-sm mt-1" data-i18n="lib2_t">2026 penalty amounts</div><div class="text-mute text-xs mt-0.5" data-i18n="lib2_s">What a citation actually costs.</div></a>
+<a href="/guides/fall-protection-emphasis-program" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary" aria-hidden="true">visibility_off</span><div class="font-semibold text-primary text-sm mt-1" data-i18n="lib3_t">Why OSHA shows up unannounced</div><div class="text-mute text-xs mt-0.5" data-i18n="lib3_s">The fall-protection emphasis program.</div></a>
+<a href="/guides/four-foot-rule" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary" aria-hidden="true">straighten</span><div class="font-semibold text-primary text-sm mt-1" data-i18n="lib4_t">The 4-foot rule</div><div class="text-mute text-xs mt-0.5" data-i18n="lib4_s">When fall protection kicks in.</div></a>
+<a href="/guides/inspection-checklist" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary" aria-hidden="true">checklist</span><div class="font-semibold text-primary text-sm mt-1" data-i18n="lib5_t">Free inspection checklist</div><div class="text-mute text-xs mt-0.5" data-i18n="lib5_s">The field checklist we audit against.</div></a>
+<a href="/guides/florida-recertification" target="_blank" rel="noopener" class="block bg-white rounded-xl border border-line p-4 hover:border-secondary transition-colors"><span class="ms text-secondary" aria-hidden="true">event_repeat</span><div class="font-semibold text-primary text-sm mt-1" data-i18n="lib6_t">Florida recertification</div><div class="text-mute text-xs mt-0.5" data-i18n="lib6_s">Anchor re-test &amp; renewal cycle.</div></a>
 </div>
 </div>
 </section>
@@ -166,7 +205,7 @@ a.tap-target,button.tap-target{display:inline-flex;align-items:center;justify-co
 
 <footer class="bg-[#1a1a2e] text-white/60 text-center text-xs py-6 px-5">
 La Gala Construction / Tilt Patchers, Inc. · CGC059211 · (561) 475-8615 · danny@lagalacon.com<br/>
-<span class="text-white/40">Engineering inspections &amp; certifications are performed and sealed by an independent, licensed Florida professional engineer; La Gala does not provide engineering services.</span>
+<span class="text-white/40" data-i18n="footer_disclaimer">Engineering inspections &amp; certifications are performed and sealed by an independent, licensed Florida professional engineer; La Gala does not provide engineering services.</span>
 </footer>
 
 <script>
@@ -176,20 +215,73 @@ function api(p,opts){return fetch(p,Object.assign({headers:{'Content-Type':'appl
 
 var SELECTED_PROPERTY_ID='';
 
+/* ---- referral ?ref= capture: persist to localStorage so it survives navigation to the assessment form ---- */
+(function(){
+  var ref=new URLSearchParams(location.search).get('ref');
+  if(ref) localStorage.setItem('wws_ref_code', ref.trim().slice(0,40));
+})();
+
 function boot(){
   api('/api/portal/requests').then(function(d){
     if(!d.authed){ document.getElementById('gate').classList.remove('hidden'); return; }
     document.getElementById('app').classList.remove('hidden');
     var nm=(d.name||'').split(' ')[0]||'';
-    document.getElementById('hello').textContent='Welcome'+(nm?(', '+nm):'')+'.';
-    document.getElementById('who').innerHTML='<span class="text-white/70 mr-3">'+esc(d.email)+'</span><a href="/api/logout" class="tap-target text-white/70 hover:text-white inline-flex items-center gap-1"><span class="ms text-base">logout</span><span class="hidden sm:inline">Sign out</span></a>';
+    var hello=document.getElementById('hello');
+    hello.dataset.name=nm;
+    hello.textContent=(I18N[LANG].welcome_hello||'Welcome')+(nm?(', '+nm):'')+'.';
+    document.getElementById('who').innerHTML='<span class="text-white/70 mr-3">'+esc(d.email)+'</span><a href="/api/logout" class="tap-target text-white/70 hover:text-white inline-flex items-center gap-1" aria-label="Sign out"><span class="ms text-base" aria-hidden="true">logout</span><span class="hidden sm:inline" data-i18n="signout">Sign out</span></a>';
     loadProperties(function(){
       renderReqs(d.requests||[]);
       loadInspections();
       loadInvoices();
       loadSummary();
+      loadComplianceScore();
+      loadReferral();
+      applyI18n();
     });
   }).catch(function(){ document.getElementById('gate').classList.remove('hidden'); });
+}
+
+/* ---- 1. Portfolio compliance score + multi-year CTA ---- */
+function loadComplianceScore(){
+  api('/api/portal/compliance_score').then(function(d){
+    if(!d.authed || !d.score) return;
+    var sc=d.score, total=sc.total||0, ok=sc.compliant||0;
+    var wrap=document.getElementById('scoreWrap');
+    if(total===0){ wrap.classList.add('hidden'); return; }
+    wrap.classList.remove('hidden');
+    var pct=total?Math.round((ok/total)*100):0;
+    var badge=document.getElementById('scoreBadge');
+    var color=pct>=100?'#1e7a3d':(pct>=50?'#c9a227':'#b3261e');
+    badge.style.background=color; badge.style.color='#fff';
+    badge.textContent=ok+'/'+total;
+    badge.setAttribute('aria-label','Compliance score: '+ok+' of '+total+' properties compliant');
+    var label=document.getElementById('scoreLabel');
+    var sub=document.getElementById('scoreSub');
+    var t=I18N[LANG];
+    label.textContent=(t.score_label||'{ok} of {total} properties compliant').replace('{ok}',ok).replace('{total}',total);
+    sub.textContent=pct>=100?(t.score_sub_full||'All current properties are fully compliant.'):(t.score_sub_partial||'Keep every property on a predictable recert cycle.');
+    var subjEnc=encodeURIComponent('Multi-year compliance plan — '+(document.title||'La Gala WWS'));
+    var bodyEnc=encodeURIComponent('Hi Danny,\n\nI\'d like to talk about locking in a multi-year compliance plan for our properties ('+ok+' of '+total+' currently compliant).\n\nProperties:\n'+(sc.properties||[]).map(function(p){return '- '+(p.name||p.address||'Property')+' — '+(p.compliant?'compliant':'needs attention');}).join('\n')+'\n\n');
+    document.getElementById('scoreCta').href='mailto:danny@lagalacon.com?subject='+subjEnc+'&body='+bodyEnc;
+  }).catch(function(){});
+}
+
+/* ---- 2. Referral credit ledger ---- */
+function loadReferral(){
+  api('/api/portal/referral').then(function(d){
+    if(!d.authed) return;
+    document.getElementById('refLink').value=d.link||'';
+    document.getElementById('refCount').textContent=d.referral_count||0;
+    var bal=d.credit_balance||0;
+    document.getElementById('refBalance').textContent='$'+bal.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  }).catch(function(){});
+}
+function copyRefLink(){
+  var el=document.getElementById('refLink'); if(!el||!el.value) return;
+  var done=function(){ var m=document.getElementById('refCopied'); m.classList.remove('hidden'); setTimeout(function(){m.classList.add('hidden');},2500); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(el.value).then(done).catch(function(){ el.select(); document.execCommand('copy'); done(); }); }
+  else { el.select(); document.execCommand('copy'); done(); }
 }
 
 function loadSummary(){
@@ -252,23 +344,36 @@ function loadInspections(){
       PORTAL_PHOTOS[x.id]=pics;
       var photos=pics.slice(0,12).map(function(ph,i){return '<button type="button" onclick="openLightbox(\''+esc(x.id)+'\','+i+')" class="photo-thumb block w-20 h-20 rounded-lg overflow-hidden border border-line p-0"><img src="'+esc(ph.thumbUrl||ph.url)+'" alt="'+esc(ph.caption||'Field photo')+'" loading="lazy" class="w-full h-full object-cover"/></button>';}).join('');
       var morePhotos = pics.length>12 ? '<div class="w-20 h-20 rounded-lg border border-line flex items-center justify-center text-xs font-semibold text-mute bg-surface">+'+(pics.length-12)+'</div>' : '';
-      var docs=(x.docs||[]).map(function(k){return '<a href="/api/portal/inspection/'+esc(x.id)+'/doc/'+esc(k)+'" target="_blank" rel="noopener" class="tap-target inline-flex items-center gap-1 text-sm bg-white border border-line rounded-lg px-3 py-1.5 hover:border-secondary"><span class="ms text-base text-secondary">picture_as_pdf</span>'+(DOCN[k]||k)+'</a>';}).join('');
-      var packetBtn=(x.docs&&x.docs.length)?'<a href="/api/portal/inspection/'+esc(x.id)+'/board-packet" target="_blank" rel="noopener" class="tap-target inline-flex items-center gap-1 text-sm bg-primary text-white rounded-lg px-3 py-1.5 hover:bg-primaryc"><span class="ms text-base">folder_zip</span>Download board packet</a>':'';
+      var docs=(x.docs||[]).map(function(k){return '<a href="/api/portal/inspection/'+esc(x.id)+'/doc/'+esc(k)+'" target="_blank" rel="noopener" class="tap-target inline-flex items-center gap-1 text-sm bg-white border border-line rounded-lg px-3 py-1.5 hover:border-secondary"><span class="ms text-base text-secondary" aria-hidden="true">picture_as_pdf</span>'+(DOCN[k]||k)+'</a>';}).join('');
+      var packetBtn=(x.docs&&x.docs.length)?'<a href="/api/portal/inspection/'+esc(x.id)+'/board-packet" target="_blank" rel="noopener" class="tap-target inline-flex items-center gap-1 text-sm bg-primary text-white rounded-lg px-3 py-1.5 hover:bg-primaryc"><span class="ms text-base" aria-hidden="true">folder_zip</span>Download board packet</a>':'';
       var acceptUI;
       if(x.proposal_accepted){
         var acc=x.acceptance||{};
-        acceptUI='<div class="mt-3 inline-flex items-start gap-2 bg-green-50 border border-green-300 text-green-800 rounded-lg px-3 py-2 text-xs"><span class="ms text-green-600 text-base">task_alt</span><div>Proposal accepted by <b>'+esc(acc.name_typed||'')+'</b>'+(acc.ts?' on '+esc(new Date(acc.ts).toLocaleDateString()):'')+'.</div></div>';
+        acceptUI='<div class="mt-3 inline-flex items-start gap-2 bg-green-50 border border-green-300 text-green-800 rounded-lg px-3 py-2 text-xs"><span class="ms text-green-600 text-base" aria-hidden="true">task_alt</span><div>Proposal accepted by <b>'+esc(acc.name_typed||'')+'</b>'+(acc.ts?' on '+esc(new Date(acc.ts).toLocaleDateString()):'')+'.</div></div>';
       } else if((x.docs||[]).indexOf('proposal')>-1){
-        acceptUI='<div class="mt-3"><button onclick="openAccept(\''+esc(x.id)+'\')" class="tap-target inline-flex items-center gap-1 text-sm bg-secondary text-white rounded-lg px-3 py-1.5 font-semibold hover:bg-primary transition-colors"><span class="ms text-base">edit_document</span>Accept proposal</button></div>';
+        acceptUI='<div class="mt-3"><button onclick="openAccept(\''+esc(x.id)+'\')" class="tap-target inline-flex items-center gap-1 text-sm bg-secondary text-white rounded-lg px-3 py-1.5 font-semibold hover:bg-primary transition-colors"><span class="ms text-base" aria-hidden="true">edit_document</span>Accept proposal</button></div>';
       } else { acceptUI=''; }
+      var threadUI='<div class="mt-4 pt-4 border-t border-line">'+
+          '<button type="button" class="text-sm font-semibold text-secondary inline-flex items-center gap-1" onclick="toggleThread(\''+esc(x.id)+'\')" aria-expanded="false" aria-controls="thread-'+esc(x.id)+'"><span class="ms text-base" aria-hidden="true">forum</span><span data-i18n="msg_toggle">Messages</span></button>'+
+          '<div id="thread-'+esc(x.id)+'" class="hidden mt-3">'+
+            '<div id="thread-list-'+esc(x.id)+'" class="space-y-2 max-h-64 overflow-y-auto"></div>'+
+            '<form class="flex gap-2 mt-3" onsubmit="return sendMessage(event,\''+esc(x.id)+'\')">'+
+              '<label for="thread-input-'+esc(x.id)+'" class="sr-only" data-i18n="msg_input_lbl">Write a message about this inspection</label>'+
+              '<input id="thread-input-'+esc(x.id)+'" type="text" placeholder="Write a message…" data-i18n-ph="msg_placeholder" class="flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>'+
+              '<button type="submit" class="bg-secondary text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-primary transition-colors" data-i18n="msg_send">Send</button>'+
+            '</form>'+
+          '</div>'+
+        '</div>';
       return '<div class="bg-white rounded-xl border border-line p-5">'+
         '<div class="flex items-start justify-between gap-2 flex-wrap"><div><div class="font-semibold text-primary">'+esc(p.name||p.address||'Inspection')+'</div><div class="text-mute text-xs">'+esc(p.address||'')+(p.address?' · ':'')+esc(ago(x.created_ts))+'</div></div>'+
         '<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">'+esc((x.status||'draft').toUpperCase())+'</span></div>'+
-        (photos?('<div class="mt-3"><div class="text-xs font-semibold text-mute uppercase tracking-wide mb-2">Field photos</div><div class="flex flex-wrap gap-2">'+photos+morePhotos+'</div></div>'):'')+
+        (photos?('<div class="mt-3"><div class="text-xs font-semibold text-mute uppercase tracking-wide mb-2">Field photos</div><div class="flex flex-wrap gap-2">'+photos+morePhotos+'</div></div>'):'<p class="text-mute text-xs mt-3" data-i18n="insp_photos_none">Field photos will appear here once your inspection is documented.</p>')+
         (docs?'<div class="flex flex-wrap gap-2 mt-3">'+docs+(packetBtn?(' '+packetBtn):'')+'</div>':'')+
         acceptUI+
+        threadUI+
         '</div>';
     }).join('');
+    applyI18n();
   }).catch(function(){});
 }
 
@@ -287,6 +392,45 @@ function closeLightbox(e){
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLightbox(); });
 
+var THREAD_LOADED={};
+function toggleThread(iid){
+  var box=document.getElementById('thread-'+iid); if(!box) return;
+  var btn=document.querySelector('[aria-controls="thread-'+iid+'"]');
+  var opening=box.classList.contains('hidden');
+  box.classList.toggle('hidden');
+  if(btn) btn.setAttribute('aria-expanded', opening?'true':'false');
+  if(opening && !THREAD_LOADED[iid]) loadThread(iid);
+}
+function loadThread(iid){
+  api('/api/portal/inspection/'+iid+'/messages').then(function(d){
+    THREAD_LOADED[iid]=true;
+    renderThread(iid, d.messages||[]);
+  }).catch(function(){});
+}
+function renderThread(iid, msgs){
+  var box=document.getElementById('thread-list-'+iid); if(!box) return;
+  if(!msgs.length){ box.innerHTML='<p class="text-mute text-xs" data-i18n="msg_none">No messages yet.</p>'; applyI18n(); return; }
+  box.innerHTML=msgs.map(function(m){
+    var mine=m.author==='client';
+    return '<div class="rounded-lg px-3 py-2 text-sm '+(mine?'bg-surface':'bg-blue-50')+'">'+
+      '<div class="font-semibold text-primary text-xs">'+esc(m.author_name||(mine?'You':'La Gala'))+'</div>'+
+      '<div class="mt-0.5">'+esc(m.text)+'</div>'+
+      '<div class="text-mute text-[11px] mt-1">'+esc(ago(m.ts))+'</div></div>';
+  }).join('');
+}
+function sendMessage(e, iid){
+  e.preventDefault();
+  var inp=document.getElementById('thread-input-'+iid);
+  var text=(inp.value||'').trim(); if(!text) return false;
+  inp.disabled=true;
+  api('/api/portal/inspection/'+iid+'/message',{method:'POST',body:JSON.stringify({text:text})}).then(function(d){
+    inp.disabled=false;
+    if(d.ok){ inp.value=''; loadThread(iid); }
+    else alert(d.error||'Could not send message.');
+  }).catch(function(){ inp.disabled=false; alert('Network error — please try again.'); });
+  return false;
+}
+
 var INV_TAB='open';
 var INV_ROWS=[];
 function setInvTab(tab){
@@ -294,6 +438,7 @@ function setInvTab(tab){
   document.getElementById('invTabOpen').className='px-3 py-1 rounded-md font-semibold'+(tab==='open'?' bg-primary text-white':' text-mute');
   document.getElementById('invTabPaid').className='px-3 py-1 rounded-md font-semibold'+(tab==='paid'?' bg-primary text-white':' text-mute');
   renderInvoices();
+  applyI18n();
 }
 function loadInvoices(){
   api('/api/portal/invoices'+propQS()).then(function(d){
@@ -332,11 +477,12 @@ function renderReqs(rows){
   document.getElementById('reqList').innerHTML=rows.map(function(r){
     return '<div class="bg-white rounded-xl border border-line p-4">'+
       '<div class="flex items-center justify-between gap-2"><span class="font-semibold text-primary text-sm">'+esc(r.property||r.company||'Inspection')+'</span>'+
-      '<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">Received</span></div>'+
+      '<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800" data-i18n="req_received">Received</span></div>'+
       (r.company?'<div class="text-mute text-xs mt-0.5">'+esc(r.company)+'</div>':'')+
       '<div class="text-mute text-xs mt-2 flex flex-wrap gap-x-3">'+(r.urgency?'<span>'+esc(r.urgency)+'</span>':'')+(r.buildings?'<span>'+esc(r.buildings)+' bldg</span>':'')+(r.stories?'<span>'+esc(r.stories)+' stories</span>':'')+'<span>'+esc(ago(r.ts))+'</span></div>'+
       '</div>';
   }).join('');
+  applyI18n();
 }
 
 // ---- e-signature / acceptance on proposals ----
@@ -366,7 +512,7 @@ document.getElementById('reqForm').addEventListener('submit',function(e){
   var f=e.target, btn=document.getElementById('reqBtn'), lbl=btn.textContent;
   var body={}; new FormData(f).forEach(function(v,k){body[k]=v;});
   if(!(body.property||'').trim()){ return; }
-  btn.disabled=true; btn.textContent='Submitting…';
+  btn.disabled=true; btn.textContent=(I18N[LANG].f_submitting||'Submitting…');
   api('/api/portal/request',{method:'POST',body:JSON.stringify(body)}).then(function(d){
     btn.disabled=false; btn.textContent=lbl;
     if(d.ok){ f.reset(); document.getElementById('confirm').classList.remove('hidden'); document.getElementById('confirm').scrollIntoView({behavior:'smooth',block:'center'}); boot(); }
@@ -374,6 +520,154 @@ document.getElementById('reqForm').addEventListener('submit',function(e){
     else alert(d.error||'Something went wrong. Please call (561) 475-8615.');
   }).catch(function(){ btn.disabled=false; btn.textContent=lbl; alert('Network error. Please call (561) 475-8615.'); });
 });
+
+/* ---- 4. EN/ES toggle (client-facing UI strings only; OSHA/PE/CGC left untranslated) ---- */
+var I18N={
+  en:{
+    gate_h1:"Request your walking-surface inspection.",
+    gate_p:"Sign in to request a PE-sealed OSHA Subpart D inspection, track your requests, and keep your compliance documentation in one place.",
+    gate_signin:"Sign in with Google",
+    gate_privacy:"We only use your name and email to manage your request. No mailbox access is requested.",
+    gate_call_prefix:"Prefer to talk? Call",
+    gate_call_or:"or use the",
+    gate_call_form:"comprehensive assessment form",
+    welcome_hello:"Welcome",
+    welcome_sub:"Request an inspection below — we'll confirm scheduling by email, usually within one business day.",
+    score_cta:"Lock in a multi-year compliance plan",
+    score_label:"{ok} of {total} properties compliant",
+    score_sub_full:"All current properties are fully compliant.",
+    score_sub_partial:"Keep every property on a predictable recert cycle.",
+    confirm_b:"Request received.",
+    confirm_p:"We'll be in touch to confirm scheduling. You can see it in \"Your requests.\"",
+    form_h2:"Request an inspection",
+    f_company_lbl:"Company / owner",
+    f_urgency_lbl:"Urgency",
+    f_urgency_opt0:"Select…",
+    f_urgency_opt1:"Routine / proactive",
+    f_urgency_opt2:"I have an open OSHA citation",
+    f_urgency_opt3:"Abatement deadline approaching",
+    f_urgency_opt4:"Insurance / lender requirement",
+    f_property_lbl:"Property address",
+    f_buildings_lbl:"# Buildings",
+    f_stories_lbl:"Stories (tallest)",
+    f_notes_lbl:"Anything we should know?",
+    f_submit:"Submit inspection request",
+    f_submitting:"Submitting…",
+    reqs_h2:"Your requests",
+    reqs_none:"No requests yet. Submit one and it'll appear here.",
+    req_received:"Received",
+    insp_h2:"Your inspections & documents",
+    insp_photos_none:"Field photos will appear here once your inspection is documented.",
+    msg_toggle:"Messages",
+    msg_input_lbl:"Write a message about this inspection",
+    msg_placeholder:"Write a message…",
+    msg_send:"Send",
+    msg_none:"No messages yet.",
+    inv_h2:"Invoices & payments",
+    inv_none:"No open invoices.",
+    inv_pay:"Pay now",
+    inv_due:"Due",
+    ref_h2:"Referral credits",
+    ref_intro:"Share your link. When a referral requests an assessment, it's tagged to your account and shows up here.",
+    ref_copy:"Copy link",
+    ref_copied:"Link copied.",
+    ref_count_lbl:"Referrals so far",
+    ref_balance_lbl:"Credit balance",
+    lib_h2:"Compliance library",
+    lib_all:"All guides",
+    lib1_t:"Is my building exposed?", lib1_s:"A 2-minute self-check.",
+    lib2_t:"2026 penalty amounts", lib2_s:"What a citation actually costs.",
+    lib3_t:"Why OSHA shows up unannounced", lib3_s:"The fall-protection emphasis program.",
+    lib4_t:"The 4-foot rule", lib4_s:"When fall protection kicks in.",
+    lib5_t:"Free inspection checklist", lib5_s:"The field checklist we audit against.",
+    lib6_t:"Florida recertification", lib6_s:"Anchor re-test & renewal cycle.",
+    signout:"Sign out",
+    footer_disclaimer:"Engineering inspections & certifications are performed and sealed by an independent, licensed Florida professional engineer; La Gala does not provide engineering services."
+  },
+  es:{
+    gate_h1:"Solicite su inspección de superficies de trabajo.",
+    gate_p:"Inicie sesión para solicitar una inspección OSHA Subpart D sellada por un PE, dar seguimiento a sus solicitudes y mantener su documentación de cumplimiento en un solo lugar.",
+    gate_signin:"Iniciar sesión con Google",
+    gate_privacy:"Solo usamos su nombre y correo electrónico para gestionar su solicitud. No se solicita acceso a su correo.",
+    gate_call_prefix:"¿Prefiere hablar? Llame al",
+    gate_call_or:"o use el",
+    gate_call_form:"formulario de evaluación integral",
+    welcome_hello:"Bienvenido",
+    welcome_sub:"Solicite una inspección a continuación — confirmaremos la programación por correo, normalmente dentro de un día hábil.",
+    score_cta:"Asegure un plan de cumplimiento multianual",
+    score_label:"{ok} de {total} propiedades en cumplimiento",
+    score_sub_full:"Todas las propiedades actuales están en pleno cumplimiento.",
+    score_sub_partial:"Mantenga cada propiedad en un ciclo de recertificación predecible.",
+    confirm_b:"Solicitud recibida.",
+    confirm_p:"Nos pondremos en contacto para confirmar la programación. Puede verla en \"Sus solicitudes.\"",
+    form_h2:"Solicitar una inspección",
+    f_company_lbl:"Empresa / propietario",
+    f_urgency_lbl:"Urgencia",
+    f_urgency_opt0:"Seleccionar…",
+    f_urgency_opt1:"Rutinaria / proactiva",
+    f_urgency_opt2:"Tengo una citación abierta de OSHA",
+    f_urgency_opt3:"Plazo de corrección próximo",
+    f_urgency_opt4:"Requisito de seguro / prestamista",
+    f_property_lbl:"Dirección de la propiedad",
+    f_buildings_lbl:"# de edificios",
+    f_stories_lbl:"Pisos (el más alto)",
+    f_notes_lbl:"¿Algo que debamos saber?",
+    f_submit:"Enviar solicitud de inspección",
+    f_submitting:"Enviando…",
+    reqs_h2:"Sus solicitudes",
+    reqs_none:"Aún no hay solicitudes. Envíe una y aparecerá aquí.",
+    req_received:"Recibida",
+    insp_h2:"Sus inspecciones y documentos",
+    insp_photos_none:"Las fotos de campo aparecerán aquí una vez que su inspección esté documentada.",
+    msg_toggle:"Mensajes",
+    msg_input_lbl:"Escriba un mensaje sobre esta inspección",
+    msg_placeholder:"Escriba un mensaje…",
+    msg_send:"Enviar",
+    msg_none:"Aún no hay mensajes.",
+    inv_h2:"Facturas y pagos",
+    inv_none:"No hay facturas pendientes.",
+    inv_pay:"Pagar ahora",
+    inv_due:"Vence",
+    ref_h2:"Créditos por referidos",
+    ref_intro:"Comparta su enlace. Cuando un referido solicite una evaluación, quedará vinculado a su cuenta y aparecerá aquí.",
+    ref_copy:"Copiar enlace",
+    ref_copied:"Enlace copiado.",
+    ref_count_lbl:"Referidos hasta ahora",
+    ref_balance_lbl:"Saldo de crédito",
+    lib_h2:"Biblioteca de cumplimiento",
+    lib_all:"Todas las guías",
+    lib1_t:"¿Mi edificio está expuesto?", lib1_s:"Una autoevaluación de 2 minutos.",
+    lib2_t:"Montos de multas 2026", lib2_s:"Lo que realmente cuesta una citación.",
+    lib3_t:"Por qué OSHA se presenta sin aviso", lib3_s:"El programa de énfasis en protección contra caídas.",
+    lib4_t:"La regla de los 4 pies", lib4_s:"Cuándo se requiere protección contra caídas.",
+    lib5_t:"Lista de inspección gratuita", lib5_s:"La lista de campo que usamos como referencia.",
+    lib6_t:"Recertificación de Florida", lib6_s:"Ciclo de reprueba y renovación de anclajes.",
+    signout:"Cerrar sesión",
+    footer_disclaimer:"Las inspecciones y certificaciones de ingeniería son realizadas y selladas por un ingeniero profesional de Florida independiente y con licencia; La Gala no presta servicios de ingeniería."
+  }
+};
+var LANG=localStorage.getItem('wws_lang')||'en';
+function applyI18n(){
+  var t=I18N[LANG]||I18N.en;
+  document.documentElement.lang=LANG;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k=el.getAttribute('data-i18n');
+    if(t[k]!=null) el.textContent=t[k];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    var k=el.getAttribute('data-i18n-ph');
+    if(t[k]!=null) el.setAttribute('placeholder',t[k]);
+  });
+  var hello=document.getElementById('hello');
+  if(hello && hello.dataset.name!=null){ hello.textContent=(t.welcome_hello||'Welcome')+(hello.dataset.name?(', '+hello.dataset.name):'')+'.'; }
+}
+function toggleLang(){
+  LANG=(LANG==='en')?'es':'en';
+  localStorage.setItem('wws_lang',LANG);
+  applyI18n();
+}
+applyI18n();
+
 boot();
 </script>
 </body></html>

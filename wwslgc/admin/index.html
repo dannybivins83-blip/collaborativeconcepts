@@ -266,9 +266,28 @@ function openDrawer(id){
     (l.message?'<div class="mb-4"><div class="text-xs uppercase tracking-wide text-mute mb-1">Message</div><div class="bg-surface rounded-lg p-3 text-sm whitespace-pre-wrap">'+esc(l.message)+'</div></div>':'')+
     '<div class="mb-4"><label class="text-xs uppercase tracking-wide text-mute">Stage</label><select id="dStage" onchange="saveStage(\''+l.id+'\')" class="w-full mt-1 rounded-lg border border-line bg-white px-3 py-2 text-sm">'+opts+'</select></div>'+
     '<div class="mb-2"><div class="text-xs uppercase tracking-wide text-mute mb-1">Notes</div><div class="space-y-2">'+notes+'</div></div>'+
-    '<div class="flex gap-2 mt-3"><input id="dNote" placeholder="Add a note…" class="flex-1 rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none" onkeydown="if(event.key===\'Enter\')saveNote(\''+l.id+'\')"/><button onclick="saveNote(\''+l.id+'\')" class="bg-secondary text-white px-3 rounded-lg text-sm font-semibold">Add</button></div>';
+    '<div class="flex gap-2 mt-3"><input id="dNote" placeholder="Add a note…" class="flex-1 rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none" onkeydown="if(event.key===\'Enter\')saveNote(\''+l.id+'\')"/><button onclick="saveNote(\''+l.id+'\')" class="bg-secondary text-white px-3 rounded-lg text-sm font-semibold">Add</button></div>'+
+    (l.email?('<div class="mt-6 pt-4 border-t border-line"><div class="text-xs uppercase tracking-wide text-mute mb-1">Referral credits</div><div id="refBox" class="text-sm text-mute">Loading…</div>'+
+      '<div class="flex gap-2 mt-2"><input id="refDelta" type="number" step="0.01" placeholder="Amount, e.g. 250 or -50" class="flex-1 rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/><button onclick="adjustReferral(\''+esc(l.email)+'\')" class="bg-primary text-white px-3 rounded-lg text-sm font-semibold">Adjust</button></div>'+
+      '<p class="text-xs text-mute mt-1">Manual v1 — this balance is visible-only in the client portal and is never auto-applied to invoices.</p></div>'):'');
   document.getElementById('scrim').classList.remove('hidden');
   document.getElementById('drawer').classList.remove('translate-x-full');
+  if(l.email) loadReferralBox(l.email);
+}
+function loadReferralBox(email){
+  api('/api/admin/referral/'+encodeURIComponent(email)).then(function(d){
+    var box=document.getElementById('refBox'); if(!box) return;
+    if(!d.ok){ box.textContent='Unavailable.'; return; }
+    var c=d.credit||{balance:0,referred:[]};
+    box.innerHTML='Code <b>'+esc(d.code||'—')+'</b> · '+(c.referred||[]).length+' referral(s) · balance <b>$'+Number(c.balance||0).toLocaleString('en-US',{minimumFractionDigits:2})+'</b>';
+  }).catch(function(){ var box=document.getElementById('refBox'); if(box) box.textContent='Unavailable.'; });
+}
+function adjustReferral(email){
+  var v=document.getElementById('refDelta'); var delta=parseFloat(v.value);
+  if(isNaN(delta)){ alert('Enter a numeric amount.'); return; }
+  api('/api/admin/referral/adjust',{method:'POST',body:JSON.stringify({email:email,delta:delta})}).then(function(d){
+    if(d.ok){ v.value=''; loadReferralBox(email); } else alert(d.error||'Could not adjust (is storage enabled?)');
+  });
 }
 function row(k,v){return v?'<div class="flex justify-between gap-3 py-1 border-b border-line/60"><span class="text-mute">'+esc(k)+'</span><span class="text-right font-medium break-all">'+esc(v)+'</span></div>':'';}
 function closeDrawer(){document.getElementById('scrim').classList.add('hidden');document.getElementById('drawer').classList.add('translate-x-full');}
