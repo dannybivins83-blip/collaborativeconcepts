@@ -91,6 +91,20 @@ gtag('config', 'G-K9ZEXRRMCK');
 <!-- Vercel Analytics + Speed Insights -->
 <script defer src="/_vercel/insights/script.js"></script>
 <script defer src="/_vercel/speed-insights/script.js"></script>
+
+<style>
+  #mobileMenu.mm-panel{
+    position:fixed; inset:0; z-index:1100;
+    background:rgba(5,19,21,.97); backdrop-filter:blur(6px);
+    display:flex !important; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    opacity:0; pointer-events:none; transition:opacity .28s ease;
+  }
+  #mobileMenu.mm-panel.mm-open{ opacity:1; pointer-events:auto; }
+  #mobileMenu.mm-panel a{ color:#fff !important; font-family:"Fraunces"; font-size:24px; padding:12px 20px; text-align:center; }
+  #mobileMenu.mm-panel a.btn-gold{ color:#04211e !important; margin-top:12px; }
+  #mobileMenu .mm-close{ position:absolute; top:20px; right:22px; font-size:32px; color:#fff; background:none; border:0; cursor:pointer; line-height:1; }
+  @media(min-width:881px){ #mobileMenu.mm-panel{ display:none !important; } }
+</style>
 </head>
 <body class="bg-surface text-on-surface">
 <nav class="cc-nav" style="width:100%; position:sticky; top:0; z-index:50; background:rgba(242,246,245,.92); backdrop-filter:saturate(1.1) blur(10px); border-bottom:1px solid var(--hair);">
@@ -106,18 +120,18 @@ gtag('config', 'G-K9ZEXRRMCK');
 </div>
 <div class="flex items-center gap-2">
 <a href="/contact" class="btn-gold" style="padding:10px 18px; font-size:14px;">Investor Inquiries</a>
-<button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-2" style="color:var(--ink); background:none; border:0;">
+<button onclick="document.getElementById('mobileMenu').classList.toggle('mm-open')" class="md:hidden p-2" style="color:var(--ink); background:none; border:0;">
 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
 </button>
 </div>
 </div>
-<div id="mobileMenu" class="hidden md:hidden" style="background:var(--paper); border-top:1px solid var(--hair); padding:16px 24px; display:flex; flex-direction:column; gap:4px;">
-<a style="display:block; color:var(--ink); font-weight:600; padding:10px 0;" href="/">About</a>
-<a style="display:block; color:var(--ink); font-weight:600; padding:10px 0;" href="/properties">Project Management</a>
-<a style="display:block; color:var(--ink); font-weight:600; padding:10px 0;" href="/solutions">Operation Solutions</a>
-<a style="display:block; color:var(--ink); font-weight:600; padding:10px 0;" href="/blog">Blog</a>
-<a style="display:block; color:var(--ink); font-weight:600; padding:10px 0;" href="/team">Team</a>
-<a style="display:block; color:var(--ink); font-weight:600; padding:10px 0;" href="/contact">Contact</a>
+<div id="mobileMenu" class="mm-panel">
+<button class="mm-close" onclick="document.getElementById(\'mobileMenu\').classList.remove(\'mm-open\')" aria-label="Close menu">&times;</button>
+<a href="/">About</a>
+<a href="/properties">Project Management</a>
+<a href="/solutions">Operation Solutions</a>
+<a href="/blog">Blog</a>
+<a href="/contact">Contact</a>
 </div>
 </nav>
 
@@ -207,7 +221,6 @@ gtag('config', 'G-K9ZEXRRMCK');
       <div class="foot-col">
         <h4 style="font-family:'Manrope'; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-2); margin-bottom:16px; font-weight:800;">Company</h4>
         <a href="/" style="display:block; color:rgba(255,255,255,.72); font-size:14.5px; padding:6px 0;">About</a>
-        <a href="/team" style="display:block; color:rgba(255,255,255,.72); font-size:14.5px; padding:6px 0;">Team</a>
         <a href="/blog" style="display:block; color:rgba(255,255,255,.72); font-size:14.5px; padding:6px 0;">Blog</a>
       </div>
 
