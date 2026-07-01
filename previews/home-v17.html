@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Collaborative Concept — Bento Overview: Development, Software, Roof &amp; Solar Exit</title>
+<meta name="description" content="Collaborative Concept, at a glance: a Florida multi-vertical operator across coastal development, custom operations software, roof consulting, and solar-exit relief — with the Madeira Beach redevelopment actively raising capital." />
+<link rel="canonical" href="https://collaborativeconceptsfl.com/previews/home-v17" />
+<meta name="robots" content="noindex,nofollow" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Collaborative Concept" />
+<meta property="og:title" content="Collaborative Concept — The Operation, at a Glance" />
+<meta property="og:description" content="Four disciplined lines of business, one Florida operator, real numbers. Coastal development, custom software, roof consulting, and solar-exit relief." />
+<meta property="og:url" content="https://collaborativeconceptsfl.com/previews/home-v17" />
+<meta property="og:image" content="https://collaborativeconceptsfl.com/og/default.png" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Collaborative Concept — The Operation, at a Glance" />
+<meta name="twitter:description" content="Four disciplined lines of business, one Florida operator, real numbers. Coastal development, custom software, roof consulting, and solar-exit relief." />
+<meta name="twitter:image" content="https://collaborativeconceptsfl.com/og/default.png" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Collaborative Concept LLC",
+  "alternateName": "Collaborative Concept",
+  "url": "https://collaborativeconceptsfl.com",
+  "email": "sales@collaborativeconceptsfl.com",
+  "telephone": "+1-561-475-8615",
+  "founder": { "@type": "Person", "name": "Danny Bivins" },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "513 W Drew Street",
+    "addressLocality": "Lantana",
+    "addressRegion": "FL",
+    "postalCode": "33462",
+    "addressCountry": "US"
+  },
+  "areaServed": "Florida",
+  "knowsAbout": [
+    "Coastal real estate development",
+    "Off-market deal structuring",
+    "Custom operations software",
+    "Roof consulting",
+    "Florida solar loan exit"
+  ]
+}
+</script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: "#f1f5f9",
+          ink: "#0f172a",
+          mid: "#334155",
+          teal: "#0f766e",
+          line: "#cbd5e1"
+        },
+        fontFamily: {
+          sans: ["Manrope", "system-ui", "sans-serif"],
+          mono: ["IBM Plex Mono", "ui-monospace", "monospace"]
+        },
+        borderRadius: {
+          "2xl": "1rem"
+        }
+      }
+    }
+  };
+</script>
+
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: #e2e8f0; color: #0f172a; }
+  .tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+  .track-label {
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 0.6875rem;
+  }
+  .hair { border-color: #cbd5e1; }
+  .hair-ink { border-color: #334155; }
+
+  /* Bento tile base */
+  .tile {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 1rem;
+    transition: border-color .2s ease, transform .2s ease;
+  }
+  .tile-ink { background: #0f172a; border-color: #334155; color: #fff; }
+  .tile-teal { background: #0f766e; border-color: #0f766e; color: #fff; }
+  .tile-link:hover { border-color: #0f766e; transform: translateY(-2px); }
+
+  /* nav underline animation, restrained */
+  .navlink { position: relative; }
+  .navlink::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: -4px;
+    width: 0; height: 1px;
+    background: currentColor;
+    transition: width .22s ease;
+  }
+  .navlink:hover::after { width: 100%; }
+
+  #mobileMenu { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+  #mobileMenu.open { max-height: 420px; }
+
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid #0f766e;
+    outline-offset: 3px;
+  }
+
+  /* Bento grid — 6-col on desktop, spanning cells */
+  .bento {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 768px) {
+    .bento { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; }
+  }
+  .col-2 { grid-column: span 2; }
+  .col-3 { grid-column: span 3; }
+  .col-4 { grid-column: span 4; }
+  .col-6 { grid-column: span 6; }
+  .row-2 { grid-row: span 2; }
+  @media (max-width: 767px) {
+    .bento > * { grid-column: span 1; }
+    .m-col-2 { grid-column: span 2 !important; }
+  }
+</style>
+</head>
+
+<body class="font-sans antialiased">
+
+<!-- PREVIEW RIBBON -->
+<div class="fixed top-0 right-0 z-[60] select-none pointer-events-none">
+  <div class="bg-teal text-white track-label px-4 py-1.5 shadow-sm"
+       style="clip-path: polygon(14px 0, 100% 0, 100% 100%, 0 100%);">
+    PREVIEW v17 — Bento Grid
+  </div>
+</div>
+
+<!-- =========================== NAV =========================== -->
+<header class="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b hair">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <div class="flex items-center justify-between h-[72px]">
+      <a href="/" class="flex items-center gap-3 group">
+        <span class="inline-flex h-8 w-8 items-center justify-center border hair-ink text-ink font-bold text-sm tracking-tight rounded-lg">CC</span>
+        <span class="font-bold text-[15px] tracking-tight leading-none">
+          Collaborative&nbsp;Concept
+          <span class="block track-label text-mid mt-0.5">Florida&nbsp;·&nbsp;Real&nbsp;Estate</span>
+        </span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-9 text-sm font-medium text-mid">
+        <a href="/" class="navlink hover:text-ink transition-colors">About</a>
+        <a href="/properties" class="navlink hover:text-ink transition-colors">Project Management</a>
+        <a href="/solutions" class="navlink hover:text-ink transition-colors">Operation Solutions</a>
+        <a href="/contact" class="inline-flex items-center gap-2 bg-ink text-white px-5 py-2.5 text-[13px] font-semibold tracking-tight hover:bg-teal transition-colors rounded-xl">
+          Investor Inquiries
+        </a>
+      </nav>
+
+      <button id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"
+              class="md:hidden inline-flex h-10 w-10 items-center justify-center border hair text-ink rounded-xl">
+        <svg id="iconOpen" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+          <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+        </svg>
+        <svg id="iconClose" class="hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+          <line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobileMenu" class="md:hidden border-t hair bg-paper">
+    <nav class="mx-auto max-w-6xl px-6 py-5 flex flex-col gap-1 text-mid">
+      <a href="/" class="py-3 border-b hair text-[15px] font-medium hover:text-ink">About</a>
+      <a href="/properties" class="py-3 border-b hair text-[15px] font-medium hover:text-ink">Project Management</a>
+      <a href="/solutions" class="py-3 border-b hair text-[15px] font-medium hover:text-ink">Operation Solutions</a>
+      <a href="/contact" class="mt-4 inline-flex items-center justify-center bg-ink text-white px-5 py-3 text-sm font-semibold rounded-xl">
+        Investor Inquiries
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main class="mx-auto max-w-6xl px-4 sm:px-6">
+
+<!-- =========================== HERO BENTO =========================== -->
+<section class="pt-8 md:pt-12 pb-4">
+  <div class="bento">
+
+    <!-- Headline tile (large) -->
+    <div class="tile col-6 md:col-4 md:row-2 p-8 md:p-10 flex flex-col justify-between m-col-2">
+      <div>
+        <p class="track-label text-teal mb-6">Florida · Multi-Vertical Real Estate</p>
+        <h1 class="font-extrabold tracking-tight leading-[1.03] text-3xl sm:text-4xl md:text-5xl">
+          One operator.<br />Four disciplined<br />lines of business.
+        </h1>
+        <p class="mt-6 text-mid text-[15px] md:text-base leading-relaxed max-w-md">
+          Collaborative Concept is a single Florida operator running coastal development,
+          custom operations software, roof consulting, and solar-exit relief — with numbers
+          you can underwrite and partners we name.
+        </p>
+      </div>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a href="/contact" class="inline-flex items-center justify-center gap-2 bg-teal text-white px-6 py-3.5 text-sm font-semibold tracking-tight hover:bg-ink transition-colors rounded-xl">
+          Investor Inquiries
+        </a>
+        <a href="#flagship" class="inline-flex items-center justify-center gap-2 border hair-ink text-ink px-6 py-3.5 text-sm font-semibold tracking-tight hover:bg-ink hover:text-white transition-colors rounded-xl">
+          View the flagship deal
+        </a>
+      </div>
+    </div>
+
+    <!-- Metric: profit (ink) -->
+    <div class="tile tile-ink col-3 md:col-2 p-6 flex flex-col justify-between m-col-2">
+      <div class="track-label text-teal">Projected profit · flagship</div>
+      <div class="tnum text-3xl md:text-4xl font-extrabold tracking-tight mt-4">$600K–$1M<span class="text-teal">+</span></div>
+      <div class="text-slate-400 text-[13px] mt-2">on the Madeira Beach redevelopment</div>
+    </div>
+
+    <!-- Metric: verticals -->
+    <div class="tile col-3 md:col-2 p-6 flex flex-col justify-between">
+      <div class="track-label text-mid">Lines of business</div>
+      <div class="tnum text-3xl md:text-4xl font-extrabold tracking-tight mt-4 text-ink">04</div>
+      <div class="text-mid text-[13px] mt-2">Development · Software · Roof · Solar Exit</div>
+    </div>
+
+    <!-- Metric: timeline -->
+    <div class="tile col-2 md:col-2 p-6 flex flex-col justify-between">
+      <div class="track-label text-mid">Build &amp; exit window</div>
+      <div class="tnum text-3xl font-extrabold tracking-tight mt-4 text-ink">9–14<span class="text-mid text-lg font-bold"> mo</span></div>
+      <div class="text-mid text-[13px] mt-2">per coastal project</div>
+    </div>
+
+    <!-- Metric: split (teal) -->
+    <div class="tile tile-teal col-2 md:col-2 p-6 flex flex-col justify-between">
+      <div class="track-label" style="color:#bff2ec">Back-end split</div>
+      <div class="tnum text-3xl font-extrabold tracking-tight mt-4">50 / 50</div>
+      <div class="text-[13px] mt-2" style="color:#d7f5f1">with the equity partner</div>
+    </div>
+
+    <!-- Metric: SaaS cut -->
+    <div class="tile col-2 md:col-2 p-6 flex flex-col justify-between">
+      <div class="track-label text-mid">SaaS cost cut · ref. client</div>
+      <div class="tnum text-3xl font-extrabold tracking-tight mt-4 text-ink">$5,200<span class="text-teal text-lg font-bold">/mo</span></div>
+      <div class="text-mid text-[13px] mt-2">replaced by custom software</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- =========================== VERTICALS BENTO =========================== -->
+<section class="py-4">
+  <div class="flex items-end justify-between gap-4 px-1 mb-3 mt-4">
+    <h2 class="font-extrabold tracking-tight text-2xl md:text-3xl leading-tight">What we operate</h2>
+    <span class="track-label text-mid hidden sm:block">Four verticals · one team</span>
+  </div>
+
+  <div class="bento">
+    <!-- 01 Development (wide) -->
+    <a href="/properties" class="tile tile-link col-6 md:col-3 p-7 flex flex-col justify-between m-col-2">
+      <div class="flex items-baseline justify-between">
+        <span class="font-mono text-teal text-sm">01</span>
+        <span class="track-label text-mid">Development</span>
+      </div>
+      <h3 class="mt-6 text-xl font-bold tracking-tight">Coastal development &amp; deal structuring</h3>
+      <p class="mt-3 text-mid text-[14px] leading-relaxed">
+        Off-market coastal acquisitions, investor JVs, and clean assignment / wholesale
+        structures. We source, package, and structure the equity — then build.
+      </p>
+    </a>
+
+    <!-- 02 Software -->
+    <a href="/solutions" class="tile tile-link col-3 md:col-3 p-7 flex flex-col justify-between m-col-2">
+      <div class="flex items-baseline justify-between">
+        <span class="font-mono text-teal text-sm">02</span>
+        <span class="track-label text-mid">Software</span>
+      </div>
+      <h3 class="mt-6 text-xl font-bold tracking-tight">Operation Solutions</h3>
+      <p class="mt-3 text-mid text-[14px] leading-relaxed">
+        Custom software that replaces an expensive SaaS stack. One-time build, no monthly
+        license — a reference client cut <span class="tnum font-semibold text-ink">$5,200/mo</span>.
+      </p>
+    </a>
+
+    <!-- 03 Roof consulting -->
+    <div class="tile col-3 md:col-3 p-7 flex flex-col justify-between m-col-2">
+      <div class="flex items-baseline justify-between">
+        <span class="font-mono text-teal text-sm">03</span>
+        <span class="track-label text-mid">Consulting</span>
+      </div>
+      <h3 class="mt-6 text-xl font-bold tracking-tight">Roof consulting</h3>
+      <p class="mt-3 text-mid text-[14px] leading-relaxed">
+        Pre-listing inspection reports and HVHZ permit packets — the documentation that keeps
+        Florida coastal transactions and permits moving.
+      </p>
+    </div>
+
+    <!-- 04 Solar Exit (ink, links out) -->
+    <div class="tile tile-ink col-3 md:col-3 p-7 flex flex-col justify-between m-col-2">
+      <div class="flex items-baseline justify-between">
+        <span class="font-mono text-teal text-sm">04</span>
+        <span class="track-label text-slate-400">Relief</span>
+      </div>
+      <div>
+        <h3 class="mt-6 text-xl font-bold tracking-tight">Florida Solar Exit</h3>
+        <p class="mt-3 text-slate-300 text-[14px] leading-relaxed">
+          Helping homeowners out of failed or predatory PACE / Ygrene solar financing — the
+          loans that quietly encumber a title and stall a sale.
+        </p>
+      </div>
+      <a href="https://solarexit.collaborativeconceptsfl.com" target="_blank" rel="noopener"
+         class="mt-5 inline-flex items-center gap-2 text-teal text-sm font-semibold navlink self-start">
+        Visit Solar Exit
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== FLAGSHIP BENTO =========================== -->
+<section id="flagship" class="py-4 scroll-mt-24">
+  <div class="flex items-end justify-between gap-4 px-1 mb-3 mt-4">
+    <h2 class="font-extrabold tracking-tight text-2xl md:text-3xl leading-tight">Madeira Beach flagship</h2>
+    <span class="inline-flex items-center gap-2 border border-teal text-teal px-3 py-1.5 track-label bg-white rounded-full">
+      <span class="h-1.5 w-1.5 rounded-full bg-teal"></span>
+      Active — Raising Capital
+    </span>
+  </div>
+
+  <div class="bento">
+    <!-- Narrative tile (tall, ink) -->
+    <div class="tile tile-ink col-6 md:col-2 md:row-2 p-7 flex flex-col justify-between m-col-2">
+      <div>
+        <p class="track-label text-teal mb-4">Double-lot redevelopment</p>
+        <h3 class="text-2xl font-extrabold tracking-tight leading-tight">Two coastal homes on a single double lot.</h3>
+        <p class="mt-4 text-slate-300 text-[14px] leading-relaxed">
+          The land is identified, the build team is set, and we are structuring the equity now.
+          This is a live raise — not a closed or completed project.
+        </p>
+      </div>
+      <a href="/contact" class="mt-6 inline-flex items-center gap-2 text-teal text-sm font-semibold navlink self-start">
+        Request the deal memo
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <!-- Total cost -->
+    <div class="tile col-3 md:col-2 p-6 flex flex-col justify-between">
+      <div class="track-label text-mid">Total project cost</div>
+      <div class="tnum text-2xl md:text-3xl font-extrabold tracking-tight mt-4 text-ink">$1.9M–$2.2M</div>
+    </div>
+
+    <!-- Projected profit (teal) -->
+    <div class="tile tile-teal col-3 md:col-2 p-6 flex flex-col justify-between">
+      <div class="track-label" style="color:#bff2ec">Projected profit</div>
+      <div class="tnum text-2xl md:text-3xl font-extrabold tracking-tight mt-4">$600K–$1M+</div>
+    </div>
+
+    <!-- Per-home exit -->
+    <div class="tile col-3 md:col-2 p-6 flex flex-col justify-between">
+      <div class="track-label text-mid">Per-home exit</div>
+      <div class="tnum text-2xl md:text-3xl font-extrabold tracking-tight mt-4 text-ink">$1.3M–$1.6M</div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="tile col-3 md:col-2 p-6 flex flex-col justify-between">
+      <div class="track-label text-mid">Timeline</div>
+      <div class="tnum text-2xl md:text-3xl font-extrabold tracking-tight mt-4 text-ink">9–14 mo</div>
+    </div>
+
+    <!-- Capital stack strip (full width) -->
+    <div class="tile col-6 p-6 md:p-7 m-col-2">
+      <div class="track-label text-mid mb-5">Capital stack</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="rounded-xl bg-ink text-white p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold tracking-tight">Sponsor &amp; execution</span>
+            <span class="font-mono text-xs text-slate-300">1st</span>
+          </div>
+          <p class="mt-2 text-slate-300 text-[13px] leading-relaxed">Collaborative Concept + La Gala / K5. Sourcing, structuring, build.</p>
+        </div>
+        <div class="rounded-xl bg-teal text-white p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold tracking-tight">Equity partner</span>
+            <span class="tnum font-mono text-xs" style="color:#bff2ec">20–25%</span>
+          </div>
+          <p class="mt-2 text-[13px] leading-relaxed" style="color:#d7f5f1">Cash or land · 2nd position · 50 / 50 back-end split.</p>
+        </div>
+        <div class="rounded-xl border hair bg-paper p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold tracking-tight text-ink">Hold</span>
+            <span class="tnum font-mono text-xs text-mid">12–24 mo</span>
+          </div>
+          <p class="mt-2 text-mid text-[13px] leading-relaxed">Structured for a defined coastal build-and-exit window.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== EXECUTION PARTNERS BENTO =========================== -->
+<section class="py-4">
+  <div class="flex items-end justify-between gap-4 px-1 mb-3 mt-4">
+    <h2 class="font-extrabold tracking-tight text-2xl md:text-3xl leading-tight">Who builds it</h2>
+    <span class="track-label text-mid hidden sm:block">Licensed · named · accountable</span>
+  </div>
+
+  <div class="bento">
+    <div class="tile col-3 md:col-2 p-7 flex flex-col justify-between m-col-2">
+      <div class="track-label text-mid">General Contractor</div>
+      <h3 class="mt-4 text-lg font-bold tracking-tight">La Gala Construction</h3>
+      <p class="mt-3 text-mid text-[14px] leading-relaxed">A DBA of Tilt Patchers, Inc. Principal Keith La Gala, 25+ years building in Florida.</p>
+      <div class="mt-5 font-mono text-xs text-teal">FL CGC 059211</div>
+    </div>
+
+    <div class="tile col-3 md:col-2 p-7 flex flex-col justify-between m-col-2">
+      <div class="track-label text-mid">Roofing Partner</div>
+      <h3 class="mt-4 text-lg font-bold tracking-tight">SeaBreeze Roofing &amp; Sheet Metal</h3>
+      <p class="mt-3 text-mid text-[14px] leading-relaxed">Coastal roofing and sheet-metal execution — HVHZ-ready, permit-clean work.</p>
+      <div class="mt-5 font-mono text-xs text-teal">FL CCC1328689 · CVC57073</div>
+    </div>
+
+    <div class="tile tile-ink col-6 md:col-2 p-7 flex flex-col justify-between m-col-2">
+      <div class="track-label text-slate-400">Development / Equity</div>
+      <h3 class="mt-4 text-lg font-bold tracking-tight">K5 Investment Group</h3>
+      <p class="mt-3 text-slate-300 text-[14px] leading-relaxed">Equity partner contributes 20–25% (cash or land), takes 2nd position, splits 50 / 50 on the back end across a 12–24 month hold.</p>
+      <div class="mt-5 font-mono text-xs text-teal">Dev &amp; Equity Arm</div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== SOFTWARE PROOF BENTO =========================== -->
+<section class="py-4">
+  <div class="flex items-end justify-between gap-4 px-1 mb-3 mt-4">
+    <h2 class="font-extrabold tracking-tight text-2xl md:text-3xl leading-tight">Software, shipped</h2>
+    <a href="/solutions" class="inline-flex items-center gap-2 text-teal text-sm font-semibold navlink">
+      See Operation Solutions
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <div class="bento">
+    <!-- Count tile (teal, tall) -->
+    <div class="tile tile-teal col-6 md:col-2 md:row-2 p-7 flex flex-col justify-between m-col-2">
+      <div class="track-label" style="color:#bff2ec">Systems in production</div>
+      <div>
+        <div class="tnum text-6xl font-extrabold tracking-tight">11</div>
+        <p class="mt-3 text-[14px] leading-relaxed" style="color:#d7f5f1">
+          Each one replaced a recurring SaaS bill with a one-time build the operator owns outright.
+        </p>
+      </div>
+    </div>
+
+    <!-- Software tiles -->
+    <div class="tile col-3 md:col-2 p-5"><div class="font-mono text-xs text-teal mb-2">01</div><div class="font-semibold text-[15px] tracking-tight text-ink">Florida Solar Exit platform</div></div>
+    <div class="tile col-3 md:col-2 p-5"><div class="font-mono text-xs text-teal mb-2">02</div><div class="font-semibold text-[15px] tracking-tight text-ink">Casa Del Monte HOA portal</div></div>
+    <div class="tile col-3 md:col-2 p-5"><div class="font-mono text-xs text-teal mb-2">03</div><div class="font-semibold text-[15px] tracking-tight text-ink">Casa Del Monte backend</div></div>
+    <div class="tile col-3 md:col-2 p-5"><div class="font-mono text-xs text-teal mb-2">04</div><div class="font-semibold text-[15px] tracking-tight text-ink">Somerset HOA portal</div></div>
+
+    <div class="tile col-3 md:col-3 p-5 m-col-2"><div class="font-mono text-xs text-teal mb-2">05</div><div class="font-semibold text-[15px] tracking-tight text-ink">Permit Packet Builder<span class="block font-normal text-mid text-[13px] mt-1 tnum">70 AHJs · 1,778 forms</span></div></div>
+    <div class="tile col-3 md:col-3 p-5 m-col-2"><div class="font-mono text-xs text-teal mb-2">06</div><div class="font-semibold text-[15px] tracking-tight text-ink">Roof Report Engine<span class="block font-normal text-mid text-[13px] mt-1">AI aerial measurement</span></div></div>
+    <div class="tile col-3 md:col-2 p-5 m-col-2"><div class="font-mono text-xs text-teal mb-2">07</div><div class="font-semibold text-[15px] tracking-tight text-ink">White-Label Roofing CRM</div></div>
+    <div class="tile col-3 md:col-2 p-5 m-col-2"><div class="font-mono text-xs text-teal mb-2">08</div><div class="font-semibold text-[15px] tracking-tight text-ink">SiteCam</div></div>
+    <div class="tile col-6 md:col-2 p-5 flex items-center m-col-2"><div class="text-mid text-[13px] leading-relaxed">…and three more internal systems keeping the operation running.</div></div>
+  </div>
+</section>
+
+<!-- =========================== OPERATOR + CTA BENTO =========================== -->
+<section class="py-4 pb-12">
+  <div class="flex items-end justify-between gap-4 px-1 mb-3 mt-4">
+    <h2 class="font-extrabold tracking-tight text-2xl md:text-3xl leading-tight">The operator</h2>
+    <span class="track-label text-mid hidden sm:block">Accountable, end to end</span>
+  </div>
+
+  <div class="bento">
+    <!-- Monogram tile (ink) -->
+    <div class="tile tile-ink col-2 md:col-2 md:row-2 p-7 flex flex-col justify-between m-col-2">
+      <div class="track-label text-teal">Operator</div>
+      <div class="flex-1 flex items-center justify-center py-6">
+        <div class="border hair-ink w-full aspect-square max-w-[160px] flex items-center justify-center rounded-2xl" style="border-color:#334155">
+          <span class="font-extrabold tracking-tight text-5xl">DB</span>
+        </div>
+      </div>
+      <div class="font-semibold text-lg tracking-tight">Danny Bivins</div>
+    </div>
+
+    <!-- Bio tile -->
+    <div class="tile col-4 md:col-4 p-7 flex flex-col justify-center m-col-2">
+      <p class="text-mid text-[15px] md:text-base leading-relaxed">
+        Danny runs Collaborative Concept end to end — sourcing coastal deals, structuring the
+        equity, building the software, and standing behind the paperwork. The pitch is simple:
+        real numbers, named partners, and a single operator who is accountable for every line of
+        business under this roof.
+      </p>
+    </div>
+
+    <!-- Contact tiles -->
+    <a href="tel:+15614758615" class="tile tile-link col-2 md:col-2 p-6 flex flex-col justify-between">
+      <div class="track-label text-mid">Phone</div>
+      <div class="tnum mt-4 font-semibold text-lg text-ink">(561) 475-8615</div>
+    </a>
+    <a href="mailto:sales@collaborativeconceptsfl.com" class="tile tile-link col-2 md:col-2 p-6 flex flex-col justify-between m-col-2">
+      <div class="track-label text-mid">Email</div>
+      <div class="mt-4 font-semibold text-[13px] break-words text-ink">sales@collaborativeconceptsfl.com</div>
+    </a>
+
+    <!-- CTA tile (teal, wide) -->
+    <div class="tile tile-teal col-6 p-8 md:p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6 m-col-2">
+      <div class="max-w-xl">
+        <p class="track-label mb-3" style="color:#bff2ec">Investor inquiries</p>
+        <h3 class="font-extrabold tracking-tight text-2xl md:text-3xl leading-tight">Underwrite the Madeira Beach raise.</h3>
+        <p class="mt-3 text-[14px] leading-relaxed" style="color:#d7f5f1">
+          The double-lot redevelopment is active and raising capital now. Request the deal memo,
+          review the structure, and talk directly with the operator.
+        </p>
+      </div>
+      <div class="flex flex-col gap-3 shrink-0">
+        <a href="/contact" class="inline-flex items-center justify-center gap-2 bg-white text-ink px-8 py-4 text-sm font-semibold tracking-tight hover:bg-ink hover:text-white transition-colors rounded-xl">
+          Investor Inquiries
+        </a>
+        <a href="tel:+15614758615" class="inline-flex items-center justify-center gap-2 border border-white/40 text-white px-8 py-4 text-sm font-semibold tracking-tight hover:bg-white hover:text-teal transition-colors rounded-xl tnum">
+          (561) 475-8615
+        </a>
+      </div>
+    </div>
+
+    <!-- Office tile -->
+    <div class="tile col-6 md:col-6 p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 m-col-2">
+      <div>
+        <span class="track-label text-mid">Office</span>
+        <span class="ml-3 font-semibold text-[14px] text-ink tnum">513 W Drew Street, Lantana, FL 33462</span>
+      </div>
+      <span class="track-label text-mid">Florida · Built to spec, structured for investors</span>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- =========================== FOOTER (INK) =========================== -->
+<footer class="bg-ink text-white mt-4">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 py-16">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div class="md:col-span-1">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex h-8 w-8 items-center justify-center border text-white font-bold text-sm rounded-lg" style="border-color:#334155">CC</span>
+          <span class="font-bold tracking-tight">Collaborative Concept</span>
+        </div>
+        <p class="mt-5 text-slate-400 text-[14px] leading-relaxed max-w-xs">
+          A Florida multi-vertical real estate operation — development, software,
+          roof consulting, and solar-exit relief.
+        </p>
+        <div class="mt-6 text-slate-400 text-[13px] leading-relaxed tnum">
+          513 W Drew Street, Lantana, FL 33462<br/>
+          (561) 475-8615 · sales@collaborativeconceptsfl.com
+        </div>
+      </div>
+
+      <nav class="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-8 text-[14px]">
+        <div>
+          <div class="track-label text-slate-500 mb-4">Company</div>
+          <ul class="space-y-3 text-slate-300">
+            <li><a href="/" class="navlink hover:text-white">About</a></li>
+            <li><a href="/team" class="navlink hover:text-white">Team</a></li>
+            <li><a href="/blog" class="navlink hover:text-white">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="track-label text-slate-500 mb-4">Work</div>
+          <ul class="space-y-3 text-slate-300">
+            <li><a href="/properties" class="navlink hover:text-white">Project Management</a></li>
+            <li><a href="/solutions" class="navlink hover:text-white">Operation Solutions</a></li>
+            <li><a href="https://solarexit.collaborativeconceptsfl.com" target="_blank" rel="noopener" class="navlink hover:text-white inline-flex items-center gap-1">Solar Exit
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+            </a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="track-label text-slate-500 mb-4">Connect</div>
+          <ul class="space-y-3 text-slate-300">
+            <li><a href="/contact" class="navlink hover:text-white">Contact</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="mt-14 pt-8 border-t flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" style="border-color:#334155">
+      <p class="text-slate-500 text-[13px]">© 2026 Collaborative Concept LLC.</p>
+      <p class="text-slate-500 text-[13px]">Florida · Built to spec, structured for investors.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var toggle = document.getElementById("menuToggle");
+    var menu = document.getElementById("mobileMenu");
+    var iconOpen = document.getElementById("iconOpen");
+    var iconClose = document.getElementById("iconClose");
+
+    function closeMenu() {
+      menu.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Open menu");
+      iconOpen.classList.remove("hidden");
+      iconClose.classList.add("hidden");
+    }
+    function openMenu() {
+      menu.classList.add("open");
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.setAttribute("aria-label", "Close menu");
+      iconOpen.classList.add("hidden");
+      iconClose.classList.remove("hidden");
+    }
+
+    toggle.addEventListener("click", function () {
+      if (menu.classList.contains("open")) closeMenu(); else openMenu();
+    });
+
+    menu.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", closeMenu);
+    });
+
+    window.addEventListener("resize", function () {
+      if (window.innerWidth >= 768) closeMenu();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeMenu();
+    });
+  })();
+</script>
+</body>
+</html>
