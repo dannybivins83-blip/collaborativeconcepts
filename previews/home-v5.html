@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+<meta name="robots" content="noindex,nofollow"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Collaborative Concept — Coastal Development, Deal Structuring &amp; Operations | Florida</title>
+  <meta name="description" content="Collaborative Concept is a Florida multi-vertical real estate operation: coastal development and off-market deal structuring, custom operation software, roof consulting, and solar-loan exit. Backed by La Gala Construction and K5 Investment Group." />
+  <link rel="canonical" href="https://collaborativeconceptsfl.com/previews/home-v5" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Collaborative Concept" />
+  <meta property="og:title" content="Collaborative Concept — Florida Coastal Development &amp; Deal Structuring" />
+  <meta property="og:description" content="A Florida multi-vertical real estate operation. Coastal development, off-market deal structuring, custom operation software, roof consulting, and solar-loan exit." />
+  <meta property="og:url" content="https://collaborativeconceptsfl.com/previews/home-v5" />
+  <meta property="og:image" content="https://collaborativeconceptsfl.com/og/default.png" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Collaborative Concept — Florida Coastal Development &amp; Deal Structuring" />
+  <meta name="twitter:description" content="A Florida multi-vertical real estate operation. Coastal development, deal structuring, operation software, roof consulting, and solar-loan exit." />
+  <meta name="twitter:image" content="https://collaborativeconceptsfl.com/og/default.png" />
+
+  <meta name="theme-color" content="#0a0b0d" />
+
+  <!-- Organization JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Collaborative Concept LLC",
+    "alternateName": "Collaborative Concept",
+    "url": "https://collaborativeconceptsfl.com",
+    "logo": "https://collaborativeconceptsfl.com/og/default.png",
+    "image": "https://collaborativeconceptsfl.com/og/default.png",
+    "description": "A Florida multi-vertical real estate operation: coastal development and off-market deal structuring, custom operation software, roof consulting, and solar-loan exit.",
+    "email": "sales@collaborativeconceptsfl.com",
+    "telephone": "+1-561-475-8615",
+    "founder": {
+      "@type": "Person",
+      "name": "Danny Bivins"
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "513 W Drew Street",
+      "addressLocality": "Lantana",
+      "addressRegion": "FL",
+      "postalCode": "33462",
+      "addressCountry": "US"
+    },
+    "areaServed": "Florida",
+    "knowsAbout": [
+      "Coastal real estate development",
+      "Off-market deal structuring",
+      "Custom operations software",
+      "Roof consulting",
+      "Solar loan exit"
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink:      '#0a0b0d',
+            charcoal: '#111318',
+            panel:    '#15171d',
+            line:     '#26282f',
+            gold:     '#c9a227',
+            goldlt:   '#d4af37',
+            bone:     '#f5f3ee',
+            mute:     '#a7a49b'
+          },
+          fontFamily: {
+            display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            sans:    ['Inter', 'system-ui', 'sans-serif']
+          },
+          letterSpacing: {
+            luxe: '0.28em'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html, body { background-color: #0a0b0d; }
+    body { -webkit-font-smoothing: antialiased; }
+
+    .tracked { letter-spacing: 0.28em; text-transform: uppercase; }
+    .tracked-sm { letter-spacing: 0.22em; text-transform: uppercase; }
+
+    /* Hairline gold rule */
+    .goldrule {
+      background: linear-gradient(90deg, rgba(201,162,39,0) 0%, rgba(201,162,39,0.9) 50%, rgba(201,162,39,0) 100%);
+    }
+
+    /* Cinematic coastal hero — pure CSS dusk-ocean vignette, no photo */
+    .hero-atmos {
+      background:
+        radial-gradient(120% 90% at 50% -10%, rgba(201,162,39,0.10) 0%, rgba(201,162,39,0) 45%),
+        radial-gradient(90% 70% at 80% 30%, rgba(60,74,92,0.35) 0%, rgba(10,11,13,0) 60%),
+        linear-gradient(180deg, #0d1016 0%, #0a0b0d 40%, #0a0b0d 100%);
+    }
+    /* Horizon glow band deep in the hero */
+    .hero-horizon {
+      background: linear-gradient(180deg,
+        rgba(10,11,13,0) 0%,
+        rgba(30,36,46,0.55) 55%,
+        rgba(201,162,39,0.06) 78%,
+        rgba(10,11,13,0.9) 100%);
+    }
+    .vignette {
+      box-shadow: inset 0 0 220px 60px rgba(0,0,0,0.85);
+    }
+
+    /* Gold gradient text */
+    .goldtext {
+      background: linear-gradient(180deg, #e8cf7a 0%, #c9a227 55%, #9c7c1a 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* Luxury card hover lift */
+    .lux-card {
+      transition: transform 0.5s cubic-bezier(0.2,0.7,0.2,1),
+                  border-color 0.5s ease,
+                  background-color 0.5s ease;
+    }
+    .lux-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(201,162,39,0.55);
+      background-color: #191c23;
+    }
+
+    .btn-gold {
+      transition: background-color 0.35s ease, color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+    }
+    .btn-gold:hover {
+      background-color: #d4af37;
+      color: #0a0b0d;
+      box-shadow: 0 10px 40px -10px rgba(201,162,39,0.5);
+      transform: translateY(-2px);
+    }
+    .btn-ghost { transition: border-color 0.35s ease, color 0.35s ease; }
+    .btn-ghost:hover { border-color: #c9a227; color: #f5f3ee; }
+
+    .navlink { transition: color 0.3s ease; }
+    .navlink:hover { color: #f5f3ee; }
+
+    /* Fade-in on scroll */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 1s ease, transform 1s cubic-bezier(0.2,0.7,0.2,1); }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .lux-card:hover, .btn-gold:hover { transform: none; }
+      html { scroll-behavior: auto; }
+    }
+
+    /* Mobile menu */
+    #mobileMenu { transition: opacity 0.3s ease, visibility 0.3s ease; }
+    #mobileMenu.hidden-menu { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    ::selection { background: rgba(201,162,39,0.35); color: #f5f3ee; }
+
+    /* Thin custom scrollbar accent */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #0a0b0d; }
+    ::-webkit-scrollbar-thumb { background: #26282f; }
+    ::-webkit-scrollbar-thumb:hover { background: #c9a227; }
+  </style>
+</head>
+
+<body class="bg-ink text-bone font-sans antialiased selection:bg-gold/30">
+
+  <!-- PREVIEW RIBBON -->
+  <div class="fixed bottom-4 left-4 z-[60] pointer-events-none">
+    <div class="bg-ink/90 border border-gold/50 text-gold text-[10px] tracked-sm px-3 py-1.5 backdrop-blur-sm shadow-lg">
+      Preview v5 — Premium Dark Luxury
+    </div>
+  </div>
+
+  <!-- ================= NAV ================= -->
+  <header class="fixed top-0 inset-x-0 z-50">
+    <div class="bg-ink/80 backdrop-blur-md border-b border-line/70">
+      <nav class="max-w-7xl mx-auto px-5 sm:px-8 h-20 flex items-center justify-between">
+        <!-- Brand -->
+        <a href="/" class="group flex items-center gap-3">
+          <span class="inline-flex h-9 w-9 items-center justify-center border border-gold/60 text-gold font-display text-lg leading-none">CC</span>
+          <span class="flex flex-col leading-none">
+            <span class="font-display text-xl text-bone tracking-wide">Collaborative Concept</span>
+            <span class="tracked-sm text-[9px] text-gold/80 mt-1">Florida Real Estate</span>
+          </span>
+        </a>
+
+        <!-- Desktop links -->
+        <div class="hidden lg:flex items-center gap-10">
+          <a href="/" class="navlink tracked-sm text-[11px] text-mute">About</a>
+          <a href="/properties" class="navlink tracked-sm text-[11px] text-mute">Project Management</a>
+          <a href="/solutions" class="navlink tracked-sm text-[11px] text-mute">Operation Solutions</a>
+          <a href="/contact" class="btn-gold border border-gold text-gold tracked-sm text-[11px] px-6 py-3">Investor Inquiries</a>
+        </div>
+
+        <!-- Hamburger -->
+        <button id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"
+                class="lg:hidden inline-flex flex-col justify-center gap-1.5 h-11 w-11 items-center border border-line hover:border-gold/60 transition-colors">
+          <span class="block h-px w-5 bg-bone"></span>
+          <span class="block h-px w-5 bg-bone"></span>
+          <span class="block h-px w-5 bg-bone"></span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Mobile menu overlay -->
+  <div id="mobileMenu" class="hidden-menu fixed inset-0 z-[55] lg:hidden">
+    <div class="absolute inset-0 bg-ink/95 backdrop-blur-xl"></div>
+    <div class="relative h-full flex flex-col">
+      <div class="h-20 px-5 flex items-center justify-between border-b border-line/70">
+        <span class="font-display text-xl text-bone">Collaborative Concept</span>
+        <button id="menuClose" aria-label="Close menu"
+                class="inline-flex h-11 w-11 items-center justify-center border border-line hover:border-gold/60 transition-colors text-bone text-2xl leading-none">&times;</button>
+      </div>
+      <nav class="flex-1 flex flex-col justify-center px-8 gap-2">
+        <a href="/" class="mobile-item font-display text-4xl text-bone py-3 border-b border-line/50">About</a>
+        <a href="/properties" class="mobile-item font-display text-4xl text-bone py-3 border-b border-line/50">Project Management</a>
+        <a href="/solutions" class="mobile-item font-display text-4xl text-bone py-3 border-b border-line/50">Operation Solutions</a>
+        <a href="/contact" class="mobile-item btn-gold mt-6 text-center border border-gold text-gold tracked-sm text-xs px-6 py-4">Investor Inquiries</a>
+      </nav>
+      <div class="px-8 pb-10 text-mute text-sm space-y-1">
+        <p><a href="tel:+15614758615" class="hover:text-gold transition-colors">(561) 475-8615</a></p>
+        <p><a href="mailto:sales@collaborativeconceptsfl.com" class="hover:text-gold transition-colors">sales@collaborativeconceptsfl.com</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= HERO ================= -->
+  <section class="relative min-h-screen flex items-center overflow-hidden hero-atmos">
+    <!-- horizon band -->
+    <div class="absolute inset-x-0 bottom-0 h-2/3 hero-horizon"></div>
+    <!-- vignette frame -->
+    <div class="absolute inset-0 vignette pointer-events-none"></div>
+    <!-- faint gold grid lines -->
+    <div class="absolute inset-0 opacity-[0.05] pointer-events-none"
+         style="background-image:linear-gradient(#c9a227 1px,transparent 1px),linear-gradient(90deg,#c9a227 1px,transparent 1px);background-size:120px 120px;"></div>
+
+    <div class="relative max-w-7xl mx-auto px-5 sm:px-8 w-full pt-28 pb-20">
+      <div class="max-w-4xl">
+        <div class="flex items-center gap-4 mb-8 reveal">
+          <span class="h-px w-12 bg-gold/70"></span>
+          <span class="tracked text-[11px] text-gold">Coastal Florida · Est. Operations</span>
+        </div>
+
+        <h1 class="font-display font-light text-bone leading-[0.95] text-5xl sm:text-7xl lg:text-8xl reveal">
+          Structuring the deals<br />
+          most operators<br />
+          <span class="goldtext italic">never see.</span>
+        </h1>
+
+        <p class="mt-8 max-w-2xl text-lg sm:text-xl text-mute font-light leading-relaxed reveal">
+          A Florida multi-vertical real estate operation. We source and structure off-market coastal
+          development, build the software that runs the business, and stand behind our positions with
+          a licensed GC partner and real equity in the deal.
+        </p>
+
+        <div class="mt-11 flex flex-col sm:flex-row gap-4 reveal">
+          <a href="/contact" class="btn-gold border border-gold text-gold tracked-sm text-[11px] px-9 py-4 text-center">Investor Inquiries</a>
+          <a href="#flagship" class="btn-ghost border border-line text-mute tracked-sm text-[11px] px-9 py-4 text-center">View the Flagship Deal</a>
+        </div>
+
+        <!-- Trust rail -->
+        <div class="mt-16 pt-8 border-t border-line/60 grid grid-cols-2 sm:grid-cols-4 gap-8 reveal">
+          <div>
+            <p class="font-display text-3xl text-bone">Four</p>
+            <p class="tracked-sm text-[10px] text-gold/80 mt-1">Lines of Business</p>
+          </div>
+          <div>
+            <p class="font-display text-3xl text-bone">25+ yrs</p>
+            <p class="tracked-sm text-[10px] text-gold/80 mt-1">GC Partner Experience</p>
+          </div>
+          <div>
+            <p class="font-display text-3xl text-bone">50 / 50</p>
+            <p class="tracked-sm text-[10px] text-gold/80 mt-1">Back-End Profit Split</p>
+          </div>
+          <div>
+            <p class="font-display text-3xl text-bone">Lantana</p>
+            <p class="tracked-sm text-[10px] text-gold/80 mt-1">Florida Based</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- scroll hint -->
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 text-mute/60">
+      <span class="tracked-sm text-[9px]">Scroll</span>
+      <span class="h-8 w-px bg-gradient-to-b from-gold/60 to-transparent"></span>
+    </div>
+  </section>
+
+  <!-- ================= INTRO / POSITIONING ================= -->
+  <section class="relative py-24 sm:py-32 border-t border-line/60">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8">
+      <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        <div class="lg:col-span-4 reveal">
+          <span class="tracked text-[11px] text-gold">The Firm</span>
+          <div class="goldrule h-px w-full mt-5"></div>
+        </div>
+        <div class="lg:col-span-8 reveal">
+          <p class="font-display font-light text-3xl sm:text-4xl lg:text-5xl leading-[1.15] text-bone">
+            We operate where diligence, construction, and capital actually meet —
+            not from a listings page, but from the
+            <span class="goldtext italic">structure of the deal itself.</span>
+          </p>
+          <p class="mt-8 max-w-2xl text-mute font-light leading-relaxed text-lg">
+            Collaborative Concept is built by operators, not brokers. Every engagement is
+            grounded in a licensed general contractor, a defined equity structure, and software
+            we build in-house so the numbers stay honest. Four verticals, one discipline: do the
+            work others outsource, and keep the margin that comes with it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PORTFOLIO STRIP — 4 VERTICALS ================= -->
+  <section id="verticals" class="relative py-8 sm:py-16">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-14 reveal">
+        <div>
+          <span class="tracked text-[11px] text-gold">Lines of Business</span>
+          <h2 class="font-display font-light text-4xl sm:text-5xl text-bone mt-3">Four verticals. One standard.</h2>
+        </div>
+        <p class="max-w-sm text-mute font-light text-sm leading-relaxed">
+          Each line stands on its own economics — and each one feeds the diligence, cost control,
+          and execution behind the others.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-5">
+
+        <!-- 01 Development -->
+        <article class="lux-card reveal bg-panel border border-line p-9 sm:p-11 flex flex-col min-h-[300px]">
+          <div class="flex items-start justify-between">
+            <span class="font-display text-5xl goldtext leading-none">01</span>
+            <span class="tracked-sm text-[10px] text-gold/70">Capital</span>
+          </div>
+          <h3 class="font-display text-2xl sm:text-3xl text-bone mt-8">Coastal Development &amp; Deal Structuring</h3>
+          <p class="mt-4 text-mute font-light leading-relaxed flex-1">
+            Off-market coastal acquisitions and ground-up redevelopment. We structure investor JVs,
+            wholesale and assignment positions, and equity partnerships — sourcing the deal, running
+            the diligence, and building the exit before capital ever moves.
+          </p>
+          <a href="/properties" class="mt-8 inline-flex items-center gap-3 tracked-sm text-[10px] text-gold group">
+            Project Management
+            <span class="h-px w-8 bg-gold/70 group-hover:w-12 transition-all"></span>
+          </a>
+        </article>
+
+        <!-- 02 Operation Solutions -->
+        <article class="lux-card reveal bg-panel border border-line p-9 sm:p-11 flex flex-col min-h-[300px]">
+          <div class="flex items-start justify-between">
+            <span class="font-display text-5xl goldtext leading-none">02</span>
+            <span class="tracked-sm text-[10px] text-gold/70">Software</span>
+          </div>
+          <h3 class="font-display text-2xl sm:text-3xl text-bone mt-8">Operation Solutions</h3>
+          <p class="mt-4 text-mute font-light leading-relaxed flex-1">
+            Custom software that replaces an expensive SaaS stack. One-time build, no recurring
+            license fees — you own the system outright. A reference client cut roughly
+            <span class="text-bone">$5,200 / month</span> in subscriptions by moving to a tool built for how they actually work.
+          </p>
+          <a href="/solutions" class="mt-8 inline-flex items-center gap-3 tracked-sm text-[10px] text-gold group">
+            Explore Operation Solutions
+            <span class="h-px w-8 bg-gold/70 group-hover:w-12 transition-all"></span>
+          </a>
+        </article>
+
+        <!-- 03 Roof Consulting -->
+        <article class="lux-card reveal bg-panel border border-line p-9 sm:p-11 flex flex-col min-h-[300px]">
+          <div class="flex items-start justify-between">
+            <span class="font-display text-5xl goldtext leading-none">03</span>
+            <span class="tracked-sm text-[10px] text-gold/70">Consulting</span>
+          </div>
+          <h3 class="font-display text-2xl sm:text-3xl text-bone mt-8">Roof Consulting</h3>
+          <p class="mt-4 text-mute font-light leading-relaxed flex-1">
+            Pre-listing inspection reports and HVHZ permit packets prepared to Florida code.
+            Clean documentation that protects a transaction, de-risks a closing, and gives buyers
+            and lenders a defensible view of the roof before it becomes a problem.
+          </p>
+          <a href="/contact" class="mt-8 inline-flex items-center gap-3 tracked-sm text-[10px] text-gold group">
+            Request a Consultation
+            <span class="h-px w-8 bg-gold/70 group-hover:w-12 transition-all"></span>
+          </a>
+        </article>
+
+        <!-- 04 Solar Exit -->
+        <article class="lux-card reveal bg-panel border border-line p-9 sm:p-11 flex flex-col min-h-[300px]">
+          <div class="flex items-start justify-between">
+            <span class="font-display text-5xl goldtext leading-none">04</span>
+            <span class="tracked-sm text-[10px] text-gold/70">Advocacy</span>
+          </div>
+          <h3 class="font-display text-2xl sm:text-3xl text-bone mt-8">Florida Solar Exit</h3>
+          <p class="mt-4 text-mute font-light leading-relaxed flex-1">
+            Helping Florida homeowners out of failed and predatory solar arrangements — including
+            PACE and Ygrene loan obligations. We assess the encumbrance, map the options, and work
+            toward a clean title and a livable outcome.
+          </p>
+          <a href="https://solarexit.collaborativeconceptsfl.com" target="_blank" rel="noopener"
+             class="mt-8 inline-flex items-center gap-3 tracked-sm text-[10px] text-gold group">
+            Visit Solar Exit
+            <span class="h-px w-8 bg-gold/70 group-hover:w-12 transition-all"></span>
+          </a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FLAGSHIP DEAL ================= -->
+  <section id="flagship" class="relative py-24 sm:py-32 mt-12 border-y border-line/60 overflow-hidden">
+    <!-- atmospheric backdrop -->
+    <div class="absolute inset-0 pointer-events-none"
+         style="background:radial-gradient(80% 60% at 15% 30%, rgba(201,162,39,0.08) 0%, rgba(10,11,13,0) 55%), linear-gradient(180deg,#0c0e13 0%, #0a0b0d 100%);"></div>
+
+    <div class="relative max-w-7xl mx-auto px-5 sm:px-8">
+      <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+
+        <!-- Left: copy -->
+        <div class="lg:col-span-6 reveal">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="tracked text-[11px] text-gold">Flagship</span>
+            <span class="inline-flex items-center gap-2 tracked-sm text-[10px] text-goldlt border border-gold/40 px-3 py-1.5">
+              <span class="h-1.5 w-1.5 rounded-full bg-goldlt animate-pulse"></span>
+              Active — Raising Capital
+            </span>
+          </div>
+
+          <h2 class="font-display font-light text-4xl sm:text-6xl leading-[1.02] text-bone">
+            Madeira Beach<br /><span class="goldtext italic">Double-Lot Redevelopment</span>
+          </h2>
+
+          <p class="mt-7 text-mute font-light leading-relaxed text-lg max-w-xl">
+            A ground-up coastal redevelopment on a double lot — two exit homes on the Gulf-coast
+            barrier island. The position is structured, the partner is engaged, and the raise is open.
+            This is the model for how Collaborative Concept works: control the site, control the build,
+            share the upside.
+          </p>
+
+          <div class="mt-9 flex flex-col sm:flex-row gap-4">
+            <a href="/contact" class="btn-gold border border-gold text-gold tracked-sm text-[11px] px-8 py-4 text-center">Request the Deal Summary</a>
+            <a href="/properties" class="btn-ghost border border-line text-mute tracked-sm text-[11px] px-8 py-4 text-center">All Projects</a>
+          </div>
+        </div>
+
+        <!-- Right: metric panel -->
+        <div class="lg:col-span-6 reveal">
+          <div class="bg-charcoal border border-gold/25 p-8 sm:p-10">
+            <div class="goldrule h-px w-full mb-8"></div>
+            <dl class="grid grid-cols-2 gap-x-8 gap-y-9">
+              <div>
+                <dt class="tracked-sm text-[10px] text-gold/80">Total Project Cost</dt>
+                <dd class="font-display text-3xl sm:text-4xl text-bone mt-2">$1.9M–$2.2M</dd>
+              </div>
+              <div>
+                <dt class="tracked-sm text-[10px] text-gold/80">Projected Profit</dt>
+                <dd class="font-display text-3xl sm:text-4xl goldtext mt-2">$600K–$1M+</dd>
+              </div>
+              <div>
+                <dt class="tracked-sm text-[10px] text-gold/80">Per-Home Exit</dt>
+                <dd class="font-display text-3xl sm:text-4xl text-bone mt-2">$1.3M–$1.6M</dd>
+              </div>
+              <div>
+                <dt class="tracked-sm text-[10px] text-gold/80">Timeline</dt>
+                <dd class="font-display text-3xl sm:text-4xl text-bone mt-2">9–14 mo</dd>
+              </div>
+            </dl>
+            <div class="goldrule h-px w-full mt-8 mb-6"></div>
+            <p class="text-mute/80 font-light text-xs leading-relaxed">
+              Figures are current projections for a deal actively raising capital, not a closed
+              transaction or a guarantee of return. Full underwriting available to qualified
+              investors on request.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EXECUTION PARTNER — La Gala / K5 ================= -->
+  <section id="partner" class="relative py-24 sm:py-32">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16 reveal">
+        <span class="tracked text-[11px] text-gold">Execution &amp; Equity</span>
+        <h2 class="font-display font-light text-4xl sm:text-5xl text-bone mt-4">
+          The people who <span class="goldtext italic">actually build it.</span>
+        </h2>
+        <p class="mt-6 text-mute font-light leading-relaxed">
+          We don't hand the hard part to strangers. Construction runs through a licensed Florida GC,
+          and our development arm puts real equity beside investor capital.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-5">
+
+        <!-- La Gala -->
+        <div class="lux-card reveal bg-panel border border-line p-9 flex flex-col">
+          <span class="tracked-sm text-[10px] text-gold/70">General Contractor</span>
+          <h3 class="font-display text-3xl text-bone mt-4">La Gala Construction</h3>
+          <p class="text-mute/80 font-light text-sm mt-2">A DBA of Tilt Patchers, Inc.</p>
+          <p class="mt-5 text-mute font-light leading-relaxed flex-1">
+            Led by principal Keith La Gala with 25+ years in the field. The GC of record on our
+            developments — carrying the license, the schedule, and the standard of finish.
+          </p>
+          <div class="mt-7 pt-6 border-t border-line/60 space-y-1.5">
+            <p class="tracked-sm text-[10px] text-gold/70">License</p>
+            <p class="font-display text-xl text-bone">FL CGC 059211</p>
+          </div>
+        </div>
+
+        <!-- K5 -->
+        <div class="lux-card reveal bg-panel border border-gold/30 p-9 flex flex-col">
+          <span class="tracked-sm text-[10px] text-gold/70">Development &amp; Equity</span>
+          <h3 class="font-display text-3xl text-bone mt-4">K5 Investment Group</h3>
+          <p class="text-mute/80 font-light text-sm mt-2">Principal: Keith La Gala</p>
+          <p class="mt-5 text-mute font-light leading-relaxed flex-1">
+            Our development and equity arm. The equity partner contributes 20–25% — cash or land —
+            sits in second position, and splits the back-end profit 50 / 50, on typical holds of
+            12–24 months.
+          </p>
+          <div class="mt-7 pt-6 border-t border-line/60 grid grid-cols-3 gap-3">
+            <div><p class="tracked-sm text-[9px] text-gold/70">Contribution</p><p class="font-display text-lg text-bone mt-1">20–25%</p></div>
+            <div><p class="tracked-sm text-[9px] text-gold/70">Position</p><p class="font-display text-lg text-bone mt-1">2nd</p></div>
+            <div><p class="tracked-sm text-[9px] text-gold/70">Split</p><p class="font-display text-lg text-bone mt-1">50/50</p></div>
+          </div>
+        </div>
+
+        <!-- SeaBreeze -->
+        <div class="lux-card reveal bg-panel border border-line p-9 flex flex-col">
+          <span class="tracked-sm text-[10px] text-gold/70">Roofing Partner</span>
+          <h3 class="font-display text-3xl text-bone mt-4">SeaBreeze Roofing &amp; Sheet Metal</h3>
+          <p class="text-mute/80 font-light text-sm mt-2">HVHZ &amp; coastal envelope</p>
+          <p class="mt-5 text-mute font-light leading-relaxed flex-1">
+            Licensed roofing and sheet metal partner for our coastal builds and consulting work —
+            the crew behind HVHZ-compliant envelopes and defensible permit packets.
+          </p>
+          <div class="mt-7 pt-6 border-t border-line/60 space-y-1.5">
+            <p class="tracked-sm text-[10px] text-gold/70">License</p>
+            <p class="font-display text-xl text-bone">FL CCC1328689 / CVC57073</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= OPERATOR — DANNY ================= -->
+  <section id="operator" class="relative py-24 sm:py-32 border-t border-line/60">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8">
+      <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+
+        <!-- Left: monogram plate (abstract, not a photo) -->
+        <div class="lg:col-span-5 reveal">
+          <div class="relative aspect-[4/5] border border-gold/25 overflow-hidden"
+               style="background:radial-gradient(120% 90% at 30% 15%, rgba(201,162,39,0.14) 0%, rgba(10,11,13,0) 55%), linear-gradient(160deg,#15171d 0%, #0a0b0d 100%);">
+            <!-- fine grid -->
+            <div class="absolute inset-0 opacity-[0.08]"
+                 style="background-image:linear-gradient(#c9a227 1px,transparent 1px),linear-gradient(90deg,#c9a227 1px,transparent 1px);background-size:56px 56px;"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span class="font-display text-[7rem] leading-none goldtext">DB</span>
+              <span class="tracked text-[11px] text-bone mt-4">Danny Bivins</span>
+              <span class="tracked-sm text-[10px] text-gold/70 mt-2">Operator &amp; Principal</span>
+            </div>
+            <div class="absolute bottom-5 left-5 right-5 goldrule h-px"></div>
+          </div>
+        </div>
+
+        <!-- Right: copy -->
+        <div class="lg:col-span-7 reveal">
+          <span class="tracked text-[11px] text-gold">The Operator</span>
+          <h2 class="font-display font-light text-4xl sm:text-5xl text-bone mt-4 leading-tight">
+            One point of accountability, <span class="goldtext italic">start to finish.</span>
+          </h2>
+          <p class="mt-7 text-mute font-light leading-relaxed text-lg max-w-2xl">
+            Collaborative Concept is run by Danny Bivins. Sourcing, structuring, the software, the
+            partner relationships, the raise — it all routes through one operator who stays on the
+            deal from first look to final exit. When you invest or engage, you know exactly whose
+            name is on it.
+          </p>
+
+          <div class="mt-10 grid sm:grid-cols-3 gap-5">
+            <a href="tel:+15614758615" class="group block border border-line hover:border-gold/50 p-5 transition-colors">
+              <p class="tracked-sm text-[10px] text-gold/70">Direct</p>
+              <p class="font-display text-xl text-bone mt-2 group-hover:text-goldlt transition-colors">(561) 475-8615</p>
+            </a>
+            <a href="mailto:sales@collaborativeconceptsfl.com" class="group block border border-line hover:border-gold/50 p-5 transition-colors">
+              <p class="tracked-sm text-[10px] text-gold/70">Email</p>
+              <p class="font-display text-lg text-bone mt-2 break-words group-hover:text-goldlt transition-colors">sales@collaborativeconceptsfl.com</p>
+            </a>
+            <div class="border border-line p-5">
+              <p class="tracked-sm text-[10px] text-gold/70">Office</p>
+              <p class="font-display text-lg text-bone mt-2 leading-snug">513 W Drew Street<br />Lantana, FL 33462</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CLOSING CTA ================= -->
+  <section class="relative py-28 sm:py-40 overflow-hidden border-t border-line/60">
+    <div class="absolute inset-0 pointer-events-none"
+         style="background:radial-gradient(90% 120% at 50% 120%, rgba(201,162,39,0.14) 0%, rgba(10,11,13,0) 55%), linear-gradient(180deg,#0a0b0d 0%, #0c0e13 100%);"></div>
+    <div class="absolute inset-0 vignette pointer-events-none"></div>
+
+    <div class="relative max-w-4xl mx-auto px-5 sm:px-8 text-center reveal">
+      <span class="tracked text-[11px] text-gold">Investor Inquiries</span>
+      <h2 class="font-display font-light text-5xl sm:text-7xl text-bone mt-6 leading-[0.98]">
+        Let's talk about<br /><span class="goldtext italic">the next position.</span>
+      </h2>
+      <p class="mt-8 max-w-xl mx-auto text-mute font-light leading-relaxed text-lg">
+        Whether you're placing capital in a coastal development, replacing a SaaS stack, or exiting a
+        predatory solar loan — the conversation starts the same way. Directly, with the operator.
+      </p>
+      <div class="mt-11 flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/contact" class="btn-gold border border-gold text-gold tracked-sm text-[11px] px-10 py-4">Investor Inquiries</a>
+        <a href="tel:+15614758615" class="btn-ghost border border-line text-mute tracked-sm text-[11px] px-10 py-4">Call (561) 475-8615</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="relative bg-ink border-t border-line/70">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+      <div class="grid md:grid-cols-12 gap-12">
+
+        <!-- Brand block -->
+        <div class="md:col-span-5">
+          <a href="/" class="flex items-center gap-3">
+            <span class="inline-flex h-9 w-9 items-center justify-center border border-gold/60 text-gold font-display text-lg leading-none">CC</span>
+            <span class="font-display text-2xl text-bone">Collaborative Concept</span>
+          </a>
+          <p class="mt-6 max-w-sm text-mute font-light leading-relaxed text-sm">
+            A Florida multi-vertical real estate operation — coastal development and deal structuring,
+            operation software, roof consulting, and solar-loan exit. Built by operators, backed by a
+            licensed GC.
+          </p>
+          <div class="mt-7 space-y-1.5 text-sm">
+            <p><a href="tel:+15614758615" class="text-bone hover:text-gold transition-colors">(561) 475-8615</a></p>
+            <p><a href="mailto:sales@collaborativeconceptsfl.com" class="text-bone hover:text-gold transition-colors">sales@collaborativeconceptsfl.com</a></p>
+            <p class="text-mute">513 W Drew Street, Lantana, FL 33462</p>
+          </div>
+        </div>
+
+        <!-- Nav columns -->
+        <div class="md:col-span-4 grid grid-cols-2 gap-8">
+          <div>
+            <p class="tracked-sm text-[10px] text-gold/70 mb-5">Explore</p>
+            <ul class="space-y-3 text-sm">
+              <li><a href="/" class="text-mute hover:text-bone transition-colors">About</a></li>
+              <li><a href="/properties" class="text-mute hover:text-bone transition-colors">Project Management</a></li>
+              <li><a href="/solutions" class="text-mute hover:text-bone transition-colors">Operation Solutions</a></li>
+              <li><a href="/blog" class="text-mute hover:text-bone transition-colors">Blog</a></li>
+            </ul>
+          </div>
+          <div>
+            <p class="tracked-sm text-[10px] text-gold/70 mb-5">Firm</p>
+            <ul class="space-y-3 text-sm">
+              <li><a href="/team" class="text-mute hover:text-bone transition-colors">Team</a></li>
+              <li><a href="https://solarexit.collaborativeconceptsfl.com" target="_blank" rel="noopener" class="text-mute hover:text-bone transition-colors">Solar Exit</a></li>
+              <li><a href="/contact" class="text-mute hover:text-bone transition-colors">Contact</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CTA column -->
+        <div class="md:col-span-3">
+          <p class="tracked-sm text-[10px] text-gold/70 mb-5">Get in touch</p>
+          <a href="/contact" class="btn-gold inline-block w-full text-center border border-gold text-gold tracked-sm text-[11px] px-6 py-4">Investor Inquiries</a>
+          <p class="mt-6 text-mute/70 font-light text-xs leading-relaxed">
+            Underwriting and deal summaries available to qualified investors on request.
+          </p>
+        </div>
+      </div>
+
+      <div class="goldrule h-px w-full mt-14 mb-8"></div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p class="text-mute/70 text-xs">&copy; 2026 Collaborative Concept LLC.</p>
+        <p class="text-mute/50 text-[11px] tracked-sm">Coastal Florida · Discreet by Design</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script>
+    // Mobile menu
+    (function () {
+      var btn   = document.getElementById('menuBtn');
+      var close = document.getElementById('menuClose');
+      var menu  = document.getElementById('mobileMenu');
+      var items = document.querySelectorAll('.mobile-item');
+
+      function open() {
+        menu.classList.remove('hidden-menu');
+        btn.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      }
+      function shut() {
+        menu.classList.add('hidden-menu');
+        btn.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+
+      btn.addEventListener('click', open);
+      close.addEventListener('click', shut);
+      items.forEach(function (a) { a.addEventListener('click', shut); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !menu.classList.contains('hidden-menu')) shut();
+      });
+    })();
+
+    // Reveal on scroll
+    (function () {
+      var els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(function (el) { el.classList.add('in'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      els.forEach(function (el) { io.observe(el); });
+    })();
+  </script>
+</body>
+</html>
