@@ -873,6 +873,112 @@ def admin_lead_create():
     return jsonify({"ok": True, "lead": lead})
 
 
+# ==========================================================================
+# Multi-property / portfolio switcher
+# ==========================================================================
+# Lightweight mapping: client email -> [{id, name, address, notes}]. This is
+# ADDITIVE — requests/inspections/invoices continue to be scoped by client
+# email exactly as before. When a client has 2+ properties on file, the
+# portal shows a switcher and filters the existing lists client-side by
+# matching each item's property/address text against the selected property.
+# Progressive enhancement: clients with 0 or 1 property see no change.
+CLIENT_PROPS_KEY = "wws:client_props"  # JSON map { email(lower): [ {id,name,address,notes,created_ts} ] }
+
+
+def _client_props_all():
+    raw, configured = _kv_cmd(["GET", CLIENT_PROPS_KEY])
+    if not configured:
+        return {}, False
+    try:
+        return (json.loads(raw) if raw else {}), True
+    except Exception:
+        return {}, True
+
+
+def _client_props_save(m):
+    _kv_cmd(["SET", CLIENT_PROPS_KEY, json.dumps(m)])
+
+
+def _client_props_for(email):
+    m, configured = _client_props_all()
+    return m.get((email or "").lower().strip(), []) if configured else []
+
+
+@app.get("/api/portal/properties")
+def portal_properties():
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"authed": False, "properties": []})
+    props = _client_props_for(s["email"])
+    return jsonify({"authed": True, "properties": props})
+
+
+@app.get("/api/admin/client/properties")
+def admin_client_properties():
+    if not _is_admin(): return jsonify({"ok": False, "error": "forbidden"}), 401
+    email = (request.args.get("email") or "").strip().lower()
+    if not email: return jsonify({"ok": False, "error": "email required"}), 400
+    return jsonify({"ok": True, "properties": _client_props_for(email)})
+
+
+@app.post("/api/admin/client/properties")
+def admin_client_properties_add():
+    """Add (or update, if id is supplied) a property on a client's portfolio."""
+    if not _is_admin(): return jsonify({"ok": False, "error": "forbidden"}), 401
+    b = request.get_json(force=True, silent=True) or {}
+    email = (b.get("email") or "").strip().lower()
+    name = (b.get("name") or "").strip()[:200]
+    address = (b.get("address") or "").strip()[:300]
+    notes = (b.get("notes") or "").strip()[:1000]
+    if not email or not (name or address):
+        return jsonify({"ok": False, "error": "email and (name or address) required"}), 400
+    m, _ = _client_props_all()
+    lst = m.get(email, [])
+    pid = (b.get("id") or "").strip()
+    if pid:
+        for p in lst:
+            if p.get("id") == pid:
+                p.update({"name": name, "address": address, "notes": notes})
+                break
+        else:
+            lst.append({"id": pid, "name": name, "address": address, "notes": notes, "created_ts": _now_ms()})
+    else:
+        lst.append({"id": _gen_id(), "name": name, "address": address, "notes": notes, "created_ts": _now_ms()})
+    m[email] = lst
+    _client_props_save(m)
+    _log_activity("client_property_add", f"{name or address} for {email}")
+    return jsonify({"ok": True, "properties": lst})
+
+
+@app.post("/api/admin/client/properties/<pid>/delete")
+def admin_client_properties_delete(pid):
+    if not _is_admin(): return jsonify({"ok": False, "error": "forbidden"}), 401
+    b = request.get_json(force=True, silent=True) or {}
+    email = (b.get("email") or "").strip().lower()
+    if not email: return jsonify({"ok": False, "error": "email required"}), 400
+    m, _ = _client_props_all()
+    lst = [p for p in m.get(email, []) if p.get("id") != pid]
+    m[email] = lst
+    _client_props_save(m)
+    return jsonify({"ok": True, "properties": lst})
+
+
+def _matches_property(text, prop):
+    """Loose match: does a free-text property/address field belong to the
+    selected portfolio property? Used to filter the existing (string-based)
+    requests/inspections/invoices by the switcher selection."""
+    if not prop:
+        return True
+    t = (text or "").lower().strip()
+    if not t:
+        return False
+    for key in ("address", "name"):
+        v = (prop.get(key) or "").lower().strip()
+        if v and (v in t or t in v):
+            return True
+    return False
+
+
 # ---- customer portal (any signed-in user) ----
 @app.post("/api/portal/request")
 def portal_request():
@@ -911,6 +1017,11 @@ def portal_requests():
     if not s or not s.get("email"):
         return jsonify({"authed": False, "requests": []})
     mine = [r for r in _load_requests() if r.get("email", "").lower() == s.get("email", "").lower()]
+    pid = (request.args.get("property_id") or "").strip()
+    if pid:
+        sel = next((p for p in _client_props_for(s["email"]) if p.get("id") == pid), None)
+        if sel:
+            mine = [r for r in mine if _matches_property(r.get("property", ""), sel)]
     return jsonify({"authed": True, "email": s.get("email"), "name": s.get("name", ""), "requests": mine})
 
 
@@ -927,17 +1038,26 @@ def portal_inspections():
     if not s or not s.get("email"):
         return jsonify({"authed": False, "inspections": []})
     email = s.get("email", "")
+    pid = (request.args.get("property_id") or "").strip()
+    sel = None
+    if pid:
+        sel = next((p for p in _client_props_for(email) if p.get("id") == pid), None)
     out = []
     for iid in (_insp_index() or []):
         x = _insp_get(iid)
         if not x or not _client_owns(x, email):
             continue
         prop = x.get("property", {})
+        if sel and not (_matches_property(prop.get("name", ""), sel) or _matches_property(prop.get("address", ""), sel)):
+            continue
         photos = [{"thumbUrl": p.get("thumbUrl") or p.get("url"), "url": p.get("url") or p.get("thumbUrl"),
                    "caption": p.get("caption", "")} for p in (x.get("photos") or []) if (p.get("thumbUrl") or p.get("url"))]
+        accept = x.get("acceptance") or {}
         out.append({"id": x["id"], "created_ts": x.get("created_ts"), "status": x.get("status", "draft"),
                     "property": {"name": prop.get("name", ""), "address": prop.get("address", "")},
-                    "photos": photos, "docs": ["report", "checklist", "proposal"]})
+                    "photos": photos, "docs": ["report", "checklist", "proposal"],
+                    "proposal_accepted": bool(accept.get("name_typed")),
+                    "acceptance": {"name_typed": accept.get("name_typed", ""), "ts": accept.get("ts")} if accept.get("name_typed") else None})
     out.sort(key=lambda i: i.get("created_ts", 0), reverse=True)
     return jsonify({"authed": True, "email": email, "name": s.get("name", ""), "inspections": out})
 
@@ -1006,6 +1126,68 @@ def portal_inspection_doc(iid, kind):
     return resp
 
 
+@app.get("/api/portal/inspection/<iid>/board-packet")
+def portal_board_packet(iid):
+    """Board-ready compliance packet cover sheet. SIMPLIFICATION: no PDF-merge
+    library is available in this project (no PyPDF2/pypdf in requirements.txt
+    and adding an unverified new dependency is out of scope here), so this
+    returns the cover sheet as its own one-page PDF. The portal pairs it with
+    direct links to download the existing individual documents (checklist /
+    report / engineer packet / proposal) so the client can assemble/print the
+    full board packet from the cover sheet + those PDFs."""
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"error": "sign in required"}), 401
+    x = _insp_get(iid)
+    if not x or not _client_owns(x, s.get("email", "")):
+        return jsonify({"error": "not found"}), 404
+    if not _RL:
+        return jsonify({"error": "pdf engine unavailable"}), 503
+    try:
+        pdf = doc_board_cover(x)
+    except Exception as e:
+        return jsonify({"error": "pdf failed: " + str(e)}), 500
+    resp = make_response(pdf)
+    resp.headers["Content-Type"] = "application/pdf"
+    resp.headers["Content-Disposition"] = 'inline; filename="LaGala_Board_Packet_Cover_%s.pdf"' % iid[:10]
+    return resp
+
+
+@app.post("/api/portal/inspection/<iid>/accept")
+def portal_inspection_accept(iid):
+    """E-signature-style acceptance of the corrective-work proposal. Records a
+    server-logged acceptance (typed legal name + timestamp + IP + UA) — no
+    third-party e-signature service, per policy."""
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"ok": False, "error": "sign in required"}), 401
+    x = _insp_get(iid)
+    if not x or not _client_owns(x, s.get("email", "")):
+        return jsonify({"ok": False, "error": "not found"}), 404
+    body = request.get_json(force=True, silent=True) or {}
+    name_typed = (body.get("name_typed") or "").strip()[:200]
+    if not name_typed:
+        return jsonify({"ok": False, "error": "type your full legal name to accept"}), 400
+    record = {
+        "id": _gen_id(),
+        "doc_id": iid,
+        "name_typed": name_typed,
+        "email": s.get("email", ""),
+        "ts": _now_ms(),
+        "ip_address": ((request.headers.get("x-forwarded-for") or "").split(",")[0].strip() or (request.remote_addr or ""))[:80],
+        "user_agent": request.headers.get("User-Agent", "")[:300],
+    }
+    try:
+        _kv_cmd(["RPUSH", "wws:acceptances", json.dumps(record)])
+    except Exception:
+        pass
+    x["acceptance"] = record
+    x["status"] = "accepted" if x.get("status") in ("draft", "field", "complete", "sealed") else x.get("status", "accepted")
+    _insp_save(x)
+    _log_activity("proposal_accept", f"Inspection {iid[:8]} accepted by {name_typed}")
+    return jsonify({"ok": True, "acceptance": record})
+
+
 # ==========================================================================
 # WWS invoices & payments
 # ==========================================================================
@@ -1046,7 +1228,13 @@ def portal_invoices():
     if not s or not s.get("email"):
         return jsonify({"authed": False, "invoices": []})
     ids = _kv_cmd(["LRANGE", _inv_client_key(s["email"]), 0, -1]) or []
-    return jsonify({"authed": True, "invoices": _inv_list(ids)})
+    invs = _inv_list(ids)
+    pid = (request.args.get("property_id") or "").strip()
+    if pid:
+        sel = next((p for p in _client_props_for(s["email"]) if p.get("id") == pid), None)
+        if sel:
+            invs = [i for i in invs if not i.get("property") or _matches_property(i.get("property", ""), sel)]
+    return jsonify({"authed": True, "invoices": invs})
 
 
 @app.get("/api/admin/invoices")
@@ -1070,6 +1258,7 @@ def admin_create_invoice():
         "client_email": email,
         "client_name": (body.get("client_name") or "").strip()[:200],
         "description": desc,
+        "property": (body.get("property") or "").strip()[:300],
         "amount_cents": cents,
         "due_date": (body.get("due_date") or "").strip()[:20],
         "pay_url": (body.get("pay_url") or "").strip()[:500],
@@ -1103,6 +1292,8 @@ def admin_invoice_status(iid):
     body = request.get_json(force=True, silent=True) or {}
     new_status = (body.get("status") or inv["status"])
     inv["status"] = new_status
+    if new_status == "paid" and not inv.get("paid_ts"):
+        inv["paid_ts"] = _now_ms()
     _inv_save(inv)
     _log_activity("invoice_status", f"Invoice {iid[:8]} → {new_status} for {inv.get('client_email','')}")
     return jsonify({"ok": True, "invoice": inv})
@@ -1583,6 +1774,130 @@ def doc_proposal(insp):
 DOC_BUILDERS = {"checklist": doc_checklist, "report": doc_report, "cert": doc_cert, "proposal": doc_proposal}
 DOC_LABEL = {"checklist": "Completed Subpart D Checklist", "report": "Inspection Report",
              "cert": "Engineer Certification Packet", "proposal": "Corrective-Work Proposal"}
+
+
+# ==========================================================================
+# Paid-invoice receipts (reportlab, on the fly)
+# ==========================================================================
+def doc_receipt(inv):
+    """One-page payment receipt for a paid invoice. Not tied to an inspection
+    record, so it uses its own minimal header instead of _dheader()."""
+    from datetime import datetime, timezone
+    st = _dstyles(); buf, doc = _dnew("Payment Receipt"); story = []
+    story.append(Paragraph("LA GALA CONSTRUCTION", st["wordmark"]))
+    story.append(Paragraph("Tilt Patchers, Inc. · CGC059211", st["doctype"]))
+    story.append(Paragraph("Payment Receipt", st["h1"]))
+    rule = Table([[""]], colWidths=[7.1 * inch]); rule.setStyle(TableStyle([("LINEABOVE", (0, 0), (-1, -1), 1.3, GOLD)]))
+    story.append(Spacer(1, 3)); story.append(rule); story.append(Spacer(1, 10))
+
+    amt = "$" + "{:,.2f}".format((inv.get("amount_cents") or 0) / 100.0)
+    paid_ts = inv.get("paid_ts") or inv.get("created_ts")
+    paid_str = datetime.fromtimestamp(paid_ts / 1000, tz=timezone.utc).strftime("%B %d, %Y") if paid_ts else "—"
+
+    def kv(k, v): return [Paragraph(k, st["meta"]), Paragraph(_esc(v or "—"), st["metab"])]
+    rows = [
+        kv("Receipt #", inv.get("id", "")) + kv("Date paid", paid_str),
+        kv("Billed to", inv.get("client_name") or inv.get("client_email", "")) + kv("Client email", inv.get("client_email", "")),
+        kv("Property", inv.get("property", "")) + kv("Amount paid", amt),
+    ]
+    t = Table(rows, colWidths=[0.95 * inch, 2.55 * inch, 0.95 * inch, 2.65 * inch])
+    t.setStyle(TableStyle([("TOPPADDING", (0, 0), (-1, -1), 2), ("BOTTOMPADDING", (0, 0), (-1, -1), 4), ("LEFTPADDING", (0, 0), (-1, -1), 0), ("VALIGN", (0, 0), (-1, -1), "TOP")]))
+    story.append(t); story.append(Spacer(1, 10))
+
+    story.append(Paragraph("Description", st["sect"]))
+    story.append(Paragraph(_esc(inv.get("description") or "Services rendered"), st["body"]))
+    story.append(Spacer(1, 14))
+
+    rows2 = [[Paragraph("Description", st["th"]), Paragraph("Amount", st["thc"])],
+             [Paragraph(_esc(inv.get("description") or "Services rendered"), st["td"]), Paragraph(amt, st["tdr"])],
+             [Paragraph("<b>Total paid</b>", st["td"]), Paragraph("<b>" + amt + "</b>", st["tdr"])]]
+    t2 = Table(rows2, colWidths=[5.1 * inch, 2.0 * inch])
+    t2.setStyle(_dtable_style())
+    t2.setStyle(TableStyle([("LINEABOVE", (0, 2), (-1, 2), 1, NAVY), ("BACKGROUND", (0, 2), (-1, 2), CREAM)]))
+    story.append(t2); story.append(Spacer(1, 16))
+
+    story.append(Paragraph("This receipt confirms payment in full for the amount and description above. "
+                            "Questions about this invoice? Call (561) 475-8615 or email danny@lagalacon.com.", st["disc"]))
+    return _dfinish(buf, doc, story)
+
+
+@app.get("/api/portal/invoice/<iid>/receipt")
+def portal_invoice_receipt(iid):
+    s = read_session()
+    if not s or not s.get("email"):
+        return jsonify({"error": "sign in required"}), 401
+    inv = _inv_get(iid)
+    if not inv or (inv.get("client_email") or "").lower() != s.get("email", "").lower():
+        return jsonify({"error": "not found"}), 404
+    if not _RL:
+        return jsonify({"error": "pdf engine unavailable"}), 503
+    if inv.get("status") != "paid":
+        return jsonify({"error": "invoice is not marked paid"}), 400
+    try:
+        pdf = doc_receipt(inv)
+    except Exception as e:
+        return jsonify({"error": "pdf failed: " + str(e)}), 500
+    resp = make_response(pdf)
+    resp.headers["Content-Type"] = "application/pdf"
+    resp.headers["Content-Disposition"] = 'inline; filename="LaGala_Receipt_%s.pdf"' % iid[:10]
+    return resp
+
+
+# ==========================================================================
+# One-click board-ready compliance packet — cover sheet (reportlab)
+# ==========================================================================
+def _compliance_status(insp):
+    """Best-effort roll-up of current compliance status/expiration for the
+    cover sheet, from whatever the inspection record already carries."""
+    findings = insp.get("findings") or []
+    defects = [f for f in findings if (f.get("result") or "").lower() == "def"]
+    status = insp.get("status", "draft")
+    label = {"draft": "In progress", "field": "Field work in progress",
+             "complete": "Inspection complete", "sealed": "Sealed / certified",
+             "accepted": "Corrective proposal accepted"}.get(status, status.title())
+    return {
+        "label": label,
+        "defect_count": len(defects),
+        "recert_due": (insp.get("pe") or {}).get("recert_due", "") or "Per FL 10-year anchorage re-test cycle",
+    }
+
+
+def doc_board_cover(insp):
+    from datetime import datetime, timezone
+    st = _dstyles(); buf, doc = _dnew("Board-Ready Compliance Packet — Cover Sheet"); story = []
+    _dheader(story, st, "Prepared for the Board / HOA", "Compliance Packet — Cover Sheet", insp)
+
+    cs = _compliance_status(insp)
+    accept = insp.get("acceptance") or {}
+    story.append(Paragraph("Compliance status summary", st["sect"]))
+    def kv(k, v): return [Paragraph(k, st["meta"]), Paragraph(_esc(v or "—"), st["metab"])]
+    rows = [
+        kv("Current status", cs["label"]) + kv("Open deficiencies", str(cs["defect_count"])),
+        kv("Recertification", cs["recert_due"]) + kv("Report generated", datetime.now(timezone.utc).strftime("%B %d, %Y")),
+    ]
+    if accept.get("name_typed"):
+        ts = accept.get("ts")
+        when = datetime.fromtimestamp(ts / 1000, tz=timezone.utc).strftime("%B %d, %Y") if ts else ""
+        rows.append(kv("Proposal accepted by", accept.get("name_typed", "") + (("  ·  " + when) if when else "")))
+    t = Table(rows, colWidths=[1.1 * inch, 2.4 * inch, 1.1 * inch, 2.4 * inch])
+    t.setStyle(TableStyle([("TOPPADDING", (0, 0), (-1, -1), 2), ("BOTTOMPADDING", (0, 0), (-1, -1), 4), ("LEFTPADDING", (0, 0), (-1, -1), 0), ("VALIGN", (0, 0), (-1, -1), "TOP")]))
+    story.append(t); story.append(Spacer(1, 10))
+
+    story.append(Paragraph("What's included in this packet", st["sect"]))
+    included = []
+    for kind in ("report", "checklist", "cert", "proposal"):
+        included.append("• " + DOC_LABEL.get(kind, kind.title()))
+    story.append(Paragraph("<br/>".join(included) if included else "No documents available yet.", st["body"]))
+    story.append(Spacer(1, 10))
+
+    story.append(Paragraph("This cover sheet summarizes the current compliance cycle for the property above. "
+                            "The individual documents listed are downloaded separately from the client portal and "
+                            "should be assembled behind this cover sheet for board presentation.", st["key"]))
+    story.append(Spacer(1, 14))
+    story.append(Paragraph("Prepared by La Gala Construction / Tilt Patchers, Inc. · CGC059211 · in partnership with "
+                            "a FL State Certified Engineer. Engineering inspections and certifications are performed "
+                            "and sealed by an independent, licensed Florida professional engineer.", st["disc"]))
+    return _dfinish(buf, doc, story)
 
 
 # ---- inspection storage (KV) ----

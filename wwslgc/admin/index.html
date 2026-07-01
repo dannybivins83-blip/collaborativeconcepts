@@ -66,7 +66,8 @@
 <button data-tab="insp" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspections <span id="cInsp" class="text-mute font-normal"></span></button>
 <button data-tab="inv" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Invoices <span id="cInv" class="text-mute font-normal"></span></button>
 <button data-tab="activity" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Activity</button>
-<button onclick="loadLeads()" class="ml-auto text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">refresh</span> Refresh</button>
+<button onclick="openClientProperties()" class="ml-auto text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">domain</span> Client properties</button>
+<button onclick="loadLeads()" class="text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">refresh</span> Refresh</button>
 </div>
 
 <!-- leads -->
@@ -345,6 +346,7 @@ function openCreateInvoice(){
     '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">Client email *</label><input id="inv_email" type="email" placeholder="client@example.com" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>'+
     '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">Client name</label><input id="inv_name" type="text" placeholder="Jane Smith / Acme Corp" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>'+
     '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">Description</label><input id="inv_desc" type="text" placeholder="Subpart D inspection + PE report — 123 Main St" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>'+
+    '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">Property (optional — for multi-property clients)</label><input id="inv_prop" type="text" placeholder="123 Main St, Fort Lauderdale" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>'+
     '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">Amount ($)</label><input id="inv_amt" type="number" placeholder="2500" step="0.01" min="0" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>'+
     '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">Due date</label><input id="inv_due" type="date" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>'+
     '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">Payment link (Stripe / Square)</label><input id="inv_url" type="url" placeholder="https://buy.stripe.com/…" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>'+
@@ -357,10 +359,62 @@ function openCreateInvoice(){
 function saveInvoice(){
   var email=(document.getElementById('inv_email').value||'').trim();
   if(!email){alert('Client email is required.');return;}
-  var body={client_email:email,client_name:(document.getElementById('inv_name').value||'').trim(),description:(document.getElementById('inv_desc').value||'').trim(),amount:(document.getElementById('inv_amt').value||0),due_date:(document.getElementById('inv_due').value||''),pay_url:(document.getElementById('inv_url').value||'').trim()};
+  var body={client_email:email,client_name:(document.getElementById('inv_name').value||'').trim(),description:(document.getElementById('inv_desc').value||'').trim(),property:(document.getElementById('inv_prop').value||'').trim(),amount:(document.getElementById('inv_amt').value||0),due_date:(document.getElementById('inv_due').value||''),pay_url:(document.getElementById('inv_url').value||'').trim()};
   api('/api/admin/invoice',{method:'POST',body:JSON.stringify(body)}).then(function(d){
     if(d.ok){closeDrawer();loadInvoices();switchTab('inv');}
     else alert(d.error||'Could not create invoice.');
+  });
+}
+
+// ---- multi-property / portfolio switcher (admin management) ----
+var CP_EMAIL='';
+function openClientProperties(){
+  document.getElementById('drawerBody').innerHTML=
+    '<div class="flex items-center justify-between mb-4"><h2 class="text-xl font-extrabold text-primary">Client properties</h2><button onclick="closeDrawer()" class="text-mute hover:text-primary"><span class="ms">close</span></button></div>'+
+    '<p class="text-xs text-mute mb-3">Add every property a client owns/manages. When a client has 2+ properties on file, a switcher appears in their portal so they can filter requests, inspections, and invoices by property.</p>'+
+    '<div class="flex gap-2 mb-4"><input id="cp_lookup_email" type="email" placeholder="client@example.com" class="flex-1 rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none" onkeydown="if(event.key===\'Enter\')lookupClientProperties()"/><button onclick="lookupClientProperties()" class="bg-primary text-white text-sm font-semibold px-4 rounded-lg hover:bg-primaryc">Look up</button></div>'+
+    '<div id="cp_body"></div>';
+  document.getElementById('scrim').classList.remove('hidden');
+  document.getElementById('drawer').classList.remove('translate-x-full');
+}
+function lookupClientProperties(){
+  var email=(document.getElementById('cp_lookup_email').value||'').trim().toLowerCase();
+  if(!email) return;
+  CP_EMAIL=email;
+  api('/api/admin/client/properties?email='+encodeURIComponent(email)).then(function(d){
+    renderClientProperties(d.properties||[]);
+  });
+}
+function renderClientProperties(props){
+  var box=document.getElementById('cp_body'); if(!box) return;
+  var rows=props.map(function(p){
+    return '<div class="border border-line rounded-lg p-3 mb-2 flex items-start justify-between gap-2">'+
+      '<div><div class="font-semibold text-primary text-sm">'+esc(p.name||'(no name)')+'</div><div class="text-mute text-xs">'+esc(p.address||'')+'</div>'+(p.notes?'<div class="text-mute text-xs mt-1">'+esc(p.notes)+'</div>':'')+'</div>'+
+      '<button onclick="deleteClientProperty(\''+esc(p.id)+'\')" class="text-mute hover:text-red-600"><span class="ms text-base">delete</span></button></div>';
+  }).join('') || '<p class="text-sm text-mute mb-3">No properties on file yet for this client.</p>';
+  box.innerHTML=rows+
+    '<div class="border-t border-line pt-3 mt-3 space-y-2">'+
+    '<div class="font-semibold text-sm text-primary">Add a property</div>'+
+    '<input id="cp_name" placeholder="Property / building name" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>'+
+    '<input id="cp_address" placeholder="Address" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>'+
+    '<input id="cp_notes" placeholder="Notes (optional)" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>'+
+    '<button onclick="addClientProperty()" class="w-full bg-secondary text-white py-2.5 rounded-xl font-bold text-sm hover:bg-primaryc transition-colors">Add property</button>'+
+    '</div>';
+}
+function addClientProperty(){
+  if(!CP_EMAIL){alert('Look up a client email first.');return;}
+  var name=(document.getElementById('cp_name').value||'').trim();
+  var address=(document.getElementById('cp_address').value||'').trim();
+  var notes=(document.getElementById('cp_notes').value||'').trim();
+  if(!name&&!address){alert('Enter a property name or address.');return;}
+  api('/api/admin/client/properties',{method:'POST',body:JSON.stringify({email:CP_EMAIL,name:name,address:address,notes:notes})}).then(function(d){
+    if(d.ok) renderClientProperties(d.properties||[]); else alert(d.error||'Could not add property.');
+  });
+}
+function deleteClientProperty(id){
+  if(!CP_EMAIL) return;
+  api('/api/admin/client/properties/'+encodeURIComponent(id)+'/delete',{method:'POST',body:JSON.stringify({email:CP_EMAIL})}).then(function(d){
+    if(d.ok) renderClientProperties(d.properties||[]); else alert(d.error||'Could not remove property.');
   });
 }
 
