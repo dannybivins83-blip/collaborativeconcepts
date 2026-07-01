@@ -52,15 +52,42 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <p data-i18n="gate_p" class="text-mute leading-relaxed mt-3">Sign in to request a PE-sealed OSHA Subpart D inspection, track your requests, and keep your compliance documentation in one place.</p>
 <a href="/api/login/google?basic=1&next=/portal" class="tap-target inline-flex items-center gap-2 bg-primary text-white px-7 py-3.5 rounded-xl font-semibold mt-7 hover:bg-primaryc transition-colors"><span class="ms" aria-hidden="true">login</span> <span data-i18n="gate_signin">Sign in with Google</span></a>
 <p data-i18n="gate_privacy" class="text-xs text-mute/70 mt-4">We only use your name and email to manage your request. No mailbox access is requested.</p>
+
+<div class="flex items-center gap-3 mt-7"><div class="flex-1 h-px bg-line"></div><span class="text-xs text-mute uppercase tracking-wide">or</span><div class="flex-1 h-px bg-line"></div></div>
+
+<!-- email + one-time code sign-in -->
+<div class="mt-5 text-left bg-white rounded-xl border border-line p-5">
+<div id="otpStep1">
+<label class="block text-sm font-semibold mb-1">Sign in with email</label>
+<p class="text-xs text-mute mb-2">We'll email you a 6-digit code — no password needed.</p>
+<form id="otpStartForm" class="flex gap-2">
+<input id="otpEmail" type="email" required placeholder="you@company.com" class="flex-1 rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>
+<button type="submit" id="otpStartBtn" class="tap-target shrink-0 bg-primary text-white px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-primaryc transition-colors">Send code</button>
+</form>
+<div id="otpStartMsg" class="text-xs mt-2"></div>
+</div>
+<div id="otpStep2" class="hidden">
+<label class="block text-sm font-semibold mb-1">Enter your code</label>
+<p class="text-xs text-mute mb-2">Sent to <span id="otpEmailShown" class="font-semibold"></span>. Expires in 10 minutes.</p>
+<form id="otpVerifyForm" class="flex gap-2">
+<input id="otpCode" inputmode="numeric" maxlength="6" required placeholder="123456" class="flex-1 rounded-lg border border-line bg-surface px-3 py-2.5 text-sm tracking-[0.3em] focus:ring-2 focus:ring-secondary focus:outline-none"/>
+<button type="submit" id="otpVerifyBtn" class="tap-target shrink-0 bg-secondary text-white px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-primary transition-colors">Verify</button>
+</form>
+<div id="otpVerifyMsg" class="text-xs mt-2"></div>
+<button type="button" id="otpBack" class="tap-target text-xs text-mute hover:text-primary mt-2 underline">Use a different email</button>
+</div>
+</div>
+
 <p class="text-sm text-mute mt-8"><span data-i18n="gate_call_prefix">Prefer to talk? Call</span> <a href="tel:+15614758615" class="text-secondary font-semibold">(561) 475-8615</a> <span data-i18n="gate_call_or">or use the</span> <a href="/#assessment" class="text-secondary font-semibold" data-i18n="gate_call_form">comprehensive assessment form</a>.</p>
 </section>
 
 <!-- signed in -->
 <section id="app" class="hidden max-w-5xl mx-auto px-5 py-8">
+<div id="readonlyBanner" class="hidden mb-5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 px-4 py-3 text-sm flex items-start gap-2"><span class="ms text-amber-600" aria-hidden="true">visibility</span><div><b>Read-only access.</b> You're viewing this account's requests, inspections, and invoices, but can't submit new requests or make payments.</div></div>
 <div class="flex items-start justify-between gap-4 flex-wrap">
 <div>
 <h1 id="hello" class="text-2xl sm:text-3xl font-extrabold text-primary">Welcome.</h1>
-<p data-i18n="welcome_sub" class="text-mute mt-1">Request an inspection below — we'll confirm scheduling by email, usually within one business day.</p>
+<p id="helloSub" data-i18n="welcome_sub" class="text-mute mt-1">Request an inspection below — we'll confirm scheduling by email, usually within one business day.</p>
 </div>
 <div id="propSwitcherWrap" class="hidden shrink-0">
 <label class="block text-xs font-semibold text-mute mb-1">Property</label>
@@ -98,7 +125,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 <div class="grid lg:grid-cols-5 gap-6 mt-7">
 <!-- request form -->
-<div class="lg:col-span-3">
+<div id="reqFormWrap" class="lg:col-span-3">
 <div id="confirm" class="hidden mb-4 rounded-xl bg-green-50 border border-green-300 text-green-800 px-4 py-3 text-sm flex items-start gap-2"><span class="ms text-green-600" aria-hidden="true">task_alt</span><div><b data-i18n="confirm_b">Request received.</b> <span data-i18n="confirm_p">We'll be in touch to confirm scheduling. You can see it in "Your requests."</span></div></div>
 <div class="bg-white rounded-2xl border border-line p-6 shadow-sm">
 <h2 class="text-lg font-bold text-primary mb-4" data-i18n="form_h2">Request an inspection</h2>
@@ -184,6 +211,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <div id="credsPanel" class="bg-white rounded-xl border border-line p-5 flex flex-wrap gap-x-8 gap-y-3 text-sm"></div>
 </div>
 
+<!-- delegate (share read-only access) -->
+<div id="delegateWrap" class="hidden mt-10">
+<h2 class="text-lg font-bold text-primary mb-3">Share read-only access</h2>
+<p class="text-mute text-sm mb-3">Invite someone to view your requests, inspections, and invoices without sharing your login. They can't submit requests or pay invoices.</p>
+<div class="bg-white rounded-2xl border border-line p-5">
+<form id="delegateForm" class="flex flex-wrap gap-2 items-end">
+<div class="flex-1 min-w-[220px]"><label class="block text-sm font-semibold mb-1">Recipient email</label><input id="delegateEmail" type="email" required placeholder="colleague@company.com" class="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>
+<button type="submit" id="delegateBtn" class="bg-primary text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-primaryc transition-colors">Send invite</button>
+</form>
+<div id="delegateMsg" class="text-xs mt-2"></div>
+<div id="delegateList" class="mt-4 space-y-2"></div>
+</div>
+</div>
+
 <!-- compliance library -->
 <div class="mt-10">
 <div class="flex items-center justify-between gap-2 mb-3">
@@ -220,6 +261,7 @@ function ago(ms){if(!ms)return'';var s=(Date.now()-ms)/1000;if(s<60)return'just 
 function api(p,opts){return fetch(p,Object.assign({headers:{'Content-Type':'application/json'}},opts||{})).then(function(r){return r.json();});}
 
 var SELECTED_PROPERTY_ID='';
+var READONLY=false;
 
 /* ---- referral ?ref= capture: persist to localStorage so it survives navigation to the assessment form ---- */
 (function(){
@@ -231,11 +273,21 @@ function boot(){
   api('/api/portal/requests').then(function(d){
     if(!d.authed){ document.getElementById('gate').classList.remove('hidden'); return; }
     document.getElementById('app').classList.remove('hidden');
+    READONLY=!!d.readonly;
     var nm=(d.name||'').split(' ')[0]||'';
     var hello=document.getElementById('hello');
     hello.dataset.name=nm;
     hello.textContent=(I18N[LANG].welcome_hello||'Welcome')+(nm?(', '+nm):'')+'.';
     document.getElementById('who').innerHTML='<span class="text-white/70 mr-3">'+esc(d.email)+'</span><a href="/api/logout" class="tap-target text-white/70 hover:text-white inline-flex items-center gap-1" aria-label="Sign out"><span class="ms text-base" aria-hidden="true">logout</span><span class="hidden sm:inline" data-i18n="signout">Sign out</span></a>';
+    if(READONLY){
+      document.getElementById('readonlyBanner').classList.remove('hidden');
+      document.getElementById('reqFormWrap').classList.add('hidden');
+      document.getElementById('helloSub').textContent='Viewing this account\'s compliance records (read-only).';
+      document.getElementById('delegateWrap').classList.add('hidden');
+    } else {
+      loadDelegates();
+      document.getElementById('delegateWrap').classList.remove('hidden');
+    }
     loadProperties(function(){
       renderReqs(d.requests||[]);
       loadInspections();
@@ -390,18 +442,20 @@ function loadInspections(){
       if(x.proposal_accepted){
         var acc=x.acceptance||{};
         acceptUI='<div class="mt-3 inline-flex items-start gap-2 bg-green-50 border border-green-300 text-green-800 rounded-lg px-3 py-2 text-xs"><span class="ms text-green-600 text-base" aria-hidden="true">task_alt</span><div>Proposal accepted by <b>'+esc(acc.name_typed||'')+'</b>'+(acc.ts?' on '+esc(new Date(acc.ts).toLocaleDateString()):'')+'.</div></div>';
-      } else if((x.docs||[]).indexOf('proposal')>-1){
+      } else if(!READONLY&&(x.docs||[]).indexOf('proposal')>-1){
         acceptUI='<div class="mt-3"><button onclick="openAccept(\''+esc(x.id)+'\')" class="tap-target inline-flex items-center gap-1 text-sm bg-secondary text-white rounded-lg px-3 py-1.5 font-semibold hover:bg-primary transition-colors"><span class="ms text-base" aria-hidden="true">edit_document</span>Accept proposal</button></div>';
       } else { acceptUI=''; }
-      var threadUI='<div class="mt-4 pt-4 border-t border-line">'+
-          '<button type="button" class="text-sm font-semibold text-secondary inline-flex items-center gap-1" onclick="toggleThread(\''+esc(x.id)+'\')" aria-expanded="false" aria-controls="thread-'+esc(x.id)+'"><span class="ms text-base" aria-hidden="true">forum</span><span data-i18n="msg_toggle">Messages</span></button>'+
-          '<div id="thread-'+esc(x.id)+'" class="hidden mt-3">'+
-            '<div id="thread-list-'+esc(x.id)+'" class="space-y-2 max-h-64 overflow-y-auto"></div>'+
+      var threadForm=READONLY?'':(
             '<form class="flex gap-2 mt-3" onsubmit="return sendMessage(event,\''+esc(x.id)+'\')">'+
               '<label for="thread-input-'+esc(x.id)+'" class="sr-only" data-i18n="msg_input_lbl">Write a message about this inspection</label>'+
               '<input id="thread-input-'+esc(x.id)+'" type="text" placeholder="Write a message…" data-i18n-ph="msg_placeholder" class="flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>'+
               '<button type="submit" class="bg-secondary text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-primary transition-colors" data-i18n="msg_send">Send</button>'+
-            '</form>'+
+            '</form>');
+      var threadUI='<div class="mt-4 pt-4 border-t border-line">'+
+          '<button type="button" class="text-sm font-semibold text-secondary inline-flex items-center gap-1" onclick="toggleThread(\''+esc(x.id)+'\')" aria-expanded="false" aria-controls="thread-'+esc(x.id)+'"><span class="ms text-base" aria-hidden="true">forum</span><span data-i18n="msg_toggle">Messages</span></button>'+
+          '<div id="thread-'+esc(x.id)+'" class="hidden mt-3">'+
+            '<div id="thread-list-'+esc(x.id)+'" class="space-y-2 max-h-64 overflow-y-auto"></div>'+
+            threadForm+
           '</div>'+
         '</div>';
       return '<div class="bg-white rounded-xl border border-line p-5">'+
@@ -499,8 +553,8 @@ function renderInvoices(){
   document.getElementById('invoiceList').innerHTML=shown.map(function(x){
     var amt=x.amount_cents?'$'+(x.amount_cents/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
     var badge='<span class="text-[11px] font-bold px-2 py-0.5 rounded-full '+(sc[x.status]||'bg-gray-100 text-gray-600')+'">'+esc((x.status||'open').toUpperCase())+'</span>';
-    var btn=(x.status==='open'&&x.pay_url)?'<a href="'+esc(x.pay_url)+'" target="_blank" rel="noopener" class="shrink-0 inline-flex items-center gap-1 bg-secondary text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-primary transition-colors"><span class="ms text-base">credit_card</span>Pay now</a>':'';
-    var receiptBtn=(x.status==='paid')?'<a href="/api/portal/invoice/'+esc(x.id)+'/receipt" target="_blank" rel="noopener" class="shrink-0 inline-flex items-center gap-1 border border-line px-4 py-2 rounded-lg font-bold text-sm text-primary hover:border-secondary"><span class="ms text-base">receipt_long</span>Download receipt</a>':'';
+    var btn=(!READONLY&&x.status==='open'&&x.pay_url)?'<a href="'+esc(x.pay_url)+'" target="_blank" rel="noopener" class="shrink-0 inline-flex items-center gap-1 bg-secondary text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-primary transition-colors"><span class="ms text-base" aria-hidden="true">credit_card</span>Pay now</a>':'';
+    var receiptBtn=(x.status==='paid')?'<a href="/api/portal/invoice/'+esc(x.id)+'/receipt" target="_blank" rel="noopener" class="shrink-0 inline-flex items-center gap-1 border border-line px-4 py-2 rounded-lg font-bold text-sm text-primary hover:border-secondary"><span class="ms text-base" aria-hidden="true">receipt_long</span>Download receipt</a>':'';
     return '<div class="bg-white rounded-xl border border-line p-4 flex items-start justify-between gap-4 flex-wrap">'+
       '<div class="flex-1 min-w-0">'+
       '<div class="flex items-center gap-2 flex-wrap">'+badge+(amt?'<span class="font-extrabold text-primary text-lg">'+amt+'</span>':'')+'</div>'+
@@ -707,6 +761,89 @@ function toggleLang(){
   applyI18n();
 }
 applyI18n();
+
+// ---- email + one-time code sign-in (adds a second path alongside Google) ----
+var otpEmailValue='';
+document.getElementById('otpStartForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var email=document.getElementById('otpEmail').value.trim();
+  if(!email) return;
+  var btn=document.getElementById('otpStartBtn'), lbl=btn.textContent, msg=document.getElementById('otpStartMsg');
+  btn.disabled=true; btn.textContent='Sending…'; msg.textContent=''; msg.className='text-xs mt-2';
+  api('/api/login/email/start',{method:'POST',body:JSON.stringify({email:email})}).then(function(d){
+    btn.disabled=false; btn.textContent=lbl;
+    if(d.ok){
+      otpEmailValue=email;
+      document.getElementById('otpEmailShown').textContent=email;
+      document.getElementById('otpStep1').classList.add('hidden');
+      document.getElementById('otpStep2').classList.remove('hidden');
+      document.getElementById('otpCode').focus();
+    } else {
+      msg.textContent=d.error||'Could not send code.'; msg.className='text-xs mt-2 text-red-600';
+    }
+  }).catch(function(){ btn.disabled=false; btn.textContent=lbl; msg.textContent='Network error. Please try again.'; msg.className='text-xs mt-2 text-red-600'; });
+});
+document.getElementById('otpVerifyForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var code=document.getElementById('otpCode').value.trim();
+  if(!code) return;
+  var btn=document.getElementById('otpVerifyBtn'), lbl=btn.textContent, msg=document.getElementById('otpVerifyMsg');
+  btn.disabled=true; btn.textContent='Verifying…'; msg.textContent=''; msg.className='text-xs mt-2';
+  api('/api/login/email/verify',{method:'POST',body:JSON.stringify({email:otpEmailValue,code:code})}).then(function(d){
+    btn.disabled=false; btn.textContent=lbl;
+    if(d.ok){ location.reload(); }
+    else { msg.textContent=d.error||'Incorrect code.'; msg.className='text-xs mt-2 text-red-600'; }
+  }).catch(function(){ btn.disabled=false; btn.textContent=lbl; msg.textContent='Network error. Please try again.'; msg.className='text-xs mt-2 text-red-600'; });
+});
+document.getElementById('otpBack').addEventListener('click',function(){
+  document.getElementById('otpStep2').classList.add('hidden');
+  document.getElementById('otpStep1').classList.remove('hidden');
+  document.getElementById('otpCode').value='';
+});
+
+// ---- read-only delegate access ----
+function csrfToken(){ return api('/api/csrf').then(function(d){ return d.ok?d.csrf:null; }); }
+
+function loadDelegates(){
+  api('/api/portal/delegate/list').then(function(d){
+    if(!d.ok) return;
+    var rows=d.delegates||[];
+    document.getElementById('delegateList').innerHTML=rows.map(function(r){
+      var status=r.revoked?'<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-500">REVOKED</span>':'<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">ACTIVE</span>';
+      var revokeBtn=r.revoked?'':'<button type="button" data-token="'+esc(r.full_token)+'" class="delegateRevokeBtn text-xs text-red-600 hover:underline font-semibold">Revoke</button>';
+      return '<div class="flex items-center justify-between gap-3 border border-line rounded-lg px-3 py-2 text-sm">'+
+        '<div><div class="font-semibold text-primary">'+esc(r.recipient_email)+'</div><div class="text-mute text-xs">Invited '+esc(ago(r.created_ts))+'</div></div>'+
+        '<div class="flex items-center gap-3">'+status+revokeBtn+'</div></div>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('.delegateRevokeBtn'),function(b){
+      b.addEventListener('click',function(){
+        var token=b.getAttribute('data-token');
+        csrfToken().then(function(csrf){
+          if(!csrf){ alert('Session expired. Please refresh and try again.'); return; }
+          api('/api/portal/delegate/revoke',{method:'POST',body:JSON.stringify({token:token,csrf:csrf})}).then(function(d){
+            if(d.ok) loadDelegates(); else alert(d.error||'Could not revoke.');
+          });
+        });
+      });
+    });
+  }).catch(function(){});
+}
+
+document.getElementById('delegateForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var email=document.getElementById('delegateEmail').value.trim();
+  if(!email) return;
+  var btn=document.getElementById('delegateBtn'), lbl=btn.textContent, msg=document.getElementById('delegateMsg');
+  btn.disabled=true; btn.textContent='Sending…'; msg.textContent=''; msg.className='text-xs mt-2';
+  csrfToken().then(function(csrf){
+    if(!csrf){ btn.disabled=false; btn.textContent=lbl; msg.textContent='Session expired. Please refresh and try again.'; msg.className='text-xs mt-2 text-red-600'; return; }
+    api('/api/portal/delegate/invite',{method:'POST',body:JSON.stringify({email:email,csrf:csrf})}).then(function(d){
+      btn.disabled=false; btn.textContent=lbl;
+      if(d.ok){ document.getElementById('delegateEmail').value=''; msg.textContent='Invite sent to '+d.invited+'.'; msg.className='text-xs mt-2 text-green-700'; loadDelegates(); }
+      else { msg.textContent=d.error||'Could not send invite.'; msg.className='text-xs mt-2 text-red-600'; }
+    }).catch(function(){ btn.disabled=false; btn.textContent=lbl; msg.textContent='Network error. Please try again.'; msg.className='text-xs mt-2 text-red-600'; });
+  });
+});
 
 boot();
 </script>
