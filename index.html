@@ -329,22 +329,26 @@
   .proof .p-learn:hover .arw{ transform:translateX(4px); }
 
   /* ============================================================
-     EXECUTION PARTNERS — clean 3-up (v21)
+     TRADES / INDUSTRIES — clean 2D icon grid
   ============================================================ */
   .exec{ background:var(--paper); }
-  .partners{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:8px; }
-  .pcard{
-    background:#fff; border:1px solid var(--sand); border-radius:16px; padding:28px 26px;
+  .trades{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:8px; }
+  .tcard{
+    background:#fff; border:1px solid var(--sand); border-radius:16px; padding:26px 24px;
     box-shadow:0 12px 30px -22px rgba(8,26,28,.3); transition:.22s;
+    display:flex; flex-direction:column; align-items:flex-start;
   }
-  .pcard:hover{ transform:translateY(-4px); box-shadow:0 20px 44px -22px rgba(8,26,28,.4); border-color:var(--gold-2); }
-  .pcard h3{ font-size:1.3rem; color:var(--ink); font-weight:600; }
-  .pcard p{ color:var(--soft); font-size:.96rem; margin-top:8px; }
-  .pcard .lic{
-    display:inline-block; margin-top:14px; font-family:"IBM Plex Mono",monospace;
-    font-size:11.5px; font-weight:600; letter-spacing:.03em; color:#0a5d54;
-    background:rgba(15,118,110,.12); padding:6px 12px; border-radius:8px;
+  .tcard:hover{ transform:translateY(-4px); box-shadow:0 20px 44px -22px rgba(8,26,28,.4); border-color:var(--gold-2); }
+  .tcard .ticon{
+    width:52px; height:52px; border-radius:13px; flex:none;
+    display:grid; place-items:center; margin-bottom:16px;
+    background:rgba(15,118,110,.1); color:var(--gold);
+    transition:background .22s ease, color .22s ease;
   }
+  .tcard:hover .ticon{ background:var(--gold-2); color:#04211e; }
+  .tcard .ticon svg{ width:26px; height:26px; }
+  .tcard h3{ font-size:1.12rem; color:var(--ink); font-weight:600; }
+  .tcard p{ color:var(--soft); font-size:.92rem; margin-top:6px; line-height:1.5; }
 
   /* ============================================================
      OPERATOR + CLOSING CTA — photographic band (v21 / v23)
@@ -405,7 +409,7 @@
   @media (max-width:1000px){
     .bento{ grid-template-columns:repeat(2,1fr); grid-auto-rows:184px; }
     .sp-3{ grid-column:span 2; }
-    .partners{ grid-template-columns:1fr; }
+    .trades{ grid-template-columns:repeat(2,1fr); }
     .proof .inner{ flex-direction:column; align-items:flex-start; }
   }
   @media (max-width:880px){
@@ -423,6 +427,7 @@
     .foot-grid{ grid-template-columns:1fr; }
     .hero-inner{ padding-bottom:72px; }
     .band{ padding:64px 0; }
+    .trades{ grid-template-columns:1fr; }
   }
 </style>
 <!-- Google Analytics (GA4) -->
@@ -609,32 +614,59 @@ gtag('config', 'G-K9ZEXRRMCK');
   </div>
 </section>
 
-<!-- =========================== EXECUTION PARTNERS =========================== -->
-<section class="band exec" aria-label="Execution partners">
+<!-- =========================== TRADES / INDUSTRIES =========================== -->
+<section class="band exec" aria-label="Trades and industries we work across">
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <span class="kicker">Who executes</span>
-        <h2>Licensed, named partners on every build.</h2>
+        <span class="kicker">Where we work</span>
+        <h2>Built across every trade that matters.</h2>
       </div>
-      <p class="sub">No vague "partners" — the license numbers and the equity terms, on one row.</p>
+      <p class="sub">From the deck up — licensed execution across the disciplines every coastal build touches.</p>
     </div>
 
-    <div class="partners">
-      <div class="pcard">
-        <h3>La Gala Construction</h3>
-        <p>General contractor — ground-up coastal builds and renovations, 25+ years in Florida.</p>
-        <span class="lic mono tnum">FL CGC 059211 · Keith La Gala</span>
+    <div class="trades">
+      <div class="tcard">
+        <span class="ticon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 12 4l9 8"/><path d="M6 10.5V20h12v-9.5"/><path d="M10 20v-6h4v6"/></svg>
+        </span>
+        <h3>Roofing</h3>
+        <p>HVHZ-ready systems, reports, and permit-clean replacements.</p>
       </div>
-      <div class="pcard">
-        <h3>SeaBreeze Roofing &amp; Sheet Metal</h3>
-        <p>HVHZ-ready roofing execution — reports, replacements, and permit-clean work.</p>
-        <span class="lic mono tnum">CCC1328689 · CVC57073</span>
+      <div class="tcard">
+        <span class="ticon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21h19"/><path d="M4 21V9l7-5 7 5v12"/><path d="M9 21v-6h4v6"/><path d="M9 12h.01M13 12h.01M9 8.5h.01M13 8.5h.01"/></svg>
+        </span>
+        <h3>New Construction</h3>
+        <p>Ground-up coastal builds, from foundation to final walkthrough.</p>
       </div>
-      <div class="pcard">
-        <h3>K5 Investment Group</h3>
-        <p>Equity &amp; structuring — 20–25% in 2nd position, 50/50 split, 12–24 month hold.</p>
-        <span class="lic mono tnum">Capital &amp; structuring partner</span>
+      <div class="tcard">
+        <span class="ticon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M9 9h1M14 9h1M9 13h1M14 13h1"/><path d="M10 21v-5h4v5"/></svg>
+        </span>
+        <h3>Real Estate</h3>
+        <p>Off-market sourcing, acquisition, and structured investor deals.</p>
+      </div>
+      <div class="tcard">
+        <span class="ticon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="14" height="11" rx="1.5"/><path d="M17 10h2.2a1.8 1.8 0 0 1 1.8 1.8v3.4a1.8 1.8 0 0 1-1.8 1.8H17"/><path d="M6.5 7V5M10.5 7V5"/></svg>
+        </span>
+        <h3>HVAC</h3>
+        <p>Full-system installs and service, code-checked and permitted.</p>
+      </div>
+      <div class="tcard">
+        <span class="ticon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v4a3 3 0 0 0 3 3v2a5 5 0 0 1-5 5"/><path d="M17 3v4a3 3 0 0 1-3 3v2a5 5 0 0 0 5 5"/><path d="M12 21v-4"/></svg>
+        </span>
+        <h3>Plumbing</h3>
+        <p>Rough-in through fixture, inspected and warrantied work.</p>
+      </div>
+      <div class="tcard">
+        <span class="ticon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+        </span>
+        <h3>Electrical &amp; Solar</h3>
+        <p>Panel upgrades, wiring, and solar-loan exit remediation.</p>
       </div>
     </div>
   </div>
