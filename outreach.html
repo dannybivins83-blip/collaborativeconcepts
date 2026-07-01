@@ -62,6 +62,7 @@ gtag('config', 'G-K9ZEXRRMCK');
     <select id="fTrade" class="rounded-lg border-outline text-sm py-2"><option value="">All trades</option><option>Roofing</option><option>AC/HVAC</option><option>Electrical</option><option>Plumbing</option><option>GC/Multi</option></select>
     <select id="fStage" class="rounded-lg border-outline text-sm py-2"><option value="">All stages</option></select>
     <input id="fSearch" placeholder="Search company / city…" class="rounded-lg border-outline text-sm py-2 px-3 flex-1 min-w-[180px]"/>
+    <button onclick="App.openFind()" class="text-sm px-3 py-2 rounded-lg bg-secondary text-white font-semibold hover:opacity-90">+ Find leads</button>
     <button onclick="App.pull()" class="text-sm px-3 py-2 rounded-lg border border-outline hover:bg-surface-low">Pull from server</button>
     <button onclick="App.exportJson()" class="text-sm px-3 py-2 rounded-lg border border-outline hover:bg-surface-low">Export</button>
     <label class="text-sm px-3 py-2 rounded-lg border border-outline hover:bg-surface-low cursor-pointer">Import<input type="file" accept="application/json" class="hidden" onchange="App.importJson(event)"/></label>
@@ -149,6 +150,41 @@ gtag('config', 'G-K9ZEXRRMCK');
   </div>
 </div>
 
+<!-- FIND LEADS MODAL -->
+<div id="findModal" class="hidden fixed inset-0 z-50 bg-black/40 flex items-start justify-center p-0 sm:p-6 overflow-y-auto">
+  <div class="bg-surface-lowest w-full sm:max-w-4xl sm:rounded-2xl rounded-t-2xl shadow-2xl my-0 sm:my-4">
+    <div class="sticky top-0 bg-primary text-white px-5 py-4 flex items-center justify-between z-10">
+      <div>
+        <div class="font-extrabold head">Find leads — Google trade businesses</div>
+        <div class="text-[11px] text-white/60">Searches Google, then scores each by fit for your $2–5M owner-operated target</div>
+      </div>
+      <button onclick="App.closeFind()" class="text-white/70 hover:text-white text-2xl leading-none">×</button>
+    </div>
+    <div class="p-5 space-y-4">
+      <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 items-end">
+        <label class="text-xs font-semibold text-on-surface-variant">Trade
+          <select id="qTrade" class="mt-1 w-full rounded-lg border-outline text-sm">
+            <option>Roofing</option><option>AC/HVAC</option><option>Electrical</option><option>Plumbing</option><option>GC/Multi</option></select></label>
+        <label class="text-xs font-semibold text-on-surface-variant col-span-2 sm:col-span-2">Near (city / zip)
+          <input id="qNear" value="West Palm Beach, FL" class="mt-1 w-full rounded-lg border-outline text-sm"/></label>
+        <label class="text-xs font-semibold text-on-surface-variant">Min reviews
+          <input id="qMinR" type="number" value="12" class="mt-1 w-full rounded-lg border-outline text-sm"/></label>
+        <label class="text-xs font-semibold text-on-surface-variant">Max reviews
+          <input id="qMaxR" type="number" value="400" class="mt-1 w-full rounded-lg border-outline text-sm"/></label>
+        <label class="text-xs font-semibold text-on-surface-variant">Min rating
+          <input id="qMinRating" type="number" step="0.1" value="4.0" class="mt-1 w-full rounded-lg border-outline text-sm"/></label>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button onclick="App.runFind()" class="bg-primary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-primary-container">Search Google</button>
+        <button onclick="App.addSelected()" class="bg-secondary text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90">Add selected to pipeline</button>
+        <span id="findStatus" class="text-xs text-on-surface-variant"></span>
+      </div>
+      <p class="text-[11px] text-on-surface-variant">Fit score weighs review count (size proxy), rating, website &amp; phone, and demotes national/franchise brands. Checked = recommended. Dupes already in your list are skipped.</p>
+      <div id="cands" class="overflow-x-auto"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const STAGES = ["New","Contacted","Follow-up","Call booked","Won","Pass"];
 const STAGE_COLORS = {
@@ -160,7 +196,7 @@ const LS_KEY = "cc_prospects_v1";
 
 const App = {
   prospects: [], templates: [], signature: "", auth: {authenticated:false},
-  current: null, kvConfigured: false,
+  current: null, kvConfigured: false, cands: [],
 
   async init(){
     await this.loadAuth();
@@ -361,6 +397,58 @@ const App = {
       if(Array.isArray(arr)){ this.prospects=arr; this.persist(); this.render(); this.banner("Imported "+arr.length+" prospects.","green"); } }
       catch(err){ this.banner("Import failed: "+err.message,"red"); } };
     r.readAsText(f);
+  },
+
+  // ---- Find leads (Google Places) ----
+  openFind(){ document.getElementById("findModal").classList.remove("hidden"); },
+  closeFind(){ document.getElementById("findModal").classList.add("hidden"); },
+  async runFind(){
+    const s=document.getElementById("findStatus"); s.textContent="Searching Google…";
+    const body={trade:val("qTrade"),near:val("qNear"),min_reviews:+val("qMinR"),max_reviews:+val("qMaxR"),min_rating:+val("qMinRating")};
+    const r=await this.api("/api/leads/search",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    if(!r){ s.innerHTML='<span class="text-amber">Backend offline (run on the live site).</span>'; return; }
+    if(r.configured===false){ s.innerHTML='<span class="text-amber">Google Places key not set yet — add GOOGLE_PLACES_API_KEY in Vercel to enable.</span>'; this.cands=[]; this.renderCands(); return; }
+    if(r.status){ s.innerHTML='<span class="text-red">'+r.status+'</span>'; }
+    else { s.textContent=(r.count||0)+' found for “'+(r.query||'')+'”'; }
+    this.cands=r.candidates||[]; this.renderCands();
+  },
+  renderCands(){
+    const seenSite=new Set(this.prospects.map(p=>(p.website||"").toLowerCase()).filter(Boolean));
+    const seenName=new Set(this.prospects.map(p=>(p.company||"").toLowerCase()+"|"+(p.city||"").toLowerCase()));
+    const vc={strong:"bg-green-100 text-green-800",ok:"bg-amber-100 text-amber-800",weak:"bg-gray-200 text-gray-600"};
+    const el=document.getElementById("cands");
+    if(!this.cands.length){ el.innerHTML='<div class="text-sm text-on-surface-variant p-4 text-center">No candidates yet — run a search.</div>'; return; }
+    el.innerHTML='<table class="w-full text-sm"><thead class="text-on-surface-variant text-left"><tr>'+
+      '<th class="p-2 w-6"></th><th class="p-2">Company</th><th class="p-2">Fit</th><th class="p-2 hidden sm:table-cell">★ / reviews</th><th class="p-2 hidden md:table-cell">Phone</th><th class="p-2">Why</th></tr></thead><tbody>'+
+      this.cands.map((c,i)=>{
+        const dup=(c.website&&seenSite.has(c.website.toLowerCase()))||seenName.has((c.company||"").toLowerCase()+"|"+(c.city||"").toLowerCase());
+        const why=[].concat((c.good||[]).map(g=>'<span class="text-green">✓'+g+'</span>'),(c.flags||[]).map(f=>'<span class="text-amber">⚠'+f+'</span>')).join(" · ");
+        return '<tr class="border-t border-outline/30 align-top">'+
+          '<td class="p-2">'+(dup?'<span class="text-[10px] text-on-surface-variant">in list</span>':'<input type="checkbox" data-ci="'+i+'" '+(c.verdict!=="weak"?"checked":"")+'>')+'</td>'+
+          '<td class="p-2"><div class="font-semibold text-primary">'+c.company+'</div><div class="text-xs text-on-surface-variant">'+(c.city||"")+(c.website?' · '+c.website:"")+'</div></td>'+
+          '<td class="p-2"><span class="chip '+(vc[c.verdict]||"")+'">'+c.score+' · '+c.verdict+'</span></td>'+
+          '<td class="p-2 hidden sm:table-cell whitespace-nowrap">'+(c.rating||"–")+'★ / '+c.reviews+'</td>'+
+          '<td class="p-2 hidden md:table-cell whitespace-nowrap">'+(c.phone||"–")+'</td>'+
+          '<td class="p-2 text-xs">'+why+'</td></tr>';
+      }).join("")+'</tbody></table>';
+  },
+  addSelected(){
+    const boxes=[...document.querySelectorAll("#cands input[type=checkbox]:checked")];
+    if(!boxes.length){ document.getElementById("findStatus").textContent="Nothing selected."; return; }
+    const sw={Roofing:"AccuLynx (verify)","AC/HVAC":"ServiceTitan/Housecall (verify)",Electrical:"Housecall/Jobber (verify)",Plumbing:"ServiceTitan/Housecall (verify)","GC/Multi":"ServiceTitan (verify)"};
+    let added=0;
+    boxes.forEach(b=>{
+      const c=this.cands[+b.dataset.ci]; if(!c) return;
+      const id="g-"+((c.place_id||c.company).replace(/[^a-z0-9]/gi,"").slice(-16).toLowerCase());
+      if(this.prospects.some(p=>p.id===id)) return;
+      this.prospects.push({id:id,company:c.company,trade:c.trade,city:c.city||"",phone:c.phone||"",website:c.website||"",
+        owner:"",email:"",software:sw[c.trade]||"",stage:"New",priority:c.verdict==="strong"?1:2,
+        notes:(c.rating||"?")+"★ · "+c.reviews+" reviews · Google import ("+c.verdict+", fit "+c.score+"). "+(c.flags||[]).join("; ")});
+      added++;
+    });
+    this.persist(); this.render();
+    document.getElementById("findStatus").innerHTML='<span class="text-green">Added '+added+' to pipeline — filter by stage “New” to see them.</span>';
+    this.renderCands();
   }
 };
 function val(id){ return document.getElementById(id).value.trim(); }

@@ -397,6 +397,118 @@ def set_prospects():
         return jsonify({"ok": False, "status": str(e)}), 502
 
 
+# ---- lead discovery via Google Places (Text Search, New) + fit scoring ----
+PLACES_URL = "https://places.googleapis.com/v1/places:searchText"
+TRADE_QUERY = {
+    "Roofing": "roofing contractor",
+    "AC/HVAC": "air conditioning and heating contractor",
+    "Electrical": "electrician electrical contractor",
+    "Plumbing": "plumber plumbing contractor",
+    "GC/Multi": "general contractor",
+}
+_NATIONAL = ["roto-rooter", " ars ", "aire serv", "mister sparky", "benjamin franklin",
+             "one hour", "horizon services", "service experts", "home depot", "lowe's",
+             "sears", "direct energy", "goettl", "rooter"]
+
+
+def _places_key():
+    return os.environ.get("GOOGLE_PLACES_API_KEY") or os.environ.get("GOOGLE_MAPS_API_KEY")
+
+
+def _parse_city(addr):
+    parts = [p.strip() for p in (addr or "").split(",")]
+    return parts[-3] if len(parts) >= 3 else (parts[0] if parts else "")
+
+
+def _score_lead(p, min_r, max_r, min_rating):
+    """In-depth fit filter for our ICP: right-size, owner-operated PBC trade shop."""
+    reviews = p.get("userRatingCount") or 0
+    rating = p.get("rating") or 0
+    name = (p.get("displayName") or {}).get("text", "")
+    site = p.get("websiteUri")
+    phone = p.get("nationalPhoneNumber")
+    status = p.get("businessStatus")
+    score, good, flags = 0, [], []
+    if reviews == 0:
+        flags.append("no reviews")
+    elif reviews < 8:
+        score += 5; flags.append("few reviews (small/new)")
+    elif reviews <= max_r:
+        score += 40; good.append("%d reviews (right-size)" % reviews)
+    else:
+        score += 8; flags.append("%d reviews (maybe too big)" % reviews)
+    if min_r <= reviews <= max_r:
+        score += 8
+    if rating >= 4.5:
+        score += 22; good.append("%s stars" % rating)
+    elif rating >= min_rating:
+        score += 12; good.append("%s stars" % rating)
+    elif rating > 0:
+        flags.append("%s stars (weak)" % rating)
+    if site:
+        score += 20; good.append("website")
+    else:
+        flags.append("no website")
+    if phone:
+        score += 10; good.append("phone")
+    else:
+        flags.append("no phone")
+    if status and status != "OPERATIONAL":
+        score -= 15; flags.append(status.lower())
+    if any(n in (" " + name.lower() + " ") for n in _NATIONAL):
+        score -= 30; flags.append("national/franchise")
+    score = max(0, min(100, score))
+    verdict = "strong" if score >= 70 else ("ok" if score >= 45 else "weak")
+    return score, verdict, good, flags
+
+
+@app.post("/api/leads/search")
+def leads_search():
+    key = _places_key()
+    if not key:
+        return jsonify({"configured": False, "candidates": [],
+                        "hint": "Set GOOGLE_PLACES_API_KEY in Vercel (enable Places API New)."})
+    body = request.get_json(force=True, silent=True) or {}
+    trade = body.get("trade", "Roofing")
+    near = body.get("near") or "West Palm Beach, FL"
+    min_r = int(body.get("min_reviews", 12))
+    max_r = int(body.get("max_reviews", 400))
+    min_rating = float(body.get("min_rating", 4.0))
+    q = "{} in {}".format(TRADE_QUERY.get(trade, trade), near)
+    headers = {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": key,
+        "X-Goog-FieldMask": ("places.id,places.displayName,places.formattedAddress,"
+                             "places.nationalPhoneNumber,places.websiteUri,places.rating,"
+                             "places.userRatingCount,places.businessStatus,places.primaryType"),
+    }
+    payload = {"textQuery": q, "maxResultCount": 20, "regionCode": "US"}
+    try:
+        r = requests.post(PLACES_URL, headers=headers, json=payload, timeout=25)
+        if r.status_code != 200:
+            return jsonify({"configured": True, "candidates": [], "status": _err(r)}), 200
+        places = r.json().get("places", [])
+    except requests.RequestException as e:
+        return jsonify({"configured": True, "candidates": [], "status": str(e)}), 200
+    out = []
+    for p in places:
+        score, verdict, good, flags = _score_lead(p, min_r, max_r, min_rating)
+        site = p.get("websiteUri", "") or ""
+        out.append({
+            "place_id": p.get("id", ""),
+            "company": (p.get("displayName") or {}).get("text", ""),
+            "trade": trade,
+            "city": _parse_city(p.get("formattedAddress", "")),
+            "phone": p.get("nationalPhoneNumber", ""),
+            "website": site.replace("https://", "").replace("http://", "").rstrip("/"),
+            "rating": p.get("rating", 0),
+            "reviews": p.get("userRatingCount", 0),
+            "score": score, "verdict": verdict, "good": good, "flags": flags,
+        })
+    out.sort(key=lambda x: x["score"], reverse=True)
+    return jsonify({"configured": True, "query": q, "count": len(out), "candidates": out})
+
+
 # ==========================================================================
 # WWS lead funnel + lightweight CRM  (KV-backed; degrades gracefully)
 # ==========================================================================
