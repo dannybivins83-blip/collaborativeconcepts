@@ -893,9 +893,25 @@ def portal_inspections():
         prop = x.get("property", {})
         photos = [{"thumbUrl": p.get("thumbUrl") or p.get("url"), "url": p.get("url") or p.get("thumbUrl"),
                    "caption": p.get("caption", "")} for p in (x.get("photos") or []) if (p.get("thumbUrl") or p.get("url"))]
-        out.append({"id": x["id"], "created_ts": x.get("created_ts"), "status": x.get("status", "draft"),
-                    "property": {"name": prop.get("name", ""), "address": prop.get("address", "")},
-                    "photos": photos, "docs": ["report", "checklist", "proposal"]})
+        docs = ["report", "checklist", "proposal"]
+        # property-level compliance verify link/QR, once one has been generated
+        ptoken = x.get("property_verify_token")
+        if ptoken:
+            docs.append("compliance")
+        row = {"id": x["id"], "created_ts": x.get("created_ts"), "status": x.get("status", "draft"),
+               "property": {"name": prop.get("name", ""), "address": prop.get("address", "")},
+               "photos": photos, "docs": docs}
+        # recert countdown badge — skipped gracefully if the record has no expiration data
+        badge = _recert_badge(x)
+        if badge:
+            row["recert"] = badge
+        # PE info for the credentials panel (feature 4), if this inspection has it
+        pe = x.get("pe") or {}
+        if pe.get("name") or pe.get("license"):
+            row["pe"] = {"name": pe.get("name", ""), "license": pe.get("license", "")}
+        if ptoken:
+            row["verify_url"] = _verify_url("property", ptoken)
+        out.append(row)
     out.sort(key=lambda i: i.get("created_ts", 0), reverse=True)
     return jsonify({"authed": True, "email": email, "name": s.get("name", ""), "inspections": out})
 
@@ -911,6 +927,10 @@ def portal_inspection_doc(iid, kind):
     if kind not in DOC_BUILDERS or not _RL:
         return jsonify({"error": "unavailable"}), 400
     try:
+        if kind == "compliance":
+            refresh_property_compliance(x)
+        else:
+            x["_verify_url"] = _verify_url("document", _doc_token_for(x, kind))
         pdf = DOC_BUILDERS[kind](x)
     except Exception as e:
         return jsonify({"error": "pdf failed: " + str(e)}), 500
@@ -1006,6 +1026,62 @@ def admin_invoice_status(iid):
     _inv_save(inv)
     _log_activity("invoice_status", f"Invoice {iid[:8]} → {new_status} for {inv.get('client_email','')}")
     return jsonify({"ok": True, "invoice": inv})
+
+
+# ==========================================================================
+# Contractor credentials (feature 4) — CGC license is site copy; COI expiration
+# is the one admin-editable value, stored in KV as a tiny settings blob.
+# ==========================================================================
+WWS_CGC_LICENSE = "CGC059211"
+WWS_SETTINGS_KEY = "wws:settings"
+
+
+def _wws_settings():
+    raw, configured = _kv_cmd(["GET", WWS_SETTINGS_KEY])
+    if not configured or not raw:
+        return {}
+    try:
+        return json.loads(raw) or {}
+    except Exception:
+        return {}
+
+
+@app.get("/api/portal/credentials")
+def portal_credentials():
+    """PUBLIC-safe (also used by the signed-in portal): license + insurance status.
+    No client PII. COI expiration is blank/TBD unless an admin has set it."""
+    settings = _wws_settings()
+    coi_exp = (settings.get("coi_expiration") or "").strip()
+    coi_lapsed = False
+    if coi_exp:
+        days = _days_until(coi_exp)
+        coi_lapsed = days is not None and days < 0
+    return jsonify({
+        "ok": True,
+        "cgc_license": WWS_CGC_LICENSE,
+        "coi_expiration": coi_exp,
+        "coi_lapsed": coi_lapsed,
+    })
+
+
+@app.post("/api/admin/settings/coi")
+def admin_set_coi():
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "auth required"}), 401
+    body = request.get_json(force=True, silent=True) or {}
+    settings = _wws_settings()
+    settings["coi_expiration"] = (body.get("coi_expiration") or "").strip()[:20]
+    _kv_cmd(["SET", WWS_SETTINGS_KEY, json.dumps(settings)])
+    _log_activity("settings_update", f"COI expiration set to {settings['coi_expiration'] or '(cleared)'}")
+    return jsonify({"ok": True, "coi_expiration": settings["coi_expiration"]})
+
+
+@app.get("/api/admin/settings")
+def admin_get_settings():
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "auth required"}), 401
+    settings = _wws_settings()
+    return jsonify({"ok": True, "cgc_license": WWS_CGC_LICENSE, "coi_expiration": settings.get("coi_expiration", "")})
 
 
 # ==========================================================================
@@ -1144,6 +1220,22 @@ def _dfooter(c, d):
     c.drawString(0.7 * inch, 0.4 * inch, "La Gala Construction / Tilt Patchers, Inc.  ·  CGC059211  ·  in partnership with a FL State Certified Engineer")
     c.drawRightString(w - 0.7 * inch, 0.4 * inch, "Page %d" % d.page)
     c.restoreState()
+    # optional per-document verification QR, stamped bottom-right of page 1 only
+    verify_url = getattr(d, "_verify_url", None)
+    if verify_url and d.page == 1:
+        qbuf = _qr_png(verify_url)
+        if qbuf is not None:
+            try:
+                from reportlab.lib.utils import ImageReader
+                c.saveState()
+                qsize = 0.62 * inch
+                qx, qy = w - 0.7 * inch - qsize, 0.65 * inch
+                c.drawImage(ImageReader(qbuf), qx, qy, width=qsize, height=qsize, mask="auto")
+                c.setFont(F, 5.5); c.setFillColor(MUTE)
+                c.drawRightString(qx + qsize, qy - 7, "Scan to verify")
+                c.restoreState()
+            except Exception:
+                pass
 
 
 def _dheader(story, st, doctype, title, insp):
@@ -1187,7 +1279,8 @@ def _dnew(title):
     return buf, doc
 
 
-def _dfinish(buf, doc, story):
+def _dfinish(buf, doc, story, verify_url=None):
+    doc._verify_url = verify_url
     doc.build(story, onFirstPage=_dfooter, onLaterPages=_dfooter)
     return buf.getvalue()
 
@@ -1324,7 +1417,7 @@ def doc_checklist(insp):
     story.append(Spacer(1, 6))
     story.append(Paragraph("Owner / manager acknowledgment: ______________________________     Date: ____________", st["body"]))
     story.append(Paragraph("Field compliance record per OSHA 29 CFR 1910 Subpart D, 1910.140, ANSI/IWCA I-14.1, and ASME A120.1. Anchorage load-test certification and structural repair must be performed and sealed by a licensed Florida PE. Failure threshold: &gt;1/16″ permanent deflection.", st["disc"]))
-    return _dfinish(buf, doc, story)
+    return _dfinish(buf, doc, story, verify_url=insp.get("_verify_url"))
 
 
 def doc_report(insp):
@@ -1411,7 +1504,7 @@ def doc_report(insp):
     if insp.get("recommendations"):
         story.append(Paragraph("Recommendations", st["sect"])); story.append(Paragraph(_esc(insp["recommendations"]), st["body"]))
     story.append(Paragraph("La Gala Construction provides licensed contracting services; engineered inspection and anchorage load-test certification are performed and sealed by an independent licensed Florida professional engineer. La Gala does not provide engineering services. Not legal advice.", st["disc"]))
-    return _dfinish(buf, doc, story)
+    return _dfinish(buf, doc, story, verify_url=insp.get("_verify_url"))
 
 
 def doc_cert(insp):
@@ -1445,7 +1538,7 @@ def doc_cert(insp):
                  colWidths=[3.55 * inch, 3.55 * inch], rowHeights=[14, 96])
     seal.setStyle(TableStyle([("BOX", (1, 0), (1, 1), 0.7, LINE), ("VALIGN", (0, 0), (-1, -1), "TOP"), ("TOPPADDING", (0, 0), (-1, -1), 4), ("LEFTPADDING", (0, 0), (-1, -1), 4)]))
     story.append(seal)
-    return _dfinish(buf, doc, story)
+    return _dfinish(buf, doc, story, verify_url=insp.get("_verify_url"))
 
 
 def doc_proposal(insp):
@@ -1477,12 +1570,353 @@ def doc_proposal(insp):
     story.append(Paragraph("Pricing is an estimate based on the inspection findings and is valid for 30 days. Final scope and price are confirmed after the engineered inspection. Engineered certification fees are billed by the professional engineer. Florida CGC059211; licensed, bonded, and insured.", st["body"]))
     story.append(Spacer(1, 18))
     story.append(Paragraph("Accepted by: ______________________________     Title: ______________     Date: ____________", st["body"]))
+    return _dfinish(buf, doc, story, verify_url=insp.get("_verify_url"))
+
+
+def doc_compliance_badge(insp):
+    """One-page building-level 'Certificate of Compliance' badge PDF. Property-scoped,
+    not tied to a single document — regenerated whenever a passing inspection is logged."""
+    st = _dstyles(); buf, doc = _dnew("Certificate of Compliance"); story = []
+    _dheader(story, st, "Building-level walking-working surfaces compliance summary", "Certificate of Compliance", insp)
+    p = insp.get("property", {})
+    through = _compliance_through_date(insp) or "—"
+    story.append(Spacer(1, 10))
+    story.append(Paragraph(
+        "This building is compliant through <b>%s</b>" % _esc(through),
+        ParagraphStyle("bigkey", fontName=FB, fontSize=14, textColor=NAVY, leading=19,
+                       backColor=CREAM, borderPadding=(10, 12, 10, 12))))
+    story.append(Spacer(1, 14))
+    rows = [
+        [Paragraph("Property", st["meta"]), Paragraph(_esc(p.get("name", "") or "—"), st["metab"])],
+        [Paragraph("Address", st["meta"]), Paragraph(_esc(p.get("address", "") or "—"), st["metab"])],
+        [Paragraph("Basis of certification", st["meta"]), Paragraph("Most recent passing OSHA 29 CFR 1910 Subpart D walking-working surfaces inspection", st["metab"])],
+    ]
+    t = Table(rows, colWidths=[1.6 * inch, 5.5 * inch]); t.setStyle(TableStyle([("TOPPADDING", (0, 0), (-1, -1), 4), ("BOTTOMPADDING", (0, 0), (-1, -1), 6), ("LEFTPADDING", (0, 0), (-1, -1), 0), ("VALIGN", (0, 0), (-1, -1), "TOP")]))
+    story.append(t); story.append(Spacer(1, 16))
+    token = insp.get("property_verify_token") or ""
+    if token:
+        qbuf = _qr_png(_verify_url("property", token))
+        if qbuf is not None:
+            try:
+                qrow = Table([[Image(qbuf, width=1.15 * inch, height=1.15 * inch),
+                               Paragraph("Scan to verify this certificate, or visit:<br/><b>%s</b>" % _esc(_verify_url("property", token)), st["body"])]],
+                            colWidths=[1.3 * inch, 5.8 * inch])
+                qrow.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE")]))
+                story.append(qrow); story.append(Spacer(1, 10))
+            except Exception:
+                pass
+    story.append(Paragraph("This certificate reflects the compliance status of the building as of the date of the most recent passing field inspection on file with La Gala Construction. It is not a substitute for the underlying PE-sealed engineering certification, which governs in the event of any conflict. Verify current status at any time using the link or QR code above.", st["disc"]))
     return _dfinish(buf, doc, story)
 
 
-DOC_BUILDERS = {"checklist": doc_checklist, "report": doc_report, "cert": doc_cert, "proposal": doc_proposal}
+DOC_BUILDERS = {"checklist": doc_checklist, "report": doc_report, "cert": doc_cert, "proposal": doc_proposal, "compliance": doc_compliance_badge}
 DOC_LABEL = {"checklist": "Completed Subpart D Checklist", "report": "Inspection Report",
-             "cert": "Engineer Certification Packet", "proposal": "Corrective-Work Proposal"}
+             "cert": "Engineer Certification Packet", "proposal": "Corrective-Work Proposal",
+             "compliance": "Certificate of Compliance"}
+
+
+# ==========================================================================
+# Public document verification (QR + /verify/<token>) — feature 2 & 3
+# ==========================================================================
+VERIFY_KEY_PREFIX = "wws:verify:"     # per-document token -> summary JSON
+VERIFY_PROP_PREFIX = "wws:verify:prop:"  # per-property token -> summary JSON
+
+
+def _verify_url(kind, token):
+    """Public verification URL embedded in the QR code / printed on documents."""
+    root = "https://wwslgc." + ROOT_DOMAIN
+    if kind == "property":
+        return root + "/verify/property/" + token
+    return root + "/verify/" + token
+
+
+def _qr_png(url):
+    """Server-side QR code (qrcode package) as a BytesIO PNG, or None if unavailable."""
+    try:
+        import qrcode
+        img = qrcode.make(url)
+        b = io.BytesIO()
+        img.save(b, format="PNG")
+        b.seek(0)
+        return b
+    except Exception:
+        return None
+
+
+def _parse_date(s):
+    """Best-effort parse of a YYYY-MM-DD (or common variants) date string. Returns
+    a time.struct_time in UTC, or None if unparseable/blank."""
+    s = (s or "").strip()
+    if not s:
+        return None
+    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m-%d-%Y"):
+        try:
+            return time.strptime(s, fmt)
+        except ValueError:
+            continue
+    return None
+
+
+def _cert_expiration(insp):
+    """Expiration date string (YYYY-MM-DD) for an inspection's certification, based on
+    cert_date + recert_months. Returns '' if there's no cert_date on the record —
+    callers should skip the record gracefully rather than guessing."""
+    cert_date = (insp.get("cert_date") or "").strip()
+    parsed = _parse_date(cert_date)
+    if not parsed:
+        return ""
+    months = insp.get("recert_months") or 12
+    try:
+        months = int(months)
+    except Exception:
+        months = 12
+    import calendar
+    y, m, d = parsed.tm_year, parsed.tm_mon, parsed.tm_mday
+    total = (y * 12 + (m - 1)) + months
+    ny, nm = divmod(total, 12)
+    nm += 1
+    last_day = calendar.monthrange(ny, nm)[1]
+    nd = min(d, last_day)
+    return "%04d-%02d-%02d" % (ny, nm, nd)
+
+
+def _days_until(date_str):
+    """Whole days from now until date_str (YYYY-MM-DD). Negative if already past.
+    Returns None if date_str is blank/unparseable."""
+    parsed = _parse_date(date_str)
+    if not parsed:
+        return None
+    import datetime
+    target = datetime.date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday)
+    return (target - datetime.date.today()).days
+
+
+def _recert_badge(insp):
+    """Compute the recertification countdown badge for one inspection record.
+    Returns None if the record has no expiration data (skip gracefully)."""
+    exp = _cert_expiration(insp)
+    if not exp:
+        return None
+    days = _days_until(exp)
+    if days is None:
+        return None
+    if days < 30:
+        level = "red"
+    elif days <= 90:
+        level = "amber"
+    else:
+        level = "green"
+    return {"expires": exp, "days_left": days, "level": level}
+
+
+def _compliance_through_date(insp):
+    """Best-effort 'compliant through' date for the building-level badge:
+    prefers an explicit cert_date + recert cycle, else the last passing inspection date."""
+    cert_date = (insp.get("cert_date") or "").strip()
+    if cert_date:
+        exp = _cert_expiration(insp)
+        if exp:
+            return exp
+    return (insp.get("inspector") or {}).get("date", "") or ""
+
+
+def _doc_token_for(insp, kind):
+    """Get-or-create an unguessable verification token for one generated document
+    (doc kind + inspection id), stored in KV as a mapping to a public-safe summary."""
+    key = "doc:%s:%s" % (insp.get("id", ""), kind)
+    existing = (insp.get("doc_tokens") or {}).get(key)
+    if existing:
+        return existing
+    token = secrets.token_urlsafe(18)
+    try:
+        summary = {
+            "kind": "document", "doc_kind": kind,
+            "doc_label": DOC_LABEL.get(kind, kind),
+            "issue_date": _now_ms(),
+            "property": {"name": (insp.get("property") or {}).get("name", ""),
+                        "address": (insp.get("property") or {}).get("address", "")},
+            "pe": {"name": (insp.get("pe") or {}).get("name", ""),
+                  "license": (insp.get("pe") or {}).get("license", "")},
+            "status": "valid",
+            "inspection_id": insp.get("id", ""),
+        }
+        _kv_cmd(["SET", VERIFY_KEY_PREFIX + token, json.dumps(summary)])
+    except Exception:
+        pass
+    insp.setdefault("doc_tokens", {})[key] = token
+    try:
+        _insp_save(insp)
+    except Exception:
+        pass
+    return token
+
+
+def _property_verify_token(insp):
+    """Get-or-create the property-level verification token, and refresh its stored
+    summary (used by the Certificate of Compliance badge)."""
+    token = insp.get("property_verify_token")
+    if not token:
+        token = secrets.token_urlsafe(18)
+        insp["property_verify_token"] = token
+    try:
+        summary = {
+            "kind": "property",
+            "property": {"name": (insp.get("property") or {}).get("name", ""),
+                        "address": (insp.get("property") or {}).get("address", "")},
+            "compliant_through": _compliance_through_date(insp),
+            "last_inspection_date": (insp.get("inspector") or {}).get("date", ""),
+            "status": insp.get("compliance_status", "valid"),
+            "inspection_id": insp.get("id", ""),
+        }
+        _kv_cmd(["SET", VERIFY_PROP_PREFIX + token, json.dumps(summary)])
+    except Exception:
+        pass
+    return token
+
+
+def refresh_property_compliance(insp):
+    """Hook: call whenever an inspection's status flips to a passing/complete state.
+    Ensures the property has a verify token and its compliance summary is current."""
+    insp["property_verify_token"] = _property_verify_token(insp)
+    try:
+        _insp_save(insp)
+    except Exception:
+        pass
+    return insp["property_verify_token"]
+
+
+@app.get("/api/verify/<token>")
+def verify_document(token):
+    """PUBLIC, unauthenticated. Shows minimal document-verification info — no PDF,
+    no client PII beyond the property name/address."""
+    token = (token or "")[:120]
+    raw, configured = _kv_cmd(["GET", VERIFY_KEY_PREFIX + token])
+    if not configured or not raw:
+        return jsonify({"ok": False, "found": False}), 404
+    try:
+        s = json.loads(raw)
+    except Exception:
+        return jsonify({"ok": False, "found": False}), 404
+    return jsonify({"ok": True, "found": True, "kind": "document",
+                    "doc_label": s.get("doc_label", ""), "issue_date": s.get("issue_date"),
+                    "property": s.get("property", {}),
+                    "pe": s.get("pe", {}), "status": s.get("status", "valid")})
+
+
+@app.get("/api/verify/property/<token>")
+def verify_property(token):
+    """PUBLIC, unauthenticated. Building-level compliance summary."""
+    token = (token or "")[:120]
+    raw, configured = _kv_cmd(["GET", VERIFY_PROP_PREFIX + token])
+    if not configured or not raw:
+        return jsonify({"ok": False, "found": False}), 404
+    try:
+        s = json.loads(raw)
+    except Exception:
+        return jsonify({"ok": False, "found": False}), 404
+    return jsonify({"ok": True, "found": True, "kind": "property",
+                    "property": s.get("property", {}),
+                    "compliant_through": s.get("compliant_through", ""),
+                    "last_inspection_date": s.get("last_inspection_date", ""),
+                    "status": s.get("status", "valid")})
+
+
+VERIFY_PAGE_TMPL = """<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Document verification — La Gala Construction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&family=Material+Symbols+Outlined&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={{theme:{{extend:{{colors:{{primary:"#13233f",secondary:"#c9a227",surface:"#f7f6f3",ink:"#1f2733",mute:"#54606f",line:"#e3e6ea"}},fontFamily:{{h:["Manrope"],b:["Inter"]}}}}}}}}</script>
+<style>body{{font-family:'Inter',sans-serif}}h1,h2{{font-family:'Manrope',sans-serif}}.ms{{font-family:'Material Symbols Outlined'}}</style>
+</head>
+<body class="bg-surface text-ink min-h-screen flex flex-col">
+<header class="bg-primary text-white"><div class="max-w-xl mx-auto px-5 py-3"><span class="font-h font-extrabold">La Gala Construction</span></div></header>
+<main class="flex-1 max-w-xl mx-auto w-full px-5 py-14 text-center">
+{body}
+</main>
+<footer class="text-center text-xs text-mute py-6">La Gala Construction / Tilt Patchers, Inc. &middot; CGC059211 &middot; Engineering certifications are performed and sealed by an independent, licensed Florida professional engineer.</footer>
+</body></html>"""
+
+
+def _verify_status_badge(status):
+    status = (status or "valid").lower()
+    if status == "valid":
+        return '<span class="ms text-6xl text-green-600">verified</span><h1 class="text-2xl font-extrabold text-green-700 mt-3">Valid</h1>'
+    if status == "superseded":
+        return '<span class="ms text-6xl text-amber-500">history</span><h1 class="text-2xl font-extrabold text-amber-600 mt-3">Superseded</h1>'
+    if status == "revoked":
+        return '<span class="ms text-6xl text-red-600">cancel</span><h1 class="text-2xl font-extrabold text-red-700 mt-3">Revoked</h1>'
+    return '<span class="ms text-6xl text-mute">help</span><h1 class="text-2xl font-extrabold text-mute mt-3">Unknown</h1>'
+
+
+@app.get("/verify/<token>")
+def verify_document_page(token):
+    """PUBLIC HTML page — no auth, no PDF, no client PII beyond property name/address."""
+    token = (token or "")[:120]
+    raw, configured = _kv_cmd(["GET", VERIFY_KEY_PREFIX + token])
+    if not configured or not raw:
+        body = '<span class="ms text-6xl text-mute">search_off</span><h1 class="text-2xl font-extrabold text-primary mt-3">Document not found</h1><p class="text-mute mt-2">This verification link is invalid or has expired.</p>'
+        return VERIFY_PAGE_TMPL.format(body=body), 404
+    try:
+        s = json.loads(raw)
+    except Exception:
+        s = {}
+    prop = s.get("property", {}) or {}
+    pe = s.get("pe", {}) or {}
+    issue = s.get("issue_date")
+    issue_str = time.strftime("%B %d, %Y", time.localtime(issue / 1000)) if issue else "—"
+    body = _verify_status_badge(s.get("status")) + (
+        '<p class="text-mute mt-2">%s</p>'
+        '<div class="bg-white rounded-xl border border-line p-5 mt-6 text-left space-y-2 text-sm">'
+        '<div><span class="text-mute">Document type</span><div class="font-semibold text-primary">%s</div></div>'
+        '<div><span class="text-mute">Issue date</span><div class="font-semibold text-primary">%s</div></div>'
+        '<div><span class="text-mute">Property</span><div class="font-semibold text-primary">%s</div></div>'
+        '%s'
+        '</div>'
+    ) % (
+        _esc("This page confirms the authenticity of a La Gala Construction compliance document."),
+        _esc(s.get("doc_label", "Compliance document")),
+        _esc(issue_str),
+        _esc(prop.get("name", "") or prop.get("address", "") or "—"),
+        ('<div><span class="text-mute">PE seal holder</span><div class="font-semibold text-primary">%s%s</div></div>' % (
+            _esc(pe.get("name", "")), (" &middot; FL PE #" + _esc(pe.get("license", ""))) if pe.get("license") else ""
+        )) if pe.get("name") else "",
+    )
+    return VERIFY_PAGE_TMPL.format(body=body)
+
+
+@app.get("/verify/property/<token>")
+def verify_property_page(token):
+    """PUBLIC HTML page — building-level Certificate of Compliance verification."""
+    token = (token or "")[:120]
+    raw, configured = _kv_cmd(["GET", VERIFY_PROP_PREFIX + token])
+    if not configured or not raw:
+        body = '<span class="ms text-6xl text-mute">search_off</span><h1 class="text-2xl font-extrabold text-primary mt-3">Certificate not found</h1><p class="text-mute mt-2">This verification link is invalid or has expired.</p>'
+        return VERIFY_PAGE_TMPL.format(body=body), 404
+    try:
+        s = json.loads(raw)
+    except Exception:
+        s = {}
+    prop = s.get("property", {}) or {}
+    body = _verify_status_badge(s.get("status")) + (
+        '<p class="text-mute mt-2">Building-level walking-working surfaces compliance certificate.</p>'
+        '<div class="bg-white rounded-xl border border-line p-5 mt-6 text-left space-y-2 text-sm">'
+        '<div><span class="text-mute">Property</span><div class="font-semibold text-primary">%s</div></div>'
+        '<div><span class="text-mute">Address</span><div class="font-semibold text-primary">%s</div></div>'
+        '<div><span class="text-mute">Compliant through</span><div class="font-semibold text-primary">%s</div></div>'
+        '<div><span class="text-mute">Last inspection</span><div class="font-semibold text-primary">%s</div></div>'
+        '</div>'
+    ) % (
+        _esc(prop.get("name", "") or "—"),
+        _esc(prop.get("address", "") or "—"),
+        _esc(s.get("compliant_through", "") or "—"),
+        _esc(s.get("last_inspection_date", "") or "—"),
+    )
+    return VERIFY_PAGE_TMPL.format(body=body)
 
 
 # ---- inspection storage (KV) ----
@@ -1546,6 +1980,9 @@ def insp_create():
         "pe": b.get("pe") or {}, "findings": _seed_findings(),
         "summary": "", "recommendations": "", "corrective": [], "photos": [], "anchors": [], "davits": [], "visual_check": {}, "diagram": "", "sitecam": {},
         "source_lead_id": b.get("lead_id", ""), "source_request_id": b.get("request_id", ""),
+        # recertification / compliance tracking (feature: recert countdown + compliance badge)
+        "cert_date": b.get("cert_date", ""), "recert_months": b.get("recert_months") or 12,
+        "compliance_status": "valid", "doc_tokens": {}, "property_verify_token": "",
     }
     if not _insp_save(insp):
         return jsonify({"ok": False, "error": "store not configured", "inspection": insp}), 200
@@ -1588,10 +2025,16 @@ def insp_update(iid):
     if not x:
         return jsonify({"error": "not found"}), 404
     b = request.get_json(force=True, silent=True) or {}
-    for k in ("property", "client", "inspector", "pe", "findings", "corrective", "photos", "anchors", "davits", "visual_check", "diagram", "summary", "recommendations", "status", "sitecam"):
+    prev_status = (x.get("status") or "draft").lower()
+    for k in ("property", "client", "inspector", "pe", "findings", "corrective", "photos", "anchors", "davits",
+              "visual_check", "diagram", "summary", "recommendations", "status", "sitecam",
+              "cert_date", "recert_months", "compliance_status"):
         if k in b:
             x[k] = b[k]
     _insp_save(x)
+    new_status = (x.get("status") or "draft").lower()
+    if new_status in ("complete", "passed", "pass") and prev_status != new_status:
+        refresh_property_compliance(x)
     return jsonify({"ok": True, "inspection": x})
 
 
@@ -1608,6 +2051,10 @@ def insp_doc(iid, kind):
     if not fn:
         return jsonify({"error": "unknown doc"}), 400
     try:
+        if kind == "compliance":
+            refresh_property_compliance(x)
+        else:
+            x["_verify_url"] = _verify_url("document", _doc_token_for(x, kind))
         pdf = fn(x)
     except Exception as e:
         return jsonify({"error": "pdf failed: " + str(e)}), 500

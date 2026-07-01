@@ -41,6 +41,7 @@
 <button onclick="doc('report')" class="docbtn"><span class="ms text-base">description</span> Report</button>
 <button onclick="doc('cert')" class="docbtn"><span class="ms text-base">verified</span> Engineer packet</button>
 <button onclick="doc('proposal')" class="docbtn"><span class="ms text-base">request_quote</span> Proposal</button>
+<button onclick="doc('compliance')" class="docbtn" title="Building-level Certificate of Compliance — regenerated whenever status is set to Complete"><span class="ms text-base">workspace_premium</span> Compliance badge</button>
 <select id="statusSel" onchange="setField('status',this.value)" class="tx ml-auto" style="width:auto"><option value="draft">Draft</option><option value="field">In field</option><option value="complete">Complete</option><option value="sealed">Sealed</option></select>
 </div>
 </div>
@@ -87,6 +88,11 @@
 <div><label class="fl">Title</label><input class="tx" data-p="inspector.title"/></div>
 <div><label class="fl">License</label><input class="tx" data-p="inspector.license" placeholder="CGC059211"/></div>
 </div>
+<div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-line">
+<div><label class="fl">Certification date</label><input class="tx" type="date" data-p="cert_date"/></div>
+<div><label class="fl">Recert cycle (months)</label><input class="tx" type="number" min="1" data-p="recert_months" placeholder="12"/></div>
+</div>
+<p class="text-[11px] text-mute mt-1">Drives the client portal's recertification countdown badge. Leave blank to skip it for this record.</p>
 </div>
 <div class="bg-white rounded-xl border border-line p-5">
 <h2 class="font-bold text-primary mb-3">Engineer (for cert packet)</h2>
@@ -211,7 +217,8 @@ function save(){
     property:INSP.property,client:INSP.client,inspector:INSP.inspector,pe:INSP.pe,
     findings:INSP.findings,corrective:INSP.corrective,summary:INSP.summary,
     recommendations:INSP.recommendations,status:INSP.status,
-    anchors:INSP.anchors,davits:INSP.davits,visual_check:INSP.visual_check,diagram:INSP.diagram,photos:INSP.photos})}).then(function(d){
+    anchors:INSP.anchors,davits:INSP.davits,visual_check:INSP.visual_check,diagram:INSP.diagram,photos:INSP.photos,
+    cert_date:INSP.cert_date,recert_months:INSP.recert_months})}).then(function(d){
     document.getElementById('saveState').textContent=d.ok?'Saved':'Save failed (storage on?)';
   }).catch(function(){document.getElementById('saveState').textContent='Save failed';});
 }
