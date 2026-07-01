@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Collaborative Concept — Coastal Florida Development, Software &amp; Roofing</title>
+<meta name="description" content="One Florida operator, four disciplined lines: coastal development and off-market deals, custom operations software, roof consulting, and solar-loan exit. Now raising capital on a Madeira Beach redevelopment." />
+<link rel="canonical" href="https://collaborativeconceptsfl.com/previews/home-v23" />
+<meta name="robots" content="noindex,nofollow" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Collaborative Concept" />
+<meta property="og:title" content="Collaborative Concept — Coastal Florida Development, Software &amp; Roofing" />
+<meta property="og:description" content="A full-bleed look at four disciplined lines of business, one accountable operator, and a live coastal raise." />
+<meta property="og:url" content="https://collaborativeconceptsfl.com/previews/home-v23" />
+<meta property="og:image" content="https://collaborativeconceptsfl.com/og/default.png" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Collaborative Concept — Coastal Florida Development, Software &amp; Roofing" />
+<meta name="twitter:description" content="A full-bleed look at four disciplined lines of business, one accountable operator, and a live coastal raise." />
+<meta name="twitter:image" content="https://collaborativeconceptsfl.com/og/default.png" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Collaborative Concept LLC",
+  "alternateName": "Collaborative Concept",
+  "url": "https://collaborativeconceptsfl.com",
+  "email": "sales@collaborativeconceptsfl.com",
+  "telephone": "+1-561-475-8615",
+  "founder": { "@type": "Person", "name": "Danny Bivins" },
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Lantana",
+    "addressRegion": "FL",
+    "addressCountry": "US"
+  },
+  "areaServed": "Florida",
+  "knowsAbout": [
+    "Coastal real estate development",
+    "Off-market deal structuring",
+    "Custom operations software",
+    "Roof consulting",
+    "Florida solar loan exit"
+  ]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --ink:#0b1622;
+    --ink-2:#0f1e2e;
+    --paper:#f4f1ea;
+    --sand:#e7e0d3;
+    --sea:#1f7a8c;
+    --sea-2:#2f9bb0;
+    --gold:#c8a24b;
+    --white:#ffffff;
+    --line:rgba(255,255,255,.16);
+    --shadow:0 24px 60px -24px rgba(0,0,0,.55);
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Manrope",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--ink);
+    background:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:600;line-height:1.05;letter-spacing:-.01em}
+
+  /* ===== PREVIEW RIBBON ===== */
+  .ribbon{
+    position:fixed;top:20px;right:-58px;z-index:1200;
+    background:var(--gold);color:#1a1405;
+    font-family:"Manrope";font-weight:800;font-size:11px;letter-spacing:.06em;
+    padding:7px 64px;transform:rotate(45deg);
+    box-shadow:0 8px 24px rgba(0,0,0,.35);pointer-events:none;
+    text-transform:uppercase;
+  }
+
+  /* ===== NAV ===== */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px clamp(18px,5vw,48px);
+    transition:background .3s ease, backdrop-filter .3s ease, padding .3s ease;
+  }
+  .nav.scrolled{
+    background:rgba(11,22,34,.86);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+    padding-top:12px;padding-bottom:12px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;color:#fff}
+  .brand .mono{
+    width:42px;height:42px;border-radius:10px;
+    display:grid;place-items:center;flex:none;
+    background:linear-gradient(135deg,var(--sea),var(--sea-2));
+    color:#fff;font-family:"Fraunces";font-weight:700;font-size:19px;
+    box-shadow:0 6px 18px rgba(31,122,140,.5);
+  }
+  .brand b{font-family:"Fraunces";font-weight:600;font-size:18px;letter-spacing:-.01em;display:block;line-height:1.05}
+  .brand span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+  .nav-links{display:flex;align-items:center;gap:6px}
+  .nav-links a{
+    color:rgba(255,255,255,.82);font-weight:600;font-size:14.5px;
+    padding:9px 14px;border-radius:8px;transition:.18s;
+  }
+  .nav-links a:hover{color:#fff;background:rgba(255,255,255,.09)}
+  .nav-cta{
+    background:var(--gold);color:#1a1405 !important;font-weight:800 !important;
+    padding:10px 18px !important;border-radius:8px;
+    box-shadow:0 8px 22px rgba(200,162,75,.35);
+  }
+  .nav-cta:hover{background:#d8b25c !important;transform:translateY(-1px)}
+  .burger{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;padding:8px}
+  .burger span{width:24px;height:2px;background:#fff;border-radius:2px;transition:.25s}
+
+  /* mobile menu */
+  .mobile-menu{
+    position:fixed;inset:0;z-index:1100;
+    background:rgba(8,16,26,.97);backdrop-filter:blur(6px);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    opacity:0;pointer-events:none;transition:opacity .28s ease;
+  }
+  .mobile-menu.open{opacity:1;pointer-events:auto}
+  .mobile-menu a{color:#fff;font-family:"Fraunces";font-size:26px;padding:12px 20px}
+  .mobile-menu a.cta{color:var(--gold)}
+  .mobile-menu .close{position:absolute;top:22px;right:22px;font-size:34px;color:#fff;background:none;border:0;cursor:pointer;line-height:1}
+
+  /* ===== SCROLL STORY SECTIONS ===== */
+  .scene{
+    position:relative;
+    min-height:100vh;
+    display:flex;align-items:center;
+    padding:120px clamp(20px,6vw,90px) 100px;
+    background-color:var(--ink);           /* fallback ink if image fails */
+    background-size:cover;background-position:center;
+    background-attachment:scroll;
+    color:#fff;overflow:hidden;
+  }
+  @media(min-width:1024px){ .scene.fixed-bg{background-attachment:fixed} }
+  .scene::before{
+    content:"";position:absolute;inset:0;z-index:0;
+    background:linear-gradient(180deg,rgba(8,16,26,.62) 0%,rgba(8,16,26,.42) 40%,rgba(8,16,26,.78) 100%);
+  }
+  .scene .inner{position:relative;z-index:2;width:100%;max-width:var(--maxw);margin:0 auto}
+  .kicker{
+    display:inline-flex;align-items:center;gap:9px;
+    font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:20px;
+  }
+  .kicker::before{content:"";width:26px;height:2px;background:var(--gold);border-radius:2px}
+  .scene h1{font-size:clamp(2.6rem,7vw,5.2rem);color:#fff;max-width:16ch}
+  .scene h2{font-size:clamp(2.1rem,5.2vw,3.8rem);color:#fff;max-width:15ch}
+  .lede{
+    font-size:clamp(1.05rem,2.2vw,1.35rem);color:rgba(255,255,255,.9);
+    margin-top:20px;max-width:52ch;font-weight:500;
+  }
+  .learn{
+    display:inline-flex;align-items:center;gap:9px;margin-top:30px;
+    font-weight:800;font-size:15px;letter-spacing:.02em;color:#fff;
+    padding:13px 22px;border-radius:10px;
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.28);
+    backdrop-filter:blur(4px);transition:.22s;
+  }
+  .learn .arw{transition:transform .22s}
+  .learn:hover{background:var(--gold);color:#1a1405;border-color:var(--gold);transform:translateY(-2px)}
+  .learn:hover .arw{transform:translateX(5px)}
+  .learn.solid{background:var(--gold);color:#1a1405;border-color:var(--gold)}
+  .learn.solid:hover{background:#d8b25c}
+
+  /* hero specifics */
+  .hero .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+  .hero .badge{
+    font-size:12.5px;font-weight:700;color:rgba(255,255,255,.9);
+    padding:7px 14px;border-radius:99px;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);
+  }
+  .scroll-hint{
+    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:3;
+    color:rgba(255,255,255,.7);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+  }
+  .scroll-hint .mouse{width:22px;height:34px;border:2px solid rgba(255,255,255,.55);border-radius:12px;position:relative}
+  .scroll-hint .mouse::after{content:"";position:absolute;top:6px;left:50%;transform:translateX(-50%);width:3px;height:7px;background:#fff;border-radius:2px;animation:wheel 1.5s infinite}
+  @keyframes wheel{0%{opacity:0;transform:translate(-50%,0)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,10px)}}
+
+  /* clickable full-scene link wrapper */
+  a.scene-link{display:block;color:inherit}
+  a.scene-link .learn{cursor:pointer}
+
+  /* vertical index tag */
+  .idx{font-family:"Fraunces";font-size:14px;color:rgba(255,255,255,.5);font-weight:500;margin-bottom:6px;letter-spacing:.04em}
+
+  /* madeira stats */
+  .stats{display:flex;flex-wrap:wrap;gap:14px;margin-top:28px}
+  .stat{
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);
+    border-radius:12px;padding:16px 20px;min-width:150px;backdrop-filter:blur(4px);
+  }
+  .stat .n{font-family:"Fraunces";font-size:clamp(1.4rem,3vw,2rem);color:#fff;font-weight:600;line-height:1}
+  .stat .l{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-top:8px;font-weight:700}
+  .status-pill{
+    display:inline-flex;align-items:center;gap:8px;margin-top:22px;
+    background:rgba(200,162,75,.16);border:1px solid rgba(200,162,75,.5);color:#f0d99a;
+    font-weight:800;font-size:13px;letter-spacing:.03em;padding:8px 16px;border-radius:99px;
+  }
+  .status-pill .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(200,162,75,.25);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  /* ===== EXECUTION + OPERATOR (light panel) ===== */
+  .panel{background:var(--paper);color:var(--ink);padding:clamp(70px,9vw,120px) clamp(20px,6vw,90px)}
+  .panel .wrap{max-width:var(--maxw);margin:0 auto}
+  .panel .kicker{color:var(--sea)}
+  .panel .kicker::before{background:var(--sea)}
+  .panel h2{font-size:clamp(1.9rem,4vw,2.8rem);color:var(--ink);max-width:20ch}
+  .panel .sub{color:#42546a;font-size:1.08rem;margin-top:14px;max-width:56ch}
+  .partners{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+  .pcard{
+    background:#fff;border:1px solid var(--sand);border-radius:16px;padding:26px 24px;
+    box-shadow:0 12px 30px -20px rgba(11,22,34,.3);transition:.22s;
+  }
+  .pcard:hover{transform:translateY(-4px);box-shadow:0 20px 44px -22px rgba(11,22,34,.4);border-color:var(--sea)}
+  .pcard h3{font-size:1.28rem;color:var(--ink);margin-bottom:8px;font-weight:600}
+  .pcard p{color:#51637a;font-size:.98rem}
+  .pcard .lic{display:inline-block;margin-top:14px;font-size:11.5px;font-weight:700;letter-spacing:.05em;color:var(--sea);background:rgba(31,122,140,.09);padding:6px 12px;border-radius:8px}
+
+  /* operator strip */
+  .operator{
+    margin-top:60px;display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:center;
+    background:linear-gradient(135deg,var(--ink),var(--ink-2));color:#fff;
+    border-radius:22px;padding:clamp(30px,5vw,48px);box-shadow:var(--shadow);
+  }
+  .op-mono{
+    width:96px;height:96px;border-radius:20px;flex:none;
+    display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--gold),#a9812f);
+    font-family:"Fraunces";font-weight:700;font-size:38px;color:#1a1405;
+    box-shadow:0 14px 30px rgba(200,162,75,.4);
+  }
+  .operator h3{font-size:1.7rem;color:#fff;margin-bottom:6px}
+  .operator .role{color:var(--gold);font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+  .operator p{color:rgba(255,255,255,.8);max-width:60ch;font-size:1rem}
+  .op-contact{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+  .op-contact a{
+    display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;
+    color:#fff;background:rgba(255,255,255,.08);border:1px solid var(--line);
+    padding:9px 15px;border-radius:9px;transition:.2s;
+  }
+  .op-contact a:hover{background:rgba(255,255,255,.16)}
+
+  /* ===== CLOSING CTA ===== */
+  .closing{
+    position:relative;text-align:center;color:#fff;overflow:hidden;
+    padding:clamp(80px,11vw,150px) clamp(20px,6vw,90px);
+    background-color:var(--ink);background-size:cover;background-position:center;
+  }
+  .closing::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,16,26,.82),rgba(8,16,26,.92))}
+  .closing .wrap{position:relative;z-index:2;max-width:760px;margin:0 auto}
+  .closing h2{font-size:clamp(2.2rem,5.5vw,3.6rem);color:#fff;margin:0 auto}
+  .closing p{color:rgba(255,255,255,.85);font-size:1.15rem;margin:18px auto 0;max-width:48ch}
+  .closing .ctas{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:34px}
+  .btn-primary{
+    background:var(--gold);color:#1a1405;font-weight:800;font-size:16px;
+    padding:16px 30px;border-radius:12px;box-shadow:0 14px 34px rgba(200,162,75,.4);transition:.2s;
+  }
+  .btn-primary:hover{background:#d8b25c;transform:translateY(-2px)}
+  .btn-ghost{
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.32);color:#fff;
+    font-weight:700;font-size:16px;padding:16px 30px;border-radius:12px;transition:.2s;
+  }
+  .btn-ghost:hover{background:rgba(255,255,255,.16)}
+
+  /* ===== FOOTER ===== */
+  footer{background:#07101a;color:rgba(255,255,255,.75);padding:64px clamp(20px,6vw,90px) 34px}
+  .foot-grid{max-width:var(--maxw);margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px}
+  .foot-brand .brand{margin-bottom:14px}
+  .foot-brand p{font-size:.95rem;color:rgba(255,255,255,.6);max-width:34ch}
+  .foot-col h4{font-family:"Manrope";font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;font-weight:800}
+  .foot-col a{display:block;color:rgba(255,255,255,.72);font-size:14.5px;padding:6px 0;transition:.16s}
+  .foot-col a:hover{color:#fff;padding-left:4px}
+  .foot-bottom{
+    max-width:var(--maxw);margin:44px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,.1);
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;
+    font-size:13px;color:rgba(255,255,255,.5);
+  }
+  .foot-bottom .ext{color:rgba(255,255,255,.6)}
+  .foot-bottom .ext:hover{color:var(--gold)}
+
+  /* ===== RESPONSIVE ===== */
+  @media(max-width:880px){
+    .nav-links{display:none}
+    .burger{display:flex}
+    .partners{grid-template-columns:1fr}
+    .operator{grid-template-columns:1fr;text-align:center}
+    .op-mono{margin:0 auto}
+    .op-contact{justify-content:center}
+    .foot-grid{grid-template-columns:1fr;gap:32px}
+    .scene{min-height:auto;padding-top:130px;padding-bottom:90px}
+  }
+</style>
+</head>
+<body>
+
+<div class="ribbon">PREVIEW v23 — Full-Bleed Scroll Story</div>
+
+<!-- ===== NAV ===== -->
+<nav class="nav" id="nav">
+  <a class="brand" href="/">
+    <span class="mono">CC</span>
+    <span><b>Collaborative Concept</b><span>Lantana, Florida</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="/">About</a>
+    <a href="/properties">Project Management</a>
+    <a href="/solutions">Operation Solutions</a>
+    <a class="nav-cta" href="/contact">Investor Inquiries</a>
+  </div>
+  <button class="burger" id="burger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="close" id="closeMenu" aria-label="Close menu">&times;</button>
+  <a href="/">About</a>
+  <a href="/properties">Project Management</a>
+  <a href="/solutions">Operation Solutions</a>
+  <a href="/invest">The Madeira Deal</a>
+  <a class="cta" href="/contact">Investor Inquiries</a>
+</div>
+
+<!-- ===== SCENE 1 — HERO / COASTLINE ===== -->
+<header class="scene hero fixed-bg" style="background-image:url('https://images.unsplash.com/photo-1505142468610-359e7d316be0?auto=format&fit=crop&w=1600&q=70')">
+  <div class="inner">
+    <span class="kicker">One Florida operator · Four disciplines</span>
+    <h1>We build, code, and close on the Florida coast.</h1>
+    <p class="lede">Coastal development, custom software, roof consulting, and solar-loan relief — run with a builder's discipline out of Lantana, FL.</p>
+    <a class="learn solid" href="/contact">Investor Inquiries <span class="arw">&rarr;</span></a>
+    <div class="badges">
+      <span class="badge">Development &amp; Deals</span>
+      <span class="badge">Operation Solutions</span>
+      <span class="badge">Roof Consulting</span>
+      <span class="badge">Solar Exit</span>
+    </div>
+  </div>
+  <div class="scroll-hint"><div class="mouse"></div>Scroll the story</div>
+</header>
+
+<!-- ===== SCENE 2 — DEVELOPMENT & DEALS ===== -->
+<a class="scene-link" href="/properties">
+  <section class="scene fixed-bg" style="background-image:url('https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=1600&q=70')">
+    <div class="inner">
+      <div class="idx">01 — Real Estate</div>
+      <span class="kicker">Development &amp; Deals</span>
+      <h2>Coastal builds &amp; off-market deals.</h2>
+      <p class="lede">Ground-up coastal Florida development and quietly structured off-market opportunities for investors.</p>
+      <span class="learn">Learn more <span class="arw">&rarr;</span></span>
+    </div>
+  </section>
+</a>
+
+<!-- ===== SCENE 3 — OPERATION SOLUTIONS ===== -->
+<a class="scene-link" href="/solutions">
+  <section class="scene fixed-bg" style="background-image:url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=70')">
+    <div class="inner">
+      <div class="idx">02 — Software</div>
+      <span class="kicker">Operation Solutions</span>
+      <h2>Software that fires your SaaS bill.</h2>
+      <p class="lede">Custom tools built to replace pricey subscriptions — one client cut $5,200 a month.</p>
+      <span class="learn">Learn more <span class="arw">&rarr;</span></span>
+    </div>
+  </section>
+</a>
+
+<!-- ===== SCENE 4 — ROOF CONSULTING ===== -->
+<a class="scene-link" href="/contact">
+  <section class="scene fixed-bg" style="background-image:url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=70')">
+    <div class="inner">
+      <div class="idx">03 — Roofing</div>
+      <span class="kicker">Roof Consulting</span>
+      <h2>Reports &amp; permits, done right.</h2>
+      <p class="lede">Pre-listing roof reports and HVHZ permit packets that hold up to Florida scrutiny.</p>
+      <span class="learn">Learn more <span class="arw">&rarr;</span></span>
+    </div>
+  </section>
+</a>
+
+<!-- ===== SCENE 5 — SOLAR EXIT ===== -->
+<a class="scene-link" href="https://solarexit.collaborativeconceptsfl.com" target="_blank" rel="noopener">
+  <section class="scene fixed-bg" style="background-image:url('https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1600&q=70')">
+    <div class="inner">
+      <div class="idx">04 — Relief</div>
+      <span class="kicker">Solar Exit</span>
+      <h2>Out of a bad solar loan.</h2>
+      <p class="lede">We help homeowners escape failed PACE / Ygrene solar financing.</p>
+      <span class="learn">Learn more <span class="arw">&rarr;</span></span>
+    </div>
+  </section>
+</a>
+
+<!-- ===== SCENE 6 — MADEIRA FLAGSHIP ===== -->
+<section class="scene fixed-bg" style="background-image:url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=70')">
+  <div class="inner">
+    <span class="kicker">Flagship raise</span>
+    <h2>The Madeira Beach double-lot.</h2>
+    <p class="lede">Two coastal homes on a double lot. The numbers, in the open — no closed-deal spin.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">$1.9M&ndash;$2.2M</div><div class="l">Project cost</div></div>
+      <div class="stat"><div class="n">$600K&ndash;$1M+</div><div class="l">Target profit</div></div>
+      <div class="stat"><div class="n">$1.3M&ndash;$1.6M</div><div class="l">Per-home exit</div></div>
+      <div class="stat"><div class="n">9&ndash;14 mo</div><div class="l">Timeline</div></div>
+    </div>
+    <div><span class="status-pill"><span class="dot"></span>Active — Raising Capital</span></div>
+    <div><a class="learn solid" href="/invest">See the deal <span class="arw">&rarr;</span></a></div>
+  </div>
+</section>
+
+<!-- ===== EXECUTION PARTNERS + OPERATOR (LIGHT PANEL) ===== -->
+<section class="panel">
+  <div class="wrap">
+    <span class="kicker">Who does the work</span>
+    <h2>Licensed execution behind every line.</h2>
+    <p class="sub">Concepts are structured here; the building, roofing, and capital are handled by vetted, licensed partners.</p>
+
+    <div class="partners">
+      <div class="pcard">
+        <h3>La Gala Construction</h3>
+        <p>General contractor — ground-up coastal builds and renovations.</p>
+        <span class="lic">FL CGC 059211 · Keith La Gala</span>
+      </div>
+      <div class="pcard">
+        <h3>SeaBreeze Roofing</h3>
+        <p>Roofing execution for reports, replacements, and permit work.</p>
+        <span class="lic">CCC1328689 · CVC57073</span>
+      </div>
+      <div class="pcard">
+        <h3>K5 Investment Group</h3>
+        <p>Equity partner — 20&ndash;25%, 2nd position, 50/50 split, 12&ndash;24 mo.</p>
+        <span class="lic">Capital &amp; structuring</span>
+      </div>
+    </div>
+
+    <!-- OPERATOR -->
+    <div class="operator">
+      <div class="op-mono">DB</div>
+      <div>
+        <h3>Danny Bivins</h3>
+        <div class="role">Operator · Collaborative Concept</div>
+        <p>One accountable operator connecting deals, software, roofing, and capital — and answering the phone himself.</p>
+        <div class="op-contact">
+          <a href="tel:+15614758615">&#9742; (561) 475-8615</a>
+          <a href="mailto:sales@collaborativeconceptsfl.com">&#9993; sales@collaborativeconceptsfl.com</a>
+          <a href="/contact">Lantana, FL &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CLOSING CTA ===== -->
+<section class="closing" style="background-image:url('https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=1600&q=70')">
+  <div class="wrap">
+    <h2>Let's talk about the raise.</h2>
+    <p>The Madeira Beach redevelopment is live and raising capital. Get the deck and the numbers.</p>
+    <div class="ctas">
+      <a class="btn-primary" href="/contact">Investor Inquiries</a>
+      <a class="btn-ghost" href="/invest">See the Madeira deal &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <a class="brand" href="/">
+        <span class="mono">CC</span>
+        <span><b>Collaborative Concept</b><span>Lantana, Florida</span></span>
+      </a>
+      <p>Coastal Florida development, custom software, roof consulting, and solar-loan relief — one operator, four disciplines.</p>
+    </div>
+    <div class="foot-col">
+      <h4>Company</h4>
+      <a href="/">About</a>
+      <a href="/properties">Project Management</a>
+      <a href="/solutions">Operation Solutions</a>
+      <a href="/blog">Blog</a>
+      <a href="/team">Team</a>
+    </div>
+    <div class="foot-col">
+      <h4>Connect</h4>
+      <a href="https://solarexit.collaborativeconceptsfl.com" target="_blank" rel="noopener">Solar Exit &#8599;</a>
+      <a href="/contact">Contact</a>
+      <a href="tel:+15614758615">(561) 475-8615</a>
+      <a href="mailto:sales@collaborativeconceptsfl.com">sales@collaborativeconceptsfl.com</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>&copy; 2026 Collaborative Concept LLC.</span>
+    <a class="ext" href="https://solarexit.collaborativeconceptsfl.com" target="_blank" rel="noopener">solarexit.collaborativeconceptsfl.com &#8599;</a>
+  </div>
+</footer>
+
+<script>
+  // nav background on scroll
+  var nav = document.getElementById('nav');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 40){ nav.classList.add('scrolled'); }
+    else { nav.classList.remove('scrolled'); }
+  }, {passive:true});
+
+  // mobile menu
+  var menu = document.getElementById('mobileMenu');
+  var burger = document.getElementById('burger');
+  var closeBtn = document.getElementById('closeMenu');
+  function openMenu(){ menu.classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeMenu(){ menu.classList.remove('open'); document.body.style.overflow=''; }
+  burger.addEventListener('click', openMenu);
+  closeBtn.addEventListener('click', closeMenu);
+  Array.prototype.forEach.call(menu.querySelectorAll('a'), function(a){
+    a.addEventListener('click', closeMenu);
+  });
+</script>
+
+</body>
+</html>
