@@ -4,12 +4,12 @@
  */
 module.exports = {
   darkMode: 'class',
+  // NOTE: Tailwind v3 does NOT support "!" negation in content globs — using
+  // them silently degrades the scan and drops variant (sm:/md:/lg:/hover:)
+  // generation. List the public page locations explicitly instead.
   content: [
-    './wwslgc/**/*.html',
-    '!./wwslgc/admin/**',
-    '!./wwslgc/portal/**',
-    '!./wwslgc/send/**',
-    '!./wwslgc/design/**',
+    './wwslgc/*.html',
+    './wwslgc/guides/*.html',
   ],
   safelist: ['hidden'],
   theme: {
