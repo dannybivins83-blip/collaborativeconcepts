@@ -4,6 +4,8 @@
   "trailingSlash": false,
   "redirects": [
     { "source": "/", "has": [{ "type": "host", "value": "wwslgc.collaborativeconceptsfl.com" }], "destination": "/wwslgc", "permanent": true },
+    { "source": "/wwslgc", "has": [{ "type": "host", "value": "collaborativeconceptsfl.com" }], "destination": "https://wwslgc.collaborativeconceptsfl.com/wwslgc", "permanent": true },
+    { "source": "/wwslgc/:path*", "has": [{ "type": "host", "value": "collaborativeconceptsfl.com" }], "destination": "https://wwslgc.collaborativeconceptsfl.com/:path*", "permanent": true },
     { "source": "/ai", "destination": "/solutions", "permanent": true }
   ],
   "rewrites": [
