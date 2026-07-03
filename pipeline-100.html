@@ -157,8 +157,8 @@ function checkPw(e){e.preventDefault();if(document.getElementById('pw-input').va
     <button onclick="filterDeals('Commercial')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium border border-outline-variant" data-filter="Commercial">Commercial</button>
     <button onclick="filterDeals('Hospitality')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium border border-outline-variant" data-filter="Hospitality">Hotels/Motels</button>
     <button onclick="filterDeals('Distressed')" class="filter-btn px-4 py-1.5 rounded-full text-sm font-medium border border-outline-variant" data-filter="Distressed">Distressed</button>
-    <div class="ml-auto flex items-center gap-3">
-      <input id="searchInput" type="text" placeholder="Search address, city, notes..." class="px-4 py-2 rounded-lg border border-outline-variant text-sm w-64 focus:outline-none focus:ring-2 focus:ring-ocean/40" oninput="searchDeals(this.value)"/>
+    <div class="ml-auto flex flex-wrap items-center gap-3 min-w-0 w-full sm:w-auto">
+      <input id="searchInput" type="text" placeholder="Search address, city, notes..." class="px-4 py-2 rounded-lg border border-outline-variant text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-ocean/40" oninput="searchDeals(this.value)"/>
       <a href="/assets/pipeline-100-deals.csv" download class="flex items-center gap-1 bg-ocean text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-coastal transition-colors">
         <span class="material-symbols-outlined text-base">download</span>Download CSV
       </a>
