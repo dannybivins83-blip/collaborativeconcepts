@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- STAGING GATE: remove noindex ONLY after (1) real phone+form endpoint wired and (2) SFM partnership signed -->
+  <meta name="robots" content="noindex,nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's Your Wake Boat Worth? | Palm Beach Wake Boats — Sell, Demo & Service in Palm Beach County</title>
+<meta name="description" content="Free 60-second wake boat valuation for Palm Beach County. Sell or consign your MasterCraft, Malibu, Nautique or Moomba without Marketplace scams. Book a wakesurf demo on Lake Osborne. Inboard service for all wake brands.">
+<script>
+/* ============================================================
+   CONFIG — Danny: edit these 6 lines, nothing else needs touching
+   ============================================================ */
+const CONFIG = {
+  PHONE_DISPLAY: "(561) 555-0199",          // your tracking number (CallRail etc.)
+  PHONE_TEL:     "+15615550199",
+  FORM_ENDPOINT: "",                         // paste your Formspree/Basin endpoint URL; blank = email fallback
+  LEAD_EMAIL:    "leads@palmbeachwakeboats.com",  // fallback mailto target
+  DEALER_NAME:   "South Florida Marine",     // named partner for TCPA consent — DO NOT publish before deal is signed
+  GA_ID:         ""                          // optional GA4 id e.g. G-XXXXXXX
+};
+</script>
+<style>
+  :root{
+    --navy:#0b2545; --navy2:#123a6b; --aqua:#0ea5c6; --aqua-dk:#0b7e99;
+    --sun:#ff8a3d; --sun-dk:#e56f22; --sand:#f5f8fa; --ink:#1a2b3c; --mut:#5b7186;
+    --ok:#1a9e6e; --card:#ffffff; --line:#dbe6ee;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;color:var(--ink);background:var(--sand);line-height:1.55}
+  img{max-width:100%}
+  a{color:var(--aqua-dk)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* header */
+  header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+  .hd{display:flex;align-items:center;justify-content:space-between;padding:12px 0;gap:12px}
+  .logo{font-weight:800;font-size:1.15rem;letter-spacing:.5px;text-transform:uppercase}
+  .logo span{color:var(--aqua)}
+  .hd a.call{background:var(--sun);color:#fff;text-decoration:none;font-weight:700;padding:10px 18px;border-radius:8px;white-space:nowrap;font-size:.95rem}
+  .hd a.call:hover{background:var(--sun-dk)}
+
+  /* hero */
+  .hero{background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 55%,var(--aqua-dk) 130%);color:#fff;padding:52px 0 84px;position:relative;overflow:hidden}
+  .hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:start}
+  .kick{display:inline-block;background:rgba(14,165,198,.18);border:1px solid rgba(14,165,198,.5);color:#9be3f2;font-size:.8rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:6px 12px;border-radius:20px;margin-bottom:18px}
+  h1{font-size:clamp(1.9rem,4.4vw,3rem);line-height:1.12;font-weight:800;margin-bottom:16px}
+  h1 em{color:#7fd8ea;font-style:normal}
+  .sub{font-size:1.1rem;color:#cfe2ef;margin-bottom:22px;max-width:34em}
+  .bullets{list-style:none;margin:0 0 26px}
+  .bullets li{padding:6px 0 6px 32px;position:relative;color:#e7f1f8}
+  .bullets li::before{content:"✓";position:absolute;left:4px;top:6px;color:var(--aqua);font-weight:800}
+  .trustbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+  .chip{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 12px;font-size:.82rem;color:#dcebf5}
+  .chip b{color:#fff}
+
+  /* form card */
+  .card{background:var(--card);color:var(--ink);border-radius:14px;box-shadow:0 18px 50px rgba(4,20,40,.35);padding:26px 24px;position:relative}
+  .card h2{font-size:1.25rem;margin-bottom:4px}
+  .card .tag{color:var(--mut);font-size:.9rem;margin-bottom:16px}
+  .steps{display:flex;gap:6px;margin-bottom:18px}
+  .steps i{flex:1;height:5px;border-radius:3px;background:var(--line);font-style:normal}
+  .steps i.on{background:var(--aqua)}
+  label{display:block;font-size:.82rem;font-weight:700;color:var(--navy);margin:12px 0 4px}
+  input,select,textarea{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:1rem;background:#fff;color:var(--ink)}
+  input:focus,select:focus{outline:none;border-color:var(--aqua)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .btn{display:inline-block;width:100%;background:var(--sun);color:#fff;border:none;border-radius:9px;padding:14px 18px;font-size:1.05rem;font-weight:800;cursor:pointer;margin-top:18px;text-align:center;text-decoration:none}
+  .btn:hover{background:var(--sun-dk)}
+  .btn.sec{background:var(--aqua)}
+  .btn.sec:hover{background:var(--aqua-dk)}
+  .btn.ghost{background:transparent;color:var(--mut);font-weight:600;font-size:.85rem;padding:8px;margin-top:6px}
+  .fineprint{font-size:.72rem;color:var(--mut);margin-top:12px;line-height:1.45}
+  .consent{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:.78rem;color:var(--mut)}
+  .consent input{width:auto;margin-top:3px}
+  .estimate{background:linear-gradient(135deg,#eafaf3,#e3f6fb);border:1.5px solid #b5e6d3;border-radius:10px;padding:18px;text-align:center;margin:6px 0 4px}
+  .estimate .rng{font-size:1.7rem;font-weight:800;color:var(--ok)}
+  .estimate p{font-size:.85rem;color:var(--mut);margin-top:6px}
+  .hide{display:none}
+  .thanks{text-align:center;padding:28px 8px}
+  .thanks .big{font-size:2.4rem}
+
+  /* sections */
+  section{padding:60px 0}
+  .sec-title{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;color:var(--navy);margin-bottom:8px;text-align:center}
+  .sec-sub{text-align:center;color:var(--mut);max-width:44em;margin:0 auto 36px}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:24px}
+  .box .ic{font-size:1.9rem;margin-bottom:10px}
+  .box h3{font-size:1.05rem;color:var(--navy);margin-bottom:8px}
+  .box p{font-size:.92rem;color:var(--mut)}
+  .band{background:var(--navy);color:#fff}
+  .band .sec-title{color:#fff}
+  .band .sec-sub{color:#b8cfdf}
+  .band .box{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
+  .band .box h3{color:#8fdcec}
+  .band .box p{color:#c4d8e5}
+  .cta-inline{text-align:center;margin-top:34px}
+  .cta-inline a{display:inline-block;width:auto;padding:14px 34px}
+
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center}
+  .split h2{font-size:1.6rem;color:var(--navy);margin-bottom:12px}
+  .split p{color:var(--mut);margin-bottom:12px}
+  .payhook{background:#fff;border:1.5px solid var(--line);border-left:5px solid var(--aqua);border-radius:10px;padding:16px 18px;margin:16px 0}
+  .payhook b{color:var(--navy);font-size:1.15rem}
+  .payhook small{display:block;color:var(--mut);margin-top:4px}
+
+  .faq details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:10px}
+  .faq summary{font-weight:700;color:var(--navy);cursor:pointer}
+  .faq p{margin-top:10px;color:var(--mut);font-size:.94rem}
+
+  footer{background:#081a33;color:#8aa3b8;padding:40px 0 30px;font-size:.78rem;line-height:1.6}
+  footer h4{color:#c8d9e6;font-size:.9rem;margin-bottom:8px}
+  footer .cols{display:grid;grid-template-columns:2fr 1fr;gap:30px;margin-bottom:22px}
+  .sticky-call{display:none}
+
+  @media(max-width:860px){
+    .hero .wrap{grid-template-columns:1fr}
+    .cols3{grid-template-columns:1fr}
+    .split{grid-template-columns:1fr}
+    footer .cols{grid-template-columns:1fr}
+    .hero{padding:36px 0 60px}
+    .sticky-call{display:block;position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--sun);text-align:center;padding:13px;font-weight:800;color:#fff;text-decoration:none;box-shadow:0 -4px 16px rgba(0,0,0,.25)}
+    body{padding-bottom:52px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hd">
+    <div class="logo">Palm Beach <span>Wake Boats</span></div>
+    <a class="call" href="#" data-tel>📞 <span data-phone></span></a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <span class="kick">Palm Beach County · Lantana · Boynton · Delray · Lake Worth</span>
+      <h1>What's Your Wake Boat <em>Actually Worth?</em></h1>
+      <p class="sub">Free 60-second valuation — then a real written offer through Palm Beach County's authorized MasterCraft dealer network. Sell or consign your wake boat without Marketplace scammers, no-show "buyers," or strangers showing up at your house.</p>
+      <ul class="bullets">
+        <li><b>Instant estimated range</b> based on current South Florida listings — see it before you give us your number</li>
+        <li><b>Sell it without the hassle:</b> the dealer preps, stores, demos, handles financing &amp; title transfer</li>
+        <li><b>Used wake boats are scarce right now</b> — under 30 MasterCrafts listed in all of Florida. Scarcity is leverage. Use it.</li>
+        <li>MasterCraft, Malibu, Nautique, Moomba, Axis, Supra, Centurion &amp; Tige all welcome</li>
+      </ul>
+      <div class="trustbar">
+        <div class="chip">⭐ <b>4.8-star</b> dealer partner</div>
+        <div class="chip">🏠 Family-owned <b>20+ years</b></div>
+        <div class="chip">🌊 Local to <b>Lake Osborne &amp; Lake Ida</b></div>
+        <div class="chip">🔧 Full inboard service — <b>all brands</b></div>
+      </div>
+    </div>
+
+    <!-- ===== VALUATION FORM ===== -->
+    <div class="card" id="valform">
+      <h2>Free Wake Boat Valuation</h2>
+      <div class="tag">Takes about 60 seconds · No obligation · No spam</div>
+      <div class="steps"><i class="on" id="st1"></i><i id="st2"></i><i id="st3"></i></div>
+
+      <!-- STEP 1 -->
+      <div id="step1">
+        <label>Brand</label>
+        <select id="f_brand">
+          <option value="">Select brand…</option>
+          <option>MasterCraft</option><option>Malibu</option><option>Nautique</option>
+          <option>Axis</option><option>Moomba</option><option>Supra</option>
+          <option>Centurion</option><option>Tige</option><option>Other inboard</option>
+        </select>
+        <div class="grid2">
+          <div>
+            <label>Model / series</label>
+            <select id="f_model">
+              <option value="">Select…</option>
+              <option value="entry">Entry (NXT, Vandall, A-series, Mojo…)</option>
+              <option value="mid">Mid (XT, Wakesetter VLX, S-series…)</option>
+              <option value="prem">Premium (X-series, M-series, G-series…)</option>
+              <option value="flag">Flagship (XStar, M240, G25, Ri265…)</option>
+              <option value="ski">Ski/direct drive (ProStar, Response…)</option>
+            </select>
+          </div>
+          <div>
+            <label>Model year</label>
+            <select id="f_year"></select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label>Engine hours</label>
+            <input id="f_hours" type="number" min="0" max="5000" placeholder="e.g. 250">
+          </div>
+          <div>
+            <label>Zip code</label>
+            <input id="f_zip" type="text" inputmode="numeric" maxlength="5" placeholder="33462">
+          </div>
+        </div>
+        <button class="btn" onclick="toStep2()">See My Boat's Value →</button>
+      </div>
+
+      <!-- STEP 2: instant estimate -->
+      <div id="step2" class="hide">
+        <div class="estimate">
+          <div style="font-size:.85rem;color:var(--mut);margin-bottom:4px">Estimated market range for your boat:</div>
+          <div class="rng" id="est_range">$—</div>
+          <p>Based on current South Florida wake boat listings &amp; recent asking prices. Your <b>written offer</b> — which is usually what matters — takes one quick conversation.</p>
+        </div>
+        <label>What would you like to do?</label>
+        <select id="f_intent">
+          <option>Sell it outright</option>
+          <option>Consign it (dealer sells it for me)</option>
+          <option>Trade it toward a newer boat</option>
+          <option>Just curious what it's worth</option>
+        </select>
+        <button class="btn" onclick="toStep3()">Get My Written Offer →</button>
+        <button class="btn ghost" onclick="backTo(1)">← Back</button>
+      </div>
+
+      <!-- STEP 3: contact -->
+      <div id="step3" class="hide">
+        <div class="grid2">
+          <div><label>First name</label><input id="f_name" type="text" autocomplete="given-name"></div>
+          <div><label>Phone</label><input id="f_phone" type="tel" autocomplete="tel" placeholder="(561) 555-0123"></div>
+        </div>
+        <label>Email</label>
+        <input id="f_email" type="email" autocomplete="email">
+        <div class="consent">
+          <input type="checkbox" id="f_consent">
+          <span id="consent_text">I agree to receive calls and text messages about my boat valuation from Palm Beach Wake Boats and its dealer partner at the number provided. Consent is not a condition of purchase. Msg &amp; data rates may apply. Reply STOP to opt out.</span>
+        </div>
+        <button class="btn" onclick="submitLead('valuation')">Send My Info — Get the Offer</button>
+        <button class="btn ghost" onclick="backTo(2)">← Back</button>
+        <div class="fineprint">Estimated ranges are informational only, based on comparable listings, and are not an offer to purchase. Your firm number comes as a written offer after a short review of photos/condition.</div>
+      </div>
+
+      <!-- THANKS -->
+      <div id="stepdone" class="hide thanks">
+        <div class="big">🤙</div>
+        <h2>Got it — you're in the queue.</h2>
+        <p style="color:var(--mut);margin-top:8px">Expect a text or call shortly (usually within minutes during business hours). Want to skip the line?</p>
+        <a class="btn sec" href="#" data-tel>Call <span data-phone></span> now</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHY NOT MARKETPLACE -->
+<section>
+  <div class="wrap">
+    <h2 class="sec-title">Why smart sellers skip Facebook Marketplace</h2>
+    <p class="sec-sub">Selling a $60,000–$180,000 boat to strangers off the internet is a part-time job with real risk. Here's what you're opting out of:</p>
+    <div class="cols3">
+      <div class="box"><div class="ic">🎣</div><h3>The scam parade</h3><p>Cashier's-check overpayment plays, "wire me a deposit" ghosts, fake buyers with airline-job backstories. High-dollar boats are the #1 target on open marketplaces.</p></div>
+      <div class="box"><div class="ic">⏰</div><h3>10–20 hours of your life</h3><p>Lookers, no-shows, "lake testers" who want a free afternoon on your gas — with you carrying the liability on the demo ride.</p></div>
+      <div class="box"><div class="ic">🏠</div><h3>Strangers at your home</h3><p>Consignment through the dealer means the boat sits on a secured lot, gets demoed by professionals to qualified buyers only, and the paperwork, financing and title transfer are handled for you.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO / BUY SIDE -->
+<section class="band" id="demo">
+  <div class="wrap split">
+    <div>
+      <h2 style="color:#fff">Rather trade <em style="color:#7fd8ea;font-style:normal">up</em>? Surf before you sign.</h2>
+      <p style="color:#c4d8e5">Book an on-water wakesurf demo right here in Palm Beach County — Lake Osborne (Lantana) and Lake Ida (Delray) are minutes from the showroom. Feel the wave behind a current-year MasterCraft before you ever talk numbers.</p>
+      <div class="payhook">
+        <b>New surf boats from ~$915/month*</b>
+        <small>*Example dealer-advertised financing on a new NXT-series: 240 months, 8.99% APR, 20% down, with approved credit. Your terms may vary — pre-qualification available with no impact to your credit score.</small>
+      </div>
+      <p style="color:#c4d8e5">Trading in? Florida sales tax is only charged on the <b style="color:#fff">difference</b> after your trade — trade a $60K boat toward new and the tax savings alone can top $3,600.**</p>
+    </div>
+    <div class="card">
+      <h2>Book a Wakesurf Demo</h2>
+      <div class="tag">Free · On the water · No pressure</div>
+      <label>Name</label><input id="d_name" type="text">
+      <div class="grid2">
+        <div><label>Phone</label><input id="d_phone" type="tel"></div>
+        <div><label>When are you looking to buy?</label>
+          <select id="d_when"><option>ASAP — ready now</option><option>1–3 months</option><option>3–6 months</option><option>Just researching</option></select>
+        </div>
+      </div>
+      <label>Interested in</label>
+      <select id="d_boat"><option>New MasterCraft (NXT / XT / X / XStar)</option><option>Used / consignment wake boat</option><option>Pontoon</option><option>Not sure yet — show me the wave</option></select>
+      <div class="consent">
+        <input type="checkbox" id="d_consent">
+        <span>I agree to receive calls/texts about demo scheduling from Palm Beach Wake Boats and its dealer partner. Reply STOP to opt out.</span>
+      </div>
+      <button class="btn sec" onclick="submitLead('demo')">Request My Demo Slot</button>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICE -->
+<section id="service">
+  <div class="wrap">
+    <h2 class="sec-title">Own a Malibu, Nautique or Moomba with no dealer left in town?</h2>
+    <p class="sec-sub">You're not imagining it — there is no Malibu or Axis dealer anywhere in Palm Beach, Broward, or Miami-Dade, and Nautique's north store closed. Your boat still needs its 100-hour service. Our partner's factory-trained inboard shop services <b>every wake brand</b> — MasterCraft, Malibu, Nautique, Moomba, Centurion, Supra — plus ballast systems, surf tabs, gelcoat and full canvas &amp; upholstery, with dockside service available from Stuart to the Keys.</p>
+    <div class="cols3">
+      <div class="box"><div class="ic">🔧</div><h3>100-hour / annual service</h3><p>Oil, impellers, plugs, ballast pumps — done by techs certified on Ilmor, Indmar, PCM and Crusader power. Year-round Florida hours add up fast.</p></div>
+      <div class="box"><div class="ic">🧂</div><h3>Saltwater packages</h3><p>Riding the Intracoastal? Anodes, flush systems, corrosion protection and detailing built for boats that live in salt.</p></div>
+      <div class="box"><div class="ic">⛵</div><h3>Canvas &amp; upholstery in-house</h3><p>Covers, biminis, enclosures, interiors — one of the only dealer-grade canvas shops in Palm Beach County.</p></div>
+    </div>
+    <div class="cta-inline">
+      <a class="btn" style="width:auto" href="#" data-tel>Call for a Service Slot: <span data-phone></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- LOCAL SEO CONTENT -->
+<section style="padding-top:0">
+  <div class="wrap split">
+    <div>
+      <h2>Where Palm Beach County actually wakesurfs</h2>
+      <p><b>Lake Osborne (Lantana):</b> the south straightaway off John Prince Park is the county's home wake water — 3-lane public ramp, minutes from I-95. <b>Lake Ida (Delray Beach):</b> public ramp at Lake Ida West Park; go weekday mornings, weekends get busy. <b>The Intracoastal:</b> legal outside posted zones — know your slow-speed sections between Boynton and Lantana.</p>
+      <p>We're local. We ride here. And every boat we help sell or buy gets set up for <em>these</em> waters — not some dealer's lake three hours away.</p>
+    </div>
+    <div class="box">
+      <h3>Quick FL tow-sports rules</h3>
+      <p>• Observer or wide-angle mirror required while towing<br>
+      • Riders need a USCG-approved non-inflatable life jacket<br>
+      • No towing from ½ hr after sunset to ½ hr before sunrise<br>
+      • Wakesurfing requires an inboard/V-drive boat — never surf behind an outboard or sterndrive</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="band">
+  <div class="wrap" style="max-width:820px">
+    <h2 class="sec-title">Straight answers</h2>
+    <div class="faq" style="margin-top:26px">
+      <details><summary>How is the instant estimate calculated?</summary><p>From current and recent South Florida wake-boat listings, adjusted for model tier, age and engine hours. It's a realistic asking-price range, not an appraisal — your written offer follows a quick photo/condition review with the dealer's sales desk.</p></details>
+      <details><summary>What does consignment cost me?</summary><p>Dealer consignment in this market typically runs 10–15% of the sale price, and includes prep, secured storage, professional demos to qualified buyers, financing arrangement and title transfer. You approve the asking price — nothing sells below it without your OK.</p></details>
+      <details><summary>How fast do wake boats sell right now?</summary><p>Priced-right used wake boats are scarce in South Florida — fewer than 30 used MasterCrafts are typically listed in the entire state. Clean 2018–2023 surf boats in the $70K–$150K band are the fastest movers.</p></details>
+      <details><summary>Is my brand eligible if it's not a MasterCraft?</summary><p>Yes. Malibu, Nautique, Axis, Moomba, Supra, Centurion, Tige — the valuation, consignment and service programs cover every inboard wake brand.</p></details>
+      <details><summary>Who actually buys/sells the boat?</summary><p>Palm Beach Wake Boats is an independent local marketing company. Transactions are completed by our authorized dealer partner's licensed sales operation in Boynton Beach — a family-owned, 4.8-star dealership. We connect you; they close it properly.</p></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h4>Palm Beach Wake Boats</h4>
+        <p>An independent marketing site serving Lantana, Boynton Beach, Lake Worth Beach, Delray Beach, Hypoluxo, and greater Palm Beach County, Florida. We may be compensated by our dealer partners when you buy, sell, consign, or service a boat through this site.</p>
+        <p style="margin-top:8px">MASTERCRAFT® is a registered trademark of MasterCraft Boat Company, LLC. Malibu®, Nautique®, Moomba®, Supra®, Axis®, Centurion® and Tige® are trademarks of their respective owners. This site is not owned by, operated by, or affiliated with MasterCraft Boat Company, LLC or any boat manufacturer; brand names are used only to identify the boats we help owners value, sell, and service.</p>
+        <p style="margin-top:8px">**Florida sales tax example assumes 6% state rate applied to the post-trade difference; county surtax and individual circumstances vary — confirm exact figures with the dealership's finance office. Valuation ranges are estimates from comparable listings and do not constitute an offer to purchase.</p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>📞 <a href="#" data-tel style="color:#8fdcec"><span data-phone></span></a><br>
+        ✉️ <span id="ft_email"></span><br><br>
+        Serving Palm Beach County<br>Lake Osborne · Lake Ida · the Intracoastal</p>
+      </div>
+    </div>
+    <p style="border-top:1px solid rgba(255,255,255,.12);padding-top:14px">© <span id="yr"></span> Palm Beach Wake Boats. All rights reserved. · Text STOP to any message to opt out; opt-outs honored promptly.</p>
+  </div>
+</footer>
+
+<a class="sticky-call" href="#" data-tel>📞 Tap to Call — Free Valuation</a>
+
+<script>
+/* ---------- wiring ---------- */
+document.querySelectorAll('[data-tel]').forEach(a=>a.href='tel:'+CONFIG.PHONE_TEL);
+document.querySelectorAll('[data-phone]').forEach(s=>s.textContent=CONFIG.PHONE_DISPLAY);
+document.getElementById('ft_email').textContent=CONFIG.LEAD_EMAIL;
+document.getElementById('yr').textContent=new Date().getFullYear();
+document.getElementById('consent_text').innerHTML=
+  'I agree to receive calls and text messages about my boat valuation from Palm Beach Wake Boats and '+CONFIG.DEALER_NAME+
+  ' at the number provided. Consent is not a condition of purchase. Msg &amp; data rates may apply. Reply STOP to opt out.';
+(function(){const y=document.getElementById('f_year');const now=new Date().getFullYear();
+  for(let i=now+1;i>=1990;i--){const o=document.createElement('option');o.value=i;o.textContent=i;y.appendChild(o);}
+})();
+if(CONFIG.GA_ID){const s=document.createElement('script');s.src='https://www.googletagmanager.com/gtag/js?id='+CONFIG.GA_ID;s.async=1;document.head.appendChild(s);
+  window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config',CONFIG.GA_ID);}
+
+/* ---------- valuation model (v1 heuristic from July 2026 SoFL listing bands) ---------- */
+const BASE_NEW={entry:125000,mid:165000,prem:240000,flag:290000,ski:125000};
+const BRAND_ADJ={"MasterCraft":1.0,"Nautique":1.05,"Malibu":0.97,"Axis":0.80,"Moomba":0.78,"Supra":0.88,"Centurion":0.95,"Tige":0.85,"Other inboard":0.75};
+function estimate(){
+  const brand=document.getElementById('f_brand').value;
+  const tier=document.getElementById('f_model').value;
+  const year=parseInt(document.getElementById('f_year').value);
+  const hours=parseInt(document.getElementById('f_hours').value)||0;
+  if(!brand||!tier||!year)return null;
+  const now=new Date().getFullYear();
+  const age=Math.max(0,now-year);
+  let v=BASE_NEW[tier]*(BRAND_ADJ[brand]||0.8);
+  if(age>0){v*=0.85;for(let i=1;i<age;i++)v*=0.93;}       // yr1 -15%, then -7%/yr
+  v=Math.max(v,BASE_NEW[tier]*0.10);                       // floor
+  const expHours=age*55;                                    // ~55 hrs/yr FL norm
+  if(hours>expHours+150)v*=0.93;else if(age>1&&hours<Math.max(50,expHours-150))v*=1.05;
+  const lo=Math.round(v*0.90/500)*500,hi=Math.round(v*1.10/500)*500;
+  return [lo,hi];
+}
+const fmt=n=>'$'+n.toLocaleString('en-US');
+
+/* ---------- step flow ---------- */
+function show(n){['step1','step2','step3','stepdone'].forEach((id,i)=>{
+  document.getElementById(id).classList.toggle('hide',(i+1)!==n&&!(n===4&&id==='stepdone'));});
+  if(n===4){['step1','step2','step3'].forEach(id=>document.getElementById(id).classList.add('hide'));document.getElementById('stepdone').classList.remove('hide');}
+  document.getElementById('st1').className=n>=1?'on':'';
+  document.getElementById('st2').className=n>=2?'on':'';
+  document.getElementById('st3').className=n>=3?'on':'';
+}
+function toStep2(){
+  const e=estimate();
+  if(!e){alert('Pick your brand, model tier, and year first — 10 seconds, promise.');return;}
+  document.getElementById('est_range').textContent=fmt(e[0])+' – '+fmt(e[1]);
+  show(2);track('valuation_estimate_shown');
+}
+function toStep3(){show(3);track('valuation_contact_step');}
+function backTo(n){show(n);}
+
+/* ---------- submit ---------- */
+function collect(kind){
+  if(kind==='valuation'){
+    return {type:'VALUATION / SELL LEAD',name:val('f_name'),phone:val('f_phone'),email:val('f_email'),
+      brand:val('f_brand'),tier:val('f_model'),year:val('f_year'),hours:val('f_hours'),zip:val('f_zip'),
+      intent:val('f_intent'),estimate:document.getElementById('est_range').textContent};
+  }
+  return {type:'DEMO REQUEST',name:val('d_name'),phone:val('d_phone'),timeframe:val('d_when'),boat:val('d_boat')};
+}
+function val(id){return (document.getElementById(id)||{}).value||'';}
+function submitLead(kind){
+  const consent=document.getElementById(kind==='valuation'?'f_consent':'d_consent');
+  const data=collect(kind);
+  if(!data.name||!data.phone){alert('Name and phone are all we need to get you your number.');return;}
+  if(!consent.checked){alert('Please check the consent box so we can legally call/text you back.');return;}
+  data.consent='yes ('+new Date().toISOString()+')';data.page=location.href;
+  if(CONFIG.FORM_ENDPOINT){
+    fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+      .then(()=>done(kind)).catch(()=>mailFallback(data,kind));
+  } else { mailFallback(data,kind); }
+}
+function mailFallback(data,kind){
+  const body=encodeURIComponent(Object.entries(data).map(([k,v])=>k+': '+v).join('\n'));
+  window.location.href='mailto:'+CONFIG.LEAD_EMAIL+'?subject='+encodeURIComponent('[LEAD] '+data.type)+'&body='+body;
+  done(kind);
+}
+function done(kind){
+  track('lead_submitted_'+kind);
+  if(kind==='valuation'){show(4);}
+  else{alert('Demo request received — expect a text shortly to lock in your slot. 🤙');}
+}
+function track(ev){if(window.gtag)gtag('event',ev);if(window.fbq)fbq('trackCustom',ev);}
+</script>
+</body>
+</html>
