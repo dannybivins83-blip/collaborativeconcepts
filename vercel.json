@@ -4,6 +4,17 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.collaborativeconceptsfl.com"
+        }
+      ],
+      "destination": "https://collaborativeconceptsfl.com/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {
