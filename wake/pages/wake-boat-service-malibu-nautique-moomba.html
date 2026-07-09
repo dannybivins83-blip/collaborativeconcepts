@@ -406,8 +406,10 @@ function submitService(){
   if(!consent.checked){alert('Please check the consent box so we can legally call/text you back.');return;}
   data.consent='yes ('+new Date().toISOString()+')';data.page=location.href;
   if(CONFIG.FORM_ENDPOINT){
-    fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
-      .then(()=>done()).catch(()=>mailFallback(data));
+    var _ac=new AbortController(),_to=setTimeout(function(){_ac.abort();},5000);
+    fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data),signal:_ac.signal})
+      .then(function(r){clearTimeout(_to);(r&&r.ok)?done():mailFallback(data);})
+      .catch(function(){clearTimeout(_to);mailFallback(data);});
   } else { mailFallback(data); }
 }
 function mailFallback(data){

@@ -432,8 +432,10 @@ function submitLead(kind){
   if(!consent.checked){alert('Please check the consent box so we can legally call/text you back.');return;}
   data.consent='yes ('+new Date().toISOString()+')';data.page=location.href;
   if(CONFIG.FORM_ENDPOINT){
-    fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
-      .then(()=>done(kind)).catch(()=>mailFallback(data,kind));
+    var _ac=new AbortController(),_to=setTimeout(function(){_ac.abort();},5000);
+    fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data),signal:_ac.signal})
+      .then(function(r){clearTimeout(_to);(r&&r.ok)?done(kind):mailFallback(data,kind);})
+      .catch(function(){clearTimeout(_to);mailFallback(data,kind);});
   } else { mailFallback(data,kind); }
 }
 function mailFallback(data,kind){
