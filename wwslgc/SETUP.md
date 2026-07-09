@@ -50,11 +50,28 @@ Add each for **Production** (and Preview if you want preview deploys to work):
 | `SESSION_SECRET` | a long random string — see below |
 | `WWSLGC_REDIRECT_URI` | `https://wwslgc.collaborativeconceptsfl.com/api/auth/callback` |
 | `ALLOWED_EMAIL_DOMAIN` | `lagalacon.com` |
+| `SAM_GOV_API_KEY` | (optional) powers the admin **Gov Opps** tab — see below |
 
 Generate a `SESSION_SECRET` (run locally, paste the output):
 ```
 python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
+
+### SAM.gov API key (admin "Gov Opps" tab)
+
+The admin dashboard's **Gov Opps** tab pulls open federal contract opportunities
+from SAM.gov. To turn it on:
+
+1. Sign in at [sam.gov](https://sam.gov) with the **Collaborative Concepts**
+   account (the one tied to the entity's SAM registration — this gives the
+   **1,000 requests/day** tier; a bare personal account is capped at 10/day).
+2. Go to **Account Details → Public API Key**, generate the key, copy it.
+3. Add it to Vercel as `SAM_GOV_API_KEY` and redeploy.
+
+Notes: SAM.gov keys **auto-rotate every 90 days**, so expect to refresh this
+value quarterly. The tab caches each query for a few hours to stay well under
+the daily limit. Until the key is set, the tab shows a "not configured" notice
+and no other feature is affected.
 
 ---
 

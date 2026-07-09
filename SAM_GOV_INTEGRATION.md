@@ -1,8 +1,13 @@
 # SAM.gov Integration — Research & Plan
 
-**Status:** Research / plan only (no code shipped yet)
-**Requested placement:** new section inside the existing **La Gala admin dashboard**
-(`wwslgc/admin/index.html`), linked as a tab like Leads / Inspections / Invoices.
+**Status:** ✅ **Phase 1 shipped** — "Gov Opps" tab live in the La Gala admin
+dashboard (backend + UI). Needs `SAM_GOV_API_KEY` set in Vercel to activate
+(see `wwslgc/SETUP.md`). Phase 2 (entity/exclusion lookup) still planned.
+**Placement:** new tab inside the **La Gala admin dashboard**
+(`wwslgc/admin/index.html`), alongside Leads / Inspections / Invoices.
+**Config chosen:** key from **Collaborative Concepts** SAM registration ·
+place of performance **FL** · **all** procurement types (no set-aside filter) ·
+on-demand dashboard search (no email alerts in v1).
 **Date:** 2026-07-09
 
 ---

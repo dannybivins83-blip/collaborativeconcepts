@@ -4279,3 +4279,202 @@ def food_stats():
         "total_bonus_estimate": round(total_bonus, 2),
         "recent": recent,
     })
+
+
+# ==========================================================================
+# SAM.gov — federal contract-opportunity finder ("Gov Opps" tab, La Gala admin)
+#
+# Server-side proxy to the SAM.gov Get Opportunities v2 API. The key stays in a
+# Vercel env var (never the browser), and each per-NAICS sub-query is cached in
+# the KV store to protect the daily rate limit. Admin-guarded like every other
+# /api/admin/* route. Key comes from the Collaborative Concepts SAM.gov account
+# (use the entity-registered key for the 1,000/day tier -- a bare personal key
+# is capped at 10/day and rotates every 90 days).
+# ==========================================================================
+from datetime import datetime, timedelta
+
+SAM_OPPS_URL = "https://api.sam.gov/opportunities/v2/search"
+SAM_WATCHLIST_KEY = "sam:watchlist"        # single JSON array in KV
+SAM_CACHE_PREFIX = "sam:cache:"            # per-subquery response cache
+SAM_CACHE_TTL = 6 * 3600                   # seconds — opportunities update slowly
+
+# NAICS codes Collaborative Concepts / La Gala actually bid on.
+SAM_NAICS = {
+    "238160": "Roofing Contractors",
+    "541350": "Building Inspection Services",
+    "236220": "Commercial & Institutional Building Construction",
+    "236115": "New Single-Family Housing Construction",
+    "236116": "New Multifamily Housing Construction",
+    "236118": "Residential Remodelers",
+    "238140": "Masonry Contractors",
+    "238170": "Siding Contractors",
+}
+
+
+def _sam_key():
+    return os.environ.get("SAM_GOV_API_KEY") or os.environ.get("SAM_API_KEY")
+
+
+def _sam_fetch(ncode, state, posted_from, posted_to):
+    """One SAM.gov query for a single NAICS. Cached in KV. Returns (rows, error)."""
+    cache_key = SAM_CACHE_PREFIX + "|".join([ncode, state, posted_from, posted_to])
+    try:
+        cached, _ = _kv_cmd(["GET", cache_key])
+        if cached:
+            return json.loads(cached), None
+    except Exception:
+        pass
+    params = {
+        "api_key": _sam_key(),
+        "postedFrom": posted_from,   # MM/dd/yyyy — SAM.gov does not accept ISO
+        "postedTo": posted_to,
+        "ncode": ncode,
+        "state": state,              # place-of-performance state
+        "limit": "100",
+    }
+    try:
+        r = requests.get(SAM_OPPS_URL, params=params, timeout=25)
+    except requests.RequestException as e:
+        return [], str(e)
+    if r.status_code != 200:
+        return [], _err(r)
+    try:
+        rows = r.json().get("opportunitiesData", []) or []
+    except ValueError:
+        return [], "bad response from SAM.gov"
+    try:
+        _kv_cmd(["SET", cache_key, json.dumps(rows), "EX", str(SAM_CACHE_TTL)])
+    except Exception:
+        pass
+    return rows, None
+
+
+def _sam_flatten(v):
+    """SAM place-of-performance fields arrive as either {'name'/'code':..} or a
+    plain string, depending on the field. Normalise to a display string."""
+    if isinstance(v, dict):
+        return v.get("name") or v.get("code") or ""
+    return v or ""
+
+
+def _sam_shape(o):
+    poc = (o.get("pointOfContact") or [])
+    c = poc[0] if poc else {}
+    pop = o.get("placeOfPerformance") or {}
+    place = ", ".join(x for x in [_sam_flatten(pop.get("city")), _sam_flatten(pop.get("state"))] if x)
+    return {
+        "noticeId": o.get("noticeId", "") or "",
+        "title": o.get("title", "") or "",
+        "solicitationNumber": o.get("solicitationNumber", "") or "",
+        "agency": o.get("fullParentPathName", "") or "",
+        "naics": o.get("naicsCode", "") or "",
+        "type": o.get("type", "") or "",
+        "setAside": o.get("typeOfSetAsideDescription", "") or "",
+        "posted": o.get("postedDate", "") or "",
+        "deadline": o.get("responseDeadLine", "") or "",
+        "active": o.get("active") is True or str(o.get("active", "")).lower() in ("true", "yes", "1"),
+        "place": place,
+        "pocName": c.get("fullName", "") or c.get("name", ""),
+        "pocEmail": c.get("email", "") or "",
+        "pocPhone": c.get("phone", "") or "",
+        "uiLink": o.get("uiLink", "") or "",
+    }
+
+
+@app.post("/api/admin/sam/opportunities")
+def admin_sam_opportunities():
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    if not _sam_key():
+        return jsonify({
+            "configured": False, "opportunities": [], "naics": SAM_NAICS,
+            "hint": "Set SAM_GOV_API_KEY in Vercel. Generate it from the Collaborative "
+                    "Concepts SAM.gov account — use the entity-registered key (1,000/day); "
+                    "a bare personal key is capped at 10/day.",
+        })
+    body = request.get_json(force=True, silent=True) or {}
+    codes = [c for c in (body.get("naics") or []) if c in SAM_NAICS] or list(SAM_NAICS.keys())
+    state = (body.get("state") or "FL").upper()[:2]
+    try:
+        days = int(body.get("days", 30))
+    except Exception:
+        days = 30
+    days = max(1, min(days, 365))
+    to_dt = datetime.utcnow()
+    from_dt = to_dt - timedelta(days=days)
+    posted_to = to_dt.strftime("%m/%d/%Y")
+    posted_from = from_dt.strftime("%m/%d/%Y")
+
+    seen, out, errors = set(), [], []
+    for code in codes:
+        rows, err = _sam_fetch(code, state, posted_from, posted_to)
+        if err:
+            errors.append("{}: {}".format(code, err))
+            continue
+        for o in rows:
+            s = _sam_shape(o)
+            nid = s["noticeId"] or s["solicitationNumber"]
+            if nid and nid in seen:
+                continue
+            if nid:
+                seen.add(nid)
+            out.append(s)
+    # active first, then soonest response deadline
+    out.sort(key=lambda x: (0 if x["active"] else 1, x["deadline"] or "9999-12-31"))
+    _log_activity("sam_search", "NAICS {} · {} · {}d -> {} opps".format(
+        ",".join(codes), state, days, len(out)))
+    resp = {"configured": True, "count": len(out), "opportunities": out,
+            "naics": SAM_NAICS, "state": state, "days": days,
+            "from": posted_from, "to": posted_to}
+    if errors:
+        resp["status"] = "; ".join(errors[:4])
+    return jsonify(resp)
+
+
+def _sam_watchlist_load():
+    try:
+        raw, configured = _kv_cmd(["GET", SAM_WATCHLIST_KEY])
+    except Exception:
+        return None
+    if not configured:
+        return None
+    try:
+        return json.loads(raw) if raw else []
+    except Exception:
+        return []
+
+
+@app.get("/api/admin/sam/watchlist")
+def admin_sam_watchlist_get():
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    items = _sam_watchlist_load()
+    if items is None:
+        return jsonify({"configured": False, "watchlist": []})
+    return jsonify({"configured": True, "watchlist": items})
+
+
+@app.post("/api/admin/sam/watchlist")
+def admin_sam_watchlist_save():
+    """Add or remove an opportunity from the saved watchlist (single JSON blob)."""
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    body = request.get_json(force=True, silent=True) or {}
+    action = (body.get("action") or "add").lower()
+    opp = body.get("opp") or {}
+    nid = (opp.get("noticeId") or body.get("noticeId") or "").strip()
+    if not nid:
+        return jsonify({"ok": False, "error": "noticeId required"}), 400
+    items = _sam_watchlist_load()
+    if items is None:
+        return jsonify({"ok": False, "error": "store not configured"}), 200
+    items = [it for it in items if it.get("noticeId") != nid]
+    if action != "remove":
+        opp["noticeId"] = nid
+        opp["saved"] = _now_ms()
+        opp["savedBy"] = _admin_name()
+        items.insert(0, opp)
+    _kv_cmd(["SET", SAM_WATCHLIST_KEY, json.dumps(items[:200])])
+    _log_activity("sam_watch", ("+ " if action != "remove" else "- ")
+                  + (opp.get("title", "")[:60] or nid))
+    return jsonify({"ok": True, "count": len(items), "watchlist": items})
