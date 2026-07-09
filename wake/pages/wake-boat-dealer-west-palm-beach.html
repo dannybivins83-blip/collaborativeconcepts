@@ -15,7 +15,7 @@ const CONFIG = {
   PHONE_TEL:     "+15614758615",
   FORM_ENDPOINT: "https://formsubmit.co/ajax/colabconceptfl@gmail.com",                         // paste your Formspree/Basin endpoint URL; blank = email fallback
   LEAD_EMAIL:    "colabconceptfl@gmail.com",  // fallback mailto target
-  DEALER_NAME:   "South Florida Marine",     // named partner for TCPA consent — DO NOT publish before deal is signed
+  DEALER_NAME:   "South Florida Marine",     // named partner for TCPA consent (SFM arrangement — owner-ruled live 2026-07-09)
   GA_ID:         ""                          // optional GA4 id e.g. G-XXXXXXX
 };
 </script>
@@ -317,7 +317,7 @@ function submitLead(){
   if(CONFIG.FORM_ENDPOINT){
     var _ac=new AbortController(),_to=setTimeout(function(){_ac.abort();},5000);
     fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data),signal:_ac.signal})
-      .then(function(r){clearTimeout(_to);(r&&r.ok)?done():mailFallback(data);})
+      .then(function(r){return r.json().catch(function(){return{};});}).then(function(d){clearTimeout(_to);(d&&(d.success===true||d.success==='true'))?done():mailFallback(data);})
       .catch(function(){clearTimeout(_to);mailFallback(data);});
   } else { mailFallback(data); }
 }

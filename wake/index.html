@@ -24,7 +24,7 @@ const CONFIG = {
   PHONE_TEL:     "+15614758615",
   FORM_ENDPOINT: "https://formsubmit.co/ajax/colabconceptfl@gmail.com",  // FormSubmit (free); blank = email fallback
   LEAD_EMAIL:    "colabconceptfl@gmail.com",  // fallback mailto target
-  DEALER_NAME:   "South Florida Marine",     // named partner for TCPA consent — DO NOT publish before deal is signed
+  DEALER_NAME:   "South Florida Marine",     // named partner for TCPA consent (SFM arrangement — owner-ruled live 2026-07-09)
   GA_ID:         ""                          // optional GA4 id e.g. G-XXXXXXX
 };
 </script>
@@ -659,7 +659,7 @@ function submitLead(kind){
   if(CONFIG.FORM_ENDPOINT){
     var ac=new AbortController(),to=setTimeout(function(){ac.abort();},5000);
     fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data),signal:ac.signal})
-      .then(function(r){clearTimeout(to);(r&&r.ok)?done(kind):mailFallback(data,kind);})
+      .then(function(r){return r.json().catch(function(){return{};});}).then(function(d){clearTimeout(to);(d&&(d.success===true||d.success==='true'))?done(kind):mailFallback(data,kind);})
       .catch(function(){clearTimeout(to);mailFallback(data,kind);});
   } else { mailFallback(data,kind); }
 }

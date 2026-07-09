@@ -402,7 +402,7 @@ function book(){
   if(CONFIG.FORM_ENDPOINT){
     var d=false,t=setTimeout(function(){if(!d){d=true;mail(data);}},5000);
     fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
-      .then(function(r){if(d)return;d=true;clearTimeout(t);if(r&&r.ok){finish();}else{mail(data);}})
+      .then(function(r){return r.json().catch(function(){return{};});}).then(function(b){if(d)return;d=true;clearTimeout(t);if(b&&(b.success===true||b.success==='true')){finish();}else{mail(data);}})
       .catch(function(){if(d)return;d=true;clearTimeout(t);mail(data);});
   } else { mail(data); }
 }
