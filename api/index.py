@@ -4478,3 +4478,133 @@ def admin_sam_watchlist_save():
     _log_activity("sam_watch", ("+ " if action != "remove" else "- ")
                   + (opp.get("title", "")[:60] or nid))
     return jsonify({"ok": True, "count": len(items), "watchlist": items})
+
+
+# ---- Phase 2: vendor vetting — SAM registration + debarment (exclusions) ----
+import re as _re
+
+SAM_ENTITY_URL = "https://api.sam.gov/entity-information/v3/entities"
+SAM_EXCLUSIONS_URL = "https://api.sam.gov/entity-information/v4/exclusions"
+_SAM_UEI_RE = _re.compile(r"^[A-Za-z0-9]{12}$")
+
+
+def _sam_cached_get(url, params, cache_ns, cache_id):
+    """GET a SAM.gov endpoint with a short-lived KV cache. Returns (json, error)."""
+    ck = SAM_CACHE_PREFIX + cache_ns + ":" + (cache_id or "")[:120]
+    try:
+        cached, _ = _kv_cmd(["GET", ck])
+        if cached:
+            return json.loads(cached), None
+    except Exception:
+        pass
+    try:
+        r = requests.get(url, params=params, timeout=25)
+    except requests.RequestException as e:
+        return None, str(e)
+    if r.status_code != 200:
+        return None, _err(r)
+    try:
+        data = r.json()
+    except ValueError:
+        return None, "bad response from SAM.gov"
+    try:
+        _kv_cmd(["SET", ck, json.dumps(data), "EX", str(SAM_CACHE_TTL)])
+    except Exception:
+        pass
+    return data, None
+
+
+def _sam_entity_search(q):
+    """Look up SAM registration by UEI (12-char) or legal business name."""
+    params = {"api_key": _sam_key(), "includeSections": "entityRegistration,coreData"}
+    if _SAM_UEI_RE.match(q):
+        params["ueiSAM"] = q.upper()
+    else:
+        params["legalBusinessName"] = q
+    data, err = _sam_cached_get(SAM_ENTITY_URL, params, "entity", q.lower())
+    if err:
+        return [], err
+    out = []
+    for e in (data.get("entityData") or [])[:10]:
+        reg = e.get("entityRegistration") or {}
+        core = e.get("coreData") or {}
+        addr = core.get("physicalAddress") or {}
+        out.append({
+            "name": reg.get("legalBusinessName", "") or "",
+            "uei": reg.get("ueiSAM", "") or "",
+            "cage": reg.get("cageCode", "") or "",
+            "registered": reg.get("samRegistered", "") or "",
+            "status": reg.get("registrationStatus", "") or "",
+            "regDate": reg.get("registrationDate", "") or "",
+            "expiry": reg.get("registrationExpirationDate", "") or "",
+            "place": ", ".join(x for x in [addr.get("city", "") or "",
+                                           addr.get("stateOrProvinceCode", "") or ""] if x),
+        })
+    return out, None
+
+
+def _sam_excl_field(x, *keys):
+    for k in keys:
+        v = x.get(k)
+        if v:
+            return v
+    return ""
+
+
+def _sam_exclusions_search(q):
+    """Screen a name/UEI against the federal exclusions (debarment) list.
+    NOTE: the v4 exclusions response nests fields under version-specific keys;
+    field mapping below is best-effort and the record count is the reliable
+    signal. Confirm exact keys against a live response once the key is set."""
+    params = {"api_key": _sam_key(), "q": q}
+    data, err = _sam_cached_get(SAM_EXCLUSIONS_URL, params, "excl", q.lower())
+    if err:
+        return [], err
+    records = (data.get("excludedEntity") or data.get("exclusionDetails")
+               or data.get("excludedEntities")
+               or (data.get("_embedded") or {}).get("results") or [])
+    out = []
+    for x in records[:25]:
+        if not isinstance(x, dict):
+            continue
+        types = _sam_excl_field(x, "exclusionTypes", "exclusionType", "classificationType")
+        if isinstance(types, list):
+            types = ", ".join(str(t) for t in types)
+        prog = x.get("exclusionProgram") or {}
+        agency = (_sam_excl_field(x, "excludingAgencyName", "excludingAgency")
+                  or (prog.get("excludingAgencyName") if isinstance(prog, dict) else "") or "")
+        out.append({
+            "name": _sam_excl_field(x, "exclusionName", "name", "legalBusinessName"),
+            "classification": _sam_excl_field(x, "classificationType", "classification"),
+            "exclusionType": types,
+            "agency": agency,
+            "active": _sam_excl_field(x, "activateDate", "activeDate", "creationDate"),
+            "termination": _sam_excl_field(x, "terminationDate", "termationDate"),
+            "uei": _sam_excl_field(x, "ueiSAM", "uei"),
+        })
+    return out, None
+
+
+@app.post("/api/admin/sam/lookup")
+def admin_sam_lookup():
+    """Vet a company: SAM registration status + federal debarment screening."""
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    if not _sam_key():
+        return jsonify({
+            "configured": False,
+            "hint": "Set SAM_GOV_API_KEY in Vercel (Collaborative Concepts account).",
+        })
+    body = request.get_json(force=True, silent=True) or {}
+    q = (body.get("q") or "").strip()
+    if not q:
+        return jsonify({"ok": False, "error": "Enter a company name or 12-char UEI."}), 400
+    entities, e_err = _sam_entity_search(q)
+    exclusions, x_err = _sam_exclusions_search(q)
+    _log_activity("sam_lookup", "Vet: {}{}".format(
+        q[:60], " -> {} exclusion(s)".format(len(exclusions)) if exclusions else ""))
+    return jsonify({
+        "configured": True, "query": q,
+        "entities": entities, "exclusions": exclusions,
+        "entityError": e_err, "exclusionError": x_err,
+    })

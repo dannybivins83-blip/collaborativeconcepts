@@ -140,6 +140,18 @@
 
 <!-- gov opportunities (SAM.gov) -->
 <section id="tab-samopps" class="hidden">
+
+<!-- vet a company: SAM registration + debarment -->
+<div class="bg-white rounded-xl border border-line p-4 mb-4">
+<div class="flex items-center gap-2 mb-1"><span class="ms text-secondary">verified_user</span><h3 class="font-h font-extrabold text-primary">Vet a company</h3></div>
+<p class="text-xs text-mute mb-3">Check SAM registration status and federal debarment (exclusions) before hiring a sub or partner.</p>
+<div class="flex gap-2">
+<input id="samVetQ" placeholder="Company legal name or 12-char UEI…" class="flex-1 rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none" onkeydown="if(event.key==='Enter')samVet()"/>
+<button onclick="samVet()" id="samVetBtn" class="bg-primary text-white text-sm font-semibold px-5 py-2 rounded-lg inline-flex items-center gap-1 hover:bg-primaryc whitespace-nowrap"><span class="ms text-base">search</span> Check</button>
+</div>
+<div id="samVetResult" class="mt-3"></div>
+</div>
+
 <div class="bg-white rounded-xl border border-line p-4 mb-4">
 <div class="flex flex-wrap items-end gap-3">
 <div class="min-w-[150px]">
@@ -712,6 +724,45 @@ function samToggleWatch(nid){
     SAM_WATCH_IDS={}; (d.watchlist||[]).forEach(function(o){ SAM_WATCH_IDS[o.noticeId]=true; });
     renderSamWatch(d.watchlist||[]); renderSamOpps();
   }).catch(function(){ alert('Network error.'); });
+}
+
+/* ---- SAM.gov vendor vetting (registration + debarment) ---- */
+function samVet(){
+  var q=(document.getElementById('samVetQ').value||'').trim(); if(!q) return;
+  var btn=document.getElementById('samVetBtn'); btn.disabled=true; btn.textContent='Checking…';
+  var box=document.getElementById('samVetResult'); box.innerHTML='<div class="text-mute text-sm">Searching SAM.gov…</div>';
+  api('/api/admin/sam/lookup',{method:'POST',body:JSON.stringify({q:q})}).then(function(d){
+    btn.disabled=false; btn.innerHTML='<span class="ms text-base">search</span> Check';
+    if(d.configured===false){ box.innerHTML='<div class="rounded-lg bg-amber-50 border border-amber-300 text-amber-900 px-3 py-2 text-sm">'+esc(d.hint||'SAM.gov API key not set.')+'</div>'; return; }
+    if(d.error){ box.innerHTML='<div class="text-red-600 text-sm">'+esc(d.error)+'</div>'; return; }
+    renderSamVet(d);
+  }).catch(function(){ btn.disabled=false; btn.innerHTML='<span class="ms text-base">search</span> Check'; box.innerHTML='<div class="text-red-600 text-sm">Network error.</div>'; });
+}
+function renderSamVet(d){
+  var html='', ex=d.exclusions||[], ents=d.entities||[];
+  // debarment first — the safety-critical signal
+  if(d.exclusionError){
+    html+='<div class="rounded-lg bg-gray-50 border border-line px-3 py-2 text-xs text-mute mb-2">Debarment check unavailable — '+esc(d.exclusionError)+'</div>';
+  } else if(ex.length){
+    html+='<div class="rounded-lg bg-red-50 border border-red-300 text-red-800 px-3 py-2 text-sm mb-2"><b>⚠ '+ex.length+' exclusion record(s) found</b> — this party may be federally debarred. Verify on <a href="https://sam.gov/search/?index=ex&q='+encodeURIComponent(d.query)+'" target="_blank" rel="noopener" class="underline">sam.gov</a>.'+
+      ex.slice(0,5).map(function(x){return '<div class="mt-1 text-xs">• '+esc(x.name||'(record)')+(x.exclusionType?(' — '+esc(x.exclusionType)):'')+(x.agency?(' · '+esc(x.agency)):'')+'</div>';}).join('')+'</div>';
+  } else {
+    html+='<div class="rounded-lg bg-green-50 border border-green-300 text-green-800 px-3 py-2 text-sm mb-2"><b>✓ No active exclusions</b> found for "'+esc(d.query)+'".</div>';
+  }
+  // registration
+  if(d.entityError){
+    html+='<div class="rounded-lg bg-gray-50 border border-line px-3 py-2 text-xs text-mute">Registration lookup unavailable — '+esc(d.entityError)+' (the SAM key may need an entity role.)</div>';
+  } else if(!ents.length){
+    html+='<div class="rounded-lg bg-gray-50 border border-line px-3 py-2 text-sm text-mute">No SAM-registered entity matched "'+esc(d.query)+'". Try the exact legal name or the 12-char UEI.</div>';
+  } else {
+    html+=ents.map(function(e){
+      var active=(e.status||'').toLowerCase().indexOf('active')>=0;
+      return '<div class="rounded-lg border border-line px-3 py-2 mb-1 text-sm"><div class="flex items-center justify-between gap-2"><span class="font-semibold text-primary">'+esc(e.name||'—')+'</span>'+
+        '<span class="text-[11px] px-2 py-0.5 rounded-full '+(active?'bg-green-100 text-green-700':'bg-gray-200 text-gray-600')+'">'+esc(e.status||e.registered||'—')+'</span></div>'+
+        '<div class="text-mute text-xs mt-0.5">'+[e.uei?('UEI '+esc(e.uei)):'',e.cage?('CAGE '+esc(e.cage)):'',e.place?esc(e.place):'',e.expiry?('expires '+esc(e.expiry)):''].filter(Boolean).join(' · ')+'</div></div>';
+    }).join('');
+  }
+  document.getElementById('samVetResult').innerHTML=html;
 }
 
 document.querySelectorAll('.tabbtn').forEach(function(b){b.addEventListener('click',function(){switchTab(b.dataset.tab);});});

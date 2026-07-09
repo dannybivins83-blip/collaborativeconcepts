@@ -1,8 +1,18 @@
 # SAM.gov Integration — Research & Plan
 
-**Status:** ✅ **Phase 1 shipped** — "Gov Opps" tab live in the La Gala admin
-dashboard (backend + UI). Needs `SAM_GOV_API_KEY` set in Vercel to activate
-(see `wwslgc/SETUP.md`). Phase 2 (entity/exclusion lookup) still planned.
+**Status:** ✅ **Phase 1 + 2 shipped** — "Gov Opps" tab live in the La Gala admin
+dashboard (opportunity finder **and** a "Vet a company" card that checks SAM
+registration + federal debarment/exclusions). Needs `SAM_GOV_API_KEY` set in
+Vercel to activate (see `wwslgc/SETUP.md`). Only remaining planned extra is
+optional email alerts on new matching opportunities.
+
+> **Verify before relying on debarment results:** the v4 Exclusions response
+> nests fields under version-specific keys. The lookup reliably reports the
+> *record count* (the go/no-go signal) and links to the sam.gov exclusion search,
+> but the individual field mapping (`_sam_exclusions_search` in `api/index.py`)
+> is best-effort and should be confirmed against a live response once the key is
+> live. Entity lookup may also require the key to hold an entity role — the UI
+> surfaces that error gracefully.
 **Placement:** new tab inside the **La Gala admin dashboard**
 (`wwslgc/admin/index.html`), alongside Leads / Inspections / Invoices.
 **Config chosen:** key from **Collaborative Concepts** SAM registration ·
