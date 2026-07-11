@@ -208,11 +208,13 @@ const CONFIG = {
 
   /* charter cross-link band */
   .charter-band{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center;max-width:1120px;margin:0 auto;
-        background:rgba(255,255,255,.05);border:1px solid var(--line-dark);border-radius:20px;padding:30px 34px}
+        background:linear-gradient(120deg,rgba(62,157,181,.16),rgba(127,208,226,.05));border:1px solid rgba(127,208,226,.25);border-radius:22px;padding:34px 40px}
   .charter-band .eyebrow{margin-bottom:8px}
-  .charter-band h3{font-size:23px;color:#fff;margin-bottom:8px}
-  .charter-band p{font-size:15px;color:var(--mut-dark);line-height:1.6;max-width:640px}
+  .charter-band h3{font-size:28px;color:#fff;margin-bottom:10px}
+  .charter-band p{font-size:15.5px;color:var(--mut-dark);line-height:1.6;max-width:700px}
   .charter-band .go{white-space:nowrap}
+  .xp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .xp-chips span{font-size:12.5px;font-weight:600;color:var(--on-dark);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 12px}
 
   /* ---------- FOOTER ---------- */
   .footer{padding:56px 52px 40px;background:var(--footer);color:var(--mut-dark-2)}
@@ -516,11 +518,14 @@ const CONFIG = {
 <div class="section dark-rev" style="padding-top:0">
   <div class="charter-band">
     <div>
-      <div class="eyebrow dark">On the water with us</div>
-      <h3>Not selling — just want a day on a MasterCraft?</h3>
-      <p>We run private charters, wakesurf &amp; wakeboard lessons, birthday and group parties, and tubing for all ages — captain and gear included, right here on Lake Osborne and the Intracoastal.</p>
+      <div class="eyebrow dark">Palm Beach Wake Boats · charters &amp; experiences</div>
+      <h3>Not selling? Come ride with us.</h3>
+      <p>Our own MasterCraft, your day on the water — captain and gear included. Sunset cruises, wakesurf &amp; wakeboard lessons, Lake Osborne grill-outs, canal-and-pool cruises, birthday &amp; group parties, and tubing for all ages. And we'll trailer the boat to your lake, canal or dock.</p>
+      <div class="xp-chips">
+        <span>🌅 Sunset cruises</span><span>🏄 Wakesurf lessons</span><span>🔥 Lake grill-outs</span><span>🌴 Canal + pool days</span><span>🎉 Parties</span><span>🛟 Tubing</span><span>🚚 We come to you</span>
+      </div>
     </div>
-    <a class="nav-cta go" href="/wake/pages/charter-experiences">Explore charters &amp; lessons
+    <a class="nav-cta go" href="/wake/pages/charter-experiences">Explore charters &amp; experiences
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></a>
   </div>
 </div>

@@ -222,11 +222,12 @@ const CONFIG = {
     <div>
       <div class="pill"><span class="dot"></span> Lantana · Lake Osborne · Lake Ida · the Intracoastal</div>
       <h1>Your day on a <em>MasterCraft.</em> Surf, ride, celebrate.</h1>
-      <p class="sub">Private charters, wakesurf &amp; wakeboard lessons, birthday and group parties, and tubing for all ages — on the best wake boat on the water, right here in Palm Beach County. Captain drives, we bring the gear, you just show up.</p>
+      <p class="sub">Private charters, wakesurf &amp; wakeboard lessons, sunset cruises, Lake Osborne grill-outs, canal-and-pool days, parties and tubing — on the best wake boat on the water in Palm Beach County. Captain drives, we bring the gear, and we'll even trailer the boat to you. You just show up.</p>
       <ul class="bullets">
-        <li><b>Learn to wakesurf or wakeboard</b> behind a real inboard — the only way to get the perfect wave</li>
-        <li><b>Birthday parties &amp; group trips</b> — kids, teens, adults, bachelor/ette, family reunions</li>
-        <li><b>Tubing &amp; towables</b> for the whole crew — screaming-fun for all ages</li>
+        <li><b>Wakesurf &amp; wakeboard lessons</b> behind a real inboard — first-timers to advanced, kids and adults</li>
+        <li><b>Sunset cruises, lake grill-outs &amp; canal + pool days</b> — laid-back ways to spend the afternoon</li>
+        <li><b>Birthdays, bachelor/ette &amp; group trips</b> — plus tubing &amp; towables, screaming-fun for all ages</li>
+        <li><b>We'll come to you</b> — your community lake, canal or dock, or we launch from Lake Osborne</li>
         <li>Captain, life jackets, boards &amp; tubes all <b>included</b> — nothing to bring but sunscreen</li>
       </ul>
       <div class="chips">
@@ -246,6 +247,10 @@ const CONFIG = {
           <select id="b_type">
             <option value="Private Charter">Private charter (just cruise &amp; ride)</option>
             <option value="Wakesurf / Wakeboard Lesson">Wakesurf / wakeboard lesson</option>
+            <option value="Sunset Cruise">Sunset cruise</option>
+            <option value="Lake Osborne Grill-Out">Lake Osborne grill-out / cookout</option>
+            <option value="Canal Cruise + Poolside">Canal cruise + poolside day</option>
+            <option value="We Come To You">Have us come to your lake / dock</option>
             <option value="Birthday / Group Party">Birthday / group party</option>
             <option value="Tubing &amp; Towables">Tubing / tube pulling</option>
             <option value="Not sure — help me pick">Not sure — help me pick</option>
@@ -259,7 +264,7 @@ const CONFIG = {
           <label class="field"><span class="lbl">Phone</span><input id="b_phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(561) 555-0123"></label>
         </div>
         <label class="field"><span class="lbl">Email</span><input id="b_email" type="email" inputmode="email" autocomplete="email"></label>
-        <label class="field"><span class="lbl">Anything we should know? (optional)</span><textarea id="b_msg" rows="2" placeholder="Occasion, ages, experience level…"></textarea></label>
+        <label class="field"><span class="lbl">Anything we should know? (optional)</span><textarea id="b_msg" rows="2" placeholder="Occasion, ages, level — or your lake/dock if you want us to come to you…"></textarea></label>
         <label class="consent"><input type="checkbox" id="b_consent"><span id="consent_text">I agree to receive calls &amp; texts about my booking from Palm Beach Wake Boats. Msg &amp; data rates may apply. Reply STOP to opt out.</span></label>
         <div class="err hide" id="errb"></div>
         <button class="btn accent" onclick="book()">Request my trip
@@ -280,8 +285,8 @@ const CONFIG = {
 <!-- ============ FOUR EXPERIENCES ============ -->
 <div class="section light" id="experiences">
   <div class="lead">
-    <h2>Four ways to get on the water</h2>
-    <p>Every trip is private — just your group and our captain. Mix and match: surf for a while, then pull the kids on a tube.</p>
+    <h2>Ways to get on the water</h2>
+    <p>Every trip is private — just your group and our captain. Mix and match: surf a few sets, grill on the lake, chase the sunset home. And if it's easier, we'll bring the boat to you.</p>
   </div>
   <div class="cards2 wrap">
     <div class="xp">
@@ -312,6 +317,34 @@ const CONFIG = {
       <span class="price" data-price>Ask about rates</span>
       <a class="bk" href="#bookcard">Book tubing →</a>
     </div>
+    <div class="xp">
+      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M17 16a5 5 0 0 0-10 0"/><path d="M12 3v3M5.5 8.5l1.5 1.5M18.5 8.5 17 10M2 13h2M20 13h2"/></svg></span>
+      <h3>Sunset Cruises</h3>
+      <p>Golden hour, no agenda. A laid-back cruise down the lake or the Intracoastal as the sky goes pink — bring your people and your playlist. The most relaxing way to end a Florida day.</p>
+      <span class="price" data-price>Ask about rates</span>
+      <a class="bk" href="#bookcard">Book a cruise →</a>
+    </div>
+    <div class="xp">
+      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1.2 3 4 4 4 7.5a4 4 0 0 1-8 0C8 7.5 9.2 6.5 10 5.5c.3 1.2 1 1.8 1 3 .9-1.3.5-4 1-6.5z"/><path d="M6 21h12"/></svg></span>
+      <h3>Lake Osborne Grill-Outs</h3>
+      <p>Cookout on the water. We post up on Lake Osborne, fire up the grill, and swim and ride between plates — your own floating basecamp for a lazy lake day. You bring the food, we bring the fun.</p>
+      <span class="price" data-price>Ask about rates</span>
+      <a class="bk" href="#bookcard">Plan a cookout →</a>
+    </div>
+    <div class="xp">
+      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V10"/><path d="M12 10c-3-2.5-7-1.8-8 1 2-1 4-.6 5 1"/><path d="M12 10c3-2.5 7-1.8 8 1-2-1-4-.6-5 1"/><path d="M12 10c0-3.5 2.5-5.5 6-4.5-2 .8-3 2.5-3 4.5"/></svg></span>
+      <h3>Canal Cruise &amp; Poolside</h3>
+      <p>Part boat ride, part pool day. Wind through the canals to the waterfront Hilton, kick back at the poolside bar, then cruise back the scenic way. A slow, only-in-South-Florida afternoon.</p>
+      <span class="price" data-price>Ask about rates</span>
+      <a class="bk" href="#bookcard">Book this day →</a>
+    </div>
+    <div class="xp">
+      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16V7h11v9"/><path d="M13 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg></span>
+      <h3>We Come To You</h3>
+      <p>Got your own lake, canal, or community ramp? We'll trailer the MasterCraft to you and launch where you already ride — no need to travel. Serving Palm Beach County and beyond.</p>
+      <span class="price" data-price>Ask about rates</span>
+      <a class="bk" href="#bookcard">Set it up →</a>
+    </div>
   </div>
 </div>
 
@@ -337,6 +370,7 @@ const CONFIG = {
     <details><summary>Do I need any experience to wakesurf or wakeboard?<span class="mk">+</span></summary><p>None at all. Most first-timers are up and riding the same day — the inboard wave and a patient captain make it easy. We coach kids and adults from never-ever to advanced.</p></details>
     <details><summary>How many people can come?<span class="mk">+</span></summary><p>Tell us your group size when you book and we'll confirm what works for the day and the water. Great for small families up to bigger party groups — we'll plan it around you.</p></details>
     <details><summary>Where do we launch?<span class="mk">+</span></summary><p>Right here in the Lantana / Lake Worth area — Lake Osborne, Lake Ida (Delray), or the Intracoastal, depending on conditions and what you want to do. We'll confirm the meet spot when we book.</p></details>
+    <details><summary>Do you come to our community, lake or dock?<span class="mk">+</span></summary><p>Yes — if you've got a lake, canal, or community ramp, we'll trailer the boat to you and launch where you ride. Tell us the spot when you book and we'll confirm access and timing. Otherwise we launch from Lake Osborne in Lantana.</p></details>
     <details><summary>What should we bring?<span class="mk">+</span></summary><p>Swimsuits, a towel, sunscreen, and whatever snacks or drinks you like. We provide the boat, captain, boards, tubes, ropes, and life jackets.</p></details>
     <details><summary>What if the weather's bad?<span class="mk">+</span></summary><p>Safety first — if conditions aren't right we'll reschedule you to another day, no hassle.</p></details>
   </div>
