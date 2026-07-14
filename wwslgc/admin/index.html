@@ -78,6 +78,7 @@
 <input id="search" oninput="renderLeads()" placeholder="Search name, company, email…" class="flex-1 min-w-[200px] rounded-lg border border-line bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>
 <select id="fstage" onchange="renderLeads()" class="rounded-lg border border-line bg-white px-3 py-2 text-sm"><option value="">All stages</option></select>
 <button onclick="openAddLead()" class="bg-primary text-white text-sm font-semibold px-4 py-2 rounded-lg inline-flex items-center gap-1 hover:bg-primaryc whitespace-nowrap"><span class="ms text-base">person_add</span> Add lead</button>
+<button onclick="openImportLeads()" class="border border-line text-primary text-sm font-semibold px-4 py-2 rounded-lg inline-flex items-center gap-1 hover:border-secondary whitespace-nowrap"><span class="ms text-base">upload_file</span> Import</button>
 </div>
 <div class="bg-white rounded-xl border border-line overflow-hidden">
 <div class="overflow-x-auto"><table class="w-full text-sm">
@@ -576,6 +577,57 @@ function submitAddLead(){
     if(d.ok){ closeDrawer(); loadLeads(); }
     else { btn.disabled=false; btn.textContent='Add lead'; alert(d.error||'Could not add (is storage enabled?)'); }
   }).catch(function(){ btn.disabled=false; btn.textContent='Add lead'; alert('Network error — please try again.'); });
+}
+function openImportLeads(){
+  document.getElementById('drawerBody').innerHTML=
+    '<div class="flex items-center justify-between mb-4"><h2 class="text-xl font-extrabold text-primary">Import leads</h2><button onclick="closeDrawer()" class="text-mute hover:text-primary"><span class="ms">close</span></button></div>'+
+    '<p class="text-sm text-mute mb-2">Paste CSV rows (from a spreadsheet or the harvested lead list). First row must be a header. Recognized columns: <b>company, property/address, name, phone, email, source, notes/status</b>. Duplicates (same address + company + email) are skipped automatically.</p>'+
+    '<div class="mb-3"><label class="block text-xs uppercase tracking-wide text-mute mb-1">Default source tag</label><input id="impSource" value="Prospect — public records" class="w-full rounded-lg border border-line px-3 py-2 text-sm"/></div>'+
+    '<textarea id="impCsv" rows="12" placeholder="Building,Address,City,County,Source,Status / Why\n2200 S Ocean Dr,\"2200 S Ocean Dr, Hollywood, FL 33019\",Hollywood,Broward,Hollywood BSIP,Open NOV — 102 units" class="w-full rounded-lg border border-line px-3 py-2 text-xs font-mono focus:ring-2 focus:ring-secondary focus:outline-none resize-y"></textarea>'+
+    '<div id="impPreview" class="text-xs text-mute mt-2"></div>'+
+    '<button onclick="runImportLeads()" id="impBtn" class="w-full mt-4 bg-secondary text-white py-3 rounded-xl font-bold hover:bg-primary transition-colors">Import</button>';
+  document.getElementById('scrim').classList.remove('hidden');
+  document.getElementById('drawer').classList.remove('translate-x-full');
+  document.getElementById('impCsv').addEventListener('input',previewImport);
+}
+function parseCsv(text){
+  // simple CSV parser handling quoted fields
+  var rows=[],row=[],cur='',q=false;
+  for(var i=0;i<text.length;i++){var c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else { if(c==='"')q=true; else if(c===','){row.push(cur);cur='';} else if(c==='\n'||c==='\r'){ if(c==='\r'&&text[i+1]==='\n')i++; row.push(cur);cur=''; if(row.length>1||row[0].trim())rows.push(row); row=[]; } else cur+=c; }
+  }
+  if(cur||row.length){ row.push(cur); if(row.length>1||row[0].trim())rows.push(row); }
+  return rows;
+}
+function csvToLeads(text){
+  var rows=parseCsv(text); if(rows.length<2) return [];
+  var hdr=rows[0].map(function(h){return h.toLowerCase().trim();});
+  function idx(names){for(var n of names){var k=hdr.indexOf(n);if(k>=0)return k;}return -1;}
+  var iCo=idx(['company','building','association','owner']), iPr=idx(['property','address','property/address','location']),
+      iNa=idx(['name','contact']), iPh=idx(['phone']), iEm=idx(['email']), iSr=idx(['source']),
+      iMs=idx(['notes','status / why','status','message','why','reason']);
+  var out=[];
+  for(var r=1;r<rows.length;r++){var row=rows[r];
+    var g=function(k){return k>=0?(row[k]||'').trim():'';};
+    var lead={company:g(iCo),property:g(iPr),name:g(iNa),phone:g(iPh),email:g(iEm),source:g(iSr),message:g(iMs)};
+    if(lead.company||lead.property||lead.name||lead.phone||lead.email) out.push(lead);
+  }
+  return out;
+}
+function previewImport(){
+  var leads=csvToLeads(document.getElementById('impCsv').value||'');
+  document.getElementById('impPreview').textContent=leads.length?('Parsed '+leads.length+' row(s) ready to import.'):'No valid rows detected yet.';
+}
+function runImportLeads(){
+  var leads=csvToLeads(document.getElementById('impCsv').value||'');
+  if(!leads.length){ alert('No valid rows detected — check the header row.'); return; }
+  var src=(document.getElementById('impSource').value||'Import').trim();
+  var btn=document.getElementById('impBtn'); btn.disabled=true; btn.textContent='Importing '+leads.length+'…';
+  api('/api/admin/leads/import',{method:'POST',body:JSON.stringify({leads:leads,source:src})}).then(function(d){
+    if(d.ok){ closeDrawer(); loadLeads(); alert('Imported '+d.added+' lead(s); skipped '+d.skipped+' duplicate(s).'); }
+    else { btn.disabled=false; btn.textContent='Import'; alert(d.error||'Import failed (is storage enabled?)'); }
+  }).catch(function(){ btn.disabled=false; btn.textContent='Import'; alert('Network error — please try again.'); });
 }
 document.querySelectorAll('.tabbtn').forEach(function(b){b.addEventListener('click',function(){switchTab(b.dataset.tab);});});
 boot();

@@ -885,6 +885,59 @@ def admin_lead_create():
     return jsonify({"ok": True, "lead": lead})
 
 
+@app.post("/api/admin/leads/import")
+def admin_leads_import():
+    """Bulk-import prospect leads (e.g., harvested noncompliant-building lists).
+    Body: {leads:[{name,company,property,phone,email,message,source}], source?}.
+    De-dupes against existing leads by (property|company|email) so re-imports
+    don't create duplicates. Admin-gated."""
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    b = request.get_json(force=True, silent=True) or {}
+    rows = b.get("leads") or []
+    default_source = (b.get("source") or "Import")[:120]
+    if not isinstance(rows, list) or not rows:
+        return jsonify({"ok": False, "error": "no leads provided"}), 400
+    rows = rows[:2000]
+    existing = _load_leads()
+    if existing is None:
+        return jsonify({"ok": False, "error": "store not configured"}), 200
+    seen = set()
+    for l in existing:
+        k = ((l.get("property") or "") + "|" + (l.get("company") or "") + "|" + (l.get("email") or "")).lower().strip()
+        if k.strip("|"):
+            seen.add(k)
+    added, skipped = 0, 0
+    for r in rows:
+        name = (str(r.get("name") or "")).strip()[:200]
+        company = (str(r.get("company") or "")).strip()[:200]
+        prop = (str(r.get("property") or "")).strip()[:300]
+        email = (str(r.get("email") or "")).strip()[:200]
+        phone = (str(r.get("phone") or "")).strip()[:60]
+        message = (str(r.get("message") or "")).strip()[:5000]
+        if not (name or company or prop or email or phone):
+            continue
+        k = (prop + "|" + company + "|" + email).lower().strip()
+        if k in seen:
+            skipped += 1
+            continue
+        seen.add(k)
+        lead = {
+            "id": _gen_id(), "ts": _now_ms(), "name": name, "email": email, "phone": phone,
+            "company": company, "property": prop, "message": message, "fields": {},
+            "source": (str(r.get("source") or default_source))[:120], "ua": "import",
+        }
+        try:
+            _, configured = _kv_cmd(["RPUSH", WWS_LEADS_KEY, json.dumps(lead)])
+            if not configured:
+                return jsonify({"ok": False, "error": "store not configured"}), 200
+            added += 1
+        except Exception:
+            pass
+    _log_activity("leads_import", "Imported {} lead(s), skipped {} dup(s) — {}".format(added, skipped, default_source))
+    return jsonify({"ok": True, "added": added, "skipped": skipped})
+
+
 # ==========================================================================
 # Multi-property / portfolio switcher
 # ==========================================================================
