@@ -95,3 +95,17 @@ h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacin
   .cards{grid-template-columns:1fr}
   .cta{flex-direction:column;align-items:flex-start}
 }
+
+/* ---- owner byline + author box ---- */
+.byline{display:flex;align-items:center;gap:10px;font-size:13.5px;color:#5a7c86;margin:0 0 22px;padding-bottom:16px;border-bottom:1px solid rgba(11,42,58,.1)}
+.byline .ba{width:30px;height:30px;border-radius:999px;background:linear-gradient(135deg,#14556E,#3E9DB5);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex:none;font-family:'Space Grotesk',sans-serif}
+.byline strong{color:#0B2A3A;font-weight:600}
+.authorbox{display:flex;gap:16px;align-items:flex-start;margin:34px 0 0;padding:22px 24px;border-radius:16px;background:#eef5f6;border:1px solid rgba(11,42,58,.08)}
+.authorbox .ab-av{width:52px;height:52px;border-radius:999px;background:linear-gradient(135deg,#14556E,#3E9DB5);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex:none;font-family:'Space Grotesk',sans-serif}
+.authorbox .ab-name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;color:#0B2A3A;margin-bottom:5px}
+.authorbox p{font-size:14px;color:#5a7c86;line-height:1.6;margin:0}
+.authorbox a{color:#14556E;font-weight:600}
+.ownertake{margin:26px 0;padding:20px 22px;border-radius:14px;background:#fff;border:1px solid rgba(11,42,58,.1);border-left:4px solid #3E9DB5}
+.ownertake .ot-h{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:#14556E;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.ownertake p{margin:0;font-size:14.5px;color:#33555f;line-height:1.65;font-style:italic}
+@media(max-width:560px){.authorbox{flex-direction:column;gap:12px}}
