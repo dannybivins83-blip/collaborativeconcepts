@@ -436,6 +436,49 @@ class FetchSourceTests(unittest.TestCase):
         self.assertIn("net down", info["error"])
 
 
+class FloridaGuardTests(unittest.TestCase):
+    def test_out_of_state_zip_dropped(self):
+        self.assertTrue(permits._out_of_florida({"zip": "23456"}))   # Virginia Beach
+        self.assertTrue(permits._out_of_florida({"zip": "90210"}))   # CA
+        self.assertFalse(permits._out_of_florida({"zip": "33133"}))  # Miami
+        self.assertFalse(permits._out_of_florida({"zip": "34994"}))  # Stuart
+
+    def test_out_of_state_geometry_dropped(self):
+        self.assertTrue(permits._out_of_florida({"lat": 36.85, "lon": -76.0}))   # VA Beach
+        self.assertFalse(permits._out_of_florida({"lat": 25.77, "lon": -80.19}))  # Miami
+
+    def test_unknown_location_is_kept(self):
+        self.assertFalse(permits._out_of_florida({"address": "900 SE OCEAN BLVD"}))
+        self.assertFalse(permits._out_of_florida({}))
+
+    def test_search_filters_out_of_state_rows(self):
+        from flask import Flask
+        app = Flask(__name__)
+        permits.register_permits_routes(app)
+        client = app.test_client()
+        rows = [
+            {"source_id": "ftl", "county": "Broward", "permit_number": "FL-1",
+             "description": "RE-ROOF", "address": "1 SE 1 ST", "city": "Fort Lauderdale",
+             "zip": "33301", "issued_date": _iso_days_ago(2), "value": 1000.0,
+             "tags": ["roofing"], "appraiser_url": "x"},
+            {"source_id": "ftl", "county": "Broward", "permit_number": "VB-1",
+             "description": "POOL FENCE", "address": "2509 PRINCESS ANNE RD",
+             "city": "Virginia Beach", "zip": "23456", "issued_date": _iso_days_ago(1),
+             "value": 2000.0, "tags": ["pool_spa"], "appraiser_url": "x"},
+        ]
+        def fake_fetch(source, record_count=2000, start_ms=None, end_ms=None):
+            mine = [p for p in rows if p["source_id"] == source["id"]]
+            return mine, {"id": source["id"], "county": source["county"],
+                          "status": "ok" if mine else "empty", "count": len(mine)}
+        permits._cache.clear()
+        with mock.patch.object(permits, "fetch_source", side_effect=fake_fetch):
+            data = client.get("/api/permits/search?county=broward&days=90").get_json()
+        nums = [p["permit_number"] for p in data["permits"]]
+        self.assertIn("FL-1", nums)
+        self.assertNotIn("VB-1", nums)          # Virginia Beach dropped
+        self.assertEqual(data["dropped_out_of_state"], 1)
+
+
 class WindowTests(unittest.TestCase):
     NOW = datetime(2026, 7, 14, 12, 0, 0, tzinfo=timezone.utc)
 
@@ -745,7 +788,7 @@ class EndpointTests(unittest.TestCase):
         data = r.get_json()
         ids = [s["id"] for s in data["sources"]]
         self.assertEqual(set(ids),
-                         {"mdc", "ftl", "ppines", "broward_uninc", "pbc",
+                         {"mdc", "ftl", "broward_uninc", "pbc",
                           "martin", "martin_dev"})
         self.assertEqual(data["counties"], permits.COUNTIES)
         # every county still represented by at least one source

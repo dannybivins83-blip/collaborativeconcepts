@@ -85,18 +85,7 @@ DEFAULT_SOURCES = [
             "https://gis.fortlauderdale.gov/arcgis/rest/services/BuildingPermitTracker/BuildingPermitTracker/MapServer/0",
         ],
         "portal": "https://gis.fortlauderdale.gov/arcgis/rest/services/BuildingPermitTracker/BuildingPermitTracker/MapServer/0",
-        "note": "Broward issues permits per-municipality. FTL + Pembroke Pines + unincorporated county are wired in; add more cities via PERMITS_EXTRA_SOURCES.",
-    },
-    {
-        "id": "ppines",
-        "county": "Broward",
-        "label": "Broward — Pembroke Pines Building Permits",
-        "kind": "arcgis_layer",
-        "layer_urls": [
-            "https://services2.arcgis.com/CyVvlIiUfRBmMQuu/arcgis/rest/services/Building_Permits_Applications_view/FeatureServer/0",
-        ],
-        "portal": "https://pembroke-pines-gis-hub-3-pembrokepines.hub.arcgis.com/",
-        "note": "City of Pembroke Pines hosted permit layer (~100k+ records, multi-year).",
+        "note": "Broward issues permits per-municipality. Fort Lauderdale + unincorporated county are wired in; add more cities via PERMITS_EXTRA_SOURCES.",
     },
     {
         "id": "broward_uninc",
@@ -760,6 +749,28 @@ def _to_float(v):
         return None
 
 
+# Florida bounding box + ZIP range — a jurisdiction sanity guard. A
+# misconfigured source (wrong ArcGIS org) can return another state's permits;
+# this drops anything that is provably NOT in Florida so it can never be shown
+# under a Florida county. Conservative: only drops when it has clear evidence
+# (a ZIP field or geometry that is out of state); keeps records it can't judge.
+FL_ZIP_LO, FL_ZIP_HI = 32000, 34999
+FL_LAT_LO, FL_LAT_HI = 24.0, 31.2
+FL_LON_LO, FL_LON_HI = -87.8, -79.8
+
+
+def _out_of_florida(p):
+    z = p.get("zip")
+    if z:
+        m = re.search(r"\b(\d{5})\b", str(z))
+        if m:
+            return not (FL_ZIP_LO <= int(m.group(1)) <= FL_ZIP_HI)
+    lat, lon = p.get("lat"), p.get("lon")
+    if isinstance(lat, (int, float)) and isinstance(lon, (int, float)) and (lat or lon):
+        return not (FL_LAT_LO <= lat <= FL_LAT_HI and FL_LON_LO <= lon <= FL_LON_HI)
+    return False
+
+
 def tag_permit(text):
     tags = [key for key, _label, rx in _COMPILED_TAGS if rx.search(text or "")]
     return tags
@@ -1206,7 +1217,12 @@ def run_search(params):
         all_permits = [p for p in demo_permits() if p["county"] in counties]
         demo_used = True
 
+    dropped_geo = [0]
+
     def keep(p):
+        if _out_of_florida(p):        # wrong-jurisdiction guard
+            dropped_geo[0] += 1
+            return False
         d = p.get("issued_date") or p.get("applied_date")
         if d and (d < start_iso or d > end_iso):
             return False
@@ -1235,6 +1251,7 @@ def run_search(params):
                    "min_value": min_value, "limit": limit},
         "demo": demo_used,
         "sources": infos,
+        "dropped_out_of_state": dropped_geo[0],
         "count": len(filtered),
         "permits": filtered,
     }
@@ -1260,16 +1277,38 @@ def register_permits_routes(app):
     @app.route("/api/permits/sources", methods=["GET"])
     def permits_sources():
         sources = load_sources()
+        check = str(request.args.get("check") or "") in ("1", "true")
+        health = {}
+        if check:
+            # Probe every source concurrently with a bounded wall-clock budget
+            # so the endpoint returns within the serverless timeout even when a
+            # source (Accela scrape, discovery) is slow.
+            def probe(s):
+                _, info = fetch_source(s, record_count=5)
+                return s["id"], {k: info.get(k) for k in
+                                 ("status", "error", "layer_url", "layer_name",
+                                  "count", "discovered", "attempts", "fallback_notes",
+                                  "resolved_fields", "layer_fields", "accela")}
+            with ThreadPoolExecutor(max_workers=min(8, len(sources))) as pool:
+                futs = {pool.submit(probe, s): s for s in sources}
+                try:
+                    for fut in as_completed(futs, timeout=SOURCE_BUDGET + 5):
+                        try:
+                            sid, h = fut.result()
+                            health[sid] = h
+                        except Exception as e:
+                            health[futs[fut]["id"]] = {"status": "error",
+                                                       "error": str(e)[:200]}
+                except FuturesTimeout:
+                    for fut, s in futs.items():
+                        health.setdefault(s["id"], {"status": "timeout",
+                                                    "error": "health probe exceeded budget"})
         out = []
         for s in sources:
             entry = {k: s.get(k) for k in
                      ("id", "county", "label", "kind", "portal", "note")}
-            if str(request.args.get("check") or "") in ("1", "true"):
-                _, info = fetch_source(s, record_count=5)
-                entry["health"] = {k: info.get(k) for k in
-                                   ("status", "error", "layer_url", "layer_name",
-                                    "count", "discovered", "attempts", "fallback_notes",
-                                    "resolved_fields", "layer_fields", "accela")}
+            if check:
+                entry["health"] = health.get(s["id"], {"status": "timeout"})
             out.append(entry)
         return jsonify({"ok": True, "sources": out,
                         "appraisers": APPRAISER_SEARCH, "counties": COUNTIES})
