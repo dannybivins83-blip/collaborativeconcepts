@@ -62,6 +62,116 @@
       "source": "/ai",
       "destination": "/solutions",
       "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.roofanchorcert.com"
+        }
+      ],
+      "destination": "https://roofanchorcert.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "davitinspections.com"
+        }
+      ],
+      "destination": "https://roofanchorcert.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.davitinspections.com"
+        }
+      ],
+      "destination": "https://roofanchorcert.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/wwslgc",
+      "has": [
+        {
+          "type": "host",
+          "value": "roofanchorcert.com"
+        }
+      ],
+      "destination": "https://roofanchorcert.com/",
+      "permanent": true
+    },
+    {
+      "source": "/admin/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "roofanchorcert.com"
+        }
+      ],
+      "destination": "https://wwslgc.collaborativeconceptsfl.com/admin/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/admin",
+      "has": [
+        {
+          "type": "host",
+          "value": "roofanchorcert.com"
+        }
+      ],
+      "destination": "https://wwslgc.collaborativeconceptsfl.com/admin",
+      "permanent": false
+    },
+    {
+      "source": "/portal/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "roofanchorcert.com"
+        }
+      ],
+      "destination": "https://wwslgc.collaborativeconceptsfl.com/portal/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/portal",
+      "has": [
+        {
+          "type": "host",
+          "value": "roofanchorcert.com"
+        }
+      ],
+      "destination": "https://wwslgc.collaborativeconceptsfl.com/portal",
+      "permanent": false
+    },
+    {
+      "source": "/send/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "roofanchorcert.com"
+        }
+      ],
+      "destination": "https://wwslgc.collaborativeconceptsfl.com/send/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/send",
+      "has": [
+        {
+          "type": "host",
+          "value": "roofanchorcert.com"
+        }
+      ],
+      "destination": "https://wwslgc.collaborativeconceptsfl.com/send",
+      "permanent": false
     }
   ],
   "rewrites": [
@@ -89,6 +199,26 @@
         {
           "type": "host",
           "value": "wwslgc.collaborativeconceptsfl.com"
+        }
+      ],
+      "destination": "/wwslgc/:path*"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "roofanchorcert.com"
+        }
+      ],
+      "destination": "/wwslgc/index.html"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "roofanchorcert.com"
         }
       ],
       "destination": "/wwslgc/:path*"

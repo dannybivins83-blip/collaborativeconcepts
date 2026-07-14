@@ -1,10 +1,12 @@
 # Citation & Backlink Build — La Gala Construction (WWS / Roof Anchor)
 
-**NAP — use byte-for-byte identical on every listing:**
+**NAP — ✅ CANONICAL, DECIDED 2026-07-08 (Danny). Use byte-for-byte identical on every listing.**
+Legacy listings carrying the OLD NAP (236 SE 9th Ave · (305) 450-2635 / (954) 698-6545 · "Lagala Construction" / "La Gala Homes" / "Tilt Patchers") must be claimed and corrected: The Blue Book (iProView 279421), The Builder Market, Yelp (la-gala-homes-deerfield-beach), Manta, Yellow Pages, BuildZoom (tilt-patchers-inc).
+
 - **Name:** La Gala Construction
-- **Phone:** (561) 475-8615
+- **Phone:** ⚠️ NEW DEDICATED WWS NUMBER — PENDING (Danny provisioning; prefer local 954). (561) 475-8615 is Collaborative Concept LLC's number and must NOT be used on any La Gala Construction listing.
 - **Address:** 25 SE 7th Street, Suite 12, Deerfield Beach, FL 33441
-- **Website:** https://wwslgc.collaborativeconceptsfl.com/wwslgc
+- **Website:** https://roofanchorcert.com
 - **Email:** danny@lagalacon.com
 - **License:** FL CGC 059211
 - **Categories:** General Contractor (primary) · Safety equipment supplier · Roofing Contractor
