@@ -22,6 +22,7 @@ import base64
 import hashlib
 import json
 import os
+import re
 import secrets
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -689,6 +690,157 @@ def create_lead():
     if request.is_json:
         return jsonify({"ok": True, "stored": bool(configured)}), 200
     return redirect("/?submitted=1#assessment")
+
+
+# ---- Building compliance check (public lead magnet) ----
+# Server-side match of a visitor's building against the harvested enforcement
+# dataset (public-records-derived). The dataset stays server-side so the full
+# target list is never shipped to the browser; only the matched rows are returned.
+_ENFORCEMENT_CACHE = None
+_ADDR_STOP = {"fl", "florida", "usa", "ste", "suite", "unit", "apt", "bldg", "building",
+              "ave", "avenue", "st", "street", "dr", "drive", "rd", "road", "blvd",
+              "boulevard", "ln", "lane", "ct", "court", "cir", "circle", "way", "pl",
+              "place", "ter", "terrace", "hwy", "highway", "n", "s", "e", "w", "ne",
+              "nw", "se", "sw", "the", "of", "and", "at"}
+_GEO_STOP = {"hollywood", "miami", "beach", "dade", "broward", "palm", "lauderdale",
+             "aventura", "boca", "boynton", "doral", "unincorporated", "kendall",
+             "kendale", "fisher", "island"}
+_NAME_STOP = _ADDR_STOP | _GEO_STOP | {"condominium", "condominiums", "condo", "condos",
+                           "association", "associations", "assn", "inc", "llc", "hoa",
+                           "co", "company", "apartments", "apartment", "complex", "tower",
+                           "towers", "resort", "villas", "villa", "house", "homes", "club"}
+
+
+def _cc_norm(s):
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", (s or "").lower())).strip()
+
+
+def _cc_num(s):
+    m = re.match(r"\s*(\d+)", s or "")
+    return m.group(1) if m else ""
+
+
+def _cc_core(s):
+    toks = [t for t in _cc_norm(s).split() if not t.isdigit() and len(t) >= 3]
+    return set(t for t in toks if t not in _ADDR_STOP)
+
+
+def _cc_name_tokens(s):
+    return set(t for t in _cc_norm(s).split() if len(t) >= 3 and t not in _NAME_STOP)
+
+
+def _load_enforcement():
+    global _ENFORCEMENT_CACHE
+    if _ENFORCEMENT_CACHE is not None:
+        return _ENFORCEMENT_CACHE
+    data = []
+    for cand in (
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "wws_enforcement.json"),
+        os.path.join(os.getcwd(), "api", "wws_enforcement.json"),
+        os.path.join(os.getcwd(), "wws_enforcement.json"),
+    ):
+        try:
+            with open(cand, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            break
+        except Exception:
+            continue
+    for rec in data:
+        rec["_num"] = _cc_num(rec.get("address", ""))
+        rec["_core"] = _cc_core(rec.get("address", ""))
+        # building-identity tokens come from the association name + any parenthetical
+        # building name — NOT the street address (street/geo tokens are too common and
+        # would cross-match neighboring cited buildings).
+        paren = re.search(r"\(([^)]*)\)", rec.get("building", "") or "")
+        name_src = (rec.get("assoc", "") or "") + " " + (paren.group(1) if paren else "")
+        rec["_nametok"] = _cc_name_tokens(name_src)
+    _ENFORCEMENT_CACHE = data
+    return data
+
+
+def _match_enforcement(query):
+    data = _load_enforcement()
+    qnum = _cc_num(query)
+    qcore = _cc_core(query)
+    qname = _cc_name_tokens(query)
+    addr_hits = []
+    name_hits = []
+    for rec in data:
+        # strong address match: same street number AND a shared distinctive street-name token
+        if qnum and rec["_num"] and qnum == rec["_num"] and (qcore & rec["_core"]):
+            addr_hits.append(rec)
+            continue
+        # building / association name match: 2+ shared distinctive tokens, or one long one
+        overlap = qname & rec["_nametok"]
+        if len(overlap) >= 2 or any(len(t) >= 7 for t in overlap):
+            name_hits.append(rec)
+    # an exact address hit wins outright — never dilute it with fuzzy name matches
+    hits = addr_hits if addr_hits else name_hits
+    return hits[:6]
+
+
+def _program_label(src):
+    s = (src or "").lower()
+    if "hollywood" in s:
+        return "City of Hollywood Building Safety Inspection Program (BSIP)"
+    if "usb" in s or "unsafe" in s:
+        return "Miami-Dade Unsafe Structures Board"
+    return src or "a county/city enforcement list"
+
+
+@app.post("/api/wws/check")
+def wws_building_check():
+    allowed, retry = _rate_limit("check:ip:" + _client_ip(), 40, 3600)
+    if not allowed:
+        return _rate_limited_response(retry)
+    body = request.get_json(force=True, silent=True) or {}
+    if (body.get("_honey") or body.get("_gotcha") or "").strip():
+        return jsonify({"ok": True, "status": "clear", "matches": []}), 200
+    query = (body.get("query") or body.get("address") or "").strip()[:300]
+    building = (body.get("building") or body.get("company") or "").strip()[:200]
+    email = (body.get("email") or "").strip()[:200]
+    name = (body.get("name") or "").strip()[:200]
+    phone = (body.get("phone") or "").strip()[:60]
+    role = (body.get("role") or "").strip()[:80]
+    if not query and not building:
+        return jsonify({"ok": False, "error": "Please enter your building address."}), 400
+    hits = _match_enforcement((query + " " + building).strip())
+    status = "flagged" if hits else "clear"
+    matches = [{"building": h.get("building", ""), "address": h.get("address", ""),
+                "city": h.get("city", ""), "county": h.get("county", ""),
+                "program": _program_label(h.get("source", "")), "why": h.get("why", "")}
+               for h in hits]
+    stored = False
+    if email or phone:
+        if hits:
+            summary = ("FLAGGED — matched %d enforcement record(s): " % len(hits)
+                       + "; ".join((m["building"] or m["address"]) for m in matches))
+        else:
+            summary = "No code-enforcement match found for: " + (query or building)
+        lead = {
+            "id": _gen_id(), "ts": _now_ms(), "name": name, "email": email, "phone": phone,
+            "company": building, "property": query, "message": summary,
+            "fields": {k: v for k, v in {
+                "Building/Association": building, "Role": role, "Searched": query,
+                "Check result": status.upper(),
+                "Matched": "; ".join((m["building"] or m["address"]) for m in matches),
+            }.items() if v},
+            "source": "Building Compliance Check",
+            "ua": request.headers.get("User-Agent", "")[:300],
+            "ref_code": (body.get("ref") or "")[:40],
+        }
+        try:
+            _, configured = _kv_cmd(["RPUSH", WWS_LEADS_KEY, json.dumps(lead)])
+            stored = bool(configured)
+        except Exception:
+            stored = False
+        try:
+            _notify("WWS building check — " + status.upper() + " — " + (name or email or phone or query),
+                    "A building compliance check was submitted on the WWS site:\n\n" + _lead_summary(lead))
+        except Exception:
+            pass
+    return jsonify({"ok": True, "status": status, "count": len(matches),
+                    "matches": matches, "stored": stored}), 200
 
 
 # ---- admin activity log ----

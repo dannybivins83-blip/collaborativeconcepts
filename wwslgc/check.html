@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Free Building Compliance Check | Is Your Building on South Florida's Enforcement List? | La Gala</title>
+<meta name="description" content="Free instant check — see if your South Florida condo or HOA building appears on a county/city building-safety or unsafe-structures enforcement list, and get your recertification exposure. La Gala Construction, FL CGC 059211."/>
+<meta name="robots" content="index, follow"/>
+<meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
+<link rel="canonical" href="https://roofanchorcert.com/check"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="La Gala Construction"/>
+<meta property="og:title" content="Is your building on South Florida's enforcement list? — Free check"/>
+<meta property="og:description" content="Enter your building. In seconds, see whether it appears on a county/city building-safety or unsafe-structures enforcement list — and what to do about it."/>
+<meta property="og:url" content="https://roofanchorcert.com/check"/>
+<meta name="theme-color" content="#13233f"/>
+<link rel="icon" type="image/x-icon" href="/assets/lagala-favicon.ico"/>
+<link rel="icon" type="image/png" href="/assets/lagala-mark.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@700;800&amp;family=Material+Symbols+Outlined&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:"#13233f",primaryc:"#1f3c63",secondary:"#c9a227",surface:"#f7f6f3",ink:"#1f2733",mute:"#54606f",line:"#e3e6ea"},fontFamily:{h:["Manrope","sans-serif"],b:["Inter","sans-serif"]}}}}</script>
+<!-- Google Analytics (same property as the rest of the site) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K9ZEXRRMCK"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-K9ZEXRRMCK');</script>
+<style>
+  body{font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:'Manrope',sans-serif;letter-spacing:-0.01em}
+  .ms{font-family:'Material Symbols Outlined'}
+  .hero{background-image:radial-gradient(90% 75% at 100% 0%,rgba(201,162,39,0.14),transparent 52%),linear-gradient(150deg,#13233f 0%,#1f3c63 100%)}
+</style>
+</head>
+<body class="bg-surface text-ink min-h-screen flex flex-col">
+
+<!-- header -->
+<header class="bg-primary text-white">
+<div class="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
+  <a href="/wwslgc" class="flex items-center gap-2">
+    <span class="ms text-secondary text-2xl">verified_user</span>
+    <span><span class="font-h font-extrabold leading-none block">La Gala Construction</span><span class="text-[11px] text-white/55 leading-none">OSHA Walking-Working Surfaces Compliance</span></span>
+  </a>
+  <a href="tel:+15614758615" class="hidden sm:inline-flex items-center gap-1 text-sm font-bold bg-secondary text-primary px-4 py-2 rounded-lg hover:bg-white transition-colors"><span class="ms text-base">call</span> (561) 475-8615</a>
+</div>
+</header>
+
+<!-- hero + tool -->
+<section class="hero text-white">
+<div class="max-w-3xl mx-auto px-5 pt-12 pb-10 text-center">
+  <div class="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-secondary mb-3"><span class="ms text-base">gpp_maybe</span> Free 30-second check</div>
+  <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight">Is your building on South Florida's enforcement radar?</h1>
+  <p class="text-white/70 mt-3 max-w-xl mx-auto">Miami-Dade, Broward, and Palm Beach are actively citing condo &amp; HOA buildings for unsafe-structure and building-safety violations. Enter your building to see if it appears on a list we monitor — and what it takes to clear it.</p>
+</div>
+
+<div class="max-w-xl mx-auto px-5 pb-14">
+  <div class="bg-white text-ink rounded-2xl shadow-xl border border-line p-5 sm:p-6">
+    <form id="checkForm" novalidate>
+      <div class="mb-3">
+        <label class="block text-xs font-semibold uppercase tracking-wide text-mute mb-1">Building address <span class="text-secondary">*</span></label>
+        <input id="fAddress" required placeholder="e.g. 3725 S Ocean Dr, Hollywood, FL 33019" class="w-full rounded-lg border border-line px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>
+      </div>
+      <div class="mb-3">
+        <label class="block text-xs font-semibold uppercase tracking-wide text-mute mb-1">Building / association name <span class="text-mute/60 normal-case font-normal">(optional)</span></label>
+        <input id="fBuilding" placeholder="e.g. Sea Air Towers Condominium Association" class="w-full rounded-lg border border-line px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3 mb-3">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wide text-mute mb-1">Your name</label>
+          <input id="fName" class="w-full rounded-lg border border-line px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wide text-mute mb-1">Your role</label>
+          <select id="fRole" class="w-full rounded-lg border border-line px-3 py-2.5 text-sm bg-white focus:ring-2 focus:ring-secondary focus:outline-none">
+            <option value="">Select…</option>
+            <option>Property Manager</option>
+            <option>Board Member</option>
+            <option>Association / HOA Staff</option>
+            <option>Owner / Resident</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3 mb-1">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wide text-mute mb-1">Email <span class="text-secondary">*</span></label>
+          <input id="fEmail" type="email" required placeholder="you@email.com" class="w-full rounded-lg border border-line px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wide text-mute mb-1">Phone <span class="text-mute/60 normal-case font-normal">(optional)</span></label>
+          <input id="fPhone" type="tel" class="w-full rounded-lg border border-line px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>
+        </div>
+      </div>
+      <input id="fHoney" name="_honey" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true"/>
+      <p id="formErr" class="hidden text-red-600 text-sm mt-2"></p>
+      <button id="checkBtn" type="submit" class="w-full mt-4 bg-secondary text-primary py-3 rounded-xl font-extrabold hover:bg-primary hover:text-white transition-colors inline-flex items-center justify-center gap-2"><span class="ms">search</span> Run my free compliance check</button>
+      <p class="text-[11px] text-mute mt-3 text-center">We'll email your full report &amp; next steps. No spam — one grownup (Danny) reads these. We never sell your info.</p>
+    </form>
+
+    <!-- result -->
+    <div id="result" class="hidden"></div>
+  </div>
+
+  <!-- trust strip -->
+  <div class="grid grid-cols-3 gap-3 mt-5 text-center text-white">
+    <div><div class="ms text-secondary text-2xl">gavel</div><div class="text-[11px] text-white/70 mt-1">Sourced from official county &amp; city records</div></div>
+    <div><div class="ms text-secondary text-2xl">bolt</div><div class="text-[11px] text-white/70 mt-1">One contract: certify + fix</div></div>
+    <div><div class="ms text-secondary text-2xl">workspace_premium</div><div class="text-[11px] text-white/70 mt-1">FL CGC 059211 · PE-sealed</div></div>
+  </div>
+</div>
+</section>
+
+<!-- disclaimer -->
+<section class="max-w-2xl mx-auto px-5 py-8 text-center">
+  <p class="text-xs text-mute leading-relaxed"><span class="font-semibold text-ink">How this works &amp; the fine print:</span> We cross-reference the building you enter against public building-safety and unsafe-structures enforcement records we actively monitor across Miami-Dade, Broward, and Palm Beach. A "not found" result does <b>not</b> guarantee your building is compliant — our monitored list is always expanding, and OSHA roof-anchor / walking-working-surfaces obligations are separate from code enforcement. This tool is informational only and is not a legal determination or an engineering opinion. For anything official, we'll connect you with our licensed PE partner.</p>
+</section>
+
+<footer class="mt-auto bg-primary text-white/70 text-sm">
+<div class="max-w-5xl mx-auto px-5 py-6 flex flex-wrap items-center justify-between gap-3">
+  <div>© La Gala Construction · FL CGC 059211 · Deerfield Beach, FL</div>
+  <div class="flex gap-4">
+    <a href="/wwslgc" class="hover:text-white">WWS Compliance</a>
+    <a href="tel:+15614758615" class="hover:text-white">(561) 475-8615</a>
+    <a href="mailto:danny@lagalacon.com" class="hover:text-white">danny@lagalacon.com</a>
+  </div>
+</div>
+</footer>
+
+<script>
+(function(){
+  function ev(n,p){ try{ if(typeof gtag==='function') gtag('event',n,p||{}); }catch(e){} }
+  var f=document.getElementById('checkForm'), btn=document.getElementById('checkBtn'),
+      err=document.getElementById('formErr'), resultBox=document.getElementById('result');
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function showErr(m){ err.textContent=m; err.classList.remove('hidden'); }
+
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    err.classList.add('hidden');
+    if(document.getElementById('fHoney').value){ return; } // bot
+    var address=document.getElementById('fAddress').value.trim();
+    var building=document.getElementById('fBuilding').value.trim();
+    var email=document.getElementById('fEmail').value.trim();
+    if(!address && !building){ showErr('Please enter your building address.'); return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ showErr('Please enter a valid email so we can send your report.'); return; }
+    var payload={
+      query:address, building:building, email:email,
+      name:document.getElementById('fName').value.trim(),
+      phone:document.getElementById('fPhone').value.trim(),
+      role:document.getElementById('fRole').value,
+      source:'Building Compliance Check ('+location.pathname+')'
+    };
+    btn.disabled=true; var lbl=btn.innerHTML; btn.innerHTML='<span class="ms animate-spin">progress_activity</span> Checking…';
+    ev('building_check_submit',{});
+    fetch('/api/wws/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d || d.ok===false){ throw new Error((d&&d.error)||'error'); }
+        ev('generate_lead',{form:'building_check',result:d.status});
+        renderResult(d, address||building);
+      })
+      .catch(function(){
+        btn.disabled=false; btn.innerHTML=lbl;
+        showErr('Something went wrong running the check. Please call (561) 475-8615 or email danny@lagalacon.com and we’ll check it for you.');
+      });
+  });
+
+  function renderResult(d, label){
+    f.classList.add('hidden');
+    var html='';
+    if(d.status==='flagged'){
+      var items=(d.matches||[]).map(function(m){
+        return '<div class="rounded-lg border border-red-200 bg-red-50/60 p-3 mb-2">'+
+          '<div class="font-bold text-primary">'+esc(m.building||m.address)+'</div>'+
+          (m.address&&m.building?'<div class="text-xs text-mute">'+esc(m.address)+'</div>':'')+
+          '<div class="text-xs mt-1"><span class="font-semibold text-red-700">On:</span> '+esc(m.program)+'</div>'+
+          (m.why?'<div class="text-[11px] text-mute mt-1 leading-snug">'+esc(m.why)+'</div>':'')+
+        '</div>';
+      }).join('');
+      html='<div class="text-center mb-4">'+
+        '<div class="ms text-5xl text-red-600">warning</div>'+
+        '<h2 class="text-2xl font-extrabold text-primary mt-1">Yes — your building appears on an active enforcement list.</h2>'+
+        '<p class="text-sm text-mute mt-1">We found '+d.count+' matching record'+(d.count===1?'':'s')+'. Here’s what we see:</p>'+
+      '</div>'+items+
+      '<div class="rounded-xl bg-primary text-white p-4 mt-4">'+
+        '<div class="font-bold flex items-center gap-2"><span class="ms text-secondary">bolt</span> What this means &amp; how we close it</div>'+
+        '<p class="text-sm text-white/80 mt-1">An open enforcement item has a deadline attached. La Gala brings the licensed PE partner who provides the sealed certification <b>and</b> the crews who perform the corrective work — one contract, one point of contact. We’ve logged your check and will follow up with your full report.</p>'+
+        '<div class="flex flex-col sm:flex-row gap-2 mt-3">'+
+          '<a href="tel:+15614758615" onclick="try{gtag(\'event\',\'phone_click\',{from:\'check_flagged\'})}catch(e){}" class="flex-1 bg-secondary text-primary font-bold py-2.5 rounded-lg text-center inline-flex items-center justify-center gap-1"><span class="ms text-base">call</span> Call (561) 475-8615</a>'+
+          '<a href="/wwslgc#assessment" class="flex-1 border border-white/30 text-white font-semibold py-2.5 rounded-lg text-center hover:bg-white/10">Book a free assessment</a>'+
+        '</div>'+
+      '</div>';
+    } else {
+      html='<div class="text-center mb-4">'+
+        '<div class="ms text-5xl text-green-600">check_circle</div>'+
+        '<h2 class="text-2xl font-extrabold text-primary mt-1">Not found on the lists we currently monitor.</h2>'+
+        '<p class="text-sm text-mute mt-2">We didn’t match <b>'+esc(label)+'</b> to a building-safety or unsafe-structures enforcement record in our monitored set. That’s good news — but two honest caveats:</p>'+
+      '</div>'+
+      '<ul class="text-sm text-mute space-y-2 mb-4">'+
+        '<li class="flex gap-2"><span class="ms text-secondary text-base">expand_circle_down</span> Our monitored list is always expanding as new county/city records come in — absence today isn’t a clean bill of health.</li>'+
+        '<li class="flex gap-2"><span class="ms text-secondary text-base">construction</span> <b>OSHA roof-anchor &amp; walking-working-surfaces compliance is separate from code enforcement.</b> If workers access your roof (window washing, HVAC, inspections), your anchors likely need annual inspection &amp; PE-stamped load-test certification regardless.</li>'+
+      '</ul>'+
+      '<div class="rounded-xl bg-primary text-white p-4">'+
+        '<div class="font-bold flex items-center gap-2"><span class="ms text-secondary">verified_user</span> Want a free anchor &amp; WWS compliance check?</div>'+
+        '<p class="text-sm text-white/80 mt-1">We’ll review your building’s roof-access and fall-protection compliance at no cost. We’ve logged your details and will reach out.</p>'+
+        '<div class="flex flex-col sm:flex-row gap-2 mt-3">'+
+          '<a href="tel:+15614758615" onclick="try{gtag(\'event\',\'phone_click\',{from:\'check_clear\'})}catch(e){}" class="flex-1 bg-secondary text-primary font-bold py-2.5 rounded-lg text-center inline-flex items-center justify-center gap-1"><span class="ms text-base">call</span> Call (561) 475-8615</a>'+
+          '<a href="/wwslgc#assessment" class="flex-1 border border-white/30 text-white font-semibold py-2.5 rounded-lg text-center hover:bg-white/10">Book a free assessment</a>'+
+        '</div>'+
+      '</div>';
+    }
+    html+='<button onclick="location.reload()" class="w-full mt-4 text-sm text-mute hover:text-primary">Check another building</button>';
+    resultBox.innerHTML=html;
+    resultBox.classList.remove('hidden');
+    resultBox.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+})();
+</script>
+</body></html>
