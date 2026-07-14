@@ -205,6 +205,11 @@ const CONFIG = {
   .share2 button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:none;border-radius:11px;color:#fff;font-weight:600;font-size:14px;cursor:pointer}
   .share2 button:hover{filter:brightness(1.06)}
 
+  /* meet your captain */
+  .captain-grid{display:grid;grid-template-columns:340px 1fr;gap:44px;align-items:center;max-width:1000px}
+  .captain-vid video{width:100%;border-radius:20px;border:1px solid var(--line-dark);box-shadow:0 30px 60px -28px rgba(0,0,0,.6);display:block}
+  .captain-vid .cap{font-size:12.5px;color:var(--mut-dark-3);margin-top:10px;text-align:center}
+
   /* invite banner */
   .invitebanner{position:relative;z-index:2;max-width:1200px;margin:0 auto 22px;display:flex;align-items:center;gap:14px;
         background:rgba(127,208,226,.14);border:1px solid rgba(127,208,226,.3);border-radius:16px;padding:16px 20px;color:#eaf6f9}
@@ -264,6 +269,8 @@ const CONFIG = {
     .section{padding:52px 22px}
     .lead h2{font-size:27px}
     .cards4{grid-template-columns:1fr 1fr}
+    .captain-grid{grid-template-columns:1fr;gap:26px}
+    .captain-vid{max-width:340px;margin:0 auto}
     .footer{padding:44px 22px 92px}
     .footer-grid{grid-template-columns:1fr;gap:28px}
     .sticky-call{display:flex;align-items:center;justify-content:center;gap:8px;position:fixed;bottom:0;left:0;right:0;z-index:60;
@@ -447,14 +454,20 @@ const CONFIG = {
 
 <!-- ============ MEET YOUR CAPTAIN ============ -->
 <div class="section dark">
-  <div class="wrap" style="max-width:840px;text-align:center">
-    <div class="eyebrow dark" style="display:inline-block">Meet your captain</div>
-    <h2 style="color:#fff;font-size:32px;margin-bottom:16px">It's my boat, my lake, my crew.</h2>
-    <p style="font-size:17px;color:var(--mut-dark);line-height:1.7;margin:0 auto;max-width:720px">
-      I'm Danny — I own and captain a <strong style="color:#fff">MasterCraft X30</strong>, a 30-foot inboard built for exactly this: a big, comfortable platform, a real inboard surf wave, and room for your whole crew. I ride Lake Osborne, Lake Ida and the Intracoastal every week, I've coached plenty of first-timers up on their first wave, and I run every charter myself. You're not booking a faceless rental — you're spending the day with a local owner who actually lives on this water.
-    </p>
-    <a class="nav-cta" href="#book" style="margin-top:26px;display:inline-flex">Book your day with me
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></a>
+  <div class="wrap captain-grid">
+    <div class="captain-vid">
+      <video src="/wake/img/lake-osborne-ride.mp4" autoplay muted loop playsinline preload="metadata" aria-label="Boat towing a rider on Lake Osborne"></video>
+      <div class="cap">On the water — a morning pull on Lake Osborne</div>
+    </div>
+    <div>
+      <div class="eyebrow dark" style="display:inline-block">Meet your captain</div>
+      <h2 style="color:#fff;font-size:32px;margin-bottom:16px">It's my boat, my lake, my crew.</h2>
+      <p style="font-size:17px;color:var(--mut-dark);line-height:1.7;margin:0">
+        I'm Danny — I own and captain a <strong style="color:#fff">MasterCraft X30</strong>, a 30-foot inboard built for exactly this: a big, comfortable platform, a real inboard surf wave, and room for your whole crew. I ride Lake Osborne, Lake Ida and the Intracoastal every week, I've coached plenty of first-timers up on their first wave, and I run every charter myself. You're not booking a faceless rental — you're spending the day with a local owner who actually lives on this water.
+      </p>
+      <a class="nav-cta" href="#book" style="margin-top:26px;display:inline-flex">Book your day with me
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></a>
+    </div>
   </div>
 </div>
 
