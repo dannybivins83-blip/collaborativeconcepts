@@ -604,13 +604,28 @@ function csvToLeads(text){
   var rows=parseCsv(text); if(rows.length<2) return [];
   var hdr=rows[0].map(function(h){return h.toLowerCase().trim();});
   function idx(names){for(var n of names){var k=hdr.indexOf(n);if(k>=0)return k;}return -1;}
-  var iCo=idx(['company','building','association','owner']), iPr=idx(['property','address','property/address','location']),
-      iNa=idx(['name','contact']), iPh=idx(['phone']), iEm=idx(['email']), iSr=idx(['source']),
-      iMs=idx(['notes','status / why','status','message','why','reason']);
+  var iCo=idx(['company','association','building','owner']),
+      iPr=idx(['property','address','property/address','location']),
+      iNa=idx(['name','property manager','manager','pm']),
+      iCt=idx(['contact']), iMg=idx(['management','mgmt','management company']),
+      iPh=idx(['phone','tel','telephone','number']), iEm=idx(['email','e-mail']),
+      iSr=idx(['source']), iMs=idx(['notes','status / why','status','message','why','reason']),
+      iBp=idx(['building profile','profile']);
+  var reP=/\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4}/, reE=/[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/;
   var out=[];
   for(var r=1;r<rows.length;r++){var row=rows[r];
     var g=function(k){return k>=0?(row[k]||'').trim():'';};
-    var lead={company:g(iCo),property:g(iPr),name:g(iNa),phone:g(iPh),email:g(iEm),source:g(iSr),message:g(iMs)};
+    var contact=g(iCt), mgmt=g(iMg), notesRaw=g(iMs), profile=g(iBp);
+    // phone: use the phone column, else pull a phone-looking number out of the contact blob
+    var phone=g(iPh); if(!phone){ var mp=(contact+' '+g(iNa)).match(reP); if(mp) phone=mp[0].trim(); }
+    // email: use the email column, else scan contact/mgmt/notes
+    var email=g(iEm); if(!email){ var me=(contact+' '+mgmt+' '+notesRaw).match(reE); if(me) email=me[0].trim(); }
+    // name: explicit name/manager column, else "Property Manager: X" / "PM X" out of the contact blob
+    var name=g(iNa);
+    if(!name && contact){ var pm=contact.match(/(?:property manager|manager|pm)\s*[:\-]?\s*([A-Za-z.'][A-Za-z.'\- ]{2,38})/i); if(pm) name=pm[1].trim(); }
+    var company=g(iCo)||mgmt;
+    var notes=[notesRaw, mgmt?('Mgmt: '+mgmt):'', profile?('Profile: '+profile):'', (contact&&contact!==phone&&contact.indexOf(name)<0)?('Contact: '+contact):''].filter(Boolean).join('  |  ').slice(0,4900);
+    var lead={company:company,property:g(iPr),name:name,phone:phone,email:email,source:g(iSr),message:notes};
     if(lead.company||lead.property||lead.name||lead.phone||lead.email) out.push(lead);
   }
   return out;
