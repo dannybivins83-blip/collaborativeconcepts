@@ -61,6 +61,7 @@
 
 <!-- tabs -->
 <div class="flex items-center gap-1 border-b border-line mb-4">
+<button data-tab="war" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary inline-flex items-center gap-1"><span class="ms text-base text-secondary">crisis_alert</span> War Room <span id="cWar" class="text-mute font-normal"></span></button>
 <button data-tab="leads" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-secondary text-primary">Leads <span id="cLeads" class="text-mute font-normal"></span></button>
 <button data-tab="reqs" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspection requests <span id="cReqs" class="text-mute font-normal"></span></button>
 <button data-tab="insp" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspections <span id="cInsp" class="text-mute font-normal"></span></button>
@@ -90,6 +91,9 @@
 <div id="leadEmpty" class="hidden p-10 text-center text-mute">No leads yet. They'll show up here the moment someone submits the Comprehensive Assessment form.</div>
 </div>
 </section>
+
+<!-- war room -->
+<section id="tab-war" class="hidden"></section>
 
 <!-- requests -->
 <section id="tab-reqs" class="hidden">
@@ -341,12 +345,14 @@ function saveNote(id){
 function switchTab(t){
   document.querySelectorAll('.tabbtn').forEach(function(b){var on=b.dataset.tab===t;b.classList.toggle('border-secondary',on);b.classList.toggle('text-primary',on);b.classList.toggle('border-transparent',!on);b.classList.toggle('text-mute',!on);});
   document.getElementById('tab-leads').classList.toggle('hidden',t!=='leads');
+  document.getElementById('tab-war').classList.toggle('hidden',t!=='war');
   document.getElementById('tab-reqs').classList.toggle('hidden',t!=='reqs');
   document.getElementById('tab-insp').classList.toggle('hidden',t!=='insp');
   document.getElementById('tab-inv').classList.toggle('hidden',t!=='inv');
   document.getElementById('tab-activity').classList.toggle('hidden',t!=='activity');
   document.getElementById('tab-coi').classList.toggle('hidden',t!=='coi');
   document.getElementById('tab-settings').classList.toggle('hidden',t!=='settings');
+  if(t==='war') renderWarRoom();
   if(t==='insp') loadInspections();
   if(t==='inv') loadInvoices();
   if(t==='activity') loadActivity();
@@ -644,6 +650,122 @@ function runImportLeads(){
     else { btn.disabled=false; btn.textContent='Import'; alert(d.error||'Import failed (is storage enabled?)'); }
   }).catch(function(){ btn.disabled=false; btn.textContent='Import'; alert('Network error — please try again.'); });
 }
+/* ===================== P1 WAR ROOM ===================== */
+var P1=[{"building":"2200 S Ocean Dr (Allington Towers North Condo)","address":"2200 S Ocean Dr, Hollywood, FL 33019","city":"Hollywood","county":"Broward","source":"Hollywood BSIP","units":"102","assoc":"Waterway at Hollywood Beach Condominium Association","mgmt":"Affinity Management Services, LLC (Doral, FL)","pm":"","phone":"(954) 800-8109","email":"waterway@managedbyaffinity.com","why":"Formal BSIP Notice(s) of Violation - 102 units cited (V22-01434 et seq.) on City of Hollywood 'Violation List for BSIP' updated 1-17-23.","profile":"Low-rise 3-story condo on the Intracoastal/waterway side."},{"building":"2600 S Ocean Dr","address":"2600 S Ocean Dr, Hollywood, FL 33019","city":"Hollywood","county":"Broward","source":"Hollywood BSIP","units":"101","assoc":"Waterway at Hollywood Beach Condominium Association","mgmt":"Affinity Management Services, LLC (Doral, FL)","pm":"","phone":"(954) 800-8109","email":"waterway@managedbyaffinity.com","why":"Formal BSIP Notice(s) of Violation - 101 units cited (V22-01484 et seq.) on City of Hollywood 'Violation List for BSIP' updated 1-17-23.","profile":"Low-rise 3-story condo, same Waterway complex as 2200. Intracoastal/waterway-facing."},{"building":"101 N Ocean Dr","address":"101 N Ocean Dr, Hollywood, FL 33019","city":"Hollywood","county":"Broward","source":"Hollywood BSIP","units":"928","assoc":"Hollywood Beach Resort (on-site 'Hollywood Beach Condominium Association')","mgmt":"","pm":"","phone":"(954) 921-7085","email":"","why":"Formal BSIP Notice(s) of Violation - 928 units/parcels cited (V22-02584 et seq.), the LARGEST cited property on the City of Hollywood BSIP list.","profile":"Historic Hollywood Beach Resort - oceanfront on the Boardwalk; built 1925; ~8 stories; condo-hotel."},{"building":"3725 S Ocean Dr","address":"3725 S Ocean Dr, Hollywood, FL 33019","city":"Hollywood","county":"Broward","source":"Hollywood BSIP","units":"364","assoc":"Sea Air Towers Condominium Association, Inc.","mgmt":"","pm":"Ralph Ham","phone":"(954) 455-3893","email":"secretary@seaair.org","why":"Formal BSIP Notice(s) of Violation - 364 units cited (V22-05477 et seq.) on the City of Hollywood BSIP list.","profile":"Oceanfront 15-story condo tower; ~362 units; built 1960. Oceanfront high-rise = STRONG anchor/davit buyer."},{"building":"1500 S Ocean Dr","address":"1500 S Ocean Dr, Hollywood, FL 33019","city":"Hollywood","county":"Broward","source":"Hollywood BSIP","units":"180","assoc":"Allington Towers Condominium North, Inc.","mgmt":"","pm":"","phone":"(954) 922-9205","email":"manager@allingtonsouth.com","why":"Formal BSIP Notice(s) of Violation - 180 units cited (V22-15740 et seq.) on the City of Hollywood BSIP list.","profile":"Oceanfront 18-story condo tower; built 1973. STRONG roof-anchor / davit buyer."},{"building":"1400 S Ocean Dr","address":"1400 S Ocean Dr, Hollywood, FL 33019","city":"Hollywood","county":"Broward","source":"Hollywood BSIP","units":"121","assoc":"Trafalgar Towers Condominium","mgmt":"","pm":"","phone":"(305) 697-7667","email":"","why":"Formal BSIP Notice(s) of Violation - 121 units cited (V23-00445 et seq.) on the City of Hollywood BSIP list.","profile":"OCEANFRONT (Waterfront Ocean) - strong davit/anchor/WWS buyer. ~122 units in the 1400 tower."},{"building":"851 N Surf Rd","address":"851 N Surf Rd, Hollywood, FL 33019","city":"Hollywood","county":"Broward","source":"Hollywood BSIP","units":"46","assoc":"Hollywood Oceanfront Condominium","mgmt":"","pm":"","phone":"(954) 925-5728","email":"","why":"Formal BSIP Notice(s) of Violation - 46 units cited (V22-05885 et seq.) on the City of Hollywood BSIP list.","profile":"OCEANFRONT - directly on the Broadwalk (window-washing-from-roof profile = strong anchor/davit buyer)."},{"building":"15300 SW 123 Ave complex (Bldgs 1-37)","address":"15300 SW 123 Ave (multiple buildings, BLD 1 through BLD 37)","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"72","assoc":"N/A - NOT a condo/HOA. This is 'Southern Anchor'","mgmt":"Royal American (mgmt company)","pm":"","phone":"(305) 259-3407","email":"","why":"On the Miami-Dade Unsafe Structures Board June 17, 2026 agenda as ~34 separate open unsafe-structures cases at one multi-building residential complex.","profile":"72 units, 2 stories, built 1967; townhome-style, tennis courts. Inland (Kendall/33177)."},{"building":"8215-8365 SW 152 Ave complex (Bldgs A-G)","address":"8205 / 8215 / 8255 / 8275 / 8305 / 8335 / 8365 SW 152 Ave (BLD A-G)","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"","assoc":"","mgmt":"","pm":"","phone":"","email":"","why":"On the USB May 13, 2026 agenda as 7 open unsafe-structures cases (buildings A-G) at one multi-building complex - condo/HOA target. Owner to verify.","profile":""},{"building":"N Kendall Dr complex (Bldgs C, D, F)","address":"14201 / 14211 / 14221 N Kendall Dr (BLD C, D, F)","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"","assoc":"","mgmt":"","pm":"","phone":"","email":"","why":"On the USB June 17, 2026 agenda - three buildings of one Kendall Drive multi-building residential complex with open cases. Owner to verify.","profile":""},{"building":"2600 NW 48 St complex (multiple bldgs)","address":"2600 NW 48 St (BLDG 1,2,3,4,5,6 and 2612)","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"12","assoc":"NOT FOUND - parcel is NOT a private condo/HOA.","mgmt":"","pm":"","phone":"(786) 469-4100","email":"","why":"Multi-building complex with open cases on the USB June 17, 2026 agenda and the July 15, 2026 Extension-of-Time list (bldgs 1-6 + 2612).","profile":"Built 1965, 6 buildings, 2 stories, 12 units on folio; inland."},{"building":"7900 Camino Cir, Bldg 15","address":"7900 Camino Cir, Bldg 15","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"","assoc":"Camino Circle Condominium Association, Inc.","mgmt":"Foster Company (managing agent)","pm":"Kelly Scott","phone":"(305) 254-7228","email":"kelly@fostercompany.net","why":"On the USB June 17, 2026 agenda; 'BLDG 15' = large multi-building complex, condo/HOA target. Open unsafe-structures case.","profile":"Built 1973; garden/low-rise; part of Kings Creek Village."},{"building":"280 Sierra Dr, Bldg 3","address":"280 Sierra Dr, Bldg 3","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"182","assoc":"NOT a condo assoc - 'Grand Court Lakes', single-owner RENTAL","mgmt":"YMP Real Estate Management, LLC","pm":"","phone":"","email":"","why":"On the USB July 15, 2026 agenda; 'BLDG 3' = multi-building complex. Open unsafe-structures case.","profile":"Built 1984; 5 stories; 6 buildings; ~182 units; affordable/workforce."},{"building":"9101 NW 25 St, Bldg 3","address":"9101 NW 25 St, Bldg 3","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"","assoc":"NOT a condo/HOA - 'Doral Industrial Park', COMMERCIAL/INDUSTRIAL","mgmt":"","pm":"","phone":"","email":"","why":"On the USB June 17, 2026 agenda; 'BLDG 3' = multi-building complex. Open unsafe-structures case.","profile":"Built 1989; 4 buildings; ~238,530 sf; commercial/industrial."},{"building":"9601 Fontainebleau Blvd","address":"9601 Fontainebleau Blvd","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"351","assoc":"The Fountains at Fontainebleau","mgmt":"Self-managed by in-house staff","pm":"","phone":"(305) 229-1411","email":"info@thefountainscondominium3.com","why":"On the USB June 17, 2026 agenda. Dense mid/high-rise condo corridor - association-governed multifamily. Open case.","profile":"Complex built 1972; ~351 units, ~6 stories; 9601 is one mid-rise building."},{"building":"3138 NW 76 St, Unit 12 (Cafeteria)","address":"3138 NW 76 St, 12 (Cafeteria)","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"22","assoc":"NOT FOUND - government body owner, not an association.","mgmt":"","pm":"","phone":"","email":"","why":"On the USB July 15, 2026 agenda; 'CAFETERIA' = commercial/institutional building. Open case.","profile":"County-owned Human Services parcel: 14 buildings / 22 units."},{"building":"7487 SW 82 St (Common Area)","address":"7487 SW 82 St, Common Area","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"120","assoc":"Dadeland Capri Condominium Association, Inc.","mgmt":"","pm":"","phone":"954-753-7966","email":"","why":"On the USB July 15, 2026 agenda; 'COMMON AREA' = HOA/condo common element - board-governed community with an open case.","profile":"Dadeland Capri Condo - ~120 units in 3-story CBS buildings, built 1968."},{"building":"8000 SW 107 Ave cottages (16E-16H)","address":"8000 SW 107 Ave, 16E/16F/16G/16H","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"","assoc":"NOT FOUND - government body owner.","mgmt":"","pm":"","phone":"","email":"","why":"On the USB May 13, 2026 agenda as four open unsafe-structures cases (cottages) at one multi-unit complex.","profile":"County Human Services 'Cottages' campus (Kendall). Each cottage is 1-story."},{"building":"15811-15812 Fisher Island Dr, Bldg 8","address":"15811-15812 Fisher Island Dr, Bldg 8","city":"Fisher Island (Unincorp. Miami-Dade)","county":"Miami-Dade","source":"Miami-Dade USB","units":"","assoc":"Seaside Villas Condominium Association, Inc.","mgmt":"AKAM On-Site, Inc.","pm":"Haber Law (counsel)","phone":"(954) 843-2526","email":"","why":"On the USB May 13, 2026 agenda; 'BLDG 8' = multi-building Fisher Island residential complex (high-value). Open case.","profile":"Seaside Villas at Fisher Island. Bldg 8 = 2-story CBS multifamily."},{"building":"7800 Fisher Island Dr","address":"7800 Fisher Island Dr","city":"Fisher Island (Unincorp. Miami-Dade)","county":"Miami-Dade","source":"Miami-Dade USB","units":"","assoc":"","mgmt":"","pm":"","phone":"","email":"","why":"On the USB May 13, 2026 agenda. Fisher Island = high-value multifamily/resort, likely association-governed. Open case.","profile":""},{"building":"14090 SW 127 St (multi-unit)","address":"14090 SW 127 St (aka 505 / aka 247 / aka B-1)","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"","assoc":"NOT AN HOA/CONDO - owned by Miami-Dade County (Aviation Dept).","mgmt":"Miami-Dade Aviation Department (MDAD)","pm":"","phone":"","email":"","why":"On both the USB June 17, 2026 and May 13, 2026 agendas as multiple unit/building open cases - multi-building complex.","profile":"1-story CBS commercial building(s) on airport property. Not oceanfront."},{"building":"13870 SW 268 St, Unit 103","address":"13870 SW 268 St, Unit 103","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"259","assoc":"NOT AN HOA/CONDO - rental apartment complex.","mgmt":"Franklin Group Companies LLC","pm":"","phone":"(786) 442-3049","email":"","why":"On the USB July 15, 2026 agenda; 'UNIT 103' = multi-family building with an open unsafe-structures case.","profile":"LIHTC garden-apartment community, built 1995, ~259 units, 2 stories."},{"building":"15201 SW 288 St (Units 1 & 2)","address":"15201 SW 288 St, 1 and 2","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"52","assoc":"NOT AN HOA/CONDO - 'Biscayne Plaza', county public housing.","mgmt":"Miami-Dade Public Housing (PHCD)","pm":"","phone":"(305) 242-7995","email":"","why":"On the USB July 15, 2026 agenda; two units at one address = multi-unit structure with open cases.","profile":"Public housing, elderly-only, 52 units, 3 stories, built 1984."},{"building":"1650 NE 115 St, Unit 101","address":"1650 NE 115 St, 101","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"65","assoc":"The Cricket Clubhouse Condominium Association, Inc.","mgmt":"","pm":"Jerry Balester","phone":"(305) 895-0017","email":"","why":"On the USB May 13, 2026 agenda; unit designation = multi-family/condo building with an open case.","profile":"7 stories, built 1972, 65 units; WATERFRONT on Biscayne Bay with marina/boat slips. Strong anchor/davit buyer."},{"building":"13707 Kendale Lakes Cir","address":"13707 Kendale Lakes Cir","city":"Unincorporated Miami-Dade","county":"Miami-Dade","source":"Miami-Dade USB","units":"64","assoc":"Ramblewood Condominium Association, Inc.","mgmt":"","pm":"","phone":"305-254-3888","email":"","why":"On the USB May 13, 2026 agenda. Association-governed residential community. Open unsafe-structures case.","profile":"4 stories, built 1974; building 'C' has 64 units (complex ~190 units). Inland."}];
+var WAR_FILTER='all', WAR_SORT='heat';
+function warStore(){ try{return JSON.parse(localStorage.getItem('wws_war_v1')||'{}');}catch(e){return {};} }
+function warSaveStore(s){ try{localStorage.setItem('wws_war_v1',JSON.stringify(s));}catch(e){} }
+function warKey(x){ return x.address||x.building; }
+function warRec(x){ var s=warStore(); return s[warKey(x)]||{}; }
+function warBuyer(a){ a=(a||'').toLowerCase();
+  if(/public housing|county|government|aviation|phcd|human services/.test(a)) return {k:'gov',label:'Gov / Public',warm:false,cls:'bg-slate-100 text-slate-600'};
+  if(/commercial|industrial/.test(a)) return {k:'com',label:'Commercial',warm:false,cls:'bg-orange-100 text-orange-700'};
+  if(/rental|apartment|lihtc/.test(a)) return {k:'rent',label:'Rental',warm:false,cls:'bg-purple-100 text-purple-700'};
+  if(/not an hoa|not a condo|not found|^n\/a/.test(a)) return {k:'unk',label:'Verify owner',warm:false,cls:'bg-gray-100 text-gray-500'};
+  if(!a) return {k:'unk',label:'Verify owner',warm:false,cls:'bg-gray-100 text-gray-500'};
+  return {k:'hoa',label:'Condo / HOA',warm:true,cls:'bg-green-100 text-green-800'};
+}
+function warWater(p){ return /oceanfront|waterfront|intracoastal|biscayne bay|broadwalk|boardwalk|marina/i.test(p||''); }
+function warHeat(x){ var b=warBuyer(x.assoc), h=0; if(b.warm)h+=40; if(x.phone)h+=25; if(x.pm)h+=10; if(warWater(x.profile))h+=15; if(x.email)h+=5; var u=parseInt(x.units||'0',10)||0; h+= u>=300?12:u>=150?9:u>=75?6:u>=1?3:0; return h; }
+function warHeatLabel(h){ return h>=85?{t:'HOT',cls:'bg-red-100 text-red-700'}:h>=55?{t:'WARM',cls:'bg-amber-100 text-amber-700'}:{t:'COOL',cls:'bg-sky-100 text-sky-700'}; }
+function warProgram(s){ if(/hollywood/i.test(s)) return 'the City of Hollywood building-safety inspection program'; if(/usb|unsafe/i.test(s)) return 'the Miami-Dade Unsafe Structures Board'; return 'the county enforcement list'; }
+function warOpener(x){ var name=(x.assoc&&!/not |n\/a|found/i.test(x.assoc))?x.assoc:x.building; var u=x.units?(x.units+' units'):'your building'; var addr=(x.address||x.building).split(',')[0]; var ahj=/hollywood/i.test(x.source)?'city':'county';
+  return "Hi - is this the office for "+name+"? This is Danny with La Gala Construction. I'm calling because "+warProgram(x.source)+" has "+u+" at "+addr+" flagged on its active enforcement list. We're the crew that clears the rooftop-anchor and walking-working-surface violations and hands your board the PE-stamped certification the "+ahj+" is asking for - and we self-perform the corrective work, so it's one call start to finish. Who over there is handling the recertification?"; }
+var WAR_STATUS=[['','Not started'],['called','Called - no answer'],['reached','Reached decision-maker'],['meeting','Inspection / meeting set'],['nofit','Not a fit']];
+var WAR_BORDER={'':'border-line','called':'border-amber-300','reached':'border-blue-400','meeting':'border-green-500','nofit':'border-gray-200'};
+function warSetStatus(i,v){ var s=warStore(); var k=warKey(P1[i]); s[k]=s[k]||{}; s[k].status=v; warSaveStore(s); renderWarRoom(); }
+function warSetNote(i,v){ var s=warStore(); var k=warKey(P1[i]); s[k]=s[k]||{}; s[k].note=v; warSaveStore(s); }
+function warFilterSet(f){ WAR_FILTER=f; renderWarRoom(); }
+function warSortSet(s){ WAR_SORT=s; renderWarRoom(); }
+function warCopyOpener(i){ var t=warOpener(P1[i]); if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(function(){ warToast('Opener copied - paste it on the call'); }); } else { warToast(t); } }
+function warToast(msg){ var el=document.getElementById('warToast'); if(!el){ el=document.createElement('div'); el.id='warToast'; el.className='fixed bottom-5 left-1/2 -translate-x-1/2 bg-primary text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity'; document.body.appendChild(el);} el.textContent=msg; el.style.opacity='1'; clearTimeout(el._t); el._t=setTimeout(function(){el.style.opacity='0';},2200); }
+function warMatchCrm(x){ if(typeof DATA==='undefined'||!DATA||!DATA.leads) return null; var street=(x.address||'').split(',')[0].toLowerCase().replace(/[^a-z0-9 ]/g,'').trim(); if(!street) return null; return DATA.leads.find(function(l){ return ((l.property||'')+' '+(l.company||'')).toLowerCase().indexOf(street)>=0; })||null; }
+function warTile(n,label,cls){ return '<div class="rounded-xl bg-white/10 px-3 py-2 text-center min-w-[74px]"><div class="text-2xl font-extrabold font-h '+(cls||'text-white')+'">'+n+'</div><div class="text-[10px] uppercase tracking-wide text-white/60">'+label+'</div></div>'; }
+function renderWarRoom(){
+  var host=document.getElementById('tab-war'); if(!host) return;
+  var store=warStore();
+  var enriched=P1.map(function(x,i){ var b=warBuyer(x.assoc); return {x:x,i:i,b:b,water:warWater(x.profile),heat:warHeat(x),rec:store[warKey(x)]||{}}; });
+  // stats
+  var worked=0,reached=0,meeting=0; enriched.forEach(function(e){ var s=e.rec.status; if(s)worked++; if(s==='reached'||s==='meeting')reached++; if(s==='meeting')meeting++; });
+  var nHoa=enriched.filter(function(e){return e.b.warm;}).length, nPh=enriched.filter(function(e){return e.x.phone;}).length, nW=enriched.filter(function(e){return e.water;}).length;
+  // filter
+  var list=enriched.filter(function(e){ if(WAR_FILTER==='hoa')return e.b.warm; if(WAR_FILTER==='phone')return !!e.x.phone; if(WAR_FILTER==='water')return e.water; return true; });
+  // sort
+  if(WAR_SORT==='county') list.sort(function(a,b){ return (a.x.county+a.x.city).localeCompare(b.x.county+b.x.city) || b.heat-a.heat; });
+  else list.sort(function(a,b){ return b.heat-a.heat; });
+  var fbtn=function(f,txt){ return '<button onclick="warFilterSet(\''+f+'\')" class="px-3 py-1.5 rounded-lg text-sm font-semibold border '+(WAR_FILTER===f?'bg-primary text-white border-primary':'bg-white text-mute border-line hover:border-secondary')+'">'+txt+'</button>'; };
+  var sbtn=function(s,txt){ return '<button onclick="warSortSet(\''+s+'\')" class="px-3 py-1.5 rounded-lg text-xs font-semibold border '+(WAR_SORT===s?'bg-secondary text-white border-secondary':'bg-white text-mute border-line')+'">'+txt+'</button>'; };
+  var html=''+
+  '<div class="rounded-2xl bg-primary text-white p-5 mb-4"><div class="flex flex-wrap items-start justify-between gap-4">'+
+    '<div><div class="text-[11px] uppercase tracking-widest text-secondary font-bold">Enforcement pipeline</div>'+
+    '<h2 class="text-2xl font-extrabold font-h leading-tight">P1 War Room</h2>'+
+    '<p class="text-white/60 text-sm mt-1 max-w-xl">25 South Florida buildings with <b class="text-white">active</b> code-enforcement violations. These owners have a legal deadline forcing them to act &mdash; work them first.</p></div>'+
+    '<div class="flex gap-2">'+warTile(worked+'/'+P1.length,'Worked','text-secondary')+warTile(reached,'Reached')+warTile(meeting,'Meetings set','text-green-300')+'</div>'+
+  '</div></div>'+
+  // #1 call
+  '<div class="rounded-xl border-2 border-secondary bg-secondary/5 p-4 mb-4 flex flex-wrap items-center gap-4 justify-between">'+
+    '<div class="flex items-start gap-3"><span class="ms text-secondary text-3xl">campaign</span><div>'+
+      '<div class="text-[11px] uppercase tracking-widest text-secondary font-bold">Start here &mdash; your #1 call</div>'+
+      '<div class="font-extrabold text-primary text-lg">Sea Air Towers &mdash; Ralph Ham</div>'+
+      '<div class="text-sm text-mute">364 units cited &middot; oceanfront tower &middot; self-managed (you reach the decision-maker, no gatekeeper).</div></div></div>'+
+    '<a href="tel:+19544553893" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold inline-flex items-center gap-1 whitespace-nowrap"><span class="ms text-base">call</span> (954) 455-3893</a>'+
+  '</div>'+
+  // parallel tracks
+  '<div class="grid sm:grid-cols-3 gap-3 mb-5">'+
+    '<div class="rounded-xl border border-line bg-white p-3"><div class="flex items-center gap-2 text-primary font-bold text-sm"><span class="ms text-base text-secondary">description</span> Records requests</div><p class="text-xs text-mute mt-1">Email each city/county for the official violation lists &mdash; arms your pitch with proof and surfaces more cited buildings.</p></div>'+
+    '<div class="rounded-xl border border-line bg-white p-3"><div class="flex items-center gap-2 text-primary font-bold text-sm"><span class="ms text-base text-secondary">handshake</span> Lock the Bee deal</div><p class="text-xs text-mute mt-1">Get the written FL non-compete from Canopy/HySafe <b>before</b> scaling outreach &mdash; it&#39;s the make-or-break term.</p></div>'+
+    '<div class="rounded-xl border border-line bg-white p-3 cursor-pointer hover:border-secondary" onclick="switchTab(\'leads\')"><div class="flex items-center gap-2 text-primary font-bold text-sm"><span class="ms text-base text-secondary">list_alt</span> Full pipeline</div><p class="text-xs text-mute mt-1">161 leads total (25 P1 + 136 P2 overdue). Click to open the Leads tab &rarr;</p></div>'+
+  '</div>'+
+  // controls
+  '<div class="flex flex-wrap items-center gap-2 mb-4">'+
+    fbtn('all','All ('+P1.length+')')+fbtn('hoa','Condo / HOA ('+nHoa+')')+fbtn('phone','Has phone ('+nPh+')')+fbtn('water','Waterfront ('+nW+')')+
+    '<span class="ml-auto text-xs text-mute mr-1">Sort</span>'+sbtn('heat','Heat')+sbtn('county','County')+
+  '</div>'+
+  // grid
+  '<div class="grid lg:grid-cols-2 gap-3">';
+  list.forEach(function(e){ var x=e.x, i=e.i, rec=e.rec, st=rec.status||''; var hl=warHeatLabel(e.heat); var crm=warMatchCrm(x);
+    html+='<div class="rounded-xl border-2 '+(WAR_BORDER[st]||'border-line')+' bg-white p-4 flex flex-col">'+
+      '<div class="flex items-start justify-between gap-2 mb-1">'+
+        '<div class="flex items-center gap-1.5 flex-wrap">'+
+          '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full '+hl.cls+'">'+hl.t+'</span>'+
+          '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full '+e.b.cls+'">'+e.b.label+'</span>'+
+          (e.water?'<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-700">Waterfront</span>':'')+
+          (crm?'<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">In CRM</span>':'')+
+        '</div>'+
+        (x.units?'<div class="text-right leading-none"><div class="text-xl font-extrabold text-primary font-h">'+esc(x.units)+'</div><div class="text-[9px] uppercase tracking-wide text-mute">units cited</div></div>':'')+
+      '</div>'+
+      '<div class="font-bold text-primary leading-tight">'+esc(x.building)+'</div>'+
+      '<div class="text-xs text-mute">'+esc((x.address||'').split(',').slice(0,2).join(','))+' &middot; '+esc(x.county)+'</div>'+
+      '<div class="text-[11px] text-mute mt-1"><span class="ms text-[13px] align-middle text-secondary">gavel</span> '+esc(x.source)+'</div>'+
+      '<div class="text-xs mt-2 space-y-0.5">'+
+        (x.assoc?'<div><span class="text-mute">Assoc:</span> <span class="font-medium text-ink">'+esc(x.assoc)+'</span></div>':'')+
+        (x.mgmt?'<div><span class="text-mute">Mgmt:</span> '+esc(x.mgmt)+'</div>':'')+
+        (x.pm?'<div><span class="text-mute">Contact:</span> <b>'+esc(x.pm)+'</b></div>':'')+
+      '</div>'+
+      '<div class="text-[11px] text-mute bg-surface rounded-lg px-2 py-1.5 mt-2 leading-snug">'+esc(x.why)+'</div>'+
+      '<details class="mt-2 group"><summary class="text-xs font-semibold text-secondary cursor-pointer list-none flex items-center gap-1"><span class="ms text-sm">record_voice_over</span> Show phone opener</summary>'+
+        '<div class="text-[11px] text-ink bg-secondary/5 border border-secondary/30 rounded-lg px-2 py-2 mt-1 leading-snug">'+esc(warOpener(x))+'</div>'+
+        '<button onclick="warCopyOpener('+i+')" class="mt-1 text-[11px] font-semibold text-primary inline-flex items-center gap-1"><span class="ms text-sm">content_copy</span> Copy opener</button>'+
+      '</details>'+
+      '<div class="flex flex-wrap gap-2 mt-3">'+
+        (x.phone?'<a href="tel:'+esc(x.phone.replace(/[^0-9+]/g,''))+'" class="inline-flex items-center gap-1 text-xs font-bold bg-primary text-white px-3 py-1.5 rounded-lg"><span class="ms text-sm">call</span>'+esc(x.phone)+'</a>':'<span class="text-[11px] text-mute italic px-1 py-1.5">no phone yet &mdash; pull from records request</span>')+
+        (x.email?'<a href="mailto:'+esc(x.email)+'" class="inline-flex items-center gap-1 text-xs font-semibold border border-line px-3 py-1.5 rounded-lg hover:border-secondary"><span class="ms text-sm">mail</span>Email</a>':'')+
+      '</div>'+
+      '<div class="mt-3 pt-3 border-t border-line flex flex-col gap-2">'+
+        '<select onchange="warSetStatus('+i+',this.value)" class="w-full rounded-lg border border-line bg-white px-2 py-1.5 text-xs font-semibold">'+
+          WAR_STATUS.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===st?' selected':'')+'>'+o[1]+'</option>';}).join('')+
+        '</select>'+
+        '<input value="'+esc(rec.note||'')+'" oninput="warSetNote('+i+',this.value)" placeholder="Quick note (who you spoke to, callback time)..." class="w-full rounded-lg border border-line px-2 py-1.5 text-xs focus:ring-2 focus:ring-secondary focus:outline-none"/>'+
+      '</div>'+
+    '</div>';
+  });
+  html+='</div>'+
+  '<p class="text-[11px] text-mute mt-4 flex items-center gap-1"><span class="ms text-sm">lock</span> Call status &amp; notes save to this browser only (private to you). Move a hot lead into the CRM via the Leads tab to log it for the team.</p>';
+  host.innerHTML=html;
+}
+(function(){ var c=document.getElementById('cWar'); if(c)c.textContent='('+P1.length+')'; })();
+/* =================== END P1 WAR ROOM =================== */
+
 document.querySelectorAll('.tabbtn').forEach(function(b){b.addEventListener('click',function(){switchTab(b.dataset.tab);});});
 boot();
 </script>
