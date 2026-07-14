@@ -72,6 +72,14 @@ The startup hook will pick it up automatically on the next session.
 - **Backend** at `api/index.py` — single Flask app handling all `/api/*`
   requests via the `vercel.json` rewrite. Sections include the WWSLGC OAuth
   mailer and the Casa Del Monte portal email-attachment uploads.
+- **SoFlo Permit Leads** at `/permits/` — internal BatchData-style
+  building-permit lead dashboard for Martin / Palm Beach / Broward /
+  Miami-Dade. Engine in `api/permits.py` (routes `/api/permits/*`: search,
+  tags, sources, discover, CSV export). Pulls from county open-data GIS
+  (ArcGIS item resolution + Hub DCAT discovery, schema auto-mapping,
+  regex project tagging). Add/override feeds via the
+  `PERMITS_EXTRA_SOURCES` env var — no deploy needed. Offline test suite:
+  `python3 _permits_tests.py` (all network mocked).
 
 ## Local tooling
 

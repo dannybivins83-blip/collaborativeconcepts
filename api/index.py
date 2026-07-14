@@ -4279,3 +4279,15 @@ def food_stats():
         "total_bonus_estimate": round(total_bonus, 2),
         "recent": recent,
     })
+
+
+# ---------------------------------------------------------------------------
+# SoFlo Permit Leads — building-permit lead engine (Martin / Palm Beach /
+# Broward / Miami-Dade). Routes live in api/permits.py.
+# ---------------------------------------------------------------------------
+try:
+    from permits import register_permits_routes
+except ImportError:  # when imported as a package (local tests)
+    from api.permits import register_permits_routes
+
+register_permits_routes(app)

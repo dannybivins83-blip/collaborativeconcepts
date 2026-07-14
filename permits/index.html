@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
+<title>SoFlo Permit Leads — Martin · Palm Beach · Broward · Miami-Dade</title>
+<style>
+  :root{
+    --navy:#0B2340; --steel:#3E6B9E; --gold:#C8A24A;
+    --ink:#13283f; --muted:#5b7088; --line:#e2e8f0; --bg:#f4f6f9;
+    --ok:#1d8a4e; --bad:#c0392b; --warn:#a9772a; --info:#2b6cb0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+  header{background:linear-gradient(120deg,var(--navy),#143a63);color:#fff;padding:16px 28px;
+         display:flex;align-items:center;gap:16px;border-bottom:3px solid var(--gold);flex-wrap:wrap}
+  header .mark{font-weight:800;font-size:22px;letter-spacing:.5px}
+  header .mark span{color:var(--gold)}
+  header .tag{color:#c7d6ea;font-size:13px;margin-top:2px}
+  header .who{margin-left:auto;font-size:12px;color:#c7d6ea;text-align:right}
+  .wrap{max-width:1280px;margin:0 auto;padding:22px 28px 80px}
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--line);
+        border-radius:999px;background:#fff;cursor:pointer;font-size:13px;user-select:none;color:var(--ink)}
+  .chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .chip.tagchip.on{background:var(--steel);border-color:var(--steel)}
+  select,input[type=text],input[type=number]{padding:7px 10px;border:1px solid var(--line);
+        border-radius:8px;font-size:14px;background:#fff;color:var(--ink)}
+  input[type=text]{min-width:210px}
+  button{padding:8px 16px;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+  .btn-primary{background:var(--navy);color:#fff}
+  .btn-secondary{background:#fff;color:var(--navy);border:1px solid var(--line)}
+  .btn-gold{background:var(--gold);color:var(--navy)}
+  button:disabled{opacity:.55;cursor:wait}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .stat .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .stat .v{font-size:26px;font-weight:800;margin-top:2px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .stat .s{font-size:12px;color:var(--muted);margin-top:2px}
+
+  .srcs{display:flex;flex-wrap:wrap;gap:8px}
+  .src{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;border:1px solid var(--line);
+       border-radius:8px;padding:6px 10px;background:#fff}
+  .src .dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+  .src.ok .dot{background:var(--ok)} .src.err .dot{background:var(--bad)}
+  .src.warn .dot{background:var(--warn)} .src.demo .dot{background:var(--info)}
+  .src .lbl{color:var(--ink);font-weight:600}
+  .src .sub{color:var(--muted)}
+
+  .banner{border-radius:10px;padding:11px 16px;margin-bottom:16px;font-size:14px;display:none}
+  .banner.demo{display:block;background:#eaf2fb;border:1px solid #b9d2ee;color:#20456e}
+  .banner.err{display:block;background:#fdeceb;border:1px solid #f2c4c0;color:#7c2d26}
+
+  table{width:100%;border-collapse:collapse;background:#fff;font-size:13.5px}
+  th{position:sticky;top:0;background:var(--navy);color:#fff;text-align:left;padding:9px 10px;
+     font-size:12px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;cursor:pointer}
+  th .arrow{opacity:.7;font-size:10px}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr.lead:hover{background:#f7fafd}
+  .desc{max-width:340px}
+  .desc .txt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+  .desc .txt.open{-webkit-line-clamp:unset}
+  .mini{font-size:11.5px;color:var(--muted)}
+  .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+  .tg{font-size:10.5px;background:#eef3f9;color:var(--steel);border:1px solid #d7e3f0;
+      border-radius:999px;padding:1px 8px;font-weight:600;white-space:nowrap}
+  .money{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+  .addr a{color:var(--steel);text-decoration:none;font-size:12px}
+  .copy{border:1px solid var(--line);background:#fff;border-radius:6px;font-size:11px;
+        padding:1px 7px;cursor:pointer;color:var(--muted);font-weight:400}
+  .status-pill{font-size:11px;border-radius:999px;padding:2px 9px;font-weight:700;white-space:nowrap}
+  .st-issued{background:#e7f5ec;color:var(--ok)} .st-review{background:#fdf3e3;color:var(--warn)}
+  .st-other{background:#eef1f5;color:var(--muted)}
+  .empty{padding:40px;text-align:center;color:var(--muted)}
+  .spinner{padding:40px;text-align:center;color:var(--muted)}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+  footer{margin-top:26px;font-size:12.5px;color:var(--muted);line-height:1.7}
+  footer code{background:#eef1f5;border-radius:4px;padding:1px 5px}
+  @media (max-width:720px){ .desc{max-width:200px} .wrap{padding:14px 12px 60px} }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="mark">SoFlo <span>Permit Leads</span></div>
+    <div class="tag">Martin · Palm Beach · Broward · Miami-Dade — live building-permit lead feed</div>
+  </div>
+  <div class="who">
+    Collaborative Concepts internal tool<br>
+    <a href="#" id="checkSources" style="color:var(--gold)">Run source health check</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div id="demoBanner" class="banner demo">
+    <strong>Sample data mode.</strong> Live county feeds were unreachable (or demo mode is on) —
+    the rows below are bundled examples so you can explore the tool. Deploy to Vercel or retry for live permits.
+  </div>
+  <div id="errBanner" class="banner err"></div>
+
+  <div class="panel">
+    <div class="controls" id="countyChips">
+      <span class="mini" style="margin-right:2px">COUNTIES</span>
+      <!-- chips injected -->
+      <span style="flex-basis:100%"></span>
+      <span class="mini" style="margin-right:2px">WINDOW</span>
+      <select id="days">
+        <option value="7">Last 7 days</option>
+        <option value="14">Last 14 days</option>
+        <option value="30" selected>Last 30 days</option>
+        <option value="60">Last 60 days</option>
+        <option value="90">Last 90 days</option>
+      </select>
+      <input type="text" id="q" placeholder="Search description, address, contractor…">
+      <input type="number" id="minValue" placeholder="Min $ value" min="0" step="1000" style="width:120px">
+      <label class="chip" id="demoChip" title="Force bundled sample data"><input type="checkbox" id="demoToggle" style="margin:0"> demo</label>
+      <button class="btn-primary" id="refresh">Refresh</button>
+      <button class="btn-gold" id="exportCsv" title="Skip-trace-ready CSV">Export CSV</button>
+    </div>
+    <div class="controls" id="tagChips" style="margin-top:10px">
+      <span class="mini" style="margin-right:2px">PROJECT TAGS</span>
+      <!-- tag chips injected -->
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="k">Permits in view</div><div class="v" id="statCount">–</div><div class="s" id="statWindow"></div></div>
+    <div class="stat"><div class="k">Combined est. value</div><div class="v" id="statValue">–</div><div class="s">sum of declared job values</div></div>
+    <div class="stat"><div class="k">Top project type</div><div class="v" id="statTag" style="font-size:19px">–</div><div class="s" id="statTagCount"></div></div>
+    <div class="stat"><div class="k">Sources online</div><div class="v" id="statSources">–</div><div class="s">per-county feed health below</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="srcs" id="sources"><span class="mini">Loading source status…</span></div>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-sort="issued_date">Issued <span class="arrow" id="ar-issued_date">▼</span></th>
+          <th>County / City</th>
+          <th>Permit #</th>
+          <th>Project</th>
+          <th>Description</th>
+          <th>Address</th>
+          <th data-sort="value" style="text-align:right">Value <span class="arrow" id="ar-value"></span></th>
+          <th>Contractor</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="rows"><tr><td colspan="9" class="spinner">Loading permits…</td></tr></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <strong>How this works.</strong> The backend pulls recent permits straight from each county's public GIS
+    feeds (Miami-Dade countywide open data; Fort Lauderdale's permit tracker for Broward; Palm Beach & Martin via
+    automatic open-data catalog discovery), auto-maps each jurisdiction's schema, and tags every permit by project
+    type — same pipeline shape as commercial permit-data vendors, scoped to South Florida.
+    Owner lookup links go to each county's property appraiser (free). The CSV export is shaped for direct upload
+    to a skip-trace service for phone/email append.<br>
+    <strong>Coverage notes:</strong> Broward issues permits per municipality — Fort Lauderdale is wired in; add more
+    cities with the <code>PERMITS_EXTRA_SOURCES</code> env var (see <code>api/permits.py</code>). Palm Beach County and
+    Martin County don't publish a stable countywide permit layer; the discovery engine checks their open-data catalogs
+    each run and will pick datasets up automatically when published.<br>
+    <strong>Compliance:</strong> permits are public records, but cold calls/texts to enriched contacts fall under
+    TCPA / FTSA and DNC rules — direct mail and door-knocking are the low-risk channels.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var COUNTIES = ["Martin","Palm Beach","Broward","Miami-Dade"];
+  var state = {
+    counties: new Set(COUNTIES),
+    days: "30",
+    tags: new Set(),
+    q: "",
+    minValue: "",
+    demo: false,
+    sortKey: "issued_date",
+    sortDir: -1,
+    permits: [],
+    tagLabels: {}
+  };
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  // ---- controls ----
+  function buildCountyChips(){
+    var host = $("countyChips");
+    COUNTIES.slice().reverse().forEach(function(c){
+      var el = document.createElement("span");
+      el.className = "chip on";
+      el.textContent = c;
+      el.onclick = function(){
+        if(state.counties.has(c) && state.counties.size === 1) return; // keep ≥1
+        state.counties.has(c) ? state.counties.delete(c) : state.counties.add(c);
+        el.classList.toggle("on", state.counties.has(c));
+        load();
+      };
+      host.insertBefore(el, host.children[1]);
+    });
+  }
+
+  function buildTagChips(tags){
+    var host = $("tagChips");
+    tags.forEach(function(t){
+      state.tagLabels[t.key] = t.label;
+      var el = document.createElement("span");
+      el.className = "chip tagchip";
+      el.textContent = t.label;
+      el.onclick = function(){
+        state.tags.has(t.key) ? state.tags.delete(t.key) : state.tags.add(t.key);
+        el.classList.toggle("on", state.tags.has(t.key));
+        load();
+      };
+      host.appendChild(el);
+    });
+  }
+
+  function queryString(){
+    var p = new URLSearchParams();
+    p.set("county", Array.from(state.counties).join(","));
+    p.set("days", state.days);
+    if(state.tags.size) p.set("tags", Array.from(state.tags).join(","));
+    if(state.q) p.set("q", state.q);
+    if(state.minValue) p.set("min_value", state.minValue);
+    if(state.demo) p.set("demo", "1");
+    return p.toString();
+  }
+
+  // ---- rendering ----
+  function fmtMoney(v){
+    if(v == null) return "—";
+    if(v >= 1e6) return "$" + (v/1e6).toFixed(2) + "M";
+    if(v >= 1e3) return "$" + Math.round(v/1e3).toLocaleString() + "k";
+    return "$" + Math.round(v).toLocaleString();
+  }
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(ch){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];
+    });
+  }
+  function statusPill(st){
+    if(!st) return '<span class="status-pill st-other">—</span>';
+    var s = st.toUpperCase();
+    var cls = /ISSU|FINAL|APPROV|COMPLET|CLOSED|CO\b/.test(s) ? "st-issued"
+            : /REVIEW|APPLIED|PENDING|PROCESS|SUBMIT|HOLD/.test(s) ? "st-review" : "st-other";
+    return '<span class="status-pill ' + cls + '">' + esc(st) + '</span>';
+  }
+
+  function renderSources(infos, demo){
+    var host = $("sources");
+    host.innerHTML = "";
+    var okCount = 0, total = 0;
+    (infos || []).forEach(function(s){
+      total++;
+      var cls = "warn", icon = "△", note = s.status;
+      if(s.status === "ok"){ cls = "ok"; icon = "✓"; okCount++; note = s.count + " permits"; }
+      else if(s.status === "demo"){ cls = "demo"; icon = "◎"; note = "sample data"; }
+      else if(s.status === "error" || s.status === "timeout"){ cls = "err"; icon = "✕"; note = s.status; }
+      else if(s.status === "no_dataset"){ cls = "warn"; icon = "△"; note = "no public dataset yet"; }
+      var el = document.createElement("span");
+      el.className = "src " + cls;
+      el.title = (s.error || "") + (s.discovered ? " · found: " + s.discovered.join("; ") : "");
+      el.innerHTML = '<span class="dot"></span><span class="lbl">' + esc(s.label || s.id) +
+                     '</span><span class="sub">' + icon + " " + esc(note) + "</span>";
+      host.appendChild(el);
+    });
+    if(demo && !total){
+      host.innerHTML = '<span class="src demo"><span class="dot"></span><span class="lbl">Sample data</span></span>';
+    }
+    $("statSources").textContent = total ? (okCount + "/" + total) : (demo ? "demo" : "–");
+  }
+
+  function renderStats(data){
+    $("statCount").textContent = data.count.toLocaleString();
+    $("statWindow").textContent = "last " + data.params.days + " days · " +
+      data.params.counties.join(", ");
+    var totalVal = 0, tagCounts = {};
+    data.permits.forEach(function(p){
+      totalVal += (p.value || 0);
+      (p.tags || []).forEach(function(t){ tagCounts[t] = (tagCounts[t] || 0) + 1; });
+    });
+    $("statValue").textContent = fmtMoney(totalVal);
+    var top = Object.keys(tagCounts).sort(function(a,b){ return tagCounts[b]-tagCounts[a]; })[0];
+    $("statTag").textContent = top ? (state.tagLabels[top] || top) : "—";
+    $("statTagCount").textContent = top ? (tagCounts[top] + " permits") : "";
+  }
+
+  function sortPermits(){
+    var k = state.sortKey, dir = state.sortDir;
+    state.permits.sort(function(a,b){
+      var av = a[k], bv = b[k];
+      if(av == null) return 1;
+      if(bv == null) return -1;
+      return (av < bv ? -1 : av > bv ? 1 : 0) * dir;
+    });
+  }
+
+  function renderRows(){
+    var tb = $("rows");
+    if(!state.permits.length){
+      tb.innerHTML = '<tr><td colspan="9" class="empty">No permits matched — widen the window or clear filters.</td></tr>';
+      return;
+    }
+    tb.innerHTML = state.permits.map(function(p){
+      var tags = (p.tags || []).map(function(t){
+        return '<span class="tg">' + esc(state.tagLabels[t] || t) + "</span>";
+      }).join("");
+      var cityLine = [p.city, p.zip].filter(Boolean).join(" ");
+      var addr = esc(p.address || "—");
+      var paLink = p.appraiser_url ?
+        ' <a href="' + esc(p.appraiser_url) + '" target="_blank" rel="noopener" title="County property appraiser — owner lookup">owner ↗</a>' : "";
+      var copyBtn = p.address ?
+        ' <button class="copy" data-addr="' + esc(p.address + (cityLine ? ", " + cityLine : "")) + '">copy</button>' : "";
+      return '<tr class="lead">' +
+        '<td style="white-space:nowrap">' + esc(p.issued_date || p.applied_date || "—") + "</td>" +
+        "<td><strong>" + esc(p.county) + "</strong><div class='mini'>" + esc(cityLine) + "</div></td>" +
+        "<td style='white-space:nowrap'>" + esc(p.permit_number || "—") + "</td>" +
+        "<td><div class='mini'>" + esc(p.type || "") + "</div><div class='tags'>" + tags + "</div></td>" +
+        '<td class="desc"><div class="txt" onclick="this.classList.toggle(\'open\')">' + esc(p.description || "—") + "</div></td>" +
+        '<td class="addr">' + addr + "<div class='mini'>" + paLink + copyBtn + "</div></td>" +
+        '<td class="money">' + fmtMoney(p.value) + "</td>" +
+        "<td>" + esc(p.contractor || "—") + "</td>" +
+        "<td>" + statusPill(p.status) + "</td>" +
+        "</tr>";
+    }).join("");
+    tb.querySelectorAll(".copy").forEach(function(btn){
+      btn.onclick = function(){
+        navigator.clipboard && navigator.clipboard.writeText(btn.getAttribute("data-addr"));
+        btn.textContent = "copied ✓";
+        setTimeout(function(){ btn.textContent = "copy"; }, 1400);
+      };
+    });
+  }
+
+  // ---- data ----
+  var inFlight = null;
+  function load(){
+    if(inFlight) inFlight.abort();
+    var ctl = new AbortController();
+    inFlight = ctl;
+    $("rows").innerHTML = '<tr><td colspan="9" class="spinner">Loading permits…</td></tr>';
+    $("errBanner").className = "banner err"; $("errBanner").style.display = "none";
+    $("refresh").disabled = true;
+    fetch("/api/permits/search?" + queryString(), {signal: ctl.signal})
+      .then(function(r){ if(!r.ok) throw new Error("API " + r.status); return r.json(); })
+      .then(function(data){
+        state.permits = data.permits || [];
+        sortPermits();
+        renderRows();
+        renderStats(data);
+        renderSources(data.sources, data.demo);
+        $("demoBanner").style.display = data.demo ? "block" : "none";
+      })
+      .catch(function(e){
+        if(e.name === "AbortError") return;
+        $("errBanner").textContent = "Could not load permits: " + e.message +
+          " — if you're running the static page without the backend, deploy to Vercel or run the Flask app.";
+        $("errBanner").style.display = "block";
+        $("rows").innerHTML = '<tr><td colspan="9" class="empty">No data.</td></tr>';
+      })
+      .finally(function(){ if(inFlight === ctl) inFlight = null; $("refresh").disabled = false; });
+  }
+
+  function loadTags(){
+    fetch("/api/permits/tags").then(function(r){ return r.json(); })
+      .then(function(d){ buildTagChips(d.tags || []); })
+      .catch(function(){ /* chips are optional */ });
+  }
+
+  // ---- events ----
+  $("days").onchange = function(){ state.days = this.value; load(); };
+  var qTimer = null;
+  $("q").oninput = function(){
+    var v = this.value.trim();
+    clearTimeout(qTimer);
+    qTimer = setTimeout(function(){ state.q = v; load(); }, 450);
+  };
+  $("minValue").onchange = function(){ state.minValue = this.value; load(); };
+  $("demoToggle").onchange = function(){
+    state.demo = this.checked;
+    $("demoChip").classList.toggle("on", state.demo);
+    load();
+  };
+  $("refresh").onclick = load;
+  $("exportCsv").onclick = function(){
+    window.location.href = "/api/permits/export.csv?" + queryString();
+  };
+  $("checkSources").onclick = function(ev){
+    ev.preventDefault();
+    $("sources").innerHTML = '<span class="mini">Checking each source live (can take ~30s)…</span>';
+    fetch("/api/permits/sources?check=1").then(function(r){ return r.json(); })
+      .then(function(d){
+        var infos = (d.sources || []).map(function(s){
+          var h = s.health || {};
+          return {id: s.id, label: s.label, status: h.status || "unknown",
+                  count: "", error: h.error, discovered: h.discovered};
+        });
+        renderSources(infos, false);
+      })
+      .catch(function(){ $("sources").innerHTML = '<span class="mini">Health check failed.</span>'; });
+  };
+  document.querySelectorAll("th[data-sort]").forEach(function(th){
+    th.onclick = function(){
+      var k = th.getAttribute("data-sort");
+      if(state.sortKey === k){ state.sortDir *= -1; } else { state.sortKey = k; state.sortDir = -1; }
+      document.querySelectorAll(".arrow").forEach(function(a){ a.textContent = ""; });
+      $("ar-" + k).textContent = state.sortDir === -1 ? "▼" : "▲";
+      sortPermits(); renderRows();
+    };
+  });
+
+  buildCountyChips();
+  loadTags();
+  load();
+})();
+</script>
+</body>
+</html>
