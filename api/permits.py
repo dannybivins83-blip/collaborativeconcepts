@@ -706,6 +706,9 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
                     "status": "ok", "count": len(permits), "layer_url": layer_url,
                     "layer_name": meta.get("name"),
                     "resolved_fields": mapping,
+                    "layer_fields": [{"name": f.get("name"), "type": (f.get("type") or "")
+                                      .replace("esriFieldType", "")}
+                                     for f in (meta.get("fields") or [])],
                 })
                 if attempts:
                     info["fallback_notes"] = attempts
@@ -998,7 +1001,8 @@ def register_permits_routes(app):
                 _, info = fetch_source(s, record_count=5)
                 entry["health"] = {k: info.get(k) for k in
                                    ("status", "error", "layer_url", "layer_name",
-                                    "count", "discovered", "attempts", "fallback_notes")}
+                                    "count", "discovered", "attempts", "fallback_notes",
+                                    "resolved_fields", "layer_fields")}
             out.append(entry)
         return jsonify({"ok": True, "sources": out,
                         "appraisers": APPRAISER_SEARCH, "counties": COUNTIES})
