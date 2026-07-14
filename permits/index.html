@@ -176,8 +176,8 @@
   var COUNTIES = ["Martin","Palm Beach","Broward","Miami-Dade"];
   var state = {
     counties: new Set(COUNTIES),
-    window: "days:30",
-    windowLabel: "Last 30 days",
+    window: "years:2",
+    windowLabel: "Last 2 years",
     tags: new Set(),
     q: "",
     minValue: "",
@@ -202,7 +202,7 @@
      ["months:6","Last 6 months"],["years:1","Last 12 months"],
      ["years:2","Last 2 years"],["years:5","Last 5 years"]].forEach(function(o){
       var el = opt(recent, o[0], o[1]);
-      if(o[0] === "days:30") el.selected = true;
+      if(o[0] === "years:2") el.selected = true;
     });
     var byYear = grp("Specific year");
     for(var y = thisYear; y >= thisYear - 6; y--) opt(byYear, "year:" + y, String(y));

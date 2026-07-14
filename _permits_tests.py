@@ -142,6 +142,88 @@ class FieldMappingTests(unittest.TestCase):
         self.assertEqual(m["applied_date"], "APPLIED_DT")
 
 
+class FieldInferenceTests(unittest.TestCase):
+    def _feats(self, dicts):
+        return [{"attributes": d} for d in dicts]
+
+    def test_infers_address_and_description_when_names_opaque(self):
+        # Miami-Dade-style: cryptic column names the synonym table won't catch.
+        fields = [
+            {"name": "PERMITNUMBER", "type": "esriFieldTypeString"},
+            {"name": "COL_A", "type": "esriFieldTypeString"},   # address
+            {"name": "COL_B", "type": "esriFieldTypeString"},   # description
+            {"name": "FOLIO", "type": "esriFieldTypeDouble"},   # id, NOT value
+            {"name": "ISSUINGDATE", "type": "esriFieldTypeDate"},
+        ]
+        feats = self._feats([
+            {"PERMITNUMBER": "2026-1", "COL_A": "2740 SW 27TH AVE",
+             "COL_B": "RE-ROOF: REMOVE EXISTING SHINGLES INSTALL NEW GAF TIMBERLINE 24 SQ",
+             "FOLIO": 3040120010010, "ISSUINGDATE": 1},
+            {"PERMITNUMBER": "2026-2", "COL_A": "815 CATALONIA AVE",
+             "COL_B": "A/C CHANGEOUT 4 TON SPLIT SYSTEM LIKE FOR LIKE",
+             "FOLIO": 3041220020020, "ISSUINGDATE": 2},
+            {"PERMITNUMBER": "2026-3", "COL_A": "1020 WEST AVE",
+             "COL_B": "IMPACT WINDOWS AND DOORS REPLACEMENT 22 OPENINGS HURRICANE RATED",
+             "FOLIO": 3042320030030, "ISSUINGDATE": 3},
+        ])
+        base = permits.map_fields(fields)
+        refined = permits.refine_mapping_with_samples(base, fields, feats)
+        self.assertEqual(refined["address"], "COL_A")
+        self.assertEqual(refined["description"], "COL_B")
+        # FOLIO must NOT be chosen as value (it's a 13-digit id)
+        self.assertNotEqual(refined.get("value"), "FOLIO")
+
+    def test_rejects_implausible_value_and_picks_money_column(self):
+        fields = [
+            {"name": "FOLIO", "type": "esriFieldTypeDouble"},        # 205,180,000-ish
+            {"name": "EST_VALUE", "type": "esriFieldTypeDouble"},    # real dollars
+            {"name": "DESC", "type": "esriFieldTypeString"},
+        ]
+        feats = self._feats([
+            {"FOLIO": 205180000, "EST_VALUE": 18500, "DESC": "NEW ROOF INSTALL"},
+            {"FOLIO": 496600000, "EST_VALUE": 8900, "DESC": "AC CHANGEOUT UNIT"},
+            {"FOLIO": 811300000, "EST_VALUE": 265000, "DESC": "COMMERCIAL BUILDOUT"},
+        ])
+        # simulate a bad name-based pick where FOLIO got grabbed as value
+        bad = {"value": "FOLIO"}
+        refined = permits.refine_mapping_with_samples(bad, fields, feats)
+        self.assertEqual(refined["value"], "EST_VALUE")
+
+    def test_drops_value_when_no_plausible_numeric(self):
+        fields = [
+            {"name": "OBJECTID", "type": "esriFieldTypeOID"},
+            {"name": "FOLIO", "type": "esriFieldTypeDouble"},
+            {"name": "DESC", "type": "esriFieldTypeString"},
+        ]
+        feats = self._feats([
+            {"OBJECTID": 1, "FOLIO": 3040120010010, "DESC": "REROOF"},
+            {"OBJECTID": 2, "FOLIO": 3041220020020, "DESC": "POOL"},
+        ])
+        refined = permits.refine_mapping_with_samples({"value": "FOLIO"}, fields, feats)
+        self.assertIsNone(refined.get("value"))  # better nothing than $3-trillion
+
+    def test_keeps_good_name_based_mapping(self):
+        fields = [
+            {"name": "SCOPE_OF_WORK", "type": "esriFieldTypeString"},
+            {"name": "SITE_ADDR", "type": "esriFieldTypeString"},
+            {"name": "ESTIMATED_VALUE", "type": "esriFieldTypeDouble"},
+        ]
+        feats = self._feats([
+            {"SCOPE_OF_WORK": "RE-ROOF SHINGLE 24 SQUARES TOTAL",
+             "SITE_ADDR": "123 MAIN ST", "ESTIMATED_VALUE": 20000},
+        ])
+        base = permits.map_fields(fields)
+        refined = permits.refine_mapping_with_samples(base, fields, feats)
+        self.assertEqual(refined["description"], "SCOPE_OF_WORK")
+        self.assertEqual(refined["address"], "SITE_ADDR")
+        self.assertEqual(refined["value"], "ESTIMATED_VALUE")
+
+    def test_empty_features_is_safe(self):
+        fields = [{"name": "X", "type": "esriFieldTypeString"}]
+        self.assertEqual(permits.refine_mapping_with_samples({"a": "b"}, fields, []),
+                         {"a": "b"})
+
+
 class NormalizeTests(unittest.TestCase):
     def test_normalize_arcgis_feature(self):
         mapping = {"permit_number": "PN", "description": "DESC", "address": "ADDR",

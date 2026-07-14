@@ -323,6 +323,125 @@ def map_fields(fields):
     return mapping
 
 
+# --------------------------------------------------------------------------
+# Content-based field inference — recovers fields when a layer's column NAMES
+# don't match our synonyms (e.g. Miami-Dade), by reading the actual VALUES in
+# a sample of records. This is what makes the mapper robust across the wildly
+# different schemas each jurisdiction uses.
+# --------------------------------------------------------------------------
+_ADDR_RX = re.compile(r"^\s*\d{1,6}\s+[0-9A-Za-z].*"
+                      r"(st|street|ave|avenue|blvd|boulevard|rd|road|dr|drive|ln|lane|ct|court|"
+                      r"way|pl|place|ter|terrace|cir|circle|hwy|highway|pkwy|trail|trl|"
+                      r"\bnw\b|\bne\b|\bsw\b|\bse\b)\.?\s*", re.I)
+_MONEY_NAME_RX = re.compile(r"cost|value|valuation|amount|estimate|job.?val|const|fee", re.I)
+_ID_NAME_RX = re.compile(r"objectid|globalid|fid|folio|parcel|\bx\b|\by\b|lat|lon|"
+                         r"longitude|latitude|zip|year|shape", re.I)
+_TEXTY_STOP = re.compile(r"objectid|globalid|url|link|http", re.I)
+
+
+def _field_type_map(fields):
+    out = {}
+    for f in fields or []:
+        out[f.get("name")] = (f.get("type") or "").replace("esriFieldType", "")
+    return out
+
+
+def refine_mapping_with_samples(mapping, fields, features, sample=60):
+    """Fill in canonical fields the name-based mapper missed, and replace an
+    implausible 'value' mapping, using the distribution of real values in a
+    sample of features. Only fills MISSING slots (never overrides a good
+    name-based match) except for a demonstrably-bad value column."""
+    mapping = dict(mapping)
+    ftype = _field_type_map(fields)
+    rows = []
+    for feat in (features or [])[:sample]:
+        a = feat.get("attributes") or feat.get("properties") or {}
+        if a:
+            rows.append(a)
+    if not rows:
+        return mapping
+
+    used = set(v for v in mapping.values() if v)
+    names = [f.get("name") for f in (fields or []) if f.get("name")]
+
+    def col_vals(name):
+        return [r.get(name) for r in rows if r.get(name) not in (None, "")]
+
+    # ---- string-field stats ----
+    str_stats = {}
+    for name in names:
+        t = ftype.get(name, "")
+        if t and t != "String":
+            continue
+        vals = [str(v) for v in col_vals(name)]
+        if not vals:
+            continue
+        avg_len = sum(len(v) for v in vals) / len(vals)
+        addr_frac = sum(1 for v in vals if _ADDR_RX.match(v)) / len(vals)
+        uniq_frac = len(set(vals)) / len(vals)
+        str_stats[name] = {"avg_len": avg_len, "addr_frac": addr_frac,
+                           "uniq_frac": uniq_frac, "n": len(vals)}
+
+    # address: the string column whose values most look like street addresses
+    if not mapping.get("address"):
+        cand = [(s["addr_frac"], n) for n, s in str_stats.items()
+                if n not in used and s["addr_frac"] >= 0.4 and not _TEXTY_STOP.search(n)]
+        if cand:
+            best = max(cand)[1]
+            mapping["address"] = best
+            used.add(best)
+
+    # description: the longest free-text column that isn't the address/id
+    if not mapping.get("description"):
+        cand = [(s["avg_len"], n) for n, s in str_stats.items()
+                if n not in used and s["avg_len"] >= 12 and s["addr_frac"] < 0.4
+                and not _TEXTY_STOP.search(n)]
+        if cand:
+            best = max(cand)[1]
+            mapping["description"] = best
+            used.add(best)
+
+    # ---- numeric value column: plausible dollar range, prefer money-ish names ----
+    def numeric_median(name):
+        nums = []
+        for v in col_vals(name):
+            try:
+                nums.append(float(v))
+            except Exception:
+                pass
+        if not nums:
+            return None
+        nums.sort()
+        return nums[len(nums) // 2]
+
+    def plausible_value_col(name):
+        t = ftype.get(name, "")
+        if t not in ("Double", "Single", "Integer", "SmallInteger", "BigInteger", ""):
+            return False
+        if _ID_NAME_RX.search(name):
+            return False
+        med = numeric_median(name)
+        if med is None:
+            return False
+        # residential/commercial permit values: ~$100 to ~$50M; reject folio/coord/epoch
+        return 100 <= med <= 50_000_000
+
+    current_val = mapping.get("value")
+    val_ok = current_val and plausible_value_col(current_val) and _MONEY_NAME_RX.search(current_val)
+    if not val_ok:
+        named = [n for n in names if n not in used and _MONEY_NAME_RX.search(n)
+                 and plausible_value_col(n)]
+        if named:
+            mapping["value"] = named[0]
+        elif not (current_val and plausible_value_col(current_val)):
+            # current mapping is absurd (e.g. folio → $205M). Prefer a plausible
+            # numeric col; if none, drop value rather than show garbage.
+            anyplaus = [n for n in names if n not in used and plausible_value_col(n)]
+            mapping["value"] = anyplaus[0] if anyplaus else None
+
+    return mapping
+
+
 def _ms_to_timestamp(ms):
     return datetime.fromtimestamp(ms / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -701,6 +820,9 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
                 feats = query_layer(layer_url, order_field=order_field,
                                     date_field=order_field, start_ms=start_ms,
                                     end_ms=end_ms, record_count=record_count)
+                # data-driven refinement: recover fields the name-mapper missed
+                # and fix an implausible value column, using the real sample.
+                mapping = refine_mapping_with_samples(mapping, meta.get("fields"), feats)
                 permits = [normalize_feature(f, mapping, source) for f in feats]
                 info.update({
                     "status": "ok", "count": len(permits), "layer_url": layer_url,
@@ -1034,7 +1156,10 @@ def register_permits_routes(app):
 
     @app.route("/api/permits/export.csv", methods=["GET"])
     def permits_export():
-        data = run_search(request.args)
+        # CSV should carry the whole window, not just the page-view cap.
+        args = dict(request.args)
+        args.setdefault("limit", "5000")
+        data = run_search(args)
         buf = io.StringIO()
         cols = ["issued_date", "county", "city", "permit_number", "type", "status",
                 "description", "address", "zip", "value", "contractor", "owner",
