@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MasterCraft Charters, Wakeboard Lessons, Parties & Tubing | Palm Beach Wake Boats</title>
-<meta name="description" content="Book a private MasterCraft charter on the water in Palm Beach County — wakesurf & wakeboard lessons, birthday & group parties, and tubing for all ages. Lake Osborne, Lake Ida & the Intracoastal. Captain and gear included.">
+<title>Book a MasterCraft Charter — Split the Cost with Your Crew | Palm Beach Wake Boats</title>
+<meta name="description" content="Book a captained wake-boat charter on Lake Osborne, Lake Ida or the Intracoastal in Palm Beach County — then invite friends and split the cost. Wakesurf sessions, sunset cruises, half & full-day adventures. Captain, gear & fuel included.">
 <link rel="canonical" href="https://collaborativeconceptsfl.com/wake/pages/charter-experiences">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Your Day on a MasterCraft — Charters, Lessons, Parties & Tubing">
-<meta property="og:description" content="Private MasterCraft charters, wakesurf & wakeboard lessons, parties and tubing in Palm Beach County. Captain and gear included.">
+<meta property="og:title" content="Charter the boat. Split the cost. Bring the crew. | Palm Beach Wake Boats">
+<meta property="og:description" content="Captained wake-boat charters in Palm Beach County. Book a boat, invite friends, everyone pays only their share. Wakesurf, sunset cruises, half & full-day.">
 <meta property="og:url" content="https://collaborativeconceptsfl.com/wake/pages/charter-experiences">
 <meta property="og:image" content="https://collaborativeconceptsfl.com/wake/img/mastercraft-water.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -27,7 +27,7 @@ const CONFIG = {
   BRAND_NAME:    "Palm Beach Wake Boats",   // this is YOUR charter business (not a dealer referral)
   GA_ID:         ""
 };
-/* PRICING: set your real rates below (search for data-price). Left as "Ask about rates" so nothing wrong goes live. */
+/* Charter package prices are per BOAT (cover everyone aboard). Edit PACKAGES in the script below to change. */
 </script>
 <style>
   :root{
@@ -37,10 +37,11 @@ const CONFIG = {
     --on-dark:#e7f1f2; --mut-dark:#bcd6dd; --mut-dark-2:#a9c9d1; --mut-dark-3:#9db8bf;
     --on-light:#0B2A3A; --mut-light:#5a7c86; --mut-light-2:#33555f;
     --line-dark:rgba(255,255,255,.1); --line-light:rgba(11,42,58,.08);
-    --input:rgba(11,42,58,.16); --gold:#f0b429; --err:#b4483a;
+    --input:rgba(11,42,58,.16); --gold:#f0b429; --err:#b4483a; --ok:#1F8A5B;
     --grad-btn:linear-gradient(135deg,#0B2A3A,#14556E);
     --grad-cta:linear-gradient(135deg,#3E9DB5,#6fc8dc);
     --grad-logo:linear-gradient(150deg,#3E9DB5,#7fd0e2);
+    --grad-dark:linear-gradient(150deg,#0B2A3A,#14556E);
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -50,11 +51,10 @@ const CONFIG = {
   a:hover{color:var(--teal)}
   h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:-.02em;margin:0}
   p{margin:0}
-  summary{list-style:none;cursor:pointer}
-  summary::-webkit-details-marker{display:none}
-  input,select,textarea,button{font-family:inherit}
-  input:focus,select:focus,textarea:focus{outline:none}
+  input,select,button{font-family:inherit}
+  input:focus,select:focus{outline:none}
   .wrap{max-width:1120px;margin:0 auto}
+  @keyframes mistDrift{0%{transform:translateX(-4%);opacity:.55}50%{opacity:.8}100%{transform:translateX(4%);opacity:.55}}
 
   .eyebrow{font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px}
   .eyebrow.dark{color:var(--eyebrow)}
@@ -75,91 +75,169 @@ const CONFIG = {
   .nav-cta:hover{filter:brightness(1.08);color:#07202c}
 
   /* HERO */
-  .hero{position:relative;padding:60px 52px 64px;overflow:hidden;
+  .hero{position:relative;padding:56px 52px 66px;overflow:hidden;
         background:linear-gradient(158deg,var(--navy) 0%,var(--navy-2) 55%,var(--navy-3) 100%)}
   .hero-bg{position:absolute;inset:0;z-index:0;background-image:url('/wake/img/mastercraft-water.jpg');background-size:cover;background-position:center}
   .hero-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;
         background:linear-gradient(158deg,rgba(11,42,58,.90) 0%,rgba(13,58,77,.85) 52%,rgba(15,71,93,.82) 100%)}
   .hero-glow{position:absolute;top:-10%;right:-6%;width:520px;height:520px;z-index:1;pointer-events:none;
         background:radial-gradient(circle,rgba(62,157,181,.28),transparent 62%)}
-  .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1.04fr;gap:48px;align-items:center}
+  .hero-mist{position:absolute;left:-8%;right:-8%;bottom:0;height:180px;z-index:1;pointer-events:none;
+        background:radial-gradient(70% 100% at 50% 100%,rgba(127,208,226,.16),transparent 72%);animation:mistDrift 16s ease-in-out infinite}
+  .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:0.92fr 1.08fr;gap:48px;align-items:start;max-width:1200px;margin:0 auto}
   .pill{display:inline-flex;align-items:center;gap:9px;padding:7px 14px;border-radius:999px;
         background:rgba(127,208,226,.12);border:1px solid rgba(127,208,226,.22);color:var(--eyebrow);
-        font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:24px}
+        font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:22px}
   .pill .dot{width:6px;height:6px;border-radius:999px;background:var(--aqua)}
-  .hero h1{font-size:52px;line-height:1.05;color:#fff;margin-bottom:22px}
+  .hero h1{font-size:50px;line-height:1.05;color:#fff;margin-bottom:20px}
   .hero h1 em{color:var(--aqua);font-style:normal}
-  .hero .sub{font-size:17.5px;line-height:1.6;color:var(--mut-dark);max-width:480px;margin-bottom:26px}
-  .bullets{list-style:none;margin:0 0 26px;padding:0}
-  .bullets li{padding:6px 0 6px 30px;position:relative;color:var(--on-dark);font-size:15px}
-  .bullets li::before{content:"";position:absolute;left:2px;top:12px;width:12px;height:12px;border-radius:999px;
-        background:var(--grad-logo)}
-  .chips{display:flex;flex-wrap:wrap;gap:10px}
-  .chip{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:10px;
-        background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:13.5px;font-weight:600;color:var(--mut-dark)}
+  .hero .sub{font-size:17px;line-height:1.6;color:var(--mut-dark);max-width:440px;margin-bottom:26px}
+  .howlist{display:flex;flex-direction:column;gap:0;margin-bottom:26px}
+  .howstep{display:flex;align-items:flex-start;gap:14px;padding:13px 0;border-top:1px solid rgba(255,255,255,.1)}
+  .howstep:last-child{border-bottom:1px solid rgba(255,255,255,.1)}
+  .howstep .n{flex:none;width:26px;height:26px;border-radius:999px;background:rgba(127,208,226,.14);color:var(--eyebrow);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px}
+  .howstep .t{font-weight:600;color:#fff;font-size:15px}
+  .howstep .d{font-size:13px;color:var(--mut-dark-3)}
+  .rating{display:inline-flex;align-items:center;gap:10px;font-size:14px;color:var(--mut-dark)}
+  .rating .star{color:var(--gold);display:inline-flex}
+  .rating strong{color:#fff;font-weight:700}
 
-  /* FORM CARD */
-  .form-card{background:var(--formcard);border:1px solid rgba(255,255,255,.5);border-radius:22px;
-        box-shadow:0 40px 80px -30px rgba(0,0,0,.6);padding:32px 34px;color:var(--on-light)}
-  .form-card h3{font-size:22px}
-  .form-card .card-sub{font-size:13px;color:var(--mut-light);margin:6px 0 20px}
+  /* WIZARD CARD */
+  .card{background:var(--formcard);border:1px solid rgba(255,255,255,.5);border-radius:22px;
+        box-shadow:0 40px 80px -30px rgba(0,0,0,.6);padding:30px 32px;color:var(--on-light)}
+  .progress{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+  .progress i{flex:1;height:4px;border-radius:2px;background:rgba(11,42,58,.14);font-style:normal}
+  .progress i.on{background:var(--teal)}
+  .stepcap{font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:4px}
+  .card h3{font-size:22px;margin-bottom:16px}
+  .hide{display:none}
+
+  .pkg{position:relative;text-align:left;width:100%;display:flex;gap:14px;align-items:flex-start;padding:15px 17px;border-radius:14px;border:1.5px solid rgba(11,42,58,.14);background:#fff;color:var(--on-light);cursor:pointer;margin-bottom:9px}
+  .pkg .top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .pkg .nm{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15.5px}
+  .pkg .pr{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15.5px;color:var(--action)}
+  .pkg .ds{font-size:12.5px;color:var(--mut-light);margin-top:4px;line-height:1.5}
+  .pkg .du{margin-top:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+  .pkg.sel{border-color:var(--teal);background:rgba(62,157,181,.08)}
+  .customize{font-size:12px;color:var(--mut-light);line-height:1.6;margin:4px 2px 4px}
+  .customize b{color:var(--mut-light-2)}
+
   .field{display:block;margin-top:14px}
   .field .lbl{display:block;font-size:12px;font-weight:600;color:var(--action);margin-bottom:6px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  input,select,textarea{width:100%;padding:12px 13px;border:1.5px solid var(--input);border-radius:11px;
-        font-size:15px;background:#fff;color:var(--on-light)}
-  input:focus,select:focus,textarea:focus{border-color:var(--teal)}
-  textarea{resize:vertical}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:16px;border:none;
-        border-radius:12px;background:var(--grad-btn);color:#fff;font-weight:700;font-size:16px;cursor:pointer;text-decoration:none;margin-top:18px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  input,select{width:100%;padding:12px 13px;border:1.5px solid var(--input);border-radius:11px;font-size:15px;background:#fff;color:var(--on-light)}
+  input:focus,select:focus{border-color:var(--teal)}
+  .stepper{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;padding:14px 16px;border-radius:14px;background:#eef5f6;border:1px solid rgba(11,42,58,.07)}
+  .stepper .lbl{font-size:12px;font-weight:600;color:var(--action)}
+  .stepper .sub{font-size:11.5px;color:var(--mut-light)}
+  .stepper .ctrls{display:flex;align-items:center;gap:12px}
+  .stepbtn{width:38px;height:38px;border-radius:11px;border:1.5px solid var(--input);background:#fff;color:var(--on-light);font-size:20px;line-height:1;cursor:pointer}
+  .stepbtn:hover{border-color:var(--teal)}
+  .stepval{min-width:44px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:16px;border:none;border-radius:12px;background:var(--grad-btn);color:#fff;font-weight:700;font-size:16px;cursor:pointer;text-decoration:none}
   .btn:hover{filter:brightness(1.12);color:#fff}
-  .btn.accent{background:var(--grad-cta);color:#07202c}
-  .btn.accent:hover{color:#07202c}
+  .btn.small{padding:14px;font-size:15px}
+  .btn-back{padding:14px 18px;border:1.5px solid var(--input);border-radius:12px;background:#fff;color:var(--on-light);font-weight:600;font-size:14px;cursor:pointer}
+  .btn-back:hover{border-color:var(--teal)}
+  .rowbtns{display:flex;gap:10px;margin-top:18px}
+  .rowbtns .btn{margin-top:0}
+  .err{margin-top:14px;color:var(--err);font-size:13.5px;font-weight:500}
+
+  /* step 2 invite */
+  .linkrow{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 15px;border-radius:12px;border:1.5px solid var(--input);background:#fff;margin-bottom:14px}
+  .linkrow .lk{flex:1;font-size:14px;color:var(--mut-light-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .linkrow .cpy{flex:none;padding:10px 16px;border:none;border-radius:9px;background:var(--navy);color:#fff;font-weight:600;font-size:13.5px;cursor:pointer}
+  .linkrow .cpy:hover{background:var(--action)}
+  .shares{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .sh{flex:1;min-width:88px;display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 6px;border:1px solid rgba(11,42,58,.1);border-radius:13px;background:#fff;cursor:pointer}
+  .sh .ic{width:34px;height:34px;border-radius:999px;color:#fff;display:flex;align-items:center;justify-content:center}
+  .sh .nm{font-size:11.5px;font-weight:600;color:var(--mut-light-2)}
+  .sh:hover{border-color:var(--teal)}
+  .toast{margin:6px 0 0;display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ok)}
+  .divide{height:1px;background:rgba(11,42,58,.1);margin:20px 0 18px}
+  .splithead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .splithead h4{font-size:17px}
+  .seg{display:flex;padding:3px;border-radius:10px;background:#eef5f6;border:1px solid rgba(11,42,58,.08)}
+  .seg button{padding:7px 13px;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;background:transparent;color:var(--mut-light)}
+  .seg button.on{background:var(--navy);color:#fff}
+  .splitbox{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-radius:14px;background:var(--grad-dark);color:#fff;margin-bottom:16px}
+  .splitbox .lab{font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--eyebrow)}
+  .splitbox .meta{font-size:12.5px;color:var(--mut-dark);margin-top:3px}
+  .splitbox .amt{font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:600;letter-spacing:-.02em}
+  .crew{border:1px solid rgba(11,42,58,.1);border-radius:14px;padding:4px 16px;margin-bottom:14px}
+  .crewrow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(11,42,58,.07)}
+  .crewrow:last-child{border-bottom:none}
+  .crewrow .av{flex:none;width:34px;height:34px;border-radius:999px;background:linear-gradient(135deg,#14556E,#3E9DB5);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px}
+  .crewrow .mid{flex:1;min-width:0}
+  .crewrow .who{font-weight:600;font-size:14px;color:var(--on-light)}
+  .crewrow .who span{font-weight:500;color:var(--mut-light)}
+  .crewrow input{width:100%;border:none;border-bottom:1px dashed rgba(11,42,58,.22);border-radius:0;background:transparent;font-size:14px;color:var(--on-light);padding:3px 0}
+  .crewrow input:focus{border-bottom-color:var(--teal)}
+  .crewrow .st{font-size:11.5px;color:#8aa1a9;margin-top:2px}
+  .crewrow .sh2{flex:none;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:var(--on-light)}
+  .note{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--mut-light);margin-bottom:4px}
+
+  /* step 3 */
+  .summary{border:1px solid rgba(11,42,58,.1);border-radius:14px;padding:16px 18px;background:#fff;margin-bottom:16px}
+  .sumrow{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:5px 0}
+  .sumrow .k{color:var(--mut-light)}
+  .sumrow .v{font-weight:600;text-align:right}
+  .sumrow.tot{border-top:1px solid rgba(11,42,58,.08);margin-top:5px}
+  .sumrow.tot span{color:var(--mut-light)}
+  .sharebox{text-align:center;padding:16px;border-radius:14px;background:var(--grad-dark);color:#fff;margin-bottom:18px}
+  .sharebox .lab{font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--eyebrow)}
+  .sharebox .amt{font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:600;letter-spacing:-.02em;margin-top:4px}
+  .sharebox .mc{font-size:12px;color:var(--mut-dark);margin-top:6px}
   .consent{display:flex;gap:10px;margin-top:16px;align-items:flex-start;cursor:pointer}
-  .consent input{margin-top:3px;width:16px;height:16px;accent-color:var(--action);flex:none}
+  .consent input{width:16px;height:16px;margin-top:3px;accent-color:var(--action);flex:none}
   .consent span{font-size:11px;color:#7a8f96;line-height:1.5}
-  .fineprint{font-size:11px;color:var(--mut-light);margin-top:12px;line-height:1.5}
-  .err{margin-top:12px;color:var(--err);font-size:13.5px;font-weight:500}
-  .check-badge{width:60px;height:60px;border-radius:999px;background:var(--grad-logo);color:#07202c;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
-  .hide{display:none}
 
-  /* SECTIONS */
-  .section{padding:78px 52px}
+  /* step 4 */
+  .check-badge{width:60px;height:60px;border-radius:999px;background:var(--grad-logo);color:#07202c;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+  .confirm{text-align:center;padding:6px 4px}
+  .confirm p.lead{font-size:14.5px;color:var(--mut-light);max-width:360px;margin:0 auto 16px}
+  .nudge{text-align:left;border:1px solid rgba(11,42,58,.1);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+  .nudge .h{font-weight:600;font-size:14px;margin-bottom:6px}
+  .nudge .d{font-size:12.5px;color:#8aa1a9}
+  .share2{display:flex;gap:8px;margin-top:12px}
+  .share2 button{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:none;border-radius:11px;color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+  .share2 button:hover{filter:brightness(1.06)}
+
+  /* invite banner */
+  .invitebanner{position:relative;z-index:2;max-width:1200px;margin:0 auto 22px;display:flex;align-items:center;gap:14px;
+        background:rgba(127,208,226,.14);border:1px solid rgba(127,208,226,.3);border-radius:16px;padding:16px 20px;color:#eaf6f9}
+  .invitebanner .ic{font-size:22px}
+  .invitebanner b{color:#fff}
+
+  /* SOCIAL BAND + SECTIONS */
+  .band{display:flex;align-items:center;gap:15px;justify-content:center;flex-wrap:wrap;padding:18px 52px;
+        background:linear-gradient(90deg,rgba(62,157,181,.18),rgba(62,157,181,.05));border-bottom:1px solid rgba(255,255,255,.06)}
+  .band p{font-size:15px;color:var(--mut-dark)}
+  .band strong{color:#fff}
+  .section{padding:74px 52px}
   .section.light{background:var(--light);color:var(--on-light)}
-  .section.dark{background:linear-gradient(180deg,#0B2A3A,#0d3a4d)}
-  .section h2{font-size:36px}
-  .section.light h2{color:var(--on-light)}
-  .section.dark h2{color:#fff}
-  .lead{max-width:760px;margin:0 auto 42px;text-align:center}
-  .lead h2{margin-bottom:12px}
-  .lead p{font-size:16px;line-height:1.6}
-  .section.light .lead p{color:var(--mut-light)}
-  .section.dark .lead p{color:var(--mut-dark)}
+  .lead{max-width:760px;margin:0 auto 40px}
+  .lead h2{font-size:34px;margin-bottom:12px}
+  .lead p{font-size:16px;color:var(--mut-light)}
+  .cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .icard{background:#fff;border:1px solid var(--line-light);border-radius:18px;padding:26px 24px}
+  .icard .ic{display:flex;width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#14556E,#3E9DB5);color:#fff;align-items:center;justify-content:center;margin-bottom:16px}
+  .icard h3{font-size:16.5px;margin-bottom:7px}
+  .icard p{font-size:13.5px;color:var(--mut-light);line-height:1.55}
 
-  .cards2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  .xp{background:#fff;border:1px solid var(--line-light);border-radius:18px;padding:30px 28px;display:flex;flex-direction:column}
-  .xp .ic{width:48px;height:48px;border-radius:13px;background:linear-gradient(135deg,#14556E,#3E9DB5);color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
-  .xp h3{font-size:19px;margin-bottom:9px}
-  .xp p{font-size:14.5px;color:var(--mut-light);line-height:1.6;margin-bottom:16px;flex:1}
-  .xp .price{display:inline-block;align-self:flex-start;font-size:12px;font-weight:700;color:var(--action);background:rgba(62,157,181,.12);border-radius:999px;padding:6px 14px}
-  .xp .bk{margin-top:14px;font-weight:700;color:var(--action);font-size:14px;display:inline-flex;align-items:center;gap:6px}
-  .xp .bk:hover{color:var(--teal)}
-
-  .incl{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-  .incl div{background:rgba(255,255,255,.06);border:1px solid var(--line-dark);border-radius:14px;padding:22px 18px;text-align:center;font-size:14px;color:var(--mut-dark);line-height:1.5}
-  .incl .ic{width:44px;height:44px;border-radius:12px;background:var(--grad-logo);color:#07202c;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
-  .cta-center{text-align:center;margin-top:36px}
-  .cta-center .btn{width:auto;display:inline-flex;padding:15px 34px;margin-top:0}
-
-  .faq{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .faq{max-width:820px;margin:36px auto 0;display:flex;flex-direction:column;gap:12px}
   .faq details{background:#fff;border:1px solid var(--line-light);border-radius:14px;padding:2px 22px}
+  summary{list-style:none;cursor:pointer}
+  summary::-webkit-details-marker{display:none}
   .faq summary{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 0;font-size:15.5px;font-weight:600;color:var(--on-light)}
   .faq summary .mk{color:var(--teal);font-size:20px;font-weight:300}
   .faq p{margin:0 0 16px;font-size:14px;color:var(--mut-light);line-height:1.6}
 
   /* FOOTER */
-  .footer{padding:56px 52px 40px;background:var(--footer);color:var(--mut-dark-2)}
-  .footer-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:48px;max-width:1120px;margin:0 auto 34px}
+  .footer{padding:52px 52px 38px;background:var(--footer);color:var(--mut-dark-2)}
+  .footer-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:48px;max-width:1120px;margin:0 auto 30px}
   .footer .brand{margin-bottom:16px}
   .footer .brand .name{font-size:16px}
   .footer .disc{font-size:12.5px;line-height:1.6;color:#89a8b1;margin-bottom:14px}
@@ -176,22 +254,25 @@ const CONFIG = {
   @media(max-width:900px){
     .nav{padding:14px 22px}
     .nav-links{display:none}
-    .hero{padding:40px 22px 48px}
-    .hero-grid{grid-template-columns:1fr;gap:32px}
-    .hero h1{font-size:34px}
+    .hero{padding:38px 22px 48px}
+    .hero-grid{grid-template-columns:1fr;gap:30px}
+    .hero h1{font-size:33px}
     .hero .sub{font-size:16px;max-width:none}
-    .form-card{padding:26px 22px}
-    .section{padding:56px 22px}
-    .section h2{font-size:27px}
-    .cards2{grid-template-columns:1fr}
-    .incl{grid-template-columns:1fr 1fr}
-    .footer{padding:48px 22px 96px}
+    .card{padding:24px 20px}
+    .invitebanner{margin:0 22px 18px}
+    .band{padding:16px 22px}
+    .section{padding:52px 22px}
+    .lead h2{font-size:27px}
+    .cards4{grid-template-columns:1fr 1fr}
+    .footer{padding:44px 22px 92px}
     .footer-grid{grid-template-columns:1fr;gap:28px}
     .sticky-call{display:flex;align-items:center;justify-content:center;gap:8px;position:fixed;bottom:0;left:0;right:0;z-index:60;
         background:var(--grad-cta);color:#07202c;text-align:center;padding:14px;font-weight:800;box-shadow:0 -4px 16px rgba(0,0,0,.3)}
   }
-  @media(max-width:520px){
-    .grid2,.incl{grid-template-columns:1fr}
+  @media(max-width:560px){
+    .grid2,.grid3,.cards4{grid-template-columns:1fr}
+    .sh{min-width:calc(33.333% - 6px)}
+    .splitbox .amt{font-size:28px}
   }
 </style>
 </head>
@@ -205,176 +286,188 @@ const CONFIG = {
   </div>
   <div class="nav-right">
     <div class="nav-links">
-      <a href="#experiences">Experiences</a>
-      <a href="/wake/pages/inventory">Boats for sale</a>
+      <a href="#book">Charters</a>
+      <a href="#included">What's included</a>
+      <a href="#faq">How it works</a>
       <a href="/wake">Value / sell my boat</a>
     </div>
-    <a class="nav-cta" href="#bookcard">Check availability</a>
+    <a class="nav-cta" href="#book">Book a charter</a>
   </div>
 </nav>
 
-<!-- ============ HERO ============ -->
-<div class="hero">
+<!-- ============ HERO + WIZARD ============ -->
+<div class="hero" id="book">
   <div class="hero-bg"></div>
   <div class="hero-overlay"></div>
   <div class="hero-glow"></div>
-  <div class="hero-grid wrap">
-    <div>
-      <div class="pill"><span class="dot"></span> Lantana · Lake Osborne · Lake Ida · the Intracoastal</div>
-      <h1>Your day on a <em>MasterCraft.</em> Surf, ride, celebrate.</h1>
-      <p class="sub">Private charters, wakesurf &amp; wakeboard lessons, sunset cruises, Lake Osborne grill-outs, canal-and-pool days, parties and tubing — on the best wake boat on the water in Palm Beach County. Captain drives, we bring the gear, and we'll even trailer the boat to you. You just show up.</p>
-      <ul class="bullets">
-        <li><b>Wakesurf &amp; wakeboard lessons</b> behind a real inboard — first-timers to advanced, kids and adults</li>
-        <li><b>Sunset cruises, lake grill-outs &amp; canal + pool days</b> — laid-back ways to spend the afternoon</li>
-        <li><b>Birthdays, bachelor/ette &amp; group trips</b> — plus tubing &amp; towables, screaming-fun for all ages</li>
-        <li><b>We'll come to you</b> — your community lake, canal or dock, or we launch from Lake Osborne</li>
-        <li>Captain, life jackets, boards &amp; tubes all <b>included</b> — nothing to bring but sunscreen</li>
-      </ul>
-      <div class="chips">
-        <div class="chip">🌊 Local — Lantana / Lake Osborne</div>
-        <div class="chip">🏄 All skill levels welcome</div>
-        <div class="chip">🦺 Coast-Guard safety gear</div>
-        <div class="chip">🎉 Parties &amp; groups</div>
+  <div class="hero-mist"></div>
+
+  <div class="invitebanner hide" id="inviteBanner">
+    <span class="ic">🌊</span>
+    <div id="inviteText" style="font-size:14.5px;line-height:1.5"></div>
+  </div>
+
+  <div class="hero-grid">
+    <div style="padding-top:8px">
+      <div class="pill"><span class="dot"></span> Palm Beach County · captained charters</div>
+      <h1>Charter the boat.<br><em>Split the cost.</em> Bring the crew.</h1>
+      <p class="sub">Book a captained wake-boat charter on Lake Osborne, Lake Ida or the Intracoastal — then invite friends and split the bill in two taps. You only ever pay your own share.</p>
+      <div class="howlist">
+        <div class="howstep"><span class="n">1</span><div><div class="t">Pick your charter</div><div class="d">Experience, date, time &amp; how many are coming.</div></div></div>
+        <div class="howstep"><span class="n">2</span><div><div class="t">Invite &amp; split the cost</div><div class="d">Share the link on any app; the bill splits automatically.</div></div></div>
+        <div class="howstep"><span class="n">3</span><div><div class="t">Pay just your share</div><div class="d">Friends pay their part through your link — no chasing.</div></div></div>
       </div>
+      <div class="rating"><span class="star"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.4L12 17.8 6.2 20.7l1.1-6.4L2.6 9.3l6.5-.9z"/></svg></span> <strong>4.9</strong> · locals-first, all skill levels welcome</div>
     </div>
 
-    <!-- ===== BOOKING FORM ===== -->
-    <div class="form-card" id="bookcard">
-      <h3>Check availability</h3>
-      <p class="card-sub">Tell us your date &amp; what you're into — we'll text you back fast.</p>
-      <div id="bookform">
-        <label class="field"><span class="lbl">What do you want to do?</span>
-          <select id="b_type">
-            <option value="Private Charter">Private charter (just cruise &amp; ride)</option>
-            <option value="Wakesurf / Wakeboard Lesson">Wakesurf / wakeboard lesson</option>
-            <option value="Sunset Cruise">Sunset cruise</option>
-            <option value="Lake Osborne Grill-Out">Lake Osborne grill-out / cookout</option>
-            <option value="Canal Cruise + Poolside">Canal cruise + poolside day</option>
-            <option value="We Come To You">Have us come to your lake / dock</option>
-            <option value="Birthday / Group Party">Birthday / group party</option>
-            <option value="Tubing &amp; Towables">Tubing / tube pulling</option>
-            <option value="Not sure — help me pick">Not sure — help me pick</option>
-          </select></label>
-        <div class="grid2">
-          <label class="field"><span class="lbl">Preferred date</span><input id="b_date" type="date"></label>
-          <label class="field"><span class="lbl">How many people?</span><input id="b_size" type="number" min="1" max="20" placeholder="e.g. 6"></label>
+    <!-- WIZARD CARD -->
+    <div class="card">
+      <div class="progress"><i class="on" id="d1"></i><i id="d2"></i><i id="d3"></i></div>
+
+      <!-- STEP 1 -->
+      <div id="s1">
+        <div class="stepcap">Step 1 of 3</div>
+        <h3>Pick your charter</h3>
+        <div id="pkgList"></div>
+        <p class="customize">Any charter, your way — <b>sandbar grill-outs</b>, the <b>Hilton-pool canal cruise</b> (Stub Lake off Belvedere &amp; I-95), <b>birthday &amp; bachelorette</b> groups, <b>tubing</b> for all ages, and <b>first-timer lessons</b>. We'll even launch from your dock. Just ask when you book.</p>
+        <div class="grid2" style="margin-top:16px">
+          <label class="field" style="margin-top:0"><span class="lbl">Date</span><input type="date" id="f_date"></label>
+          <label class="field" style="margin-top:0"><span class="lbl">Time slot</span><select id="f_time"><option value="">Select…</option></select></label>
         </div>
-        <div class="grid2">
-          <label class="field"><span class="lbl">Name</span><input id="b_name" type="text" autocomplete="name"></label>
-          <label class="field"><span class="lbl">Phone</span><input id="b_phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(561) 555-0123"></label>
+        <label class="field"><span class="lbl">Launch spot</span><select id="f_loc"></select></label>
+        <div class="stepper">
+          <div><div class="lbl">How many coming?</div><div class="sub">Drives the split — up to 12 aboard.</div></div>
+          <div class="ctrls">
+            <button class="stepbtn" id="gDec" aria-label="Fewer guests">–</button>
+            <div class="stepval" id="gVal">4</div>
+            <button class="stepbtn" id="gInc" aria-label="More guests">+</button>
+          </div>
         </div>
-        <label class="field"><span class="lbl">Email</span><input id="b_email" type="email" inputmode="email" autocomplete="email"></label>
-        <label class="field"><span class="lbl">Anything we should know? (optional)</span><textarea id="b_msg" rows="2" placeholder="Occasion, ages, level — or your lake/dock if you want us to come to you…"></textarea></label>
-        <label class="consent"><input type="checkbox" id="b_consent"><span id="consent_text">I agree to receive calls &amp; texts about my booking from Palm Beach Wake Boats. Msg &amp; data rates may apply. Reply STOP to opt out.</span></label>
-        <div class="err hide" id="errb"></div>
-        <button class="btn accent" onclick="book()">Request my trip
+        <div class="err hide" id="e1"></div>
+        <button class="btn" style="margin-top:18px" id="to2">Invite the crew — <span id="cta1">$137</span>/person
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
-        <div class="fineprint">No charge to inquire. We'll confirm date, group size, and pricing by text or call — usually within the hour.</div>
       </div>
-      <div id="bookdone" class="hide" style="text-align:center;padding:16px 6px">
-        <div class="check-badge"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
-        <h3 style="font-size:24px;margin-bottom:8px">Request received!</h3>
-        <p style="font-size:14.5px;color:var(--mut-light);max-width:340px;margin:0 auto 20px">We'll text you shortly to lock in your day on the water. Want to talk now?</p>
-        <a class="btn" style="width:auto;display:inline-flex;margin-top:0" href="#" data-tel>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 21A16 16 0 0 1 3 8.5 2 2 0 0 1 5 6.3l2-.2a1.4 1.4 0 0 1 1.5 1l.7 2.3a1.4 1.4 0 0 1-.5 1.6l-1 .7a12 12 0 0 0 4.6 4.6l.7-1a1.4 1.4 0 0 1 1.6-.5l2.3.7a1.4 1.4 0 0 1 1 1.5l-.2 2A2 2 0 0 1 15.5 21z"/></svg> Call <span data-phone></span></a>
+
+      <!-- STEP 2 -->
+      <div id="s2" class="hide">
+        <div class="stepcap">Step 2 of 3</div>
+        <h3>Invite your crew</h3>
+        <div class="linkrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8aa1a9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+          <span class="lk" id="linkText">collaborativeconceptsfl.com/wake…</span>
+          <button class="cpy" id="copyBtn">Copy</button>
+        </div>
+        <div class="shares">
+          <button class="sh" data-share="whatsapp"><span class="ic" style="background:#25D366"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2s-1.2.3-4-1.4-3.7-3.9-3.8-4.1-.8-1.1-.8-2.1.5-1.5.7-1.7.4-.3.6-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.5c-.2.2-.3.4-.1.7s.7 1.2 1.5 1.9c1 .9 1.8 1.1 2 1.2s.4.1.5-.1l.7-.8c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.5.3s.1.7-.1 1.3z"/></svg></span><span class="nm">WhatsApp</span></button>
+          <button class="sh" data-share="sms"><span class="ic" style="background:#34C759"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.5 1.3 4.8 3.4 6.3-.2 1.2-.8 2.5-1.6 3.4 1.6-.2 3.2-.8 4.4-1.6 1.2.4 2.5.6 3.8.6 5.5 0 10-3.8 10-8.6S17.5 3 12 3z"/></svg></span><span class="nm">Messages</span></button>
+          <button class="sh" data-share="instagram"><span class="ic" style="background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></span><span class="nm">Instagram</span></button>
+          <button class="sh" data-share="facebook"><span class="ic" style="background:#1877F2"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M14 8.5V7c0-.8.2-1.2 1.3-1.2H17V3h-2.6C11.5 3 10.5 4.6 10.5 6.8v1.7H8.5V11h2v10h3.5V11h2.4l.4-2.5H14z"/></svg></span><span class="nm">Facebook</span></button>
+          <button class="sh" data-share="x"><span class="ic" style="background:#000"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.3 8.3L23 22h-6.8l-5-6.5L5.6 22H2.5l7.8-8.9L2 2h6.9l4.5 6zm-2.4 18h1.9L7.6 3.9H5.6z"/></svg></span><span class="nm">X</span></button>
+          <button class="sh" data-share="email"><span class="ic" style="background:#14556E"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><span class="nm">Email</span></button>
+        </div>
+        <div class="toast hide" id="toast"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="toastText"></span></div>
+
+        <div class="divide"></div>
+        <div class="splithead">
+          <h4>Split the cost</h4>
+          <div class="seg"><button id="segEven" class="on">Split evenly</button><button id="segHost">I'll treat</button></div>
+        </div>
+        <div class="splitbox">
+          <div><div class="lab" id="splitLabel">Each person pays</div><div class="meta" id="splitMeta">$549 total · 4 guests</div></div>
+          <div class="amt" id="splitAmt">$137</div>
+        </div>
+        <div class="crew" id="crewList"></div>
+        <div class="note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3E9DB5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 2"/></svg> Friends pay their share through your link. You only pay yours.</div>
+        <div class="rowbtns">
+          <button class="btn-back" id="back1">← Back</button>
+          <button class="btn small" id="to3">Reserve my spot — <span id="cta2">$137</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div id="s3" class="hide">
+        <div class="stepcap">Step 3 of 3</div>
+        <h3>Confirm &amp; reserve</h3>
+        <div class="summary">
+          <div class="sumrow"><span class="k">Charter</span><span class="v" id="sumPkg">—</span></div>
+          <div class="sumrow"><span class="k">When</span><span class="v" id="sumWhen">—</span></div>
+          <div class="sumrow"><span class="k">Launch</span><span class="v" id="sumLoc">—</span></div>
+          <div class="sumrow tot"><span id="sumTot">—</span><span id="sumPer">—</span></div>
+        </div>
+        <div class="sharebox">
+          <div class="lab">Your share</div>
+          <div class="amt" id="hostShare">$137</div>
+          <div class="mc">No charge now — we'll text you a secure link to pay your share and to collect your crew's.</div>
+        </div>
+        <div class="grid2">
+          <label class="field" style="margin-top:0"><span class="lbl">Your name</span><input id="f_name" type="text" autocomplete="name"></label>
+          <label class="field" style="margin-top:0"><span class="lbl">Phone</span><input id="f_phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(561) 555-0123"></label>
+        </div>
+        <label class="field"><span class="lbl">Email</span><input id="f_email" type="email" inputmode="email" autocomplete="email"></label>
+        <label class="consent"><input type="checkbox" id="f_consent"><span id="consent_text">I agree to the charter terms, cancellation policy &amp; USCG safety rules, and to receive booking calls/texts from Palm Beach Wake Boats. Reply STOP to opt out.</span></label>
+        <div class="err hide" id="e3"></div>
+        <div class="rowbtns">
+          <button class="btn-back" id="back2">← Back</button>
+          <button class="btn small" id="submitBtn">Reserve my charter →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div id="s4" class="hide">
+        <div class="confirm">
+          <div class="check-badge"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <h3 style="font-size:24px;margin-bottom:6px">You're reserved!</h3>
+          <p class="lead" id="confirmLead">—</p>
+          <div class="nudge">
+            <div class="h">Bring your crew</div>
+            <div class="d" id="nudgeDesc">Share your link so friends can claim their spots and split the cost.</div>
+            <div class="linkrow" style="margin:12px 0 0">
+              <span class="lk" id="linkText2">collaborativeconceptsfl.com/wake…</span>
+              <button class="cpy" id="copyBtn2">Copy</button>
+            </div>
+            <div class="share2">
+              <button data-share="whatsapp" style="background:#25D366"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2s-1.2.3-4-1.4-3.7-3.9-3.8-4.1-.8-1.1-.8-2.1.5-1.5.7-1.7.4-.3.6-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.5c-.2.2-.3.4-.1.7s.7 1.2 1.5 1.9c1 .9 1.8 1.1 2 1.2s.4.1.5-.1l.7-.8c.2-.2.3-.2.6-.1l1.9.9c.3.1.4.2.5.3s.1.7-.1 1.3z"/></svg> WhatsApp</button>
+              <button data-share="sms" style="background:#34C759"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.5 1.3 4.8 3.4 6.3-.2 1.2-.8 2.5-1.6 3.4 1.6-.2 3.2-.8 4.4-1.6 1.2.4 2.5.6 3.8.6 5.5 0 10-3.8 10-8.6S17.5 3 12 3z"/></svg> Text</button>
+            </div>
+            <div class="toast hide" id="toast2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="toastText2"></span></div>
+          </div>
+          <a class="btn" href="#" data-tel style="width:auto;display:inline-flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 21A16 16 0 0 1 3 8.5 2 2 0 0 1 5 6.3l2-.2a1.4 1.4 0 0 1 1.5 1l.7 2.3a1.4 1.4 0 0 1-.5 1.6l-1 .7a12 12 0 0 0 4.6 4.6l.7-1a1.4 1.4 0 0 1 1.6-.5l2.3.7a1.4 1.4 0 0 1 1 1.5l-.2 2A2 2 0 0 1 15.5 21z"/></svg> Questions? Call us</a>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ============ FOUR EXPERIENCES ============ -->
-<div class="section light" id="experiences">
-  <div class="lead">
-    <h2>Ways to get on the water</h2>
-    <p>Every trip is private — just your group and our captain. Mix and match: surf a few sets, grill on the lake, chase the sunset home. And if it's easier, we'll bring the boat to you.</p>
-  </div>
-  <div class="cards2 wrap">
-    <div class="xp">
-      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></span>
-      <h3>Private Charter</h3>
-      <p>Your own MasterCraft and captain for a few hours on Lake Osborne, Lake Ida, or the Intracoastal. Cruise, swim, sandbar-hop, ride — your call. Perfect for a chill day or a first taste of wake sports.</p>
-      <span class="price" data-price>Ask about rates</span>
-      <a class="bk" href="#bookcard">Book a charter →</a>
-    </div>
-    <div class="xp">
-      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18c1.7 0 1.7 1.2 3.3 1.2S7 18 8.7 18s1.7 1.2 3.3 1.2S13.7 18 15.3 18 17 19.2 18.7 19.2 20.3 18 22 18"/><path d="M14 8l-3.5 6"/><circle cx="15" cy="5.5" r="1.8"/></svg></span>
-      <h3>Wakesurf &amp; Wakeboard Lessons</h3>
-      <p>Never gotten up? You will today. Patient, all-levels coaching behind a true inboard wake — boards, vests, and know-how included. Kids and adults, first-timers to advanced tricks.</p>
-      <span class="price" data-price>Ask about rates</span>
-      <a class="bk" href="#bookcard">Book a lesson →</a>
-    </div>
-    <div class="xp">
-      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6"/><path d="M12 4V2"/></svg></span>
-      <h3>Birthday &amp; Group Parties</h3>
-      <p>Make the birthday, bachelor/ette, or family day unforgettable. We build the trip around your crew — surf sets, tubing runs, swim stops, music, and a captain who keeps it safe and fun.</p>
-      <span class="price" data-price>Ask about packages</span>
-      <a class="bk" href="#bookcard">Plan a party →</a>
-    </div>
-    <div class="xp">
-      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6 6 18"/></svg></span>
-      <h3>Tubing &amp; Towables</h3>
-      <p>The all-ages crowd-pleaser. Hang on tight while we pull the tube — gentle for the little ones, wild for the thrill-seekers. Bring the whole family; we've got the tubes and the vests.</p>
-      <span class="price" data-price>Ask about rates</span>
-      <a class="bk" href="#bookcard">Book tubing →</a>
-    </div>
-    <div class="xp">
-      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M17 16a5 5 0 0 0-10 0"/><path d="M12 3v3M5.5 8.5l1.5 1.5M18.5 8.5 17 10M2 13h2M20 13h2"/></svg></span>
-      <h3>Sunset Cruises</h3>
-      <p>Golden hour, no agenda. A laid-back cruise down the lake or the Intracoastal as the sky goes pink — bring your people and your playlist. The most relaxing way to end a Florida day.</p>
-      <span class="price" data-price>Ask about rates</span>
-      <a class="bk" href="#bookcard">Book a cruise →</a>
-    </div>
-    <div class="xp">
-      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1.2 3 4 4 4 7.5a4 4 0 0 1-8 0C8 7.5 9.2 6.5 10 5.5c.3 1.2 1 1.8 1 3 .9-1.3.5-4 1-6.5z"/><path d="M6 21h12"/></svg></span>
-      <h3>Lake Osborne Grill-Outs</h3>
-      <p>Cookout on the water. We post up on Lake Osborne, fire up the grill, and swim and ride between plates — your own floating basecamp for a lazy lake day. You bring the food, we bring the fun.</p>
-      <span class="price" data-price>Ask about rates</span>
-      <a class="bk" href="#bookcard">Plan a cookout →</a>
-    </div>
-    <div class="xp">
-      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V10"/><path d="M12 10c-3-2.5-7-1.8-8 1 2-1 4-.6 5 1"/><path d="M12 10c3-2.5 7-1.8 8 1-2-1-4-.6-5 1"/><path d="M12 10c0-3.5 2.5-5.5 6-4.5-2 .8-3 2.5-3 4.5"/></svg></span>
-      <h3>Canal Cruise &amp; Poolside</h3>
-      <p>Part boat ride, part pool day. Cruise Stub Lake and the canals off Belvedere &amp; I-95 over to the Hilton right on the water — kick back poolside, then wind back the scenic way. A slow, only-in-West-Palm afternoon.</p>
-      <span class="price" data-price>Ask about rates</span>
-      <a class="bk" href="#bookcard">Book this day →</a>
-    </div>
-    <div class="xp">
-      <span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16V7h11v9"/><path d="M13 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg></span>
-      <h3>We Come To You</h3>
-      <p>Got your own lake, canal, or community ramp? We'll trailer the MasterCraft to you and launch where you already ride — no need to travel. Serving Palm Beach County and beyond.</p>
-      <span class="price" data-price>Ask about rates</span>
-      <a class="bk" href="#bookcard">Set it up →</a>
-    </div>
-  </div>
+<!-- ============ SOCIAL BAND ============ -->
+<div class="band">
+  <p><strong>Locals-first</strong> — one price per boat covers everyone aboard, so with a full crew most riders pay <strong>under $100</strong> for the day on the water.</p>
 </div>
 
 <!-- ============ INCLUDED ============ -->
-<div class="section dark" id="included">
+<div class="section light" id="included">
   <div class="lead">
-    <h2>Everything's included</h2>
-    <p>Show up in a swimsuit — we handle the rest.</p>
+    <div class="eyebrow light">All in, no surprises</div>
+    <h2>Every charter includes the whole day</h2>
+    <p>One price per boat covers everyone aboard. Split it however you like — the number you see is the number you pay.</p>
   </div>
-  <div class="incl wrap">
-    <div><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg></span>Experienced captain drives every trip</div>
-    <div><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l-8 14"/><circle cx="16" cy="4.5" r="1.6"/><path d="M3 20c1.5 0 1.5 1 3 1s1.5-1 3-1 1.5 1 3 1"/></svg></span>Boards, ropes &amp; tubes provided</div>
-    <div><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 6H9L8 3z"/><path d="M6 9h12v4a6 6 0 0 1-12 0V9z"/></svg></span>USCG life jackets, all sizes</div>
-    <div><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.4 7-11a7 7 0 0 0-14 0c0 4.6 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg></span>Launch from Lantana / Lake Osborne</div>
+  <div class="cards4 wrap">
+    <div class="icard"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span><h3>USCG captain</h3><p>A licensed local captain drives and coaches — first-timers up on the wave by lunch.</p></div>
+    <div class="icard"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 7c0 2-1.5 3-4 3s-4-1-4-3z"/><path d="M12 13v8M8 21h8"/></svg></span><h3>All the gear</h3><p>Surfboards, wakeboards, tubes, vests in every size, and a GoPro for the highlight reel.</p></div>
+    <div class="icard"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5s6 5.6 6 9.8a6 6 0 0 1-12 0c0-4.2 6-9.8 6-9.8z"/></svg></span><h3>Fuel &amp; ice</h3><p>Gas is on us for the whole session, plus a stocked cooler of ice and water aboard.</p></div>
+    <div class="icard"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="m9 15 2 2 4-4"/></svg></span><h3>Free 24-hr cancel</h3><p>Weather or plans change? Cancel up to 24 hours out and everyone's refunded in full.</p></div>
   </div>
-  <div class="cta-center"><a class="btn accent" href="#bookcard">Check my date</a></div>
-</div>
 
-<!-- ============ FAQ ============ -->
-<div class="section light">
-  <div class="lead" style="margin-bottom:36px"><h2>Good to know</h2></div>
+  <!-- FAQ -->
+  <div id="faq">
   <div class="faq">
+    <details><summary>How does splitting the cost work?<span class="mk">+</span></summary><p>You pick a charter (one flat price for the whole boat) and how many are coming. We split that total across your crew so everyone sees their share. You reserve the boat, and we text you a secure link to pay your share and collect everyone else's — no chasing friends for cash.</p></details>
     <details><summary>Do I need any experience to wakesurf or wakeboard?<span class="mk">+</span></summary><p>None at all. Most first-timers are up and riding the same day — the inboard wave and a patient captain make it easy. We coach kids and adults from never-ever to advanced.</p></details>
-    <details><summary>How many people can come?<span class="mk">+</span></summary><p>Tell us your group size when you book and we'll confirm what works for the day and the water. Great for small families up to bigger party groups — we'll plan it around you.</p></details>
-    <details><summary>Where do we launch?<span class="mk">+</span></summary><p>Right here in the Lantana / Lake Worth area — Lake Osborne, Lake Ida (Delray), or the Intracoastal, depending on conditions and what you want to do. We'll confirm the meet spot when we book.</p></details>
-    <details><summary>Do you come to our community, lake or dock?<span class="mk">+</span></summary><p>Yes — if you've got a lake, canal, or community ramp, we'll trailer the boat to you and launch where you ride. Tell us the spot when you book and we'll confirm access and timing. Otherwise we launch from Lake Osborne in Lantana.</p></details>
-    <details><summary>What should we bring?<span class="mk">+</span></summary><p>Swimsuits, a towel, sunscreen, and whatever snacks or drinks you like. We provide the boat, captain, boards, tubes, ropes, and life jackets.</p></details>
-    <details><summary>What if the weather's bad?<span class="mk">+</span></summary><p>Safety first — if conditions aren't right we'll reschedule you to another day, no hassle.</p></details>
+    <details><summary>Can you do birthdays, bachelorette parties, tubing or a grill-out?<span class="mk">+</span></summary><p>Absolutely — that's most of what we do. Sandbar grill-outs, the Hilton-pool canal cruise through Stub Lake, birthday &amp; bachelorette groups, tubing for all ages, sunset cruises. Tell us what you want when you book and we'll build the day around your crew.</p></details>
+    <details><summary>Where do we launch — and can you come to us?<span class="mk">+</span></summary><p>Lake Osborne (Lantana), Lake Ida (Delray), or the Intracoastal (Boynton), depending on what you want to do. We can also launch from your dock or ramp — just pick "We come to you" when you book.</p></details>
+    <details><summary>What should we bring?<span class="mk">+</span></summary><p>Swimsuits, a towel, sunscreen, and whatever snacks or drinks you like. We provide the boat, captain, boards, tubes, ropes, life jackets, fuel and ice.</p></details>
   </div>
-  <div class="cta-center"><a class="btn" style="width:auto;display:inline-flex" href="#bookcard">Request my trip</a></div>
+  </div>
 </div>
 
 <!-- ============ FOOTER ============ -->
@@ -385,8 +478,8 @@ const CONFIG = {
         <span class="logo-tile" style="width:34px;height:34px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8c1.7 0 1.7 1.4 3.3 1.4S7 8 8.7 8s1.7 1.4 3.3 1.4S13.7 8 15.3 8 17 9.4 18.7 9.4 20.3 8 22 8"/><path d="M2 14c1.7 0 1.7 1.4 3.3 1.4S7 14 8.7 14s1.7 1.4 3.3 1.4S13.7 14 15.3 14 17 15.4 18.7 15.4 20.3 14 22 14"/></svg></span>
         <span class="name">Palm Beach Wake Boats — Charters &amp; Experiences</span>
       </div>
-      <p class="disc">Private MasterCraft charters, wakesurf &amp; wakeboard lessons, parties, and tubing serving Lantana, Lake Worth, Boynton Beach, Delray Beach and greater Palm Beach County, Florida. A Collaborative Concept venture.</p>
-      <p class="fine">MASTERCRAFT® is a registered trademark of MasterCraft Boat Company, LLC, used here only to describe the boat we operate; this charter service is independently owned and operated and is not affiliated with MasterCraft Boat Company, LLC.</p>
+      <p class="disc">Captained wake-boat charters on Lake Osborne, Lake Ida and the Intracoastal, serving Lantana, Boynton Beach, Lake Worth Beach, Delray Beach, Hypoluxo and greater Palm Beach County, Florida. A Collaborative Concept venture.</p>
+      <p class="fine">Charters operated by USCG-licensed captains. MASTERCRAFT® is a registered trademark of MasterCraft Boat Company, LLC, used only to describe the boat we operate; this charter service is independently owned and operated and is not affiliated with MasterCraft Boat Company, LLC. Price shown is per boat and covers all guests aboard; group split amounts are estimates and may round to the nearest dollar. All riders must follow Florida tow-sports law and wear a USCG-approved life jacket.</p>
     </div>
     <div>
       <h4>Book</h4>
@@ -399,57 +492,229 @@ const CONFIG = {
   <div class="footer-bottom">© <span id="yr"></span> Palm Beach Wake Boats. All rights reserved. · Text STOP to any message to opt out.</div>
 </div>
 
-<a class="sticky-call" href="#bookcard">🎉 Book your trip</a>
+<a class="sticky-call" href="#book">🎉 Book your charter</a>
 
-<script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"FAQPage",
-  "mainEntity":[
-    {"@type":"Question","name":"Do I need any experience to wakesurf or wakeboard?","acceptedAnswer":{"@type":"Answer","text":"None at all. Most first-timers are up and riding the same day — the inboard wave and a patient captain make it easy. We coach kids and adults from never-ever to advanced."}},
-    {"@type":"Question","name":"How many people can come?","acceptedAnswer":{"@type":"Answer","text":"Tell us your group size when you book and we'll confirm what works for the day and the water. Great for small families up to bigger party groups — we'll plan it around you."}},
-    {"@type":"Question","name":"Where do we launch?","acceptedAnswer":{"@type":"Answer","text":"Right here in the Lantana / Lake Worth area — Lake Osborne, Lake Ida (Delray), or the Intracoastal, depending on conditions and what you want to do. We'll confirm the meet spot when we book."}},
-    {"@type":"Question","name":"What should we bring?","acceptedAnswer":{"@type":"Answer","text":"Swimsuits, a towel, sunscreen, and whatever snacks or drinks you like. We provide the boat, captain, boards, tubes, ropes, and life jackets."}},
-    {"@type":"Question","name":"What if the weather's bad?","acceptedAnswer":{"@type":"Answer","text":"Safety first — if conditions aren't right we'll reschedule you to another day, no hassle."}}
-  ]
-}
-</script>
 <script>
+/* ---------- config wiring ---------- */
 document.querySelectorAll('[data-tel]').forEach(a=>a.href='tel:'+CONFIG.PHONE_TEL);
 document.querySelectorAll('[data-phone]').forEach(s=>s.textContent=CONFIG.PHONE_DISPLAY);
 document.getElementById('ft_email').textContent=CONFIG.LEAD_EMAIL;
 document.getElementById('ft_email_link').href='mailto:'+CONFIG.LEAD_EMAIL;
 document.getElementById('yr').textContent=new Date().getFullYear();
-document.getElementById('consent_text').innerHTML='I agree to receive calls &amp; texts about my booking from '+CONFIG.BRAND_NAME+'. Msg &amp; data rates may apply. Reply STOP to opt out.';
+document.getElementById('consent_text').innerHTML='I agree to the charter terms, cancellation policy &amp; USCG safety rules, and to receive booking calls/texts from '+CONFIG.BRAND_NAME+'. Reply STOP to opt out.';
 if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.googletagmanager.com/gtag/js?id='+CONFIG.GA_ID;gs.async=1;document.head.appendChild(gs);window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',CONFIG.GA_ID);}
 
-function val(id){return (document.getElementById(id)||{}).value||'';}
-function setErr(msg){var e=document.getElementById('errb');if(msg){e.textContent=msg;e.classList.remove('hide');}else{e.classList.add('hide');}}
-function book(){
-  var consent=document.getElementById('b_consent');
-  var data={type:'CHARTER / EXPERIENCE BOOKING',experience:val('b_type'),date:val('b_date'),group_size:val('b_size'),
-            name:val('b_name'),phone:val('b_phone'),email:val('b_email'),notes:val('b_msg'),page:location.href};
-  if(!data.name||!data.phone){setErr('Name and phone are all we need to hold your date.');return;}
-  if(!consent.checked){setErr('Please check the box so we can text you back about your trip.');return;}
-  setErr('');
-  data.consent='yes ('+new Date().toISOString()+')';
-  if(CONFIG.FORM_ENDPOINT){
-    var d=false,t=setTimeout(function(){if(!d){d=true;mail(data);}},5000);
-    fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
-      .then(function(r){return r.json().catch(function(){return{};});}).then(function(b){if(d)return;d=true;clearTimeout(t);if(b&&(b.success===true||b.success==='true')){finish();}else{mail(data);}})
-      .catch(function(){if(d)return;d=true;clearTimeout(t);mail(data);});
-  } else { mail(data); }
+/* ---------- booking model ---------- */
+var PACKAGES=[
+  {id:'surf',   name:'2-Hour Wakesurf Session', price:549,  dur:'2 hr', desc:'Private captain pulls the perfect wave. Boards, vests, tubes & GoPro included — lessons for first-timers.'},
+  {id:'sunset', name:'Sunset Cruise',           price:449,  dur:'2 hr', desc:'Two golden hours on the Intracoastal — cooler, Bluetooth speaker, swim stop.'},
+  {id:'half',   name:'Half-Day: Lake + Canals', price:899,  dur:'4 hr', desc:'Wakesurf Lake Osborne, cruise the Belvedere/I-95 canals to the Hilton pool, beach the sandbar.'},
+  {id:'full',   name:'Full-Day Adventure',      price:1290, dur:'6 hr', desc:'Six hours, two lakes and a sandbar grill-out stop — the whole crew, all day.'}
+];
+var TIMES=['7:00 AM — glass','9:30 AM','12:00 PM','2:30 PM','Golden hour'];
+var LOCATIONS=['Lake Osborne · Lantana','Lake Ida · Delray','Intracoastal · Boynton','We come to you · your dock'];
+
+var S={step:1,pkg:'surf',date:'',time:'',loc:LOCATIONS[0],group:4,split:'even',
+       crew:makeCrew(4,[]),code:slug(),host:{name:'',phone:'',email:''},consent:false,ref:''};
+
+function slug(){var s='';for(var i=0;i<5;i++)s+='abcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random()*36));return s;}
+function clamp(n,a,b){n=parseInt(n,10);if(isNaN(n))n=a;return Math.max(a,Math.min(b,n));}
+function makeCrew(n,prev){var out=[];for(var i=0;i<n;i++){if(i===0)out.push(prev[0]||{host:true,name:'You'});else out.push(prev[i]||{name:''});}return out;}
+function pkgObj(){for(var i=0;i<PACKAGES.length;i++)if(PACKAGES[i].id===S.pkg)return PACKAGES[i];return PACKAGES[0];}
+function total(){return pkgObj().price;}
+function fmt(n){return '$'+Math.round(n).toLocaleString('en-US');}
+function perPerson(){var g=S.group||1;return S.split==='hostFull'?0:total()/g;}
+function hostShare(){return S.split==='hostFull'?total():perPerson();}
+function dateText(){if(!S.date)return 'Pick a date';try{var d=new Date(S.date+'T00:00:00');return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});}catch(e){return S.date;}}
+function groupText(){return S.group+(S.group===1?' guest':' guests');}
+function shareLink(){
+  var p=['invite=1','pkg='+S.pkg,'g='+S.group,'split='+S.split,'ride='+S.code];
+  if(S.date)p.push('d='+encodeURIComponent(S.date));
+  if(S.time)p.push('t='+encodeURIComponent(S.time));
+  if(S.loc)p.push('l='+encodeURIComponent(S.loc));
+  if(S.host.name)p.push('h='+encodeURIComponent(S.host.name.split(' ')[0]));
+  return 'https://collaborativeconceptsfl.com/wake/pages/charter-experiences?'+p.join('&')+'#book';
 }
+function shareMsg(){
+  var who=S.host.name?(S.host.name.split(' ')[0]+' booked'):'I booked';
+  var when=S.date?(' on '+dateText()):'';
+  var share=S.split==='hostFull'?"It's on me":('Your share is about '+fmt(perPerson()));
+  return who+' a Palm Beach Wake Boats charter 🌊 — '+pkgObj().name+when+'. '+share+'. Grab your spot: '+shareLink();
+}
+
+/* ---------- build static bits ---------- */
+(function(){
+  var pl=document.getElementById('pkgList');
+  pl.innerHTML=PACKAGES.map(function(p){
+    return '<button class="pkg" data-pkg="'+p.id+'"><div style="flex:1"><div class="top"><span class="nm">'+p.name+'</span><span class="pr">'+fmt(p.price)+'</span></div><div class="ds">'+p.desc+'</div><div class="du">'+p.dur+' · per boat</div></div></button>';
+  }).join('');
+  pl.querySelectorAll('.pkg').forEach(function(b){b.addEventListener('click',function(){S.pkg=b.getAttribute('data-pkg');setErr('e1','');recompute();});});
+  var ft=document.getElementById('f_time');TIMES.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;ft.appendChild(o);});
+  var fl=document.getElementById('f_loc');LOCATIONS.forEach(function(l){var o=document.createElement('option');o.value=l;o.textContent=l;fl.appendChild(o);});
+  fl.value=S.loc;
+})();
+
+/* ---------- recompute displays ---------- */
+function recompute(){
+  document.querySelectorAll('.pkg').forEach(function(b){b.classList.toggle('sel',b.getAttribute('data-pkg')===S.pkg);});
+  document.getElementById('gVal').textContent=S.group;
+  document.getElementById('cta1').textContent=fmt(total()/(S.group||1));
+  // step 2
+  document.getElementById('segEven').classList.toggle('on',S.split==='even');
+  document.getElementById('segHost').classList.toggle('on',S.split==='hostFull');
+  document.getElementById('splitLabel').textContent=S.split==='even'?'Each person pays':'You cover it all';
+  document.getElementById('splitMeta').textContent=fmt(total())+' total · '+groupText();
+  document.getElementById('splitAmt').textContent=S.split==='even'?fmt(perPerson()):fmt(total());
+  document.getElementById('cta2').textContent=fmt(hostShare());
+  document.getElementById('linkText').textContent=shareLink().replace(/^https:\/\//,'').replace('#book','');
+  var lt2=document.getElementById('linkText2');if(lt2)lt2.textContent=shareLink().replace(/^https:\/\//,'').replace('#book','');
+  renderCrew();
+  // step 3
+  document.getElementById('sumPkg').textContent=pkgObj().name;
+  document.getElementById('sumWhen').textContent=dateText()+(S.time?(' · '+S.time):'');
+  document.getElementById('sumLoc').textContent=S.loc;
+  document.getElementById('sumTot').textContent=groupText()+' · '+fmt(total())+' total';
+  document.getElementById('sumPer').textContent=(S.split==='even'?fmt(perPerson())+'/person':'you cover it');
+  document.getElementById('hostShare').textContent=fmt(hostShare());
+}
+function renderCrew(){
+  var el=document.getElementById('crewList');if(!el)return;
+  var even=S.split==='even';var html='';
+  for(var i=0;i<S.crew.length;i++){
+    var c=S.crew[i];var isHost=!!c.host;
+    var initial=isHost?'Y':(c.name?c.name.trim().charAt(0).toUpperCase():'?');
+    var share=(even?'≈ ':'')+fmt(isHost?hostShare():perPerson());
+    var status=isHost?'Paying your share':(S.split==='hostFull'?'On you 🎉':'Pays via your link');
+    var mid=isHost?'<div class="who">You <span>· host</span></div>':'<input data-crew="'+i+'" value="'+(c.name||'').replace(/"/g,'&quot;')+'" placeholder="Friend\'s name">';
+    html+='<div class="crewrow"><div class="av">'+initial+'</div><div class="mid">'+mid+'<div class="st">'+status+'</div></div><div class="sh2">'+share+'</div></div>';
+  }
+  el.innerHTML=html;
+  el.querySelectorAll('input[data-crew]').forEach(function(inp){
+    inp.addEventListener('input',function(){var i=parseInt(inp.getAttribute('data-crew'),10);S.crew[i]={name:inp.value};});
+    inp.addEventListener('change',function(){recomputeCrewInitials();});
+  });
+}
+function recomputeCrewInitials(){
+  document.querySelectorAll('#crewList .crewrow').forEach(function(row,i){
+    if(i===0)return;var inp=row.querySelector('input');if(!inp)return;
+    row.querySelector('.av').textContent=inp.value?inp.value.trim().charAt(0).toUpperCase():'?';
+  });
+}
+
+/* ---------- step nav ---------- */
+function show(n){S.step=n;[1,2,3,4].forEach(function(k){document.getElementById('s'+k).classList.toggle('hide',k!==n);});
+  document.getElementById('d1').className=n>=1?'on':'';
+  document.getElementById('d2').className=n>=2?'on':'';
+  document.getElementById('d3').className=n>=3?'on':'';
+  recompute();track('charter_step_'+n);}
+function setErr(id,msg){var e=document.getElementById(id);if(msg){e.textContent=msg;e.classList.remove('hide');}else{e.classList.add('hide');}}
+
+document.getElementById('f_date').addEventListener('change',function(e){S.date=e.target.value;setErr('e1','');});
+document.getElementById('f_time').addEventListener('change',function(e){S.time=e.target.value;setErr('e1','');});
+document.getElementById('f_loc').addEventListener('change',function(e){S.loc=e.target.value;setErr('e1','');});
+document.getElementById('gInc').addEventListener('click',function(){S.group=clamp(S.group+1,2,12);S.crew=makeCrew(S.group,S.crew);recompute();});
+document.getElementById('gDec').addEventListener('click',function(){S.group=clamp(S.group-1,2,12);S.crew=makeCrew(S.group,S.crew);recompute();});
+document.getElementById('to2').addEventListener('click',function(){
+  if(!S.date||!S.time||!S.loc){setErr('e1','Pick a date, time and launch spot to continue.');return;}
+  setErr('e1','');show(2);});
+document.getElementById('back1').addEventListener('click',function(){show(1);});
+document.getElementById('to3').addEventListener('click',function(){show(3);});
+document.getElementById('back2').addEventListener('click',function(){show(2);});
+document.getElementById('segEven').addEventListener('click',function(){S.split='even';recompute();});
+document.getElementById('segHost').addEventListener('click',function(){S.split='hostFull';recompute();});
+document.getElementById('f_name').addEventListener('input',function(e){S.host.name=e.target.value;setErr('e3','');});
+document.getElementById('f_phone').addEventListener('input',function(e){S.host.phone=e.target.value;setErr('e3','');});
+document.getElementById('f_email').addEventListener('input',function(e){S.host.email=e.target.value;});
+document.getElementById('f_consent').addEventListener('change',function(e){S.consent=e.target.checked;setErr('e3','');});
+
+/* ---------- real sharing ---------- */
+function doCopy(which){
+  var link=shareLink();
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(link);}catch(e){}
+  showToast(which,'Invite link copied — paste it anywhere.');track('charter_share_copy');
+}
+function showToast(which,msg){
+  var t=document.getElementById(which===2?'toast2':'toast');
+  var tx=document.getElementById(which===2?'toastText2':'toastText');
+  tx.textContent=msg;t.classList.remove('hide');
+}
+function shareVia(ch){
+  var msg=shareMsg(),link=shareLink(),url='';
+  if(ch==='whatsapp'){url='https://wa.me/?text='+encodeURIComponent(msg);window.open(url,'_blank');}
+  else if(ch==='sms'){
+    if(navigator.share){navigator.share({text:msg,url:link}).catch(function(){});}
+    else{window.location.href='sms:?&body='+encodeURIComponent(msg);}
+  }
+  else if(ch==='email'){window.location.href='mailto:?subject='+encodeURIComponent("You're invited — a wake-boat charter 🌊")+'&body='+encodeURIComponent(msg);}
+  else if(ch==='facebook'){window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(link),'_blank');}
+  else if(ch==='x'){window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(msg),'_blank');}
+  else if(ch==='instagram'){
+    if(navigator.share){navigator.share({text:msg,url:link}).catch(function(){});}
+    else{try{if(navigator.clipboard)navigator.clipboard.writeText(link);}catch(e){}showToast(1,'Link copied — paste it into your IG story or DM.');return;}
+  }
+  var w=(document.getElementById('s4').classList.contains('hide'))?1:2;
+  showToast(w,'Opening '+({whatsapp:'WhatsApp',sms:'Messages',email:'Email',facebook:'Facebook',x:'X',instagram:'Instagram'}[ch])+' — your invite is ready to send.');
+  track('charter_share_'+ch);
+}
+document.getElementById('copyBtn').addEventListener('click',function(){doCopy(1);});
+document.getElementById('copyBtn2').addEventListener('click',function(){doCopy(2);});
+document.querySelectorAll('[data-share]').forEach(function(b){b.addEventListener('click',function(){shareVia(b.getAttribute('data-share'));});});
+
+/* ---------- submit (reserve request, NO card data) ---------- */
+function crewNames(){return S.crew.filter(function(c){return !c.host&&c.name;}).map(function(c){return c.name;}).join(', ');}
+document.getElementById('submitBtn').addEventListener('click',function(){
+  if(!S.host.name||!S.host.phone){setErr('e3','Add your name and phone so we can confirm your charter.');return;}
+  if(!S.consent){setErr('e3','Please agree to the charter terms to reserve.');return;}
+  setErr('e3','');
+  S.ref='PBW-'+Math.floor(1000+Math.random()*9000);
+  var data={type:'CHARTER BOOKING REQUEST',ref:S.ref,package:pkgObj().name,date:S.date,when:dateText()+' · '+S.time,
+    launch:S.loc,group:groupText(),split:(S.split==='hostFull'?"host covers all":"even split"),
+    total:fmt(total()),per_person:fmt(perPerson()),your_share:fmt(hostShare()),crew:crewNames(),
+    name:S.host.name,phone:S.host.phone,email:S.host.email,invite_link:shareLink(),
+    consent:'yes ('+new Date().toISOString()+')',page:location.href};
+  if(CONFIG.FORM_ENDPOINT){
+    var ac=new AbortController(),to=setTimeout(function(){ac.abort();},5000);
+    fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data),signal:ac.signal})
+      .then(function(r){return r.json().catch(function(){return{};});})
+      .then(function(d){clearTimeout(to);(d&&(d.success===true||d.success==='true'))?finish():mail(data);})
+      .catch(function(){clearTimeout(to);mail(data);});
+  } else { mail(data); }
+});
 function mail(data){
   var body=encodeURIComponent(Object.keys(data).map(function(k){return k+': '+data[k];}).join('\n'));
-  window.location.href='mailto:'+CONFIG.LEAD_EMAIL+'?subject='+encodeURIComponent('[BOOKING] '+data.experience)+'&body='+body;
+  window.location.href='mailto:'+CONFIG.LEAD_EMAIL+'?subject='+encodeURIComponent('[CHARTER] '+data.package+' — '+data.ref)+'&body='+body;
   finish();
 }
 function finish(){
-  document.getElementById('bookform').classList.add('hide');
-  document.getElementById('bookdone').classList.remove('hide');
-  if(window.gtag)gtag('event','charter_booking_request');
+  document.getElementById('confirmLead').innerHTML=pkgObj().name+' · '+dateText()+(S.time?(' at '+S.time):'')+' — '+S.loc+'. Confirmation <strong style="color:#14556E">'+S.ref+'</strong> — we\'ll text you shortly to confirm and send your secure payment + crew-split link.';
+  document.getElementById('nudgeDesc').textContent='Share your link so friends can claim their spots'+(S.split==='even'?(' and pay their '+fmt(perPerson())+' share'):'')+'.';
+  show(4);track('charter_reserved');
 }
+function track(ev){if(window.gtag)gtag('event',ev);if(window.fbq)fbq('trackCustom',ev);}
+
+/* ---------- invite link handling ---------- */
+(function(){
+  var q=new URLSearchParams(location.search);
+  if(q.get('invite')){
+    if(q.get('pkg'))S.pkg=q.get('pkg');
+    if(q.get('d'))S.date=q.get('d');
+    if(q.get('t'))S.time=q.get('t');
+    if(q.get('g'))S.group=clamp(q.get('g'),2,12);
+    if(q.get('split'))S.split=q.get('split');
+    if(q.get('l'))S.loc=q.get('l');
+    S.crew=makeCrew(S.group,[]);
+    if(S.date)document.getElementById('f_date').value=S.date;
+    if(S.time)document.getElementById('f_time').value=S.time;
+    if(S.loc)document.getElementById('f_loc').value=S.loc;
+    var host=q.get('h')?decodeURIComponent(q.get('h')):'a friend';
+    var shareLine=S.split==='hostFull'?"they've got the whole boat 🎉":('your share is about <b>'+fmt(perPerson())+'</b>');
+    var b=document.getElementById('inviteBanner');
+    document.getElementById('inviteText').innerHTML='<b>'+host+' invited you aboard.</b> '+pkgObj().name+(S.date?(' on '+dateText()):'')+' — '+shareLine+'. Reserve your spot below.';
+    b.classList.remove('hide');
+  }
+})();
+
+recompute();
 </script>
 </body>
 </html>
