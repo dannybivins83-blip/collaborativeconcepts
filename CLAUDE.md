@@ -75,11 +75,19 @@ The startup hook will pick it up automatically on the next session.
 - **SoFlo Permit Leads** at `/permits/` — internal BatchData-style
   building-permit lead dashboard for Martin / Palm Beach / Broward /
   Miami-Dade. Engine in `api/permits.py` (routes `/api/permits/*`: search,
-  tags, sources, discover, CSV export). Pulls from county open-data GIS
-  (ArcGIS item resolution + Hub DCAT discovery, schema auto-mapping,
-  regex project tagging). Add/override feeds via the
-  `PERMITS_EXTRA_SOURCES` env var — no deploy needed. Offline test suite:
-  `python3 _permits_tests.py` (all network mocked).
+  tags, sources, discover, CSV export). Pulls real permits per county:
+  Miami-Dade (official open-data, resolved via ArcGIS Hub v3 dataset API),
+  Broward (Fort Lauderdale + Pembroke Pines + unincorporated county ArcGIS
+  layers), Martin (Accela portal scraper in `api/accela.py` +
+  development-projects layer). Palm Beach publishes no queryable permit feed
+  (Accela/Click2Gov portals) — documented, auto-activates if that changes.
+  Schema auto-mapping is name-based then **content-based** (infers fields
+  from real record values when column names don't match); a blocklist rejects
+  known wrong-jurisdiction ArcGIS orgs. Time window supports days/months/years/
+  specific-year with server-side date filtering + pagination. Add/override
+  feeds via `PERMITS_EXTRA_SOURCES` env var — no deploy needed. Offline tests:
+  `python3 _permits_tests.py` (61) and `python3 _accela_tests.py` (14), all
+  network mocked.
 
 ## Local tooling
 

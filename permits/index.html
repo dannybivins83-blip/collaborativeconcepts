@@ -164,8 +164,8 @@
     <em>Miami-Dade</em> — full countywide issued-permit feed with ~2 years of history (county open data).
     <em>Broward</em> — issues per-municipality; Fort Lauderdale + Pembroke Pines + unincorporated county are wired in
     (add more cities via the <code>PERMITS_EXTRA_SOURCES</code> env var).
-    <em>Martin</em> — building permits are Accela-only with no public API; shown here is the county's real
-    <em>development-projects</em> layer (active construction leads, not the full permit stream).
+    <em>Martin</em> — no GIS feed; the engine scrapes the county's Accela permit portal directly for issued
+    building permits, plus the county's development-projects layer as a supplement.
     <em>Palm Beach</em> — the county and its cities run permits through Accela / Click2Gov portals and publish
     <strong>no</strong> queryable permit feed; the engine auto-activates one the moment that changes.<br>
     <strong>Compliance:</strong> permits are public records, but cold calls/texts to enriched contacts fall under

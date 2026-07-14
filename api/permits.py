@@ -124,6 +124,18 @@ DEFAULT_SOURCES = [
                  "auto-activate if one is ever published."),
     },
     {
+        "id": "martin",
+        "county": "Martin",
+        "label": "Martin County — Building Permits (Accela portal)",
+        "kind": "accela_aca",
+        "agency": "MARTINCO",
+        "module": "Building",
+        "portal": "https://aca-prod.accela.com/MARTINCO/Cap/CapHome.aspx?module=Building&TabName=Building",
+        "note": ("Scrapes Martin County's Accela Citizen Access portal (the county's "
+                 "system of record) for issued building permits by date range. "
+                 "Best-effort — portal HTML can change."),
+    },
+    {
         "id": "martin_dev",
         "county": "Martin",
         "label": "Martin County — Countywide Development Projects (Accela permits not public)",
@@ -834,6 +846,42 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
         return uniq, scanned
 
     try:
+        # Accela Citizen Access portals (no GIS feed) — scrape the ASP.NET
+        # General Search. Handled entirely by the accela adapter.
+        if source.get("kind") == "accela_aca":
+            from datetime import datetime as _dt, timezone as _tz, timedelta as _td
+            try:
+                from accela import scrape_accela
+            except ImportError:
+                from api.accela import scrape_accela
+            end_dt = _dt.fromtimestamp((end_ms or int(time.time() * 1000)) / 1000, tz=_tz.utc)
+            start_dt = _dt.fromtimestamp((start_ms or int((time.time() - 730 * 86400) * 1000)) / 1000,
+                                        tz=_tz.utc)
+            rows, diag = scrape_accela(source.get("agency"), start_dt, end_dt,
+                                       module=source.get("module", "Building"))
+            county = source.get("county", "")
+            permits = []
+            for r in rows:
+                permits.append({
+                    "source_id": source.get("id"), "county": county,
+                    "permit_number": r.get("permit_number"), "type": r.get("type"),
+                    "status": r.get("status"), "description": r.get("description"),
+                    "address": r.get("address"), "city": None, "zip": None,
+                    "issued_date": r.get("issued_date"), "applied_date": r.get("applied_date"),
+                    "value": r.get("value"), "contractor": r.get("contractor"),
+                    "owner": None, "lat": None, "lon": None,
+                    "tags": tag_permit(f"{r.get('description') or ''} {r.get('type') or ''}"),
+                    "appraiser_url": APPRAISER_SEARCH.get(county),
+                })
+            info["accela"] = {k: diag.get(k) for k in
+                              ("steps", "fields_found", "pages", "parsed", "error")}
+            if permits:
+                info.update({"status": "ok", "count": len(permits)})
+                return permits, info
+            info["status"] = "error"
+            info["error"] = diag.get("error", "accela scrape returned no rows")
+            return [], info
+
         # Build candidate layer URLs from every strategy the source declares,
         # in priority order: pinned direct layers -> resolved items ->
         # catalog discovery. This lets a source pin a known-good endpoint AND
@@ -1221,7 +1269,7 @@ def register_permits_routes(app):
                 entry["health"] = {k: info.get(k) for k in
                                    ("status", "error", "layer_url", "layer_name",
                                     "count", "discovered", "attempts", "fallback_notes",
-                                    "resolved_fields", "layer_fields")}
+                                    "resolved_fields", "layer_fields", "accela")}
             out.append(entry)
         return jsonify({"ok": True, "sources": out,
                         "appraisers": APPRAISER_SEARCH, "counties": COUNTIES})
