@@ -465,6 +465,8 @@ class HubV3DiscoveryTests(unittest.TestCase):
         """The real-world MDC failure: items restricted/removed + DCAT malformed.
         v3 search should still find the layer and the source goes green."""
         def world(url, params=None, timeout=None):
+            if "Building_Permits/FeatureServer" in url:
+                raise Exception("pinned layer 503")            # direct layer down
             if "content/items" in url:
                 raise Exception("You do not have permissions")
             if "hub.arcgis.com/api/v3" in url:

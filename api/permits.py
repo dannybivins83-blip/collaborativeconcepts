@@ -61,12 +61,17 @@ DEFAULT_SOURCES = [
         "id": "mdc",
         "county": "Miami-Dade",
         "label": "Miami-Dade County — Building Permits (countywide)",
-        "kind": "arcgis_item",
+        "kind": "arcgis_layer",
+        # Miami-Dade's hosted "Building_Permits" service on their own ArcGIS
+        # Online org (services6/ONZht79c8QWuX759 == mdc.maps.arcgis.com). Tried
+        # first; items + catalog discovery below are automatic fallbacks.
+        "layer_urls": [
+            "https://services6.arcgis.com/ONZht79c8QWuX759/arcgis/rest/services/Building_Permits/FeatureServer/0",
+        ],
         "item_ids": [
             "31cd319f45544648b59f0418aea60091",  # "Building Permit" (rolling ~3 years, points)
             "f2181fb7e4ae46adbc633e478a607226",  # "Building Permits Issued by MDC" (2 yrs+)
         ],
-        # if the pinned items ever move, discovery finds the current layer:
         "hub_sites": ["https://gis-mdc.opendata.arcgis.com",
                       "https://opendata.miamidade.gov"],
         "portal": "https://gis-mdc.opendata.arcgis.com/datasets/MDC::building-permit/about",
@@ -631,42 +636,55 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
         return uniq, scanned
 
     try:
-        kind = source.get("kind")
+        # Build candidate layer URLs from every strategy the source declares,
+        # in priority order: pinned direct layers -> resolved items ->
+        # catalog discovery. This lets a source pin a known-good endpoint AND
+        # keep discovery as an automatic fallback if that endpoint ever moves.
         layer_urls = []          # ordered candidates to try
         discovered_titles = []
+        discovery_ran = False
+        discovery_scanned = 0
 
-        if kind == "arcgis_layer":
-            layer_urls = list(source.get("layer_urls") or [])
-        elif kind == "arcgis_item":
-            for item_id in source.get("item_ids") or []:
-                try:
-                    layer_urls.append(resolve_item_to_layer(item_id))
-                except Exception as e:
-                    attempts.append(f"item {item_id}: {str(e)[:120]}")
-            # graceful fallback: if the pinned items can't resolve, discover
-            # the current permit layer from the county's own open-data catalog.
-            if source.get("hub_sites"):
-                found, _ = _discover(source["hub_sites"])
-                layer_urls.extend(c["layer_url"] for c in found[:2])
-                discovered_titles = [c["title"] for c in found[:5]]
-            if not layer_urls:
-                raise RuntimeError("; ".join(attempts) or "no item ids configured")
-        elif kind == "hub_discover":
-            found, scanned = _discover(source.get("hub_sites"))
-            if not found:
-                if scanned == 0:
-                    raise RuntimeError("; ".join(attempts) or "no hub sites configured")
-                info["status"] = "no_dataset"
-                info["error"] = ("No permit dataset published on this county's open-data "
-                                 "portals yet (checked their DCAT catalogs).")
-                return [], info
-            layer_urls = [c["layer_url"] for c in found[:3]]
+        # 1) direct, pinned layer URLs (most reliable)
+        layer_urls.extend(source.get("layer_urls") or [])
+
+        # 2) ArcGIS Online item IDs -> service layer
+        for item_id in source.get("item_ids") or []:
+            try:
+                layer_urls.append(resolve_item_to_layer(item_id))
+            except Exception as e:
+                attempts.append(f"item {item_id}: {str(e)[:120]}")
+
+        # 3) open-data catalog discovery (Hub v3 search + DCAT)
+        if source.get("hub_sites") or source.get("kind") == "hub_discover":
+            discovery_ran = True
+            found, discovery_scanned = _discover(source.get("hub_sites"))
+            layer_urls.extend(c["layer_url"] for c in found[:3])
             discovered_titles = [c["title"] for c in found[:5]]
-        else:
-            raise RuntimeError(f"unknown source kind: {kind}")
+
+        # de-dupe while preserving priority order
+        seen, ordered = set(), []
+        for u in layer_urls:
+            if u and u not in seen:
+                seen.add(u)
+                ordered.append(u)
+        layer_urls = ordered
 
         if discovered_titles:
             info["discovered"] = discovered_titles
+
+        if not layer_urls:
+            # Nothing to try. Distinguish "catalog reachable but empty" from
+            # "everything was unreachable" for an honest health status.
+            if discovery_ran and discovery_scanned > 0 and not source.get("item_ids") \
+                    and not source.get("layer_urls"):
+                info["status"] = "no_dataset"
+                info["error"] = ("No permit dataset published on this county's open-data "
+                                 "portals yet (checked their catalogs).")
+                if attempts:
+                    info["attempts"] = attempts[:6]
+                return [], info
+            raise RuntimeError("; ".join(attempts) or "no sources configured")
 
         last_err = None
         for layer_url in layer_urls:
