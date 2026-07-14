@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Book a MasterCraft Charter — Split the Cost with Your Crew | Palm Beach Wake Boats</title>
+<link rel="icon" href="/wake/img/favicon.svg" type="image/svg+xml">
 <meta name="description" content="Book a captained wake-boat charter on Lake Osborne, Lake Ida or the Intracoastal in Palm Beach County — then invite friends and split the cost. Wakesurf sessions, sunset cruises, half & full-day adventures. Captain, gear & fuel included.">
 <link rel="canonical" href="https://collaborativeconceptsfl.com/wake/pages/charter-experiences">
 <meta property="og:type" content="website">
@@ -192,7 +193,7 @@ const CONFIG = {
   .sharebox .mc{font-size:12px;color:var(--mut-dark);margin-top:6px}
   .consent{display:flex;gap:10px;margin-top:16px;align-items:flex-start;cursor:pointer}
   .consent input{width:16px;height:16px;margin-top:3px;accent-color:var(--action);flex:none}
-  .consent span{font-size:11px;color:#7a8f96;line-height:1.5}
+  .consent span{font-size:12px;color:#52707a;line-height:1.5}
 
   /* step 4 */
   .check-badge{width:60px;height:60px;border-radius:999px;background:var(--grad-logo);color:#07202c;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
@@ -223,6 +224,8 @@ const CONFIG = {
   .band strong{color:#fff}
   .section{padding:74px 52px}
   .section.light{background:var(--light);color:var(--on-light)}
+  .section.dark{background:linear-gradient(180deg,#0B2A3A,#0d3a4d);color:var(--on-dark)}
+  .section.dark h2{color:#fff}
   .lead{max-width:760px;margin:0 auto 40px}
   .lead h2{font-size:34px;margin-bottom:12px}
   .lead p{font-size:16px;color:var(--mut-light)}
@@ -413,6 +416,7 @@ const CONFIG = {
           <label class="field" style="margin-top:0"><span class="lbl">Phone</span><input id="f_phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(561) 555-0123"></label>
         </div>
         <label class="field"><span class="lbl">Email</span><input id="f_email" type="email" inputmode="email" autocomplete="email"></label>
+        <label class="field"><span class="lbl">Anything we should know? (optional)</span><textarea id="f_notes" rows="2" placeholder="Occasion, riders/ages, add-ons (grill-out, canal cruise), preferred launch…" style="width:100%;padding:12px 13px;border:1.5px solid var(--input);border-radius:11px;font-size:15px;background:#fff;color:var(--on-light);font-family:inherit;resize:vertical"></textarea></label>
         <label class="consent"><input type="checkbox" id="f_consent"><span id="consent_text">I agree to the charter terms, cancellation policy &amp; USCG safety rules, and to receive booking calls/texts from Palm Beach Wake Boats. Reply STOP to opt out.</span></label>
         <div class="err hide" id="e3"></div>
         <div class="rowbtns">
@@ -639,13 +643,15 @@ function show(n){S.step=n;[1,2,3,4].forEach(function(k){document.getElementById(
   recompute();track('charter_step_'+n);}
 function setErr(id,msg){var e=document.getElementById(id);if(msg){e.textContent=msg;e.classList.remove('hide');}else{e.classList.add('hide');}}
 
+document.getElementById('f_date').min=new Date().toISOString().slice(0,10);
 document.getElementById('f_date').addEventListener('change',function(e){S.date=e.target.value;setErr('e1','');});
 document.getElementById('f_time').addEventListener('change',function(e){S.time=e.target.value;setErr('e1','');});
 document.getElementById('f_loc').addEventListener('change',function(e){S.loc=e.target.value;setErr('e1','');});
-document.getElementById('gInc').addEventListener('click',function(){S.group=clamp(S.group+1,2,12);S.crew=makeCrew(S.group,S.crew);recompute();});
-document.getElementById('gDec').addEventListener('click',function(){S.group=clamp(S.group-1,2,12);S.crew=makeCrew(S.group,S.crew);recompute();});
+document.getElementById('gInc').addEventListener('click',function(){S.group=clamp(S.group+1,1,12);S.crew=makeCrew(S.group,S.crew);recompute();});
+document.getElementById('gDec').addEventListener('click',function(){S.group=clamp(S.group-1,1,12);S.crew=makeCrew(S.group,S.crew);recompute();});
 document.getElementById('to2').addEventListener('click',function(){
   if(!S.date||!S.time||!S.loc){setErr('e1','Pick a date, time and launch spot to continue.');return;}
+  if(S.date<new Date().toISOString().slice(0,10)){setErr('e1','Pick a date today or later.');return;}
   setErr('e1','');show(2);});
 document.getElementById('back1').addEventListener('click',function(){show(1);});
 document.getElementById('to3').addEventListener('click',function(){show(3);});
@@ -655,6 +661,7 @@ document.getElementById('segHost').addEventListener('click',function(){S.split='
 document.getElementById('f_name').addEventListener('input',function(e){S.host.name=e.target.value;setErr('e3','');});
 document.getElementById('f_phone').addEventListener('input',function(e){S.host.phone=e.target.value;setErr('e3','');});
 document.getElementById('f_email').addEventListener('input',function(e){S.host.email=e.target.value;});
+document.getElementById('f_notes').addEventListener('input',function(e){S.host.notes=e.target.value;});
 document.getElementById('f_consent').addEventListener('change',function(e){S.consent=e.target.checked;setErr('e3','');});
 
 /* ---------- real sharing ---------- */
@@ -700,16 +707,17 @@ document.getElementById('submitBtn').addEventListener('click',function(){
   var data={type:'CHARTER BOOKING REQUEST',ref:S.ref,package:pkgObj().name,date:S.date,when:dateText()+' · '+S.time,
     launch:S.loc,group:groupText(),split:(S.split==='hostFull'?"host covers all":"even split"),
     total:money(total()),per_person:money(perPerson()),your_share:money(hostShare()),crew:crewNames(),
-    name:S.host.name,phone:S.host.phone,email:S.host.email,invite_link:shareLink(),
+    name:S.host.name,phone:S.host.phone,email:S.host.email,notes:S.host.notes||'',invite_link:shareLink(),
     consent:'yes ('+new Date().toISOString()+')',page:location.href};
   if(CONFIG.FORM_ENDPOINT){
     var ac=new AbortController(),to=setTimeout(function(){ac.abort();},5000);
     fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data),signal:ac.signal})
       .then(function(r){return r.json().catch(function(){return{};});})
-      .then(function(d){clearTimeout(to);(d&&(d.success===true||d.success==='true'))?finish():mail(data);})
-      .catch(function(){clearTimeout(to);mail(data);});
+      .then(function(d){clearTimeout(to);(d&&(d.success===true||d.success==='true'))?finish():cfail();})
+      .catch(function(){clearTimeout(to);cfail();});
   } else { mail(data); }
 });
+function cfail(){setErr('e3','That didn’t go through — please call or text '+CONFIG.PHONE_DISPLAY+' and we’ll grab your details right away.');if(window.gtag)gtag('event','charter_submit_failed');}
 function mail(data){
   var body=encodeURIComponent(Object.keys(data).map(function(k){return k+': '+data[k];}).join('\n'));
   window.location.href='mailto:'+CONFIG.LEAD_EMAIL+'?subject='+encodeURIComponent('[CHARTER] '+data.package+' — '+data.ref)+'&body='+body;
