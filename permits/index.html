@@ -155,16 +155,19 @@
   </div>
 
   <footer>
-    <strong>How this works.</strong> The backend pulls recent permits straight from each county's public GIS
-    feeds (Miami-Dade countywide open data; Fort Lauderdale's permit tracker for Broward; Palm Beach & Martin via
-    automatic open-data catalog discovery), auto-maps each jurisdiction's schema, and tags every permit by project
-    type — same pipeline shape as commercial permit-data vendors, scoped to South Florida.
+    <strong>How this works.</strong> The backend pulls permits straight from each jurisdiction's public GIS
+    feeds, auto-maps each one's schema (by field name, then by the actual data when names don't match), and tags
+    every permit by project type — same pipeline shape as commercial permit-data vendors, scoped to South Florida.
     Owner lookup links go to each county's property appraiser (free). The CSV export is shaped for direct upload
     to a skip-trace service for phone/email append.<br>
-    <strong>Coverage notes:</strong> Broward issues permits per municipality — Fort Lauderdale is wired in; add more
-    cities with the <code>PERMITS_EXTRA_SOURCES</code> env var (see <code>api/permits.py</code>). Palm Beach County and
-    Martin County don't publish a stable countywide permit layer; the discovery engine checks their open-data catalogs
-    each run and will pick datasets up automatically when published.<br>
+    <strong>Coverage (honest):</strong>
+    <em>Miami-Dade</em> — full countywide issued-permit feed with ~2 years of history (county open data).
+    <em>Broward</em> — issues per-municipality; Fort Lauderdale + Pembroke Pines + unincorporated county are wired in
+    (add more cities via the <code>PERMITS_EXTRA_SOURCES</code> env var).
+    <em>Martin</em> — building permits are Accela-only with no public API; shown here is the county's real
+    <em>development-projects</em> layer (active construction leads, not the full permit stream).
+    <em>Palm Beach</em> — the county and its cities run permits through Accela / Click2Gov portals and publish
+    <strong>no</strong> queryable permit feed; the engine auto-activates one the moment that changes.<br>
     <strong>Compliance:</strong> permits are public records, but cold calls/texts to enriched contacts fall under
     TCPA / FTSA and DNC rules — direct mail and door-knocking are the low-risk channels.
   </footer>

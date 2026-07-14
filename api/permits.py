@@ -60,20 +60,20 @@ DEFAULT_SOURCES = [
     {
         "id": "mdc",
         "county": "Miami-Dade",
-        "label": "Miami-Dade County — Building Permits (countywide)",
+        "label": "Miami-Dade County — Building Permits (countywide, 2yr+)",
         "kind": "arcgis_layer",
-        # Miami-Dade's hosted "Building_Permits" service on their own ArcGIS
-        # Online org (services6/ONZht79c8QWuX759 == mdc.maps.arcgis.com). Tried
-        # first; items + catalog discovery below are automatic fallbacks.
-        "layer_urls": [
-            "https://services6.arcgis.com/ONZht79c8QWuX759/arcgis/rest/services/Building_Permits/FeatureServer/0",
+        # Miami-Dade's OFFICIAL open-data permit datasets, resolved via the Hub
+        # v3 dataset API (clean JSON; works despite the sharing-API permission
+        # error the raw items return). "_0" is the first layer of each dataset.
+        "hub_dataset_ids": [
+            "f2181fb7e4ae46adbc633e478a607226_0",  # "Building Permits Issued ... 2 Previous Years to Present"
+            "31cd319f45544648b59f0418aea60091_0",  # "Building Permit" (rolling ~3 years, points)
         ],
         "item_ids": [
-            "31cd319f45544648b59f0418aea60091",  # "Building Permit" (rolling ~3 years, points)
-            "f2181fb7e4ae46adbc633e478a607226",  # "Building Permits Issued by MDC" (2 yrs+)
+            "31cd319f45544648b59f0418aea60091",
+            "f2181fb7e4ae46adbc633e478a607226",
         ],
-        "hub_sites": ["https://gis-mdc.opendata.arcgis.com",
-                      "https://opendata.miamidade.gov"],
+        "hub_sites": ["https://gis-mdc.opendata.arcgis.com"],
         "portal": "https://gis-mdc.opendata.arcgis.com/datasets/MDC::building-permit/about",
     },
     {
@@ -85,30 +85,63 @@ DEFAULT_SOURCES = [
             "https://gis.fortlauderdale.gov/arcgis/rest/services/BuildingPermitTracker/BuildingPermitTracker/MapServer/0",
         ],
         "portal": "https://gis.fortlauderdale.gov/arcgis/rest/services/BuildingPermitTracker/BuildingPermitTracker/MapServer/0",
-        "note": "Broward issues permits per-municipality; Fort Lauderdale is the largest single source. Add more cities via PERMITS_EXTRA_SOURCES.",
+        "note": "Broward issues permits per-municipality. FTL + Pembroke Pines + unincorporated county are wired in; add more cities via PERMITS_EXTRA_SOURCES.",
+    },
+    {
+        "id": "ppines",
+        "county": "Broward",
+        "label": "Broward — Pembroke Pines Building Permits",
+        "kind": "arcgis_layer",
+        "layer_urls": [
+            "https://services2.arcgis.com/CyVvlIiUfRBmMQuu/arcgis/rest/services/Building_Permits_Applications_view/FeatureServer/0",
+        ],
+        "portal": "https://pembroke-pines-gis-hub-3-pembrokepines.hub.arcgis.com/",
+        "note": "City of Pembroke Pines hosted permit layer (~100k+ records, multi-year).",
+    },
+    {
+        "id": "broward_uninc",
+        "county": "Broward",
+        "label": "Broward County — Building Permits (unincorporated + contract cities)",
+        "kind": "arcgis_item",
+        "item_ids": ["401f56339f9e49e6ac11efb91f191b4b"],
+        "hub_sites": ["https://geohub-bcgis.opendata.arcgis.com"],
+        "portal": "https://geohub-bcgis.opendata.arcgis.com/",
+        "note": "Broward County Building Code Division (unincorporated areas + cities the county permits for).",
     },
     {
         "id": "pbc",
         "county": "Palm Beach",
-        "label": "Palm Beach — county + West Palm Beach open-data discovery",
+        "label": "Palm Beach — open-data discovery (no public permit feed)",
         "kind": "hub_discover",
         "hub_sites": [
             "https://opendata2-pbcgov.opendata.arcgis.com",
             "https://gisportal-wpbgis.opendata.arcgis.com",
         ],
-        "portal": "https://opendata2-pbcgov.opendata.arcgis.com/",
-        "note": "PBC does not publish a stable countywide permits layer; the DCAT catalogs are scanned at runtime for permit datasets.",
+        "portal": "https://discover.pbc.gov/epzb.admin.webspa/",
+        "note": ("Palm Beach County and its cities run permits through Accela/ePZB, "
+                 "Click2Gov and similar portals — none publish issued permits as a "
+                 "queryable GIS/API layer. Catalogs are scanned each run and will "
+                 "auto-activate if one is ever published."),
     },
     {
-        "id": "martin",
+        "id": "martin_dev",
         "county": "Martin",
-        "label": "Martin County — open-data discovery",
-        "kind": "hub_discover",
-        "hub_sites": [
-            "https://data-mcgov.opendata.arcgis.com",
+        "label": "Martin County — Countywide Development Projects (Accela permits not public)",
+        "kind": "arcgis_layer",
+        # Martin building permits are Accela-only. Their open-data DOES publish
+        # countywide development-review projects — real active construction
+        # leads (has PERMIT_NUMBER + PROJECT_NAME + status), just not the full
+        # issued-permit stream. Labeled honestly.
+        "layer_urls": [
+            "https://geoweb.martin.fl.us/arcgis/rest/services/Administrative_Areas/Proposed_Developments/MapServer/0",
         ],
-        "portal": "https://data-mcgov.opendata.arcgis.com/",
-        "note": "Martin County permits live in Accela; the open-data catalog is scanned at runtime for permit/development datasets.",
+        "hub_dataset_ids": ["154ce08f06cf4048936536ba490e5c90_0"],
+        "hub_sites": ["https://data-mcgov.opendata.arcgis.com"],
+        "portal": "https://data-mcgov.opendata.arcgis.com/datasets/mcgov::countywide-development-projects",
+        "note": ("Martin County issued building permits live in Accela (aca-prod.accela.com/"
+                 "MARTINCO) with no public GIS/API export. This layer is the county's "
+                 "development-review projects — real construction activity, but not the "
+                 "full permit stream."),
     },
 ]
 
@@ -543,6 +576,52 @@ def _layer_url_from_service(svc, layer_id):
     return None
 
 
+# Known-wrong ArcGIS orgs/hosts that name-collide with our counties in search
+# results (Esri sample data, Palm BAY, Seattle, Tempe, Baltimore County,
+# Fort Worth, and various Canadian districts). A candidate layer matching any
+# of these is never used, even if discovery or an env override surfaces it.
+_BLOCKED_LAYER_RX = re.compile(
+    r"ONZht79c8QWuX759"          # Esri sample "Building_Permits" (a.k.a. Canadian)
+    r"|palmbayflorida"           # Palm BAY (Brevard), not Palm Beach
+    r"|ZOyb2t4B0UYuYNYH"         # Seattle
+    r"|lQySeXwbBg53XWDi"         # Tempe, AZ
+    r"|data-csrd"                # Columbia Shuswap, BC
+    r"|bcstat|www-bcstat"        # Baltimore County, MD ("bc-gis")
+    r"|CFW_Open_Data|3ddLCBXe1bRt7mzj",  # Fort Worth, TX
+    re.I)
+
+
+def _is_blocked(layer_url):
+    return bool(layer_url and _BLOCKED_LAYER_RX.search(layer_url))
+
+
+def resolve_hub_dataset_id(dataset_id):
+    """Resolve an ArcGIS Hub dataset id (e.g. '<itemid>_0') to a queryable
+    layer URL via the Hub v3 dataset API. This returns clean JSON and works
+    for county Hub datasets whose items reject the ArcGIS sharing API with a
+    permissions error (the exact Miami-Dade failure)."""
+    ck = f"hubds:{dataset_id}"
+    hit = _cache_get(ck)
+    if hit is not None:
+        return hit
+    data = _get_json(f"https://hub.arcgis.com/api/v3/datasets/{dataset_id}",
+                     params={"fields[datasets]": "url,layer,name,recordCount"},
+                     timeout=HTTP_TIMEOUT + 8)
+    d = data.get("data") or {}
+    a = d.get("attributes") or {}
+    layer_id = None
+    lay = a.get("layer")
+    if isinstance(lay, dict) and lay.get("id") is not None:
+        layer_id = lay.get("id")
+    if layer_id is None:
+        m = re.search(r"_(\d+)$", dataset_id)
+        layer_id = m.group(1) if m else 0
+    url = _layer_url_from_service(a.get("url") or a.get("serviceUrl"), layer_id)
+    if url:
+        _cache_put(ck, url, CACHE_TTL_META)
+    return url
+
+
 # --------------------------------------------------------------------------
 # ArcGIS Hub discovery
 # --------------------------------------------------------------------------
@@ -767,26 +846,44 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
         # 1) direct, pinned layer URLs (most reliable)
         layer_urls.extend(source.get("layer_urls") or [])
 
-        # 2) ArcGIS Online item IDs -> service layer
+        # 2) Hub dataset ids -> layer URL via Hub v3 (clean JSON; bypasses the
+        #    ArcGIS sharing-API permission errors some county items return)
+        for did in source.get("hub_dataset_ids") or []:
+            try:
+                u = resolve_hub_dataset_id(did)
+                if u:
+                    layer_urls.append(u)
+                else:
+                    attempts.append(f"hubds {did}: no service url")
+            except Exception as e:
+                attempts.append(f"hubds {did}: {str(e)[:120]}")
+
+        # 3) ArcGIS Online item IDs -> service layer
         for item_id in source.get("item_ids") or []:
             try:
                 layer_urls.append(resolve_item_to_layer(item_id))
             except Exception as e:
                 attempts.append(f"item {item_id}: {str(e)[:120]}")
 
-        # 3) open-data catalog discovery (Hub v3 search + DCAT)
+        # 4) open-data catalog discovery (Hub v3 search + DCAT)
         if source.get("hub_sites") or source.get("kind") == "hub_discover":
             discovery_ran = True
             found, discovery_scanned = _discover(source.get("hub_sites"))
             layer_urls.extend(c["layer_url"] for c in found[:3])
             discovered_titles = [c["title"] for c in found[:5]]
 
-        # de-dupe while preserving priority order
-        seen, ordered = set(), []
+        # de-dupe, drop blocklisted false-positive orgs, preserve priority
+        seen, ordered, blocked = set(), [], []
         for u in layer_urls:
-            if u and u not in seen:
-                seen.add(u)
-                ordered.append(u)
+            if not u or u in seen:
+                continue
+            seen.add(u)
+            if _is_blocked(u):
+                blocked.append(u)
+                continue
+            ordered.append(u)
+        if blocked:
+            attempts.append(f"blocked {len(blocked)} known-wrong-jurisdiction layer(s)")
         layer_urls = ordered
 
         if discovered_titles:

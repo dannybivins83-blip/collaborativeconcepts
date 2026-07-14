@@ -518,6 +518,71 @@ class DateQueryTests(unittest.TestCase):
         self.assertEqual(len(feats), 1)  # gracefully fell back to where=1=1
 
 
+class HubDatasetResolveTests(unittest.TestCase):
+    def setUp(self):
+        permits._cache.clear()
+
+    def test_resolves_dataset_id_to_layer_url(self):
+        resp = {"data": {"attributes": {
+            "url": "https://svc.example/arcgis/rest/services/BP/FeatureServer",
+            "layer": {"id": 0}}}}
+        with mock.patch.object(permits, "_get_json", return_value=resp):
+            url = permits.resolve_hub_dataset_id("abc123_0")
+        self.assertEqual(url, "https://svc.example/arcgis/rest/services/BP/FeatureServer/0")
+
+    def test_layer_id_from_suffix_when_missing(self):
+        resp = {"data": {"attributes": {
+            "url": "https://svc.example/arcgis/rest/services/BP/FeatureServer"}}}
+        with mock.patch.object(permits, "_get_json", return_value=resp):
+            url = permits.resolve_hub_dataset_id("abc123_3")
+        self.assertTrue(url.endswith("/FeatureServer/3"))
+
+    def test_no_service_url_returns_none(self):
+        with mock.patch.object(permits, "_get_json", return_value={"data": {"attributes": {}}}):
+            self.assertIsNone(permits.resolve_hub_dataset_id("abc_0"))
+
+
+class BlocklistTests(unittest.TestCase):
+    def setUp(self):
+        permits._cache.clear()
+
+    def test_known_false_positive_orgs_blocked(self):
+        for bad in [
+            "https://services6.arcgis.com/ONZht79c8QWuX759/arcgis/rest/services/Building_Permits/FeatureServer/0",
+            "https://gis.palmbayflorida.org/arcgis/rest/services/GrowthManagement/BuildingPermits/FeatureServer/0",
+            "https://services.arcgis.com/lQySeXwbBg53XWDi/arcgis/rest/services/building_permits/FeatureServer/0",
+        ]:
+            self.assertTrue(permits._is_blocked(bad), bad)
+        self.assertFalse(permits._is_blocked(
+            "https://gis.fortlauderdale.gov/arcgis/rest/services/BuildingPermitTracker/BuildingPermitTracker/MapServer/0"))
+
+    def test_blocked_layer_skipped_in_fetch(self):
+        good = "https://gis.example/arcgis/rest/services/BP/FeatureServer/0"
+        def world(url, params=None, timeout=None):
+            if "ONZht79c8QWuX759" in url:
+                raise AssertionError("blocked layer must never be requested")
+            if url.endswith("/query"):
+                p = params or {}
+                if p.get("returnCountOnly"):
+                    return {"count": 1}
+                return {"features": [{"attributes": {
+                    "PERMITNUMBER": "G-1", "DESCRIPTION": "REROOF",
+                    "ISSUEDDATE": _epoch_ms_days_ago(1)}}]}
+            return {"name": "BP", "fields": [
+                {"name": "PERMITNUMBER", "type": "esriFieldTypeString"},
+                {"name": "DESCRIPTION", "type": "esriFieldTypeString"},
+                {"name": "ISSUEDDATE", "type": "esriFieldTypeDate"}]}
+        src = {"id": "t", "county": "Broward", "label": "T", "kind": "arcgis_layer",
+               "layer_urls": [
+                   "https://services6.arcgis.com/ONZht79c8QWuX759/arcgis/rest/services/Building_Permits/FeatureServer/0",
+                   good]}
+        with mock.patch.object(permits, "_get_json", side_effect=world):
+            rows, info = permits.fetch_source(src)
+        self.assertEqual(info["status"], "ok")
+        self.assertEqual(info["layer_url"], good)
+        self.assertEqual(rows[0]["permit_number"], "G-1")
+
+
 class HubV3DiscoveryTests(unittest.TestCase):
     def setUp(self):
         permits._cache.clear()
@@ -679,8 +744,12 @@ class EndpointTests(unittest.TestCase):
         r = self.client.get("/api/permits/sources")
         data = r.get_json()
         ids = [s["id"] for s in data["sources"]]
-        self.assertEqual(set(ids), {"mdc", "ftl", "pbc", "martin"})
+        self.assertEqual(set(ids),
+                         {"mdc", "ftl", "ppines", "broward_uninc", "pbc", "martin_dev"})
         self.assertEqual(data["counties"], permits.COUNTIES)
+        # every county still represented by at least one source
+        counties = {s["county"] for s in data["sources"]}
+        self.assertEqual(counties, set(permits.COUNTIES))
 
     def test_csv_export(self):
         with self._patch_live():
