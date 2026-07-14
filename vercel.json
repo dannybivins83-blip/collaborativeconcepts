@@ -64,6 +64,17 @@
       "permanent": true
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.roofanchorcert.com"
+        }
+      ],
+      "destination": "https://roofanchorcert.com/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {
@@ -72,6 +83,17 @@
         }
       ],
       "destination": "https://roofanchorcert.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "davitinspections.com"
+        }
+      ],
+      "destination": "https://roofanchorcert.com/",
       "permanent": true
     },
     {
@@ -86,6 +108,17 @@
       "permanent": true
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.davitinspections.com"
+        }
+      ],
+      "destination": "https://roofanchorcert.com/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {
@@ -97,14 +130,14 @@
       "permanent": true
     },
     {
-      "source": "/wwslgc",
+      "source": "/",
       "has": [
         {
           "type": "host",
           "value": "roofanchorcert.com"
         }
       ],
-      "destination": "https://roofanchorcert.com/",
+      "destination": "/wwslgc",
       "permanent": true
     },
     {
@@ -202,16 +235,6 @@
         }
       ],
       "destination": "/wwslgc/:path*"
-    },
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "roofanchorcert.com"
-        }
-      ],
-      "destination": "/wwslgc/index.html"
     },
     {
       "source": "/:path*",
