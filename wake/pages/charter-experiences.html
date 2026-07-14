@@ -289,6 +289,7 @@ const CONFIG = {
       <a href="#book">Charters</a>
       <a href="#included">What's included</a>
       <a href="#faq">How it works</a>
+      <a href="/wake/blog/">Guides</a>
       <a href="/wake">Value / sell my boat</a>
     </div>
     <a class="nav-cta" href="#book">Book a charter</a>
@@ -509,7 +510,7 @@ var PACKAGES=[
   {id:'surf',   name:'2-Hour Wakesurf Session', price:549,  dur:'2 hr', desc:'Private captain pulls the perfect wave. Boards, vests, tubes & GoPro included — lessons for first-timers.'},
   {id:'sunset', name:'Sunset Cruise',           price:449,  dur:'2 hr', desc:'Two golden hours on the Intracoastal — cooler, Bluetooth speaker, swim stop.'},
   {id:'half',   name:'Half-Day: Lake + Canals', price:899,  dur:'4 hr', desc:'Wakesurf Lake Osborne, cruise the Belvedere/I-95 canals to the Hilton pool, beach the sandbar.'},
-  {id:'full',   name:'Full-Day Adventure',      price:1290, dur:'6 hr', desc:'Six hours, two lakes and a sandbar grill-out stop — the whole crew, all day.'}
+  {id:'full',   name:'Full-Day Adventure',      price:null, custom:true, dur:'6 hr', desc:'Six hours, two lakes and a sandbar grill-out stop — the whole crew, all day. Priced to fit your plan.'}
 ];
 var TIMES=['7:00 AM — glass','9:30 AM','12:00 PM','2:30 PM','Golden hour'];
 var LOCATIONS=['Lake Osborne · Lantana','Lake Ida · Delray','Intracoastal · Boynton','We come to you · your dock'];
@@ -523,8 +524,10 @@ function makeCrew(n,prev){var out=[];for(var i=0;i<n;i++){if(i===0)out.push(prev
 function pkgObj(){for(var i=0;i<PACKAGES.length;i++)if(PACKAGES[i].id===S.pkg)return PACKAGES[i];return PACKAGES[0];}
 function total(){return pkgObj().price;}
 function fmt(n){return '$'+Math.round(n).toLocaleString('en-US');}
-function perPerson(){var g=S.group||1;return S.split==='hostFull'?0:total()/g;}
-function hostShare(){return S.split==='hostFull'?total():perPerson();}
+function isCustom(){return pkgObj().price==null;}
+function money(n){return (n==null||isNaN(n))?'By quote':fmt(n);}
+function perPerson(){if(isCustom())return null;var g=S.group||1;return S.split==='hostFull'?0:total()/g;}
+function hostShare(){if(isCustom())return null;return S.split==='hostFull'?total():perPerson();}
 function dateText(){if(!S.date)return 'Pick a date';try{var d=new Date(S.date+'T00:00:00');return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});}catch(e){return S.date;}}
 function groupText(){return S.group+(S.group===1?' guest':' guests');}
 function shareLink(){
@@ -538,7 +541,7 @@ function shareLink(){
 function shareMsg(){
   var who=S.host.name?(S.host.name.split(' ')[0]+' booked'):'I booked';
   var when=S.date?(' on '+dateText()):'';
-  var share=S.split==='hostFull'?"It's on me":('Your share is about '+fmt(perPerson()));
+  var share=isCustom()?"we'll sort a custom full-day quote":(S.split==='hostFull'?"It's on me":('Your share is about '+fmt(perPerson())));
   return who+' a Palm Beach Wake Boats charter 🌊 — '+pkgObj().name+when+'. '+share+'. Grab your spot: '+shareLink();
 }
 
@@ -546,7 +549,7 @@ function shareMsg(){
 (function(){
   var pl=document.getElementById('pkgList');
   pl.innerHTML=PACKAGES.map(function(p){
-    return '<button class="pkg" data-pkg="'+p.id+'"><div style="flex:1"><div class="top"><span class="nm">'+p.name+'</span><span class="pr">'+fmt(p.price)+'</span></div><div class="ds">'+p.desc+'</div><div class="du">'+p.dur+' · per boat</div></div></button>';
+    return '<button class="pkg" data-pkg="'+p.id+'"><div style="flex:1"><div class="top"><span class="nm">'+p.name+'</span><span class="pr">'+(p.price==null?'Custom':fmt(p.price))+'</span></div><div class="ds">'+p.desc+'</div><div class="du">'+p.dur+' · per boat</div></div></button>';
   }).join('');
   pl.querySelectorAll('.pkg').forEach(function(b){b.addEventListener('click',function(){S.pkg=b.getAttribute('data-pkg');setErr('e1','');recompute();});});
   var ft=document.getElementById('f_time');TIMES.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;ft.appendChild(o);});
@@ -558,14 +561,15 @@ function shareMsg(){
 function recompute(){
   document.querySelectorAll('.pkg').forEach(function(b){b.classList.toggle('sel',b.getAttribute('data-pkg')===S.pkg);});
   document.getElementById('gVal').textContent=S.group;
-  document.getElementById('cta1').textContent=fmt(total()/(S.group||1));
+  var arrow='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>';
+  document.getElementById('to2').innerHTML=isCustom()?('Continue — build my quote '+arrow):('Invite the crew — '+fmt(total()/(S.group||1))+'/person '+arrow);
   // step 2
   document.getElementById('segEven').classList.toggle('on',S.split==='even');
   document.getElementById('segHost').classList.toggle('on',S.split==='hostFull');
-  document.getElementById('splitLabel').textContent=S.split==='even'?'Each person pays':'You cover it all';
-  document.getElementById('splitMeta').textContent=fmt(total())+' total · '+groupText();
-  document.getElementById('splitAmt').textContent=S.split==='even'?fmt(perPerson()):fmt(total());
-  document.getElementById('cta2').textContent=fmt(hostShare());
+  document.getElementById('splitLabel').textContent=isCustom()?'Custom full-day quote':(S.split==='even'?'Each person pays':'You cover it all');
+  document.getElementById('splitMeta').textContent=(isCustom()?'Priced by quote · ':money(total())+' total · ')+groupText();
+  document.getElementById('splitAmt').textContent=isCustom()?'By quote':(S.split==='even'?money(perPerson()):money(total()));
+  document.getElementById('to3').innerHTML=isCustom()?('Reserve my spot '+arrow):('Reserve my spot — '+money(hostShare())+' '+arrow);
   document.getElementById('linkText').textContent=shareLink().replace(/^https:\/\//,'').replace('#book','');
   var lt2=document.getElementById('linkText2');if(lt2)lt2.textContent=shareLink().replace(/^https:\/\//,'').replace('#book','');
   renderCrew();
@@ -573,9 +577,9 @@ function recompute(){
   document.getElementById('sumPkg').textContent=pkgObj().name;
   document.getElementById('sumWhen').textContent=dateText()+(S.time?(' · '+S.time):'');
   document.getElementById('sumLoc').textContent=S.loc;
-  document.getElementById('sumTot').textContent=groupText()+' · '+fmt(total())+' total';
-  document.getElementById('sumPer').textContent=(S.split==='even'?fmt(perPerson())+'/person':'you cover it');
-  document.getElementById('hostShare').textContent=fmt(hostShare());
+  document.getElementById('sumTot').textContent=groupText()+(isCustom()?' · priced by quote':' · '+money(total())+' total');
+  document.getElementById('sumPer').textContent=isCustom()?'custom quote':(S.split==='even'?money(perPerson())+'/person':'you cover it');
+  document.getElementById('hostShare').textContent=money(hostShare());
 }
 function renderCrew(){
   var el=document.getElementById('crewList');if(!el)return;
@@ -583,7 +587,7 @@ function renderCrew(){
   for(var i=0;i<S.crew.length;i++){
     var c=S.crew[i];var isHost=!!c.host;
     var initial=isHost?'Y':(c.name?c.name.trim().charAt(0).toUpperCase():'?');
-    var share=(even?'≈ ':'')+fmt(isHost?hostShare():perPerson());
+    var share=isCustom()?'—':(even?'≈ ':'')+money(isHost?hostShare():perPerson());
     var status=isHost?'Paying your share':(S.split==='hostFull'?'On you 🎉':'Pays via your link');
     var mid=isHost?'<div class="who">You <span>· host</span></div>':'<input data-crew="'+i+'" value="'+(c.name||'').replace(/"/g,'&quot;')+'" placeholder="Friend\'s name">';
     html+='<div class="crewrow"><div class="av">'+initial+'</div><div class="mid">'+mid+'<div class="st">'+status+'</div></div><div class="sh2">'+share+'</div></div>';
@@ -669,7 +673,7 @@ document.getElementById('submitBtn').addEventListener('click',function(){
   S.ref='PBW-'+Math.floor(1000+Math.random()*9000);
   var data={type:'CHARTER BOOKING REQUEST',ref:S.ref,package:pkgObj().name,date:S.date,when:dateText()+' · '+S.time,
     launch:S.loc,group:groupText(),split:(S.split==='hostFull'?"host covers all":"even split"),
-    total:fmt(total()),per_person:fmt(perPerson()),your_share:fmt(hostShare()),crew:crewNames(),
+    total:money(total()),per_person:money(perPerson()),your_share:money(hostShare()),crew:crewNames(),
     name:S.host.name,phone:S.host.phone,email:S.host.email,invite_link:shareLink(),
     consent:'yes ('+new Date().toISOString()+')',page:location.href};
   if(CONFIG.FORM_ENDPOINT){
@@ -687,7 +691,7 @@ function mail(data){
 }
 function finish(){
   document.getElementById('confirmLead').innerHTML=pkgObj().name+' · '+dateText()+(S.time?(' at '+S.time):'')+' — '+S.loc+'. Confirmation <strong style="color:#14556E">'+S.ref+'</strong> — we\'ll text you shortly to confirm and send your secure payment + crew-split link.';
-  document.getElementById('nudgeDesc').textContent='Share your link so friends can claim their spots'+(S.split==='even'?(' and pay their '+fmt(perPerson())+' share'):'')+'.';
+  document.getElementById('nudgeDesc').textContent='Share your link so friends can claim their spots'+((S.split==='even'&&!isCustom())?(' and pay their '+fmt(perPerson())+' share'):'')+'.';
   show(4);track('charter_reserved');
 }
 function track(ev){if(window.gtag)gtag('event',ev);if(window.fbq)fbq('trackCustom',ev);}
