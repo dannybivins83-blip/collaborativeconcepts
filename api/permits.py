@@ -318,27 +318,148 @@ def map_fields(fields):
     return mapping
 
 
-def query_layer(layer_url, order_field=None, record_count=2000):
-    """Pull recent records. Uses where=1=1 + server-side ORDER BY when
-    available (date filtering happens client-side — avoids per-server SQL
-    dialect problems). Falls back to unordered query if ORDER BY errors."""
-    params = {
-        "where": "1=1",
-        "outFields": "*",
-        "f": "json",
-        "resultRecordCount": record_count,
-        "returnGeometry": "true",
-        "outSR": 4326,
-    }
-    if order_field:
-        params["orderByFields"] = f"{order_field} DESC"
-    data = _get_json(f"{layer_url}/query", params=params, timeout=HTTP_TIMEOUT + 8)
-    if data.get("error") and order_field:
-        params.pop("orderByFields", None)
-        data = _get_json(f"{layer_url}/query", params=params, timeout=HTTP_TIMEOUT + 8)
-    if data.get("error"):
-        raise RuntimeError(f"query error: {data['error'].get('message', 'error')}")
-    return data.get("features") or []
+def _ms_to_timestamp(ms):
+    return datetime.fromtimestamp(ms / 1000.0, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _build_date_where(date_field, start_ms, end_ms, style):
+    """Build a WHERE clause for a date range in one of several SQL dialects
+    ArcGIS servers accept (they disagree on date literals)."""
+    parts = []
+    if style == "ts":       # standardized queries (most hosted FeatureServers)
+        if start_ms is not None:
+            parts.append(f"{date_field} >= TIMESTAMP '{_ms_to_timestamp(start_ms)}'")
+        if end_ms is not None:
+            parts.append(f"{date_field} <= TIMESTAMP '{_ms_to_timestamp(end_ms)}'")
+    elif style == "date":   # older ArcGIS Server MapServers
+        if start_ms is not None:
+            parts.append(f"{date_field} >= DATE '{_ms_to_timestamp(start_ms)[:10]}'")
+        if end_ms is not None:
+            parts.append(f"{date_field} <= DATE '{_ms_to_timestamp(end_ms)[:10]}'")
+    elif style == "epoch":  # some services accept raw epoch millis
+        if start_ms is not None:
+            parts.append(f"{date_field} >= {int(start_ms)}")
+        if end_ms is not None:
+            parts.append(f"{date_field} <= {int(end_ms)}")
+    return " AND ".join(parts) if parts else "1=1"
+
+
+def query_layer(layer_url, order_field=None, date_field=None, start_ms=None,
+                end_ms=None, record_count=2000, max_records=4000):
+    """Pull records, filtering the date range SERVER-SIDE when a date field +
+    range is given (so historical windows return the right rows instead of just
+    the newest N), with pagination. Degrades gracefully: a date-WHERE dialect
+    that errors is dropped, then ORDER BY is dropped, then we fall back to an
+    unfiltered pull + client-side filtering."""
+    qurl = f"{layer_url}/query"
+
+    where = "1=1"
+    if date_field and (start_ms is not None or end_ms is not None):
+        for style in ("ts", "epoch", "date"):
+            cand = _build_date_where(date_field, start_ms, end_ms, style)
+            try:
+                probe = _get_json(qurl, params={"where": cand, "returnCountOnly": "true",
+                                                "f": "json"})
+                if not probe.get("error"):
+                    where = cand
+                    break
+            except Exception:
+                continue
+
+    features = []
+    offset = 0
+    page = min(record_count, 2000)
+    use_order = bool(order_field)
+    while len(features) < max_records:
+        params = {
+            "where": where, "outFields": "*", "f": "json",
+            "resultRecordCount": page, "resultOffset": offset,
+            "returnGeometry": "true", "outSR": 4326,
+        }
+        if use_order:
+            params["orderByFields"] = f"{order_field} DESC"
+        data = _get_json(qurl, params=params, timeout=HTTP_TIMEOUT + 8)
+        if data.get("error"):
+            if use_order:              # retry this page without ORDER BY
+                use_order = False
+                continue
+            if where != "1=1":         # last resort: drop the date filter
+                where = "1=1"
+                continue
+            if offset == 0:
+                raise RuntimeError(f"query error: {data['error'].get('message', 'error')}")
+            break                      # keep rows already gathered from prior pages
+        feats = data.get("features") or []
+        features.extend(feats)
+        if len(feats) < page or not data.get("exceededTransferLimit"):
+            break
+        offset += page
+    return features[:max_records]
+
+
+# Tokens that must appear in a discovered dataset's metadata for it to count
+# as belonging to a given county (guards against pulling another state's
+# "Building Permits" from the global Hub search).
+COUNTY_TOKENS = {
+    "Miami-Dade": ["miami-dade", "miami dade", "mdc", "miami"],
+    "Broward": ["broward", "fort lauderdale", "ftl", "hollywood", "pompano", "coral springs"],
+    "Palm Beach": ["palm beach", "pbc", "west palm", "boca raton", "delray"],
+    "Martin": ["martin county", "martin ", "stuart", "hobe sound", "palm city"],
+}
+
+
+def _layer_url_from_service(svc, layer_id):
+    svc = (svc or "").rstrip("/")
+    if not svc:
+        return None
+    if re.search(r"/(Feature|Map)Server/\d+$", svc):
+        return svc
+    if re.search(r"/(Feature|Map)Server$", svc):
+        return f"{svc}/{layer_id if layer_id is not None else 0}"
+    return None
+
+
+# --------------------------------------------------------------------------
+# ArcGIS Hub discovery
+# --------------------------------------------------------------------------
+def discover_via_hub_search(query, county_tokens, limit=30):
+    """Discover permit layers via the ArcGIS Hub v3 datasets API, which returns
+    well-formed JSON:API (unlike the DCAT feed, which some counties — e.g.
+    Miami-Dade — emit as malformed JSON). Returns [{title, layer_url, landing}]
+    best-first, county-gated. Raises only if the API itself is unreachable."""
+    ck = f"hubv3:{query}:{county_tokens}"
+    hit = _cache_get(ck)
+    if hit is not None:
+        return hit
+    data = _get_json("https://hub.arcgis.com/api/v3/datasets",
+                     params={"q": query, "num": limit}, timeout=HTTP_TIMEOUT + 8)
+    out = []
+    for d in data.get("data", []) or []:
+        a = d.get("attributes", {}) or {}
+        name = a.get("name") or a.get("title") or ""
+        if not _PERMIT_DATASET_RX.search(name) or _PERMIT_DATASET_NEG_RX.search(name):
+            continue
+        hay = " ".join(str(a.get(k) or "") for k in
+                       ("name", "source", "orgName", "owner", "region",
+                        "snippet", "description")).lower()
+        if county_tokens and not any(tok in hay for tok in county_tokens):
+            continue
+        layer_id = None
+        lay = a.get("layer")
+        if isinstance(lay, dict) and lay.get("id") is not None:
+            layer_id = lay.get("id")
+        if layer_id is None:
+            m = re.search(r"_(\d+)$", d.get("id") or "")
+            layer_id = m.group(1) if m else 0
+        layer_url = _layer_url_from_service(a.get("url") or a.get("serviceUrl"), layer_id)
+        if not layer_url:
+            continue
+        score = 0 if re.search(r"building\s*permit", name, re.I) else 1
+        out.append((score, {"title": name, "layer_url": layer_url,
+                            "landing": a.get("url") or ""}))
+    result = [c for _, c in sorted(out, key=lambda x: x[0])]
+    _cache_put(ck, result, CACHE_TTL_META)
+    return result
 
 
 # --------------------------------------------------------------------------
@@ -471,7 +592,7 @@ def normalize_feature(feature, mapping, source):
 # --------------------------------------------------------------------------
 # Per-source fetch
 # --------------------------------------------------------------------------
-def fetch_source(source, record_count=2000):
+def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
     """Returns (permits, info). Never raises."""
     info = {"id": source.get("id"), "county": source.get("county"),
             "label": source.get("label"), "status": "error", "count": 0,
@@ -481,6 +602,17 @@ def fetch_source(source, record_count=2000):
 
     def _discover(sites):
         found, scanned = [], 0
+        # 1) Hub v3 search API first — clean JSON, immune to broken DCAT feeds.
+        q = source.get("discover_query") or "building permit"
+        toks = COUNTY_TOKENS.get(source.get("county"), [])
+        try:
+            v3 = discover_via_hub_search(q, toks)
+            if v3:
+                found.extend(v3)
+            scanned += 1
+        except Exception as e:
+            attempts.append(f"hubv3: {str(e)[:120]}")
+        # 2) per-site DCAT catalogs as a secondary path.
         for site in sites or []:
             if time.time() - started > SOURCE_BUDGET:
                 break
@@ -489,7 +621,14 @@ def fetch_source(source, record_count=2000):
                 scanned += 1
             except Exception as e:
                 attempts.append(f"discover {site}: {str(e)[:120]}")
-        return found, scanned
+        # de-dupe candidate layers by URL, keeping best-first order.
+        seen, uniq = set(), []
+        for c in found:
+            if c["layer_url"] in seen:
+                continue
+            seen.add(c["layer_url"])
+            uniq.append(c)
+        return uniq, scanned
 
     try:
         kind = source.get("kind")
@@ -542,7 +681,8 @@ def fetch_source(source, record_count=2000):
                     raise RuntimeError("layer has no recognizable permit fields")
                 order_field = mapping.get("issue_date") or mapping.get("applied_date")
                 feats = query_layer(layer_url, order_field=order_field,
-                                    record_count=record_count)
+                                    date_field=order_field, start_ms=start_ms,
+                                    end_ms=end_ms, record_count=record_count)
                 permits = [normalize_feature(f, mapping, source) for f in feats]
                 info.update({
                     "status": "ok", "count": len(permits), "layer_url": layer_url,
@@ -657,14 +797,73 @@ def _parse_counties(raw):
     return wanted or list(COUNTIES)
 
 
+def _clamp_int(v, default, lo, hi):
+    try:
+        return max(lo, min(hi, int(v)))
+    except Exception:
+        return default
+
+
+def _subtract_months(dt, months):
+    total = dt.year * 12 + (dt.month - 1) - months
+    y, m = divmod(total, 12)
+    m += 1
+    from calendar import monthrange
+    day = min(dt.day, monthrange(y, m)[1])
+    return dt.replace(year=y, month=m, day=day)
+
+
+def compute_window(params, now=None):
+    """Resolve the requested time window into (start_dt, end_dt, label).
+    Supports: year=YYYY (a whole calendar year), years=N, months=N, days=N
+    (default 30). Explicit start/end (YYYY-MM-DD) override everything."""
+    now = now or datetime.now(timezone.utc)
+
+    def _parse_iso(s):
+        try:
+            return datetime.strptime(s.strip()[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        except Exception:
+            return None
+
+    start_s = _parse_iso(params.get("start") or "")
+    end_s = _parse_iso(params.get("end") or "")
+    if start_s or end_s:
+        s = start_s or datetime(2000, 1, 1, tzinfo=timezone.utc)
+        e = end_s or now
+        return s, e, f"{s.strftime('%Y-%m-%d')} → {e.strftime('%Y-%m-%d')}"
+
+    if params.get("year"):
+        y = _clamp_int(params.get("year"), now.year, 2000, now.year)
+        start = datetime(y, 1, 1, tzinfo=timezone.utc)
+        end = datetime(y, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
+        return start, min(end, now), str(y)
+
+    if params.get("years"):
+        n = _clamp_int(params.get("years"), 1, 1, 25)
+        try:
+            start = now.replace(year=now.year - n)
+        except ValueError:  # Feb 29
+            start = now.replace(year=now.year - n, day=28)
+        return start, now, f"last {n} year{'s' if n > 1 else ''}"
+
+    if params.get("months"):
+        n = _clamp_int(params.get("months"), 6, 1, 300)
+        return _subtract_months(now, n), now, f"last {n} months"
+
+    n = _clamp_int(params.get("days"), 30, 1, 3660)
+    return now - timedelta(days=n), now, f"last {n} days"
+
+
 def run_search(params):
     counties = _parse_counties(params.get("county") or params.get("counties") or "")
+    now = datetime.now(timezone.utc)
+    start_dt, end_dt, window_label = compute_window(params, now)
+    start_ms = int(start_dt.timestamp() * 1000)
+    end_ms = int(end_dt.timestamp() * 1000)
+    start_iso = start_dt.strftime("%Y-%m-%d")
+    end_iso = end_dt.strftime("%Y-%m-%d")
     try:
-        days = max(1, min(365, int(params.get("days") or 30)))
-    except Exception:
-        days = 30
-    try:
-        limit = max(1, min(2000, int(params.get("limit") or 250)))
+        limit = max(1, min(5000, int(params.get("limit") or 250)))
     except Exception:
         limit = 250
     tags_filter = [t.strip() for t in (params.get("tags") or "").split(",") if t.strip()]
@@ -673,7 +872,8 @@ def run_search(params):
     force_demo = str(params.get("demo") or "") in ("1", "true", "yes")
     source_filter = (params.get("source") or "").strip()
 
-    cache_key = f"search:{sorted(counties)}:{days}:{limit}:{tags_filter}:{q}:{min_value}:{force_demo}:{source_filter}"
+    cache_key = (f"search:{sorted(counties)}:{start_iso}:{end_iso}:{limit}:{tags_filter}"
+                 f":{q}:{min_value}:{force_demo}:{source_filter}")
     cached = _cache_get(cache_key)
     if cached:
         return cached
@@ -689,7 +889,8 @@ def run_search(params):
                   "status": "demo", "count": len(all_permits)}]
     elif sources:
         with ThreadPoolExecutor(max_workers=min(4, len(sources))) as pool:
-            futures = {pool.submit(fetch_source, s): s for s in sources}
+            futures = {pool.submit(fetch_source, s, 2000, start_ms, end_ms): s
+                       for s in sources}
             done = set()
             try:
                 for fut in as_completed(futures, timeout=SOURCE_BUDGET + 10):
@@ -717,11 +918,9 @@ def run_search(params):
         all_permits = [p for p in demo_permits() if p["county"] in counties]
         demo_used = True
 
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%d")
-
     def keep(p):
         d = p.get("issued_date") or p.get("applied_date")
-        if d and d < cutoff:
+        if d and (d < start_iso or d > end_iso):
             return False
         if tags_filter and not (set(tags_filter) & set(p.get("tags") or [])):
             return False
@@ -743,7 +942,8 @@ def run_search(params):
     result = {
         "ok": True,
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "params": {"counties": counties, "days": days, "tags": tags_filter, "q": q,
+        "params": {"counties": counties, "window": window_label,
+                   "start": start_iso, "end": end_iso, "tags": tags_filter, "q": q,
                    "min_value": min_value, "limit": limit},
         "demo": demo_used,
         "sources": infos,

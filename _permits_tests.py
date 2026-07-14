@@ -354,6 +354,142 @@ class FetchSourceTests(unittest.TestCase):
         self.assertIn("net down", info["error"])
 
 
+class WindowTests(unittest.TestCase):
+    NOW = datetime(2026, 7, 14, 12, 0, 0, tzinfo=timezone.utc)
+
+    def test_default_is_30_days(self):
+        s, e, label = permits.compute_window({}, self.NOW)
+        self.assertEqual((self.NOW - s).days, 30)
+        self.assertEqual(label, "last 30 days")
+
+    def test_days(self):
+        s, e, label = permits.compute_window({"days": "7"}, self.NOW)
+        self.assertEqual((self.NOW - s).days, 7)
+
+    def test_months(self):
+        s, e, label = permits.compute_window({"months": "6"}, self.NOW)
+        self.assertEqual((s.year, s.month, s.day), (2026, 1, 14))
+        self.assertEqual(label, "last 6 months")
+
+    def test_months_crossing_year_boundary(self):
+        s, _, _ = permits.compute_window({"months": "9"}, self.NOW)
+        self.assertEqual((s.year, s.month), (2025, 10))
+
+    def test_years(self):
+        s, _, label = permits.compute_window({"years": "2"}, self.NOW)
+        self.assertEqual(s.year, 2024)
+        self.assertEqual(label, "last 2 years")
+
+    def test_specific_year(self):
+        s, e, label = permits.compute_window({"year": "2023"}, self.NOW)
+        self.assertEqual(s.strftime("%Y-%m-%d"), "2023-01-01")
+        self.assertEqual(e.strftime("%Y-%m-%d"), "2023-12-31")
+        self.assertEqual(label, "2023")
+
+    def test_current_year_clamped_to_now(self):
+        s, e, _ = permits.compute_window({"year": "2026"}, self.NOW)
+        self.assertEqual(e, self.NOW)  # not Dec 31 in the future
+
+    def test_explicit_start_end(self):
+        s, e, _ = permits.compute_window({"start": "2022-03-01", "end": "2022-06-30"}, self.NOW)
+        self.assertEqual(s.strftime("%Y-%m-%d"), "2022-03-01")
+        self.assertEqual(e.strftime("%Y-%m-%d"), "2022-06-30")
+
+    def test_future_year_clamped(self):
+        s, e, _ = permits.compute_window({"year": "3000"}, self.NOW)
+        self.assertLessEqual(s.year, self.NOW.year)
+
+
+class DateQueryTests(unittest.TestCase):
+    def test_server_side_date_where_and_pagination(self):
+        calls = []
+        def world(url, params=None, timeout=None):
+            calls.append(dict(params or {}))
+            p = params or {}
+            if p.get("returnCountOnly"):
+                # accept the first (TIMESTAMP) dialect
+                return {"count": 10} if "TIMESTAMP" in p.get("where", "") else {"error": {"message": "bad"}}
+            offset = int(p.get("resultOffset") or 0)
+            if offset == 0:
+                return {"features": [{"attributes": {"A": i}} for i in range(2000)],
+                        "exceededTransferLimit": True}
+            return {"features": [{"attributes": {"A": 9001}}]}  # second page
+        with mock.patch.object(permits, "_get_json", side_effect=world):
+            feats = permits.query_layer("https://x/FeatureServer/0", order_field="D",
+                                        date_field="D", start_ms=1_600_000_000_000,
+                                        end_ms=1_700_000_000_000)
+        self.assertEqual(len(feats), 2001)  # paginated across two pages
+        used = [c for c in calls if not c.get("returnCountOnly")][0]["where"]
+        self.assertIn("TIMESTAMP", used)   # server-side date filter applied
+
+    def test_date_where_falls_back_to_unfiltered(self):
+        def world(url, params=None, timeout=None):
+            p = params or {}
+            if p.get("returnCountOnly"):
+                return {"error": {"message": "no date sql"}}  # all dialects rejected
+            if p.get("where") != "1=1":
+                return {"error": {"message": "still bad"}}
+            return {"features": [{"attributes": {"A": 1}}]}
+        with mock.patch.object(permits, "_get_json", side_effect=world):
+            feats = permits.query_layer("https://x/FeatureServer/0", date_field="D",
+                                        start_ms=1_600_000_000_000)
+        self.assertEqual(len(feats), 1)  # gracefully fell back to where=1=1
+
+
+class HubV3DiscoveryTests(unittest.TestCase):
+    def setUp(self):
+        permits._cache.clear()
+
+    RESP = {"data": [
+        {"id": "aaaa_0", "attributes": {
+            "name": "Building Permit", "source": "Miami-Dade County",
+            "url": "https://svc.example/arcgis/rest/services/BP/FeatureServer",
+            "layer": {"id": 0}}},
+        {"id": "bbbb_2", "attributes": {
+            "name": "Building Permits", "orgName": "City of Raleigh",  # wrong county
+            "url": "https://svc.example/arcgis/rest/services/RAL/FeatureServer"}},
+        {"id": "cccc_0", "attributes": {
+            "name": "Well Permits", "source": "Miami-Dade",           # negative filter
+            "url": "https://svc.example/arcgis/rest/services/Well/FeatureServer"}},
+    ]}
+
+    def test_county_gating_and_layer_url(self):
+        with mock.patch.object(permits, "_get_json", return_value=self.RESP):
+            found = permits.discover_via_hub_search("building permit",
+                                                    permits.COUNTY_TOKENS["Miami-Dade"])
+        self.assertEqual(len(found), 1)  # Raleigh + Well filtered out
+        self.assertTrue(found[0]["layer_url"].endswith("/FeatureServer/0"))
+        self.assertEqual(found[0]["title"], "Building Permit")
+
+    def test_miami_dade_recovers_via_v3_when_items_dead(self):
+        """The real-world MDC failure: items restricted/removed + DCAT malformed.
+        v3 search should still find the layer and the source goes green."""
+        def world(url, params=None, timeout=None):
+            if "content/items" in url:
+                raise Exception("You do not have permissions")
+            if "hub.arcgis.com/api/v3" in url:
+                return self.RESP
+            if "dcat" in url or url.endswith("data.json"):
+                raise Exception("Expecting ',' delimiter")  # malformed feed
+            if url.endswith("/query"):
+                p = params or {}
+                if p.get("returnCountOnly"):
+                    return {"count": 3}
+                return {"features": [{"attributes": {
+                    "PERMITNUMBER": "MDC-1", "DESCRIPTION": "NEW POOL",
+                    "ISSUINGDATE": _epoch_ms_days_ago(3)}}]}
+            return {"name": "BP", "fields": [
+                {"name": "PERMITNUMBER", "type": "esriFieldTypeString"},
+                {"name": "DESCRIPTION", "type": "esriFieldTypeString"},
+                {"name": "ISSUINGDATE", "type": "esriFieldTypeDate"}]}
+        mdc = [s for s in permits.DEFAULT_SOURCES if s["id"] == "mdc"][0]
+        with mock.patch.object(permits, "_get_json", side_effect=world):
+            rows, info = permits.fetch_source(dict(mdc), start_ms=1, end_ms=None)
+        self.assertEqual(info["status"], "ok")
+        self.assertEqual(rows[0]["permit_number"], "MDC-1")
+        self.assertIn("pool_spa", rows[0]["tags"])
+
+
 class EndpointTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -389,7 +525,7 @@ class EndpointTests(unittest.TestCase):
 
     def _patch_live(self):
         rows = self._live_permits()
-        def fake_fetch(source, record_count=2000):
+        def fake_fetch(source, record_count=2000, start_ms=None, end_ms=None):
             mine = [p for p in rows if p["source_id"] == source["id"]]
             status = "ok" if mine else "empty"
             return mine, {"id": source["id"], "county": source["county"],
@@ -428,7 +564,7 @@ class EndpointTests(unittest.TestCase):
             self.assertEqual([p["permit_number"] for p in r.get_json()["permits"]], ["M-1"])
 
     def test_search_demo_fallback_when_all_sources_fail(self):
-        def dead_fetch(source, record_count=2000):
+        def dead_fetch(source, record_count=2000, start_ms=None, end_ms=None):
             return [], {"id": source["id"], "county": source["county"],
                         "label": source.get("label"), "status": "error",
                         "count": 0, "error": "unreachable"}

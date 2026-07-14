@@ -111,13 +111,7 @@
       <!-- chips injected -->
       <span style="flex-basis:100%"></span>
       <span class="mini" style="margin-right:2px">WINDOW</span>
-      <select id="days">
-        <option value="7">Last 7 days</option>
-        <option value="14">Last 14 days</option>
-        <option value="30" selected>Last 30 days</option>
-        <option value="60">Last 60 days</option>
-        <option value="90">Last 90 days</option>
-      </select>
+      <select id="window"><!-- options injected (relative ranges + specific years) --></select>
       <input type="text" id="q" placeholder="Search description, address, contractor…">
       <input type="number" id="minValue" placeholder="Min $ value" min="0" step="1000" style="width:120px">
       <label class="chip" id="demoChip" title="Force bundled sample data"><input type="checkbox" id="demoToggle" style="margin:0"> demo</label>
@@ -182,7 +176,8 @@
   var COUNTIES = ["Martin","Palm Beach","Broward","Miami-Dade"];
   var state = {
     counties: new Set(COUNTIES),
-    days: "30",
+    window: "days:30",
+    windowLabel: "Last 30 days",
     tags: new Set(),
     q: "",
     minValue: "",
@@ -194,6 +189,29 @@
   };
 
   var $ = function(id){ return document.getElementById(id); };
+
+  // ---- window selector (relative ranges + specific calendar years) ----
+  function buildWindowOptions(){
+    var sel = $("window");
+    var thisYear = new Date().getFullYear();
+    function grp(label){ var g = document.createElement("optgroup"); g.label = label; sel.appendChild(g); return g; }
+    function opt(g, val, text){ var o = document.createElement("option"); o.value = val; o.textContent = text; g.appendChild(o); return o; }
+    var recent = grp("Recent");
+    [["days:7","Last 7 days"],["days:14","Last 14 days"],["days:30","Last 30 days"],
+     ["days:60","Last 60 days"],["days:90","Last 90 days"],
+     ["months:6","Last 6 months"],["years:1","Last 12 months"],
+     ["years:2","Last 2 years"],["years:5","Last 5 years"]].forEach(function(o){
+      var el = opt(recent, o[0], o[1]);
+      if(o[0] === "days:30") el.selected = true;
+    });
+    var byYear = grp("Specific year");
+    for(var y = thisYear; y >= thisYear - 6; y--) opt(byYear, "year:" + y, String(y));
+    sel.onchange = function(){
+      state.window = this.value;
+      state.windowLabel = this.options[this.selectedIndex].textContent;
+      load();
+    };
+  }
 
   // ---- controls ----
   function buildCountyChips(){
@@ -231,7 +249,8 @@
   function queryString(){
     var p = new URLSearchParams();
     p.set("county", Array.from(state.counties).join(","));
-    p.set("days", state.days);
+    var w = (state.window || "days:30").split(":");
+    p.set(w[0], w[1]);   // days|months|years|year = N
     if(state.tags.size) p.set("tags", Array.from(state.tags).join(","));
     if(state.q) p.set("q", state.q);
     if(state.minValue) p.set("min_value", state.minValue);
@@ -302,7 +321,7 @@
 
   function renderStats(data){
     $("statCount").textContent = data.count.toLocaleString();
-    $("statWindow").textContent = "last " + data.params.days + " days · " +
+    $("statWindow").textContent = (data.params.window || state.windowLabel) + " · " +
       data.params.counties.join(", ");
     var totalVal = 0, tagCounts = {};
     data.permits.forEach(function(p){
@@ -398,7 +417,6 @@
   }
 
   // ---- events ----
-  $("days").onchange = function(){ state.days = this.value; load(); };
   var qTimer = null;
   $("q").oninput = function(){
     var v = this.value.trim();
@@ -439,6 +457,7 @@
     };
   });
 
+  buildWindowOptions();
   buildCountyChips();
   loadTags();
   load();
