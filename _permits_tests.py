@@ -547,6 +547,23 @@ class DateQueryTests(unittest.TestCase):
         used = [c for c in calls if not c.get("returnCountOnly")][0]["where"]
         self.assertIn("TIMESTAMP", used)   # server-side date filter applied
 
+    def test_zero_row_date_filter_falls_back_to_unfiltered(self):
+        """Regression: a date WHERE that is ACCEPTED but matches 0 rows (dialect
+        or type mismatch) must fall through to the unfiltered newest-first pull,
+        not report the layer as empty."""
+        def world(url, params=None, timeout=None):
+            p = params or {}
+            where = p.get("where", "")
+            if where != "1=1":
+                return {"features": []}          # filter matches nothing
+            return {"features": [{"attributes": {"PN": "A-1"}},
+                                 {"attributes": {"PN": "A-2"}}]}
+        with mock.patch.object(permits, "_get_json", side_effect=world):
+            feats = permits.query_layer("https://x/FeatureServer/0", order_field="D",
+                                        date_field="D", start_ms=1_600_000_000_000,
+                                        end_ms=1_700_000_000_000)
+        self.assertEqual(len(feats), 2)  # did NOT report empty
+
     def test_date_where_falls_back_to_unfiltered(self):
         def world(url, params=None, timeout=None):
             p = params or {}

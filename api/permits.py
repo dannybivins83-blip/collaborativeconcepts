@@ -504,53 +504,65 @@ def _build_date_where(date_field, start_ms, end_ms, style):
 
 def query_layer(layer_url, order_field=None, date_field=None, start_ms=None,
                 end_ms=None, record_count=2000, max_records=4000):
-    """Pull records, filtering the date range SERVER-SIDE when a date field +
-    range is given (so historical windows return the right rows instead of just
-    the newest N), with pagination. Degrades gracefully: a date-WHERE dialect
-    that errors is dropped, then ORDER BY is dropped, then we fall back to an
-    unfiltered pull + client-side filtering."""
+    """Pull records, preferring a SERVER-SIDE date filter (so historical windows
+    return the right rows, not just the newest N) but degrading safely.
+
+    Robustness is the priority: date SQL dialects vary and a wrong one can
+    silently match ZERO rows rather than error. So we try date-WHERE variants,
+    and — critically — if a filtered query returns 0 rows we fall through to an
+    UNFILTERED newest-first pull and let the caller's client-side window filter
+    do the work. That guarantees a layer with data never reports empty just
+    because its date column didn't accept our literal."""
     qurl = f"{layer_url}/query"
-
-    where = "1=1"
-    if date_field and (start_ms is not None or end_ms is not None):
-        for style in ("ts", "epoch", "date"):
-            cand = _build_date_where(date_field, start_ms, end_ms, style)
-            try:
-                probe = _get_json(qurl, params={"where": cand, "returnCountOnly": "true",
-                                                "f": "json"})
-                if not probe.get("error"):
-                    where = cand
-                    break
-            except Exception:
-                continue
-
-    features = []
-    offset = 0
     page = min(record_count, 2000)
-    use_order = bool(order_field)
-    while len(features) < max_records:
+
+    def fetch_page(where, offset, use_order):
         params = {
             "where": where, "outFields": "*", "f": "json",
             "resultRecordCount": page, "resultOffset": offset,
             "returnGeometry": "true", "outSR": 4326,
         }
-        if use_order:
+        if use_order and order_field:
             params["orderByFields"] = f"{order_field} DESC"
-        data = _get_json(qurl, params=params, timeout=HTTP_TIMEOUT + 8)
+        return _get_json(qurl, params=params, timeout=HTTP_TIMEOUT + 8)
+
+    # Candidate WHERE clauses in priority order; "1=1" (newest-first) is always
+    # the final fallback so a live layer never returns empty on a dialect miss.
+    where_options = []
+    if date_field and (start_ms is not None or end_ms is not None):
+        where_options.append(_build_date_where(date_field, start_ms, end_ms, "ts"))
+        where_options.append(_build_date_where(date_field, start_ms, end_ms, "epoch"))
+    where_options.append("1=1")
+
+    chosen_where, use_order, first = None, bool(order_field), None
+    last_err = None
+    for where in where_options:
+        uo = bool(order_field)
+        data = fetch_page(where, 0, uo)
+        if data.get("error") and uo:            # retry once without ORDER BY
+            uo = False
+            data = fetch_page(where, 0, uo)
         if data.get("error"):
-            if use_order:              # retry this page without ORDER BY
-                use_order = False
-                continue
-            if where != "1=1":         # last resort: drop the date filter
-                where = "1=1"
-                continue
-            if offset == 0:
-                raise RuntimeError(f"query error: {data['error'].get('message', 'error')}")
-            break                      # keep rows already gathered from prior pages
+            last_err = data["error"].get("message", "error")
+            continue
         feats = data.get("features") or []
-        features.extend(feats)
-        if len(feats) < page or not data.get("exceededTransferLimit"):
+        # accept this WHERE if it yielded rows, or it's the unfiltered fallback
+        if feats or where == "1=1":
+            chosen_where, use_order, first = where, uo, data
             break
+    if first is None:
+        raise RuntimeError(f"query error: {last_err or 'no working query variant'}")
+
+    features = list(first.get("features") or [])
+    data, offset = first, page
+    while len(features) < max_records and data.get("exceededTransferLimit"):
+        data = fetch_page(chosen_where, offset, use_order)
+        if data.get("error"):
+            break
+        feats = data.get("features") or []
+        if not feats:
+            break
+        features.extend(feats)
         offset += page
     return features[:max_records]
 
