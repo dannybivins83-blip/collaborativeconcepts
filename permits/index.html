@@ -270,11 +270,28 @@
       else if(s.status === "demo"){ cls = "demo"; icon = "◎"; note = "sample data"; }
       else if(s.status === "error" || s.status === "timeout"){ cls = "err"; icon = "✕"; note = s.status; }
       else if(s.status === "no_dataset"){ cls = "warn"; icon = "△"; note = "no public dataset yet"; }
+      var detail = [s.error, (s.attempts || []).join(" · "),
+                    s.discovered ? "found: " + s.discovered.join("; ") : ""]
+                   .filter(Boolean).join(" — ");
       var el = document.createElement("span");
       el.className = "src " + cls;
-      el.title = (s.error || "") + (s.discovered ? " · found: " + s.discovered.join("; ") : "");
+      el.title = detail;
       el.innerHTML = '<span class="dot"></span><span class="lbl">' + esc(s.label || s.id) +
                      '</span><span class="sub">' + icon + " " + esc(note) + "</span>";
+      if(detail && (cls === "err" || cls === "warn")){
+        el.style.cursor = "pointer";
+        el.onclick = function(){
+          var d = el.nextSibling;
+          if(d && d.className === "srcdetail"){ d.remove(); return; }
+          var box = document.createElement("div");
+          box.className = "srcdetail";
+          box.style.cssText = "flex-basis:100%;font-size:11.5px;color:var(--muted);" +
+                              "background:#f7fafd;border:1px solid var(--line);border-radius:8px;" +
+                              "padding:8px 10px;margin:-2px 0 4px";
+          box.textContent = "↳ " + detail;
+          el.parentNode.insertBefore(box, el.nextSibling);
+        };
+      }
       host.appendChild(el);
     });
     if(demo && !total){

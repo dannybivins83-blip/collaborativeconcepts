@@ -66,6 +66,9 @@ DEFAULT_SOURCES = [
             "31cd319f45544648b59f0418aea60091",  # "Building Permit" (rolling ~3 years, points)
             "f2181fb7e4ae46adbc633e478a607226",  # "Building Permits Issued by MDC" (2 yrs+)
         ],
+        # if the pinned items ever move, discovery finds the current layer:
+        "hub_sites": ["https://gis-mdc.opendata.arcgis.com",
+                      "https://opendata.miamidade.gov"],
         "portal": "https://gis-mdc.opendata.arcgis.com/datasets/MDC::building-permit/about",
     },
     {
@@ -474,41 +477,57 @@ def fetch_source(source, record_count=2000):
             "label": source.get("label"), "status": "error", "count": 0,
             "note": source.get("note"), "portal": source.get("portal")}
     started = time.time()
+    attempts = []  # per-step diagnostics surfaced to the health check
+
+    def _discover(sites):
+        found, scanned = [], 0
+        for site in sites or []:
+            if time.time() - started > SOURCE_BUDGET:
+                break
+            try:
+                found.extend(discover_hub_permit_layers(site))
+                scanned += 1
+            except Exception as e:
+                attempts.append(f"discover {site}: {str(e)[:120]}")
+        return found, scanned
+
     try:
         kind = source.get("kind")
-        layer_urls = []
+        layer_urls = []          # ordered candidates to try
+        discovered_titles = []
+
         if kind == "arcgis_layer":
             layer_urls = list(source.get("layer_urls") or [])
         elif kind == "arcgis_item":
-            errs = []
             for item_id in source.get("item_ids") or []:
                 try:
                     layer_urls.append(resolve_item_to_layer(item_id))
                 except Exception as e:
-                    errs.append(str(e))
+                    attempts.append(f"item {item_id}: {str(e)[:120]}")
+            # graceful fallback: if the pinned items can't resolve, discover
+            # the current permit layer from the county's own open-data catalog.
+            if source.get("hub_sites"):
+                found, _ = _discover(source["hub_sites"])
+                layer_urls.extend(c["layer_url"] for c in found[:2])
+                discovered_titles = [c["title"] for c in found[:5]]
             if not layer_urls:
-                raise RuntimeError("; ".join(errs) or "no item ids configured")
+                raise RuntimeError("; ".join(attempts) or "no item ids configured")
         elif kind == "hub_discover":
-            found, scan_errors, sites_scanned = [], [], 0
-            for site in source.get("hub_sites") or []:
-                if time.time() - started > SOURCE_BUDGET:
-                    break
-                try:
-                    found.extend(discover_hub_permit_layers(site))
-                    sites_scanned += 1
-                except Exception as e:
-                    scan_errors.append(str(e)[:150])
+            found, scanned = _discover(source.get("hub_sites"))
             if not found:
-                if sites_scanned == 0:
-                    raise RuntimeError("; ".join(scan_errors) or "no hub sites configured")
+                if scanned == 0:
+                    raise RuntimeError("; ".join(attempts) or "no hub sites configured")
                 info["status"] = "no_dataset"
                 info["error"] = ("No permit dataset published on this county's open-data "
                                  "portals yet (checked their DCAT catalogs).")
                 return [], info
-            layer_urls = [c["layer_url"] for c in found[:2]]
-            info["discovered"] = [c["title"] for c in found[:5]]
+            layer_urls = [c["layer_url"] for c in found[:3]]
+            discovered_titles = [c["title"] for c in found[:5]]
         else:
             raise RuntimeError(f"unknown source kind: {kind}")
+
+        if discovered_titles:
+            info["discovered"] = discovered_titles
 
         last_err = None
         for layer_url in layer_urls:
@@ -518,6 +537,9 @@ def fetch_source(source, record_count=2000):
             try:
                 meta = layer_metadata(layer_url)
                 mapping = map_fields(meta.get("fields"))
+                if not mapping.get("issue_date") and not mapping.get("applied_date") \
+                        and not mapping.get("permit_number"):
+                    raise RuntimeError("layer has no recognizable permit fields")
                 order_field = mapping.get("issue_date") or mapping.get("applied_date")
                 feats = query_layer(layer_url, order_field=order_field,
                                     record_count=record_count)
@@ -527,13 +549,18 @@ def fetch_source(source, record_count=2000):
                     "layer_name": meta.get("name"),
                     "resolved_fields": mapping,
                 })
+                if attempts:
+                    info["fallback_notes"] = attempts
                 return permits, info
             except Exception as e:
                 last_err = str(e)
+                attempts.append(f"query {layer_url[:80]}: {str(e)[:120]}")
                 continue
         raise RuntimeError(last_err or "no layer urls resolved")
     except Exception as e:
         info["error"] = str(e)[:400]
+        if attempts:
+            info["attempts"] = attempts[:6]
         return [], info
 
 
@@ -750,9 +777,10 @@ def register_permits_routes(app):
             entry = {k: s.get(k) for k in
                      ("id", "county", "label", "kind", "portal", "note")}
             if str(request.args.get("check") or "") in ("1", "true"):
-                _, info = fetch_source(s, record_count=1)
+                _, info = fetch_source(s, record_count=5)
                 entry["health"] = {k: info.get(k) for k in
-                                   ("status", "error", "layer_url", "discovered")}
+                                   ("status", "error", "layer_url", "layer_name",
+                                    "count", "discovered", "attempts", "fallback_notes")}
             out.append(entry)
         return jsonify({"ok": True, "sources": out,
                         "appraisers": APPRAISER_SEARCH, "counties": COUNTIES})

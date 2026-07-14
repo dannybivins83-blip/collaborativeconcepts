@@ -291,6 +291,53 @@ class FetchSourceTests(unittest.TestCase):
         self.assertEqual(info["status"], "error")
         self.assertEqual(rows, [])
 
+    def test_arcgis_item_falls_back_to_discovery(self):
+        """When pinned item IDs fail, a source with hub_sites should discover
+        the current permit layer from the county's catalog and use it."""
+        good_layer = "https://svc.example/arcgis/rest/services/BP/FeatureServer/0"
+        feed = {"dataset": [
+            {"title": "Building Permits", "description": "permits",
+             "distribution": [{"accessURL": good_layer}]}]}
+
+        def world(url, params=None, timeout=None):
+            if "content/items" in url:
+                raise Exception("410 item removed")           # pinned items dead
+            if url.endswith(".json") and "feed" in url or url.endswith("data.json"):
+                return feed
+            if "dcat" in url:
+                return feed
+            if url.endswith("/query"):
+                return {"features": [{"attributes": {"PERMITNO": "X-1",
+                        "DESCRIPTION": "SOLAR PV", "ISSUEDDATE": _epoch_ms_days_ago(1)}}]}
+            return {"name": "BP", "fields": [
+                {"name": "PERMITNO", "type": "esriFieldTypeString"},
+                {"name": "DESCRIPTION", "type": "esriFieldTypeString"},
+                {"name": "ISSUEDDATE", "type": "esriFieldTypeDate"}]}
+
+        src = {"id": "mdc", "county": "Miami-Dade", "label": "MDC",
+               "kind": "arcgis_item", "item_ids": ["deadbeef"],
+               "hub_sites": ["https://gis-mdc.opendata.arcgis.com"]}
+        with mock.patch.object(permits, "_get_json", side_effect=world):
+            rows, info = permits.fetch_source(src)
+        self.assertEqual(info["status"], "ok")
+        self.assertEqual(len(rows), 1)
+        self.assertIn("solar", rows[0]["tags"])
+        self.assertIn("discovered", info)
+
+    def test_layer_without_permit_fields_is_rejected(self):
+        def world(url, params=None, timeout=None):
+            if url.endswith("/query"):
+                return {"features": [{"attributes": {"SHAPE_AREA": 1.0, "OBJECTID": 2}}]}
+            return {"name": "Parcels", "fields": [
+                {"name": "SHAPE_AREA", "type": "esriFieldTypeDouble"},
+                {"name": "OBJECTID", "type": "esriFieldTypeOID"}]}
+        src = {"id": "t", "county": "Broward", "label": "T", "kind": "arcgis_layer",
+               "layer_urls": ["https://x/FeatureServer/0"]}
+        with mock.patch.object(permits, "_get_json", side_effect=world):
+            rows, info = permits.fetch_source(src)
+        self.assertEqual(info["status"], "error")
+        self.assertIn("permit fields", info["error"])
+
     def test_hub_discover_no_dataset(self):
         src = {"id": "t", "county": "Martin", "label": "T", "kind": "hub_discover",
                "hub_sites": ["https://data.example.gov"]}
