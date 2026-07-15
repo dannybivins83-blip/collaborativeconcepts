@@ -720,9 +720,28 @@ def _cc_num(s):
     return m.group(1) if m else ""
 
 
+_CC_DIRS = {"n", "s", "e", "w", "ne", "nw", "se", "sw"}
+
+
+def _cc_street(s):
+    return (s or "").split(",")[0]
+
+
 def _cc_core(s):
-    toks = [t for t in _cc_norm(s).split() if not t.isdigit() and len(t) >= 3]
+    toks = [t for t in _cc_norm(_cc_street(s)).split() if not t.isdigit() and len(t) >= 3]
     return set(t for t in toks if t not in _ADDR_STOP)
+
+
+def _cc_snums(s):
+    # street-number tokens (e.g. the "68" in "SW 68 CT") — the leading house number dropped
+    toks = _cc_norm(_cc_street(s)).split()
+    if toks and toks[0].isdigit():
+        toks = toks[1:]
+    return set(t for t in toks if t.isdigit())
+
+
+def _cc_sdir(s):
+    return set(t for t in _cc_norm(_cc_street(s)).split() if t in _CC_DIRS)
 
 
 def _cc_name_tokens(s):
@@ -748,6 +767,8 @@ def _load_enforcement():
     for rec in data:
         rec["_num"] = _cc_num(rec.get("address", ""))
         rec["_core"] = _cc_core(rec.get("address", ""))
+        rec["_sn"] = _cc_snums(rec.get("address", ""))
+        rec["_dir"] = _cc_sdir(rec.get("address", ""))
         # building-identity tokens come from the association name + any parenthetical
         # building name — NOT the street address (street/geo tokens are too common and
         # would cross-match neighboring cited buildings).
@@ -762,12 +783,19 @@ def _match_enforcement(query):
     data = _load_enforcement()
     qnum = _cc_num(query)
     qcore = _cc_core(query)
+    qsn = _cc_snums(query)
+    qdir = _cc_sdir(query)
     qname = _cc_name_tokens(query)
     addr_hits = []
     name_hits = []
     for rec in data:
-        # strong address match: same street number AND a shared distinctive street-name token
-        if qnum and rec["_num"] and qnum == rec["_num"] and (qcore & rec["_core"]):
+        # strong address match: same house number AND either a shared distinctive street-name
+        # token (named streets) OR a shared street-number with matching direction (numbered
+        # grid streets like "SW 68 CT", common in Miami-Dade)
+        if qnum and rec["_num"] and qnum == rec["_num"] and (
+            (qcore & rec["_core"])
+            or ((qsn & rec["_sn"]) and (not qdir or not rec["_dir"] or (qdir & rec["_dir"])))
+        ):
             addr_hits.append(rec)
             continue
         # building / association name match: 2+ shared distinctive tokens, or one long one
