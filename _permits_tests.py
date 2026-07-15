@@ -479,6 +479,97 @@ class FloridaGuardTests(unittest.TestCase):
         self.assertEqual(data["dropped_out_of_state"], 1)
 
 
+class CodeViolationsTests(unittest.TestCase):
+    def setUp(self):
+        permits._cache.clear()
+
+    def _energov_world(self, captured):
+        """Mock the Miami-Dade EnerGov code-violations layer."""
+        def world(url, params=None, timeout=None):
+            p = params or {}
+            if url.endswith("/query"):
+                captured.append(p.get("where", ""))
+                return {"features": [
+                    {"attributes": {"CASE_NUM": "CE2026-001", "PROBLEM_DESC": "UNSAFE STRUCTURE - ROOF",
+                                    "STAT_DESC": "Open", "ADDRESS": "123 NW 5 ST",
+                                    "FOLIO": "0132340010010", "CASE_DATE": _epoch_ms_days_ago(5)},
+                     "geometry": {"x": 900000.5, "y": 500000.2}}]}  # State Plane!
+            return {"name": "Code Violations", "fields": [
+                {"name": "CASE_NUM", "type": "esriFieldTypeString"},
+                {"name": "PROBLEM_DESC", "type": "esriFieldTypeString"},
+                {"name": "STAT_DESC", "type": "esriFieldTypeString"},
+                {"name": "ADDRESS", "type": "esriFieldTypeString"},
+                {"name": "FOLIO", "type": "esriFieldTypeString"},
+                {"name": "CASE_DATE", "type": "esriFieldTypeDouble"}]}
+        return world
+
+    def test_field_map_and_open_filter_and_category(self):
+        src = [s for s in permits.DEFAULT_SOURCES if s["id"] == "mdc_violations"][0]
+        captured = []
+        with mock.patch.object(permits, "_get_json", side_effect=self._energov_world(captured)):
+            rows, info = permits.fetch_source(dict(src), start_ms=1_700_000_000_000,
+                                              end_ms=1_800_000_000_000)
+        self.assertEqual(info["status"], "ok")
+        r = rows[0]
+        self.assertEqual(r["permit_number"], "CE2026-001")       # CASE_NUM via field_map
+        self.assertEqual(r["description"], "UNSAFE STRUCTURE - ROOF")
+        self.assertEqual(r["status"], "Open")
+        self.assertEqual(r["category"], "violation")
+        self.assertIn("unsafe_structure", r["tags"])
+        self.assertIn("roofing", r["tags"])
+        # the open-case filter was ANDed into the server query
+        self.assertTrue(any("CASE_STATUS IN ('1','4','6','8','9')" in w for w in captured))
+
+    def test_state_plane_geometry_is_dropped_not_treated_as_latlon(self):
+        src = [s for s in permits.DEFAULT_SOURCES if s["id"] == "mdc_violations"][0]
+        with mock.patch.object(permits, "_get_json", side_effect=self._energov_world([])):
+            rows, _ = permits.fetch_source(dict(src), start_ms=1, end_ms=None)
+        # 900000/500000 are not valid lon/lat -> nulled, so the FL guard keeps the row
+        self.assertIsNone(rows[0]["lat"])
+        self.assertIsNone(rows[0]["lon"])
+        self.assertFalse(permits._out_of_florida(rows[0]))
+
+    def test_and_where_helper(self):
+        self.assertEqual(permits._and_where("1=1", "A > 1"), "A > 1")
+        self.assertEqual(permits._and_where("S IN (1)", "1=1"), "S IN (1)")
+        self.assertEqual(permits._and_where("S IN (1)", "D > 5"), "(S IN (1)) AND (D > 5)")
+
+    def test_base_where_applied_when_no_date(self):
+        captured = []
+        def world(url, params=None, timeout=None):
+            captured.append((params or {}).get("where", ""))
+            return {"features": [{"attributes": {"A": 1}}]}
+        with mock.patch.object(permits, "_get_json", side_effect=world):
+            permits.query_layer("https://x/MapServer/86",
+                                base_where="CASE_STATUS IN ('1','4')")
+        self.assertTrue(all("CASE_STATUS" in w for w in captured))
+
+    def test_category_filter_endpoint(self):
+        from flask import Flask
+        app = Flask(__name__)
+        permits.register_permits_routes(app)
+        client = app.test_client()
+        rows = [
+            {"source_id": "mdc", "county": "Miami-Dade", "category": "permit",
+             "permit_number": "P-1", "description": "RE-ROOF", "issued_date": _iso_days_ago(2),
+             "value": 1000.0, "tags": ["roofing"]},
+            {"source_id": "mdc_violations", "county": "Miami-Dade", "category": "violation",
+             "permit_number": "V-1", "description": "UNSAFE STRUCTURE", "issued_date": _iso_days_ago(3),
+             "value": None, "tags": ["unsafe_structure"]},
+        ]
+        def fake_fetch(source, record_count=2000, start_ms=None, end_ms=None):
+            mine = [p for p in rows if p["source_id"] == source["id"]]
+            return mine, {"id": source["id"], "county": source["county"],
+                          "status": "ok" if mine else "empty", "count": len(mine)}
+        with mock.patch.object(permits, "fetch_source", side_effect=fake_fetch):
+            permits._cache.clear()
+            allrows = client.get("/api/permits/search?county=miami-dade&days=90").get_json()
+            permits._cache.clear()
+            viol = client.get("/api/permits/search?county=miami-dade&days=90&category=violation").get_json()
+        self.assertEqual({p["permit_number"] for p in allrows["permits"]}, {"P-1", "V-1"})
+        self.assertEqual([p["permit_number"] for p in viol["permits"]], ["V-1"])
+
+
 class WindowTests(unittest.TestCase):
     NOW = datetime(2026, 7, 14, 12, 0, 0, tzinfo=timezone.utc)
 
@@ -805,7 +896,7 @@ class EndpointTests(unittest.TestCase):
         data = r.get_json()
         ids = [s["id"] for s in data["sources"]]
         self.assertEqual(set(ids),
-                         {"mdc", "ftl", "broward_uninc", "pbc",
+                         {"mdc", "mdc_violations", "ftl", "broward_uninc", "pbc",
                           "martin", "martin_dev"})
         self.assertEqual(data["counties"], permits.COUNTIES)
         # every county still represented by at least one source
@@ -820,7 +911,7 @@ class EndpointTests(unittest.TestCase):
         body = r.get_data(as_text=True)
         lines = body.strip().splitlines()
         self.assertEqual(len(lines), 4)  # header + 3 rows
-        self.assertTrue(lines[0].startswith("issued_date,county,city,permit_number"))
+        self.assertTrue(lines[0].startswith("issued_date,category,county,city,permit_number"))
         self.assertIn("RE-ROOF 20SQ", body)
 
     def test_discover_rejects_bad_site(self):

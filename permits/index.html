@@ -77,6 +77,10 @@
   .status-pill{font-size:11px;border-radius:999px;padding:2px 9px;font-weight:700;white-space:nowrap}
   .st-issued{background:#e7f5ec;color:var(--ok)} .st-review{background:#fdf3e3;color:var(--warn)}
   .st-other{background:#eef1f5;color:var(--muted)}
+  .vio-badge{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.5px;
+      background:#fbe9e7;color:#b0341d;border:1px solid #f2c4bc;border-radius:4px;
+      padding:1px 5px;margin-left:6px;vertical-align:middle}
+  tr.vio-row td:first-child{box-shadow:inset 3px 0 0 #d9534f}
   .empty{padding:40px;text-align:center;color:var(--muted)}
   .spinner{padding:40px;text-align:center;color:var(--muted)}
   .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
@@ -112,6 +116,11 @@
       <span style="flex-basis:100%"></span>
       <span class="mini" style="margin-right:2px">WINDOW</span>
       <select id="window"><!-- options injected (relative ranges + specific years) --></select>
+      <select id="category" title="Data type">
+        <option value="">Permits + Violations</option>
+        <option value="permit">Permits only</option>
+        <option value="violation">Code Violations only</option>
+      </select>
       <input type="text" id="q" placeholder="Search description, address, contractor…">
       <input type="number" id="minValue" placeholder="Min $ value" min="0" step="1000" style="width:120px">
       <label class="chip" id="demoChip" title="Force bundled sample data"><input type="checkbox" id="demoToggle" style="margin:0"> demo</label>
@@ -165,7 +174,10 @@
     <em>Broward</em> — issues per-municipality; Fort Lauderdale + Pembroke Pines + unincorporated county are wired in
     (add more cities via the <code>PERMITS_EXTRA_SOURCES</code> env var).
     <em>Martin</em> — no GIS feed; the engine scrapes the county's Accela permit portal directly for issued
-    building permits, plus the county's development-projects layer as a supplement.
+    building permits, plus the county's development-projects layer as a supplement.<br>
+    <em>Code Violations</em> — Miami-Dade RER's open code-enforcement cases (unsafe structures, liens,
+    unpermitted work) are pulled as a distinct category (filtered to open cases only) — high-intent
+    distressed-property / structural-repair leads. Use the data-type dropdown to show permits, violations, or both.
     <em>Palm Beach</em> — the county and its cities run permits through Accela / Click2Gov portals and publish
     <strong>no</strong> queryable permit feed; the engine auto-activates one the moment that changes.<br>
     <strong>Compliance:</strong> permits are public records, but cold calls/texts to enriched contacts fall under
@@ -181,6 +193,7 @@
     counties: new Set(COUNTIES),
     window: "years:2",
     windowLabel: "Last 2 years",
+    category: "",           // "" = all, "permit", "violation"
     tags: new Set(),
     q: "",
     minValue: "",
@@ -254,6 +267,7 @@
     p.set("county", Array.from(state.counties).join(","));
     var w = (state.window || "days:30").split(":");
     p.set(w[0], w[1]);   // days|months|years|year = N
+    if(state.category) p.set("category", state.category);
     if(state.tags.size) p.set("tags", Array.from(state.tags).join(","));
     if(state.q) p.set("q", state.q);
     if(state.minValue) p.set("min_value", state.minValue);
@@ -363,9 +377,11 @@
         ' <a href="' + esc(p.appraiser_url) + '" target="_blank" rel="noopener" title="County property appraiser — owner lookup">owner ↗</a>' : "";
       var copyBtn = p.address ?
         ' <button class="copy" data-addr="' + esc(p.address + (cityLine ? ", " + cityLine : "")) + '">copy</button>' : "";
-      return '<tr class="lead">' +
+      var vio = p.category === "violation";
+      var catBadge = vio ? ' <span class="vio-badge" title="Code violation, not a permit">VIOLATION</span>' : "";
+      return '<tr class="lead' + (vio ? ' vio-row' : '') + '">' +
         '<td style="white-space:nowrap">' + esc(p.issued_date || p.applied_date || "—") + "</td>" +
-        "<td><strong>" + esc(p.county) + "</strong><div class='mini'>" + esc(cityLine) + "</div></td>" +
+        "<td><strong>" + esc(p.county) + "</strong>" + catBadge + "<div class='mini'>" + esc(cityLine) + "</div></td>" +
         "<td style='white-space:nowrap'>" + esc(p.permit_number || "—") + "</td>" +
         "<td><div class='mini'>" + esc(p.type || "") + "</div><div class='tags'>" + tags + "</div></td>" +
         '<td class="desc"><div class="txt" onclick="this.classList.toggle(\'open\')">' + esc(p.description || "—") + "</div></td>" +
@@ -420,6 +436,7 @@
   }
 
   // ---- events ----
+  $("category").onchange = function(){ state.category = this.value; load(); };
   var qTimer = null;
   $("q").oninput = function(){
     var v = this.value.trim();

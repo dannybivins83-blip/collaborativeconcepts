@@ -77,6 +77,35 @@ DEFAULT_SOURCES = [
         "portal": "https://gis-mdc.opendata.arcgis.com/datasets/MDC::building-permit/about",
     },
     {
+        # Miami-Dade RER EnerGov "Code Violations" (layer 86, 181,835 rows).
+        # A DISTINCT lead category (open code cases / unsafe structures / liens),
+        # NOT building permits. Filtered server-side to OPEN cases only. Endpoint
+        # + schema + status codes live-verified 2026-07-15.
+        "id": "mdc_violations",
+        "county": "Miami-Dade",
+        "category": "violation",
+        "label": "Miami-Dade County — Code Violations (open cases, EnerGov)",
+        "kind": "arcgis_layer",
+        "layer_urls": [
+            "https://gisweb.miamidade.gov/arcgis/rest/services/EnerGov/MD_LandMgtViewer/MapServer/86",
+        ],
+        # open cases = everything except 2 (Closed). 1=Open, 4=Lien, 6=Civil,
+        # 8=Referred to Internal Compliance, 9=Active LP.
+        "where_clause": "CASE_STATUS IN ('1','4','6','8','9')",
+        "field_map": {
+            "permit_number": "CASE_NUM",
+            "issue_date": "CASE_DATE",     # epoch ms
+            "status": "STAT_DESC",
+            "description": "PROBLEM_DESC",
+            "address": "ADDRESS",
+            "owner": "FOLIO",              # parcel id — links to appraiser lookup
+        },
+        "portal": "https://gisweb.miamidade.gov/arcgis/rest/services/EnerGov/MD_LandMgtViewer/MapServer/86",
+        "note": ("Open code-violation cases (unsafe structure, liens, unpermitted work). "
+                 "Strong distressed-property / structural-repair leads. Filtered to open "
+                 "cases; '1' Open + '4' Lien are the highest-intent set."),
+    },
+    {
         "id": "ftl",
         "county": "Broward",
         "label": "Broward — Fort Lauderdale Building Permit Tracker",
@@ -183,6 +212,10 @@ TAG_RULES = [
     ("mechanical",     "Mechanical",         r"mechanical|exhaust\s*hood|ventilation"),
     ("landscape",      "Landscape / Tree",   r"landscap|irrigation|\btree\b"),
     ("commercial",     "Commercial",         r"commercial|office|retail|restaurant|warehouse"),
+    # code-violation-oriented tags (high value for structural/WWS lead-gen)
+    ("unsafe_structure","Unsafe Structure",  r"unsafe|unsound|structural|collaps|dilapidat|deterior|hazard"),
+    ("no_permit",      "Work w/o Permit",    r"without\s*(a\s*)?permit|no\s*permit|unpermitted|expired\s*permit|work.*permit"),
+    ("property_maint", "Property Maintenance",r"maintenance|overgrow|debris|trash|junk|derelict|abandon|nuisance"),
 ]
 _COMPILED_TAGS = [(key, label, re.compile(rx, re.I)) for key, label, rx in TAG_RULES]
 
@@ -502,8 +535,18 @@ def _build_date_where(date_field, start_ms, end_ms, style):
     return " AND ".join(parts) if parts else "1=1"
 
 
+def _and_where(a, b):
+    a = (a or "").strip() or "1=1"
+    b = (b or "").strip() or "1=1"
+    if a == "1=1":
+        return b
+    if b == "1=1":
+        return a
+    return f"({a}) AND ({b})"
+
+
 def query_layer(layer_url, order_field=None, date_field=None, start_ms=None,
-                end_ms=None, record_count=2000, max_records=4000):
+                end_ms=None, record_count=2000, max_records=4000, base_where=None):
     """Pull records, preferring a SERVER-SIDE date filter (so historical windows
     return the right rows, not just the newest N) but degrading safely.
 
@@ -526,17 +569,21 @@ def query_layer(layer_url, order_field=None, date_field=None, start_ms=None,
             params["orderByFields"] = f"{order_field} DESC"
         return _get_json(qurl, params=params, timeout=HTTP_TIMEOUT + 8)
 
-    # Candidate WHERE clauses in priority order; "1=1" (newest-first) is always
-    # the final fallback so a live layer never returns empty on a dialect miss.
+    # Candidate WHERE clauses in priority order; the source's base filter (e.g.
+    # open-case CASE_STATUS IN (...)) is ANDed onto every variant, and the base
+    # filter alone is always the final fallback so a live layer never returns
+    # empty on a date-dialect miss while still honoring the base filter.
+    base = (base_where or "1=1").strip() or "1=1"
     where_options = []
     if date_field and (start_ms is not None or end_ms is not None):
-        where_options.append(_build_date_where(date_field, start_ms, end_ms, "ts"))
-        where_options.append(_build_date_where(date_field, start_ms, end_ms, "epoch"))
-    where_options.append("1=1")
+        where_options.append(_and_where(base, _build_date_where(date_field, start_ms, end_ms, "ts")))
+        where_options.append(_and_where(base, _build_date_where(date_field, start_ms, end_ms, "epoch")))
+    where_options.append(base)
 
     chosen_where, use_order, first = None, bool(order_field), None
     last_err = None
-    for where in where_options:
+    for i, where in enumerate(where_options):
+        is_last = (i == len(where_options) - 1)
         uo = bool(order_field)
         data = fetch_page(where, 0, uo)
         if data.get("error") and uo:            # retry once without ORDER BY
@@ -546,8 +593,9 @@ def query_layer(layer_url, order_field=None, date_field=None, start_ms=None,
             last_err = data["error"].get("message", "error")
             continue
         feats = data.get("features") or []
-        # accept this WHERE if it yielded rows, or it's the unfiltered fallback
-        if feats or where == "1=1":
+        # accept this WHERE if it yielded rows, or it's the final fallback (the
+        # base filter alone) — so a genuinely-empty result is still honored.
+        if feats or is_last:
             chosen_where, use_order, first = where, uo, data
             break
     if first is None:
@@ -805,9 +853,18 @@ def normalize_feature(feature, mapping, source):
     lon = geom.get("x")
     if isinstance(geom.get("coordinates"), list) and len(geom["coordinates"]) >= 2:
         lon, lat = geom["coordinates"][0], geom["coordinates"][1]
+    # Sanity-clamp coordinates: some layers (e.g. the Miami-Dade EnerGov code-
+    # violations layer) store/return projected State Plane values. Only accept
+    # geometry that is plausibly lon/lat, else drop it so the FL guard and map
+    # never see a bogus 900000-style coordinate.
+    if not (isinstance(lat, (int, float)) and -90 <= lat <= 90):
+        lat = None
+    if not (isinstance(lon, (int, float)) and -180 <= lon <= 180):
+        lon = None
     return {
         "source_id": source.get("id"),
         "county": county,
+        "category": source.get("category", "permit"),
         "permit_number": str(pick("permit_number") or "").strip() or None,
         "type": ptype or None,
         "status": (str(pick("status") or "").strip() or None),
@@ -820,8 +877,8 @@ def normalize_feature(feature, mapping, source):
         "value": _to_float(pick("value")),
         "contractor": (str(pick("contractor") or "").strip() or None),
         "owner": (str(pick("owner") or "").strip() or None),
-        "lat": lat if isinstance(lat, (int, float)) else None,
-        "lon": lon if isinstance(lon, (int, float)) else None,
+        "lat": lat,
+        "lon": lon,
         "tags": tags,
         "appraiser_url": APPRAISER_SEARCH.get(county),
     }
@@ -981,16 +1038,23 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
             try:
                 meta = layer_metadata(layer_url)
                 mapping = map_fields(meta.get("fields"))
+                # explicit per-source field map wins over auto-mapping (used for
+                # known-schema layers like the EnerGov code-violations layer).
+                field_map = source.get("field_map") or {}
+                mapping.update({k: v for k, v in field_map.items() if v})
                 if not mapping.get("issue_date") and not mapping.get("applied_date") \
                         and not mapping.get("permit_number"):
                     raise RuntimeError("layer has no recognizable permit fields")
                 order_field = mapping.get("issue_date") or mapping.get("applied_date")
                 feats = query_layer(layer_url, order_field=order_field,
                                     date_field=order_field, start_ms=start_ms,
-                                    end_ms=end_ms, record_count=record_count)
+                                    end_ms=end_ms, record_count=record_count,
+                                    base_where=source.get("where_clause"))
                 # data-driven refinement: recover fields the name-mapper missed
                 # and fix an implausible value column, using the real sample.
-                mapping = refine_mapping_with_samples(mapping, meta.get("fields"), feats)
+                # Skip when an explicit field_map is supplied (schema is known).
+                if not field_map:
+                    mapping = refine_mapping_with_samples(mapping, meta.get("fields"), feats)
                 permits = [normalize_feature(f, mapping, source) for f in feats]
                 info.update({
                     "status": "ok", "count": len(permits), "layer_url": layer_url,
@@ -1071,6 +1135,7 @@ def demo_permits(now=None):
         out.append({
             "source_id": "demo",
             "county": county,
+            "category": "permit",
             "permit_number": f"DEMO-{now.year}-{1000 + i}",
             "type": ptype,
             "status": status,
@@ -1182,9 +1247,10 @@ def run_search(params):
     min_value = _to_float(params.get("min_value"))
     force_demo = str(params.get("demo") or "") in ("1", "true", "yes")
     source_filter = (params.get("source") or "").strip()
+    category = (params.get("category") or "").strip().lower()  # "", permit, violation
 
     cache_key = (f"search:{sorted(counties)}:{start_iso}:{end_iso}:{limit}:{tags_filter}"
-                 f":{q}:{min_value}:{force_demo}:{source_filter}")
+                 f":{q}:{min_value}:{force_demo}:{source_filter}:{category}")
     cached = _cache_get(cache_key)
     if cached:
         return cached
@@ -1192,6 +1258,8 @@ def run_search(params):
     sources = [s for s in load_sources() if s.get("county") in counties]
     if source_filter:
         sources = [s for s in sources if s.get("id") == source_filter]
+    if category:
+        sources = [s for s in sources if s.get("category", "permit") == category]
 
     all_permits, infos = [], []
     if force_demo:
@@ -1234,6 +1302,8 @@ def run_search(params):
     def keep(p):
         if _out_of_florida(p):        # wrong-jurisdiction guard
             dropped_geo[0] += 1
+            return False
+        if category and p.get("category", "permit") != category:
             return False
         d = p.get("issued_date") or p.get("applied_date")
         if d and (d < start_iso or d > end_iso):
@@ -1357,9 +1427,9 @@ def register_permits_routes(app):
         args.setdefault("limit", "5000")
         data = run_search(args)
         buf = io.StringIO()
-        cols = ["issued_date", "county", "city", "permit_number", "type", "status",
-                "description", "address", "zip", "value", "contractor", "owner",
-                "tags", "applied_date", "source_id", "appraiser_url"]
+        cols = ["issued_date", "category", "county", "city", "permit_number", "type",
+                "status", "description", "address", "zip", "value", "contractor",
+                "owner", "tags", "applied_date", "source_id", "appraiser_url"]
         w = csv.DictWriter(buf, fieldnames=cols, extrasaction="ignore")
         w.writeheader()
         for p in data["permits"]:
