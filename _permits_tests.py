@@ -62,6 +62,29 @@ class TagEngineTests(unittest.TestCase):
     def test_no_tags_for_unrelated(self):
         self.assertEqual(permits.tag_permit("MISC ADMINISTRATIVE CORRECTION"), [])
 
+    def test_reroof_tag_precision(self):
+        # full replacement / anchor-disturbing work -> reroof
+        for txt in ["RE-ROOF EXISTING FLAT ROOF TPO", "ROOF REPLACEMENT - TILE",
+                    "TEAR OFF AND REROOF SHINGLE", "REPLACE EXISTING ROOF",
+                    "ROOF RECOVER MODIFIED BITUMEN", "NEW ROOF INSTALLATION"]:
+            with self.subTest(txt=txt):
+                self.assertIn("reroof", permits.tag_permit(txt))
+        # minor repairs are NOT reroofs (but are still general roofing leads)
+        for txt in ["ROOF REPAIR", "ROOF LEAK REPAIR", "REPAIR 3 CRACKED TILES",
+                    "ROOF INSPECTION ONLY"]:
+            with self.subTest(txt=txt):
+                self.assertNotIn("reroof", permits.tag_permit(txt))
+        self.assertIn("roofing", permits.tag_permit("ROOF LEAK REPAIR"))
+
+    def test_reroof_leads_shape(self):
+        # run_reroof_leads returns lead-shaped rows with a pitch, using demo data
+        res = permits.run_reroof_leads({"demo": "1", "counties": "Miami-Dade,Broward"})
+        self.assertTrue(res["ok"])
+        self.assertIn("leads", res)
+        for lead in res["leads"]:
+            self.assertTrue(lead.get("address"))
+            self.assertIn("1910.27(b)", lead["pitch"])
+
     def test_tag_catalog_matches_rules(self):
         keys = [k for k, _, _ in permits.TAG_RULES]
         self.assertEqual(len(keys), len(set(keys)), "duplicate tag keys")
