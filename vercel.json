@@ -205,10 +205,56 @@
       ],
       "destination": "https://wwslgc.collaborativeconceptsfl.com/send",
       "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.palmbeachwakeboats.com"
+        }
+      ],
+      "destination": "https://palmbeachwakeboats.com/",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.palmbeachwakeboats.com"
+        }
+      ],
+      "destination": "https://palmbeachwakeboats.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/wake",
+      "has": [
+        {
+          "type": "host",
+          "value": "palmbeachwakeboats.com"
+        }
+      ],
+      "destination": "https://palmbeachwakeboats.com/",
+      "permanent": true
+    },
+    {
+      "source": "/wake/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "palmbeachwakeboats.com"
+        }
+      ],
+      "destination": "https://palmbeachwakeboats.com/:path*",
+      "permanent": true
     }
   ],
   "functions": {
-    "api/index.py": { "maxDuration": 60 }
+    "api/index.py": {
+      "maxDuration": 60
+    }
   },
   "rewrites": [
     {
@@ -248,6 +294,46 @@
         }
       ],
       "destination": "/wwslgc/:path*"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "palmbeachwakeboats.com"
+        }
+      ],
+      "destination": "/wake/index.html"
+    },
+    {
+      "source": "/sitemap.xml",
+      "has": [
+        {
+          "type": "host",
+          "value": "palmbeachwakeboats.com"
+        }
+      ],
+      "destination": "/wake/sitemap-pbwb.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "has": [
+        {
+          "type": "host",
+          "value": "palmbeachwakeboats.com"
+        }
+      ],
+      "destination": "/wake/robots-pbwb.txt"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "palmbeachwakeboats.com"
+        }
+      ],
+      "destination": "/wake/:path*"
     }
   ],
   "headers": [
