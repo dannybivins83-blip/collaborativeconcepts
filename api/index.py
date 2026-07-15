@@ -960,8 +960,17 @@ def _wws_analysis_text(a):
     for p in (a.get("programs") or []):
         lines.append("  - " + (p.get("name") or "") + ": " + (p.get("detail") or ""))
     lines.append("")
-    lines.append("A deeper per-building snapshot (year built, association, actual county records, "
-                 "sources) follows automatically from the research runner.")
+    lines.append("POTENTIAL OSHA EXPOSURE (roof access, no anchor certification of record):")
+    lines.append("  Standards in play: 29 CFR 1910.27(b) (rope-descent anchorages must be inspected + "
+                 "PE load-test certified >= every 10 yrs, in writing, BEFORE use), 1910.28 (roof edge/hole "
+                 "fall protection), 1910.140 (personal fall arrest), 1910.22 (surface condition).")
+    lines.append("  Liability: under OSHA's multi-employer / controlling-employer doctrine the ASSOCIATION "
+                 "can be cited for a contractor's worker on the roof.")
+    lines.append("  2025-26 penalty scale: ~$16,550 per serious violation; up to ~$165,514 per "
+                 "willful/repeat violation. Exposure exists the moment a worker steps onto the roof.")
+    lines.append("")
+    lines.append("A deeper per-building snapshot (year built, association, permit audit for roof/painting/"
+                 "restoration work, current OSHA/DOL records, sources) follows automatically from the research runner.")
     return "\n".join(lines)
 
 
