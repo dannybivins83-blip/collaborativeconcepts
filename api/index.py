@@ -1134,7 +1134,8 @@ def _log_activity(action, detail="", name=None):
 @app.get("/api/admin/activity")
 def admin_activity():
     if not _is_admin(): return jsonify({"ok": False, "error": "forbidden"}), 403
-    raw = _kv_cmd(["LRANGE", WWS_ACTIVITY_KEY, 0, 199]) or []
+    raw, _cfg = _kv_cmd(["LRANGE", WWS_ACTIVITY_KEY, 0, 199])
+    raw = raw or []
     entries = []
     for r in raw:
         try: entries.append(json.loads(r))
