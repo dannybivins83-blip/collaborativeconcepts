@@ -491,7 +491,7 @@ print("Landing gallery synced:",len(POSTS),"cards")
 BASEW="https://roofanchorcert.com"
 import datetime as _dt
 LASTMOD=_dt.date.today().isoformat()  # auto-fresh on every regen so crawlers see the real last-build date
-sm_urls=[(BASEW+"/wwslgc","1.0","weekly"),(BASEW+"/roof-anchor-certification","0.9","weekly"),(BASEW+"/miami-roof-anchor-certification","0.8","monthly"),(BASEW+"/fort-lauderdale-roof-anchor-certification","0.8","monthly"),(BASEW+"/west-palm-beach-roof-anchor-certification","0.8","monthly"),(BASEW+"/guides","0.8","weekly")]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in POSTS]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in TOPICS]
+sm_urls=[(BASEW+"/wwslgc","1.0","weekly"),(BASEW+"/roof-anchor-certification","0.9","weekly"),(BASEW+"/reroof-anchor-certification","0.9","monthly"),(BASEW+"/miami-roof-anchor-certification","0.8","monthly"),(BASEW+"/fort-lauderdale-roof-anchor-certification","0.8","monthly"),(BASEW+"/west-palm-beach-roof-anchor-certification","0.8","monthly"),(BASEW+"/guides","0.8","weekly")]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in POSTS]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in TOPICS]
 sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
 for u,pr,cf in sm_urls:
     sm+='  <url><loc>'+u+'</loc><lastmod>'+LASTMOD+'</lastmod><changefreq>'+cf+'</changefreq><priority>'+pr+'</priority></url>\n'
