@@ -260,7 +260,7 @@ HEAD = """<!DOCTYPE html>
 <meta property="og:type" content="article"/>
 <meta property="og:title" content="{title_plain} | La Gala Construction"/>
 <meta property="og:description" content="{meta}"/>
-<meta property="og:image" content="https://wwslgc.collaborativeconceptsfl.com/assets/wws/{img}.jpg"/>
+<meta property="og:image" content="https://roofanchorcert.com/assets/wws/{img}.jpg"/>
 <meta property="og:url" content="{canonical}"/>
 <meta name="theme-color" content="#1a1a2e"/>
 <link rel="icon" type="image/png" href="/assets/lagala-mark.png"/>
@@ -336,11 +336,11 @@ def build_post(p):
     title_plain = title.replace("&amp;","&")
     import re as _re, json as _json
     meta = (_re.sub(r"<[^>]+>", "", (why or ""))[:150].rsplit(" ", 1)[0]) + "…"
-    canon = f"https://wwslgc.collaborativeconceptsfl.com/guides/{slug}"
+    canon = f"https://roofanchorcert.com/guides/{slug}"
     head = HEAD.format(title_plain=title_plain, meta=meta, marker=MARKER, canonical=canon, img=img)
-    _img = f"https://wwslgc.collaborativeconceptsfl.com/assets/wws/{img}.jpg"
+    _img = f"https://roofanchorcert.com/assets/wws/{img}.jpg"
     _ld = {"@context":"https://schema.org","@type":"Article","headline":title_plain,"description":meta,"image":_img,"author":{"@type":"Organization","name":"La Gala Construction"},"publisher":{"@type":"Organization","name":"La Gala Construction"},"mainEntityOfPage":canon}
-    _bc = {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Compliance guides","item":"https://wwslgc.collaborativeconceptsfl.com/guides"},{"@type":"ListItem","position":2,"name":title_plain,"item":canon}]}
+    _bc = {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Compliance guides","item":"https://roofanchorcert.com/guides"},{"@type":"ListItem","position":2,"name":title_plain,"item":canon}]}
     head = head.replace("</head>", '<script type="application/ld+json">'+_json.dumps(_ld)+'</script>\n<script type="application/ld+json">'+_json.dumps(_bc)+'</script>\n</head>')
     credit_html = f'<p class="text-xs text-on-surface-variant/60 mt-3 italic">{credit}.</p>' if credit else ""
     foot_credit = f" {credit}." if credit else ""
@@ -363,7 +363,7 @@ def build_post(p):
     return head + art + FOOTER.replace("{credit}", foot_credit)
 
 def build_index():
-    head = HEAD.format(title_plain="OSHA Walking-Working Surfaces — Compliance Guides", meta="The top 15 OSHA Walking-Working Surfaces violations explained — what each one is, how often it's inspected, and how La Gala Construction fixes it. South Florida.", marker=MARKER, canonical="https://wwslgc.collaborativeconceptsfl.com/guides", img="unprotected-edges")
+    head = HEAD.format(title_plain="OSHA Walking-Working Surfaces — Compliance Guides", meta="The top 15 OSHA Walking-Working Surfaces violations explained — what each one is, how often it's inspected, and how La Gala Construction fixes it. South Florida.", marker=MARKER, canonical="https://roofanchorcert.com/guides", img="unprotected-edges")
     cards = ""
     for p in POSTS:
         slug,title,std,temp,short = p[0],p[1],p[2],p[3],p[4]
@@ -419,7 +419,7 @@ def build_index():
     return head + body + FOOTER.replace("{credit}", "")
 
 def build_checklist():
-    head = HEAD.format(title_plain="Free OSHA Walking-Working Surfaces Inspection Checklist", meta="Download La Gala's free OSHA 1910 Subpart D field inspection checklist — the same one we audit against. Self-check your building before an inspector does. South Florida.", marker=MARKER, canonical="https://wwslgc.collaborativeconceptsfl.com/guides/inspection-checklist", img="damaged-surfaces")
+    head = HEAD.format(title_plain="Free OSHA Walking-Working Surfaces Inspection Checklist", meta="Download La Gala's free OSHA 1910 Subpart D field inspection checklist — the same one we audit against. Self-check your building before an inspector does. South Florida.", marker=MARKER, canonical="https://roofanchorcert.com/guides/inspection-checklist", img="damaged-surfaces")
     items = ["§1910.22 — General surface conditions, housekeeping &amp; drainage","§1910.23 — Portable &amp; fixed ladders","§1910.24 — Step bolts &amp; manhole steps","§1910.25 — Stairways","§1910.26 — Dockboards","§1910.27 — Rope descent systems &amp; anchorages","§1910.28 / .29 — Fall protection: duty &amp; criteria","§1910.30 — Training","Corrective-action summary log"]
     lis = "".join('<li class="flex items-start gap-3"><span class="material-symbols-outlined text-secondary text-xl">check_circle</span><span>'+it+'</span></li>' for it in items)
     body = f"""<main class="overflow-x-hidden">
@@ -488,7 +488,7 @@ open(LANDING,"w",encoding="utf-8",newline="").write(lc)
 print("Landing gallery synced:",len(POSTS),"cards")
 
 # ---- sitemap for the wwslgc subdomain (landing + blog index + every guide) ----
-BASEW="https://wwslgc.collaborativeconceptsfl.com"
+BASEW="https://roofanchorcert.com"
 import datetime as _dt
 LASTMOD=_dt.date.today().isoformat()  # auto-fresh on every regen so crawlers see the real last-build date
 sm_urls=[(BASEW+"/wwslgc","1.0","weekly"),(BASEW+"/roof-anchor-certification","0.9","weekly"),(BASEW+"/miami-roof-anchor-certification","0.8","monthly"),(BASEW+"/fort-lauderdale-roof-anchor-certification","0.8","monthly"),(BASEW+"/west-palm-beach-roof-anchor-certification","0.8","monthly"),(BASEW+"/guides","0.8","weekly")]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in POSTS]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in TOPICS]

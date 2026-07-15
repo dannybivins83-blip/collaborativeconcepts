@@ -22,6 +22,25 @@ HAND-AUTHORED static HTML — edit those files directly.
 
 ---
 
+## 2026-07-15 — Audit + ship: title/meta length + brand-CTA (Claude Opus 4.8) — commit `307c866`
+
+### Context change noted
+- **Primary domain migrated to `roofanchorcert.com`.** Canonical + og:url now read `https://roofanchorcert.com/wwslgc` (money page `.../roof-anchor-certification`, etc.). Guardrail SATISFIED — canonical points at `/wwslgc`, NOT the redirecting `/`. `/` still **308 → /wwslgc** (verified live). Original `wwslgc.collaborativeconceptsfl.com` still serves identical content. **Do not repoint canonical back to the subdomain or to bare `/`.**
+- Site has grown to **8 city pages** (added aventura, boca-raton, boynton-beach, hollywood, pompano-beach to the original miami/ftl/wpb) + 44 guides. Sitemap = 54 URLs.
+
+### Audited
+- Titles: landing (100) + money page (102) far over 60; city pages 59–83. Metas: index **228** (regressed from my 2026-06-25 fix of 149 — someone re-expanded it), hollywood **198**, boynton 171, others 158–166.
+- Brand guardrail breach: **"free assessment" / "free … assessment" in SERP-visible metas** on index, hollywood, boynton (guardrail = never "free"; site's dominant term is "comprehensive assessment", 52 vs 25 occ). Miami's neutral "Get an assessment." is the safe pattern.
+
+### Shipped (commit `307c866`, verified live on both domains)
+1. **Landing `<title>` 100→59**: `Anchor & Davit Load Testing | OSHA WWS Compliance | La Gala` (kept the anchor/davit load-testing + OSHA compliance keyword cluster to minimize disruption to an already-ranking page; abbreviated Walking-Working Surfaces→WWS, dropped redundant "— South Florida" tail).
+2. **Money `<title>` 102→56**: `Roof Anchor Certification & Load Testing | South Florida` (primary kw front-loaded; dropped long "Window-Washing System" clause — still in H1/body/schema).
+3. **index meta desc 228→155** (was truncating; removed "Schedule a free assessment"→"Book an assessment").
+4. **hollywood meta + og:description →155**; **boynton meta + og:description →146** — both "free assessment"→neutral CTA.
+- Guardrails re-verified live: `/`→308→`/wwslgc`; canonical `.../wwslgc`; `x-claude-source-repo` marker on all 4 edited pages. No Tailwind classes / guides / backend touched → no CSS rebuild or generator re-run needed.
+
+---
+
 ## 2026-06-25 — Audit + ship (Claude Opus 4.8)
 
 ### Audited
@@ -52,14 +71,10 @@ HAND-AUTHORED static HTML — edit those files directly.
 ## Prioritized backlog (for the daily wws-seo-agent)
 
 **P1 — high value, safe**
-1. **Tighten core-page <title> to <=60 chars** (currently 71–107). Suggested rewrites (keep primary kw front-loaded; brand can be shortened to "| La Gala"):
-   - money page: "Roof Anchor Certification & Load Testing | South Florida" (drop the long "Window-Washing System" clause from title; keep it in H1/body).
-   - WPB: "Roof Anchor Certification West Palm Beach | La Gala" .
-   - FtL: "Roof Anchor Certification Fort Lauderdale | La Gala".
-   - landing: "OSHA Walking-Working Surfaces Compliance | La Gala".
-   These are hand-authored files — edit `<title>` directly; verify <=60 with display-length (treat `&amp;` as 1 char) before commit.
-2. **Add FAQPage schema to the Miami page** — it has LocalBusiness + Service + BreadcrumbList but (unlike FtL & WPB) **no FAQPage**. Mirror the FtL FAQ block, swap in Miami-specific Q&A (Miami-Dade 30/25 milestone, salt-air, Brickell/Sunny Isles). Keep accuracy guardrails.
-3. **Add CollectionPage + BreadcrumbList JSON-LD to `/guides` index** (currently no JSON-LD). Do it in the generator's `build_index()` so it regenerates.
+1. ~~Landing + money page titles → ≤60~~ ✅ **DONE 2026-07-15** (`307c866`). **Still over 60 (next up, same pattern):** boynton (65), west-palm (83), fort-lauderdale (80), boca-raton (78), miami (66), pompano (64), hollywood (61). Suggested: WPB "Roof Anchor Certification West Palm Beach | La Gala"; FtL "Roof Anchor Certification Fort Lauderdale | La Gala"; drop the "& [County]" clause. Edit `<title>` directly (hand-authored); verify ≤60 treating `&amp;` as 1 char.
+2. **Body "free assessment" brand cleanup** (NEW — metas already fixed 2026-07-15, body still off-brand): `free, no-obligation assessment` / `Get a free assessment` remains in body copy of index.html, hollywood, boynton (and non-live design/* variants, check.html, send/). Guardrail = never "free"; use "comprehensive" or neutral "no-obligation assessment". Larger brand-voice pass — coordinate with the general quality-audit so we don't collide.
+3. **Add FAQPage schema to the Miami page** — it has LocalBusiness + Service + BreadcrumbList but (unlike FtL & WPB) **no FAQPage**. Mirror the FtL FAQ block, swap in Miami-specific Q&A (Miami-Dade 30/25 milestone, salt-air, Brickell/Sunny Isles). Keep accuracy guardrails.
+4. **Add CollectionPage + BreadcrumbList JSON-LD to `/guides` index** (currently no JSON-LD). Do it in the generator's `build_index()` so it regenerates.
 
 **P2 — content/keyword gaps (only via generator TOPICS, never hand-edit generated HTML)**
 4. Long-tail guide opportunity: **"Roof anchor load test cost Florida"** / "how much does roof anchor certification cost" — high commercial intent, currently uncovered. Add as a TOPICS entry (pricing-cautious, no hard $ promises).

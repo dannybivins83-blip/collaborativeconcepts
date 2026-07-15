@@ -22,6 +22,7 @@ import base64
 import hashlib
 import json
 import os
+import re
 import secrets
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -691,6 +692,434 @@ def create_lead():
     return redirect("/?submitted=1#assessment")
 
 
+# ---- Building compliance check (public lead magnet) ----
+# Server-side match of a visitor's building against the harvested enforcement
+# dataset (public-records-derived). The dataset stays server-side so the full
+# target list is never shipped to the browser; only the matched rows are returned.
+_ENFORCEMENT_CACHE = None
+_ADDR_STOP = {"fl", "florida", "usa", "ste", "suite", "unit", "apt", "bldg", "building",
+              "ave", "avenue", "st", "street", "dr", "drive", "rd", "road", "blvd",
+              "boulevard", "ln", "lane", "ct", "court", "cir", "circle", "way", "pl",
+              "place", "ter", "terrace", "hwy", "highway", "n", "s", "e", "w", "ne",
+              "nw", "se", "sw", "the", "of", "and", "at"}
+_GEO_STOP = {"hollywood", "miami", "beach", "dade", "broward", "palm", "lauderdale",
+             "aventura", "boca", "boynton", "doral", "unincorporated", "kendall",
+             "kendale", "fisher", "island"}
+_NAME_STOP = _ADDR_STOP | _GEO_STOP | {"condominium", "condominiums", "condo", "condos",
+                           "association", "associations", "assn", "inc", "llc", "hoa",
+                           "co", "company", "apartments", "apartment", "complex", "tower",
+                           "towers", "resort", "villas", "villa", "house", "homes", "club"}
+
+
+def _cc_norm(s):
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", (s or "").lower())).strip()
+
+
+def _cc_num(s):
+    m = re.match(r"\s*(\d+)", s or "")
+    return m.group(1) if m else ""
+
+
+_CC_DIRS = {"n", "s", "e", "w", "ne", "nw", "se", "sw"}
+
+
+def _cc_street(s):
+    return (s or "").split(",")[0]
+
+
+def _cc_core(s):
+    toks = [t for t in _cc_norm(_cc_street(s)).split() if not t.isdigit() and len(t) >= 3]
+    return set(t for t in toks if t not in _ADDR_STOP)
+
+
+def _cc_snums(s):
+    # street-number tokens (e.g. the "68" in "SW 68 CT") — the leading house number dropped
+    toks = _cc_norm(_cc_street(s)).split()
+    if toks and toks[0].isdigit():
+        toks = toks[1:]
+    return set(t for t in toks if t.isdigit())
+
+
+def _cc_sdir(s):
+    return set(t for t in _cc_norm(_cc_street(s)).split() if t in _CC_DIRS)
+
+
+def _cc_name_tokens(s):
+    return set(t for t in _cc_norm(s).split() if len(t) >= 3 and t not in _NAME_STOP)
+
+
+def _load_enforcement():
+    global _ENFORCEMENT_CACHE
+    if _ENFORCEMENT_CACHE is not None:
+        return _ENFORCEMENT_CACHE
+    data = []
+    for cand in (
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "wws_enforcement.json"),
+        os.path.join(os.getcwd(), "api", "wws_enforcement.json"),
+        os.path.join(os.getcwd(), "wws_enforcement.json"),
+    ):
+        try:
+            with open(cand, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            break
+        except Exception:
+            continue
+    for rec in data:
+        rec["_num"] = _cc_num(rec.get("address", ""))
+        rec["_core"] = _cc_core(rec.get("address", ""))
+        rec["_sn"] = _cc_snums(rec.get("address", ""))
+        rec["_dir"] = _cc_sdir(rec.get("address", ""))
+        # building-identity tokens come from the association name + any parenthetical
+        # building name — NOT the street address (street/geo tokens are too common and
+        # would cross-match neighboring cited buildings).
+        paren = re.search(r"\(([^)]*)\)", rec.get("building", "") or "")
+        name_src = (rec.get("assoc", "") or "") + " " + (paren.group(1) if paren else "")
+        rec["_nametok"] = _cc_name_tokens(name_src)
+    _ENFORCEMENT_CACHE = data
+    return data
+
+
+def _match_enforcement(query):
+    data = _load_enforcement()
+    qnum = _cc_num(query)
+    qcore = _cc_core(query)
+    qsn = _cc_snums(query)
+    qdir = _cc_sdir(query)
+    qname = _cc_name_tokens(query)
+    addr_hits = []
+    name_hits = []
+    for rec in data:
+        # strong address match: same house number AND either a shared distinctive street-name
+        # token (named streets) OR a shared street-number with matching direction (numbered
+        # grid streets like "SW 68 CT", common in Miami-Dade)
+        if qnum and rec["_num"] and qnum == rec["_num"] and (
+            (qcore & rec["_core"])
+            or ((qsn & rec["_sn"]) and (not qdir or not rec["_dir"] or (qdir & rec["_dir"])))
+        ):
+            addr_hits.append(rec)
+            continue
+        # building / association name match: 2+ shared distinctive tokens, or one long one
+        overlap = qname & rec["_nametok"]
+        if len(overlap) >= 2 or any(len(t) >= 7 for t in overlap):
+            name_hits.append(rec)
+    # an exact address hit wins outright — never dilute it with fuzzy name matches
+    hits = addr_hits if addr_hits else name_hits
+    return hits[:6]
+
+
+def _program_label(src):
+    s = (src or "").lower()
+    if "hollywood" in s:
+        return "City of Hollywood Building Safety Inspection Program (BSIP)"
+    if "usb" in s or "unsafe" in s:
+        return "Miami-Dade Unsafe Structures Board"
+    return src or "a county/city enforcement list"
+
+
+# ---- WWS compliance analyzer (runs when an address is NOT on our enforcement lists) ----
+# Deterministic, no external calls: infers county + coastal exposure from the address, then
+# maps to the Florida laws that apply on an age schedule (milestone inspection, recertification)
+# plus OSHA anchor certification. Turns a dead "not found" into a real, honest determination.
+WWS_RESEARCH_KEY = "wws:research_queue"
+WWS_RESEARCH_MAX = 3000
+
+_WWS_COUNTY_BY_CITY = {
+    # Miami-Dade
+    "miami": "Miami-Dade", "miami beach": "Miami-Dade", "north miami": "Miami-Dade",
+    "north miami beach": "Miami-Dade", "sunny isles": "Miami-Dade", "sunny isles beach": "Miami-Dade",
+    "aventura": "Miami-Dade", "bal harbour": "Miami-Dade", "surfside": "Miami-Dade",
+    "bay harbor islands": "Miami-Dade", "key biscayne": "Miami-Dade", "coral gables": "Miami-Dade",
+    "doral": "Miami-Dade", "hialeah": "Miami-Dade", "homestead": "Miami-Dade", "kendall": "Miami-Dade",
+    "cutler bay": "Miami-Dade", "fisher island": "Miami-Dade", "golden beach": "Miami-Dade",
+    "sweetwater": "Miami-Dade", "pinecrest": "Miami-Dade", "palmetto bay": "Miami-Dade",
+    # Broward
+    "fort lauderdale": "Broward", "ft lauderdale": "Broward", "hollywood": "Broward",
+    "hallandale": "Broward", "hallandale beach": "Broward", "pompano beach": "Broward",
+    "deerfield beach": "Broward", "dania beach": "Broward", "lauderdale-by-the-sea": "Broward",
+    "lauderdale by the sea": "Broward", "pembroke pines": "Broward", "davie": "Broward",
+    "sunrise": "Broward", "plantation": "Broward", "coral springs": "Broward", "weston": "Broward",
+    "miramar": "Broward", "tamarac": "Broward", "margate": "Broward", "coconut creek": "Broward",
+    # Palm Beach
+    "west palm beach": "Palm Beach", "palm beach": "Palm Beach", "boca raton": "Palm Beach",
+    "boynton beach": "Palm Beach", "delray beach": "Palm Beach", "highland beach": "Palm Beach",
+    "riviera beach": "Palm Beach", "singer island": "Palm Beach", "jupiter": "Palm Beach",
+    "lake worth": "Palm Beach", "lake worth beach": "Palm Beach", "lantana": "Palm Beach",
+    "manalapan": "Palm Beach", "juno beach": "Palm Beach", "palm beach gardens": "Palm Beach",
+    "wellington": "Palm Beach", "greenacres": "Palm Beach", "royal palm beach": "Palm Beach",
+}
+
+_WWS_COASTAL_CITIES = {
+    "miami beach", "sunny isles", "sunny isles beach", "bal harbour", "surfside",
+    "bay harbor islands", "key biscayne", "fisher island", "golden beach", "hollywood",
+    "hallandale", "hallandale beach", "fort lauderdale", "pompano beach", "deerfield beach",
+    "dania beach", "lauderdale-by-the-sea", "lauderdale by the sea", "highland beach",
+    "boca raton", "delray beach", "boynton beach", "palm beach", "singer island",
+    "riviera beach", "juno beach", "jupiter", "manalapan", "lantana", "north miami beach",
+}
+_WWS_COASTAL_KEYWORDS = (
+    "oceanfront", "s ocean", "n ocean", " ocean blvd", " ocean dr", "ocean drive",
+    "collins ave", "collins avenue", "a1a", "surf rd", "surf road", "atlantic ave",
+    "atlantic blvd", "fisher island", "intracoastal", "bayshore", "harbour", "seaway",
+    "beachfront", "on the beach",
+)
+
+
+_WWS_CITIES_BY_LEN = sorted(_WWS_COUNTY_BY_CITY.keys(), key=len, reverse=True)
+
+
+def _wws_detect_county(text):
+    t = " " + (text or "").lower() + " "
+    for city in _WWS_CITIES_BY_LEN:  # longest name first so "miami beach" beats "miami"
+        if (" " + city + " ") in t or (" " + city + ",") in t:
+            return _WWS_COUNTY_BY_CITY[city], city
+    m = re.search(r"\b(3\d{4})\b", t)
+    if m:
+        p = m.group(1)[:3]
+        if p in ("330", "331", "332"):
+            return "Miami-Dade", ""
+        if p == "333":
+            return "Broward", ""
+        if p == "334":
+            return "Palm Beach", ""
+    return "", ""
+
+
+def _wws_is_coastal(text, city):
+    if city in _WWS_COASTAL_CITIES:
+        return True
+    t = (text or "").lower()
+    return any(k in t for k in _WWS_COASTAL_KEYWORDS)
+
+
+def _wws_analyze(query, building):
+    text = ((query or "") + " " + (building or "")).strip()
+    county, city = _wws_detect_county(text)
+    coastal = _wws_is_coastal(text, city)
+    place = ((city.title() + ", ") if city else "") + (county + " County" if county else "South Florida")
+    programs = []
+    if county in ("Miami-Dade", "Broward"):
+        ms_by = "25 years of age (Miami-Dade and Broward adopted the earlier 25-year trigger)"
+        ms_past = "Most South Florida towers built before ~2000 are already past it."
+    else:
+        ms_by = "30 years of age (25 in the counties/cities that adopted the earlier local trigger)"
+        ms_past = "Buildings built before ~1995 are already past it."
+    programs.append({
+        "name": "Florida Milestone Structural Inspection (§ 553.899)",
+        "detail": ("Condominium & co-op buildings 3+ habitable stories must complete a milestone structural "
+                   "inspection by " + ms_by + ", then re-inspect every 10 years. " + ms_past
+                   + " (Per SB 154/HB 913 the old automatic 25-year 'within 3 miles of the coast' rule is now a local option.)"),
+    })
+    if county in ("Miami-Dade", "Broward"):
+        programs.append({
+            "name": "%s Building Recertification (40-year / 10-year)" % county,
+            "detail": ("%s requires a structural & electrical recertification once a building reaches 40 years "
+                       "(some cities 30), then every 10 years after. Missing it is what puts a building on the "
+                       "unsafe-structures enforcement track." % county),
+        })
+    elif county == "Palm Beach":
+        programs.append({
+            "name": "Palm Beach County / municipal building-safety recertification",
+            "detail": ("Palm Beach County and its coastal municipalities run building-safety inspection and "
+                       "recertification programs for aging multi-story buildings, backed by unsafe-structures enforcement."),
+        })
+    programs.append({
+        "name": "OSHA 1910 Subpart D — roof anchors & walking-working surfaces",
+        "detail": ("Any building where workers access the roof — window washing, HVAC, facade work, inspections "
+                   "— must have its anchors, tiebacks and davits inspected annually and PE load-test certified "
+                   "(ANSI/IWCA I-14.1, ASME A120.1). This is separate from code enforcement and applies even when a "
+                   "building is on no violation list."),
+    })
+    if coastal:
+        headline = "Your building is almost certainly on the hook — it just hasn't been cited yet."
+        summary = ("%s is an oceanfront / coastal corridor — buildings here are overwhelmingly 3+ story towers. "
+                   "That puts them under Florida's milestone structural-inspection law (§553.899) and the recertification "
+                   "cycle, and an oceanfront tower almost always has roof anchors or davits for window washing that need "
+                   "annual inspection and PE-stamped load-test certification." % place)
+    elif county:
+        headline = "Not cited today — but here's what still applies to your building."
+        summary = ("Based on the address, your building sits in %s. If it's a 3+ story condo or co-op, Florida's "
+                   "milestone inspection and the county recertification program apply on an age schedule, and any roof "
+                   "access triggers OSHA anchor-certification requirements." % place)
+    else:
+        headline = "Not on our current lists — send a bit more and we'll research it."
+        summary = ("We couldn't pin your county from what you entered. Florida's milestone inspection (3+ story condos) "
+                   "and OSHA roof-anchor certification still very likely apply. Add the city or ZIP and we'll pull the exact records.")
+    return {
+        "county": county, "city": city.title() if city else "", "coastal": coastal, "place": place,
+        "headline": headline, "summary": summary, "likely_anchor": bool(coastal), "programs": programs,
+    }
+
+
+def _wws_analysis_text(a):
+    """Format the analyzer result as a plain-text compliance brief for the notify email."""
+    if not a:
+        return ""
+    lines = ["-- INSTANT COMPLIANCE ANALYSIS (auto) --",
+             "Location: " + (a.get("place") or "South Florida")
+             + ("  |  COASTAL" if a.get("coastal") else ""),
+             "",
+             a.get("headline") or "",
+             a.get("summary") or "",
+             "",
+             "What applies to a building like this:"]
+    for p in (a.get("programs") or []):
+        lines.append("  - " + (p.get("name") or "") + ": " + (p.get("detail") or ""))
+    lines.append("")
+    lines.append("POTENTIAL OSHA EXPOSURE (roof access, no anchor certification of record):")
+    lines.append("  Standards in play: 29 CFR 1910.27(b) (rope-descent anchorages must be inspected + "
+                 "PE load-test certified >= every 10 yrs, in writing, BEFORE use), 1910.28 (roof edge/hole "
+                 "fall protection), 1910.140 (personal fall arrest), 1910.22 (surface condition).")
+    lines.append("  Liability: under OSHA's multi-employer / controlling-employer doctrine the ASSOCIATION "
+                 "can be cited for a contractor's worker on the roof.")
+    lines.append("  2025-26 penalty scale: ~$16,550 per serious violation; up to ~$165,514 per "
+                 "willful/repeat violation. Exposure exists the moment a worker steps onto the roof.")
+    lines.append("")
+    lines.append("A deeper per-building snapshot (year built, association, permit audit for roof/painting/"
+                 "restoration work, current OSHA/DOL records, sources) follows automatically from the research runner.")
+    return "\n".join(lines)
+
+
+@app.post("/api/wws/check")
+def wws_building_check():
+    allowed, retry = _rate_limit("check:ip:" + _client_ip(), 40, 3600)
+    if not allowed:
+        return _rate_limited_response(retry)
+    body = request.get_json(force=True, silent=True) or {}
+    if (body.get("_honey") or body.get("_gotcha") or "").strip():
+        return jsonify({"ok": True, "status": "clear", "matches": []}), 200
+    query = (body.get("query") or body.get("address") or "").strip()[:300]
+    building = (body.get("building") or body.get("company") or "").strip()[:200]
+    email = (body.get("email") or "").strip()[:200]
+    name = (body.get("name") or "").strip()[:200]
+    phone = (body.get("phone") or "").strip()[:60]
+    role = (body.get("role") or "").strip()[:80]
+    if not query and not building:
+        return jsonify({"ok": False, "error": "Please enter your building address."}), 400
+    hits = _match_enforcement((query + " " + building).strip())
+    status = "flagged" if hits else "not_listed"
+    matches = [{"building": h.get("building", ""), "address": h.get("address", ""),
+                "city": h.get("city", ""), "county": h.get("county", ""),
+                "program": _program_label(h.get("source", "")), "why": h.get("why", "")}
+               for h in hits]
+    # When not on our lists, run the compliance analyzer so the visitor gets a real answer
+    analysis = None if hits else _wws_analyze(query, building)
+    stored = False
+    queued = False
+    if email or phone:
+        if hits:
+            summary = ("FLAGGED — matched %d enforcement record(s): " % len(hits)
+                       + "; ".join((m["building"] or m["address"]) for m in matches))
+        else:
+            a = analysis or {}
+            summary = ("NEEDS RESEARCH — not on our enforcement lists. Analyzer: %s%s. %s"
+                       % (a.get("place", "South Florida"),
+                          " (coastal)" if a.get("coastal") else "",
+                          a.get("headline", "")))
+        lead = {
+            "id": _gen_id(), "ts": _now_ms(), "name": name, "email": email, "phone": phone,
+            "company": building, "property": query, "message": summary,
+            "fields": {k: v for k, v in {
+                "Building/Association": building, "Role": role, "Searched": query,
+                "Check result": ("FLAGGED" if hits else "NOT LISTED — needs research"),
+                "Matched": "; ".join((m["building"] or m["address"]) for m in matches),
+                "County (inferred)": (analysis or {}).get("county", ""),
+                "Coastal": ("yes" if (analysis or {}).get("coastal") else "") if analysis else "",
+            }.items() if v},
+            "source": "Building Compliance Check",
+            "ua": request.headers.get("User-Agent", "")[:300],
+            "ref_code": (body.get("ref") or "")[:40],
+        }
+        try:
+            _, configured = _kv_cmd(["RPUSH", WWS_LEADS_KEY, json.dumps(lead)])
+            stored = bool(configured)
+        except Exception:
+            stored = False
+        # queue non-matches for a deeper per-building records pull (year built, actual violations, etc.)
+        if not hits:
+            try:
+                job = {"id": _gen_id(), "ts": _now_ms(), "status": "pending",
+                       "query": query, "building": building, "name": name,
+                       "email": email, "phone": phone,
+                       "county": (analysis or {}).get("county", ""),
+                       "coastal": bool((analysis or {}).get("coastal")),
+                       "lead_id": lead["id"]}
+                _, cfg2 = _kv_cmd(["RPUSH", WWS_RESEARCH_KEY, json.dumps(job)])
+                _kv_cmd(["LTRIM", WWS_RESEARCH_KEY, -WWS_RESEARCH_MAX, -1])
+                queued = bool(cfg2)
+            except Exception:
+                queued = False
+        try:
+            body_txt = "A building compliance check was submitted on the WWS site:\n\n" + _lead_summary(lead)
+            if not hits and analysis:
+                body_txt += "\n\n" + _wws_analysis_text(analysis)
+            _notify("WWS building check — " + status.upper() + " — " + (name or email or phone or query),
+                    body_txt)
+        except Exception:
+            pass
+    resp = {"ok": True, "status": status, "count": len(matches),
+            "matches": matches, "stored": stored}
+    if analysis is not None:
+        resp["analysis"] = analysis
+        resp["researching"] = queued
+    return jsonify(resp), 200
+
+
+# ---- WWS research queue (buildings checked that weren't on our lists) ----
+WWS_RESEARCH_DONE_KEY = "wws:research_done"   # SET of resolved job ids
+
+
+@app.get("/api/admin/research")
+def admin_research_list():
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    only_pending = (request.args.get("pending") or "").strip() in ("1", "true", "yes")
+    raw, _cfg = _kv_cmd(["LRANGE", WWS_RESEARCH_KEY, 0, 499])
+    raw = raw or []
+    done_raw, _dcfg = _kv_cmd(["SMEMBERS", WWS_RESEARCH_DONE_KEY])
+    done = set(done_raw or [])
+    items = []
+    for r in raw:
+        try:
+            j = json.loads(r)
+        except Exception:
+            continue
+        j["status"] = "done" if j.get("id") in done else (j.get("status") or "pending")
+        items.append(j)
+    items.reverse()  # newest first
+    pending = [i for i in items if i["status"] == "pending"]
+    out = pending if only_pending else items
+    return jsonify({"ok": True, "items": out, "count": len(items), "pending": len(pending)})
+
+
+@app.post("/api/admin/research/resolve")
+def admin_research_resolve():
+    """Runner posts a completed research snapshot here: emails it to the WWS notify
+    address (Danny) and marks the queue job done. 'notify me only' delivery."""
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    body = request.get_json(force=True, silent=True) or {}
+    jid = (body.get("id") or "").strip()
+    if not jid:
+        return jsonify({"ok": False, "error": "id required"}), 400
+    snapshot = (body.get("snapshot") or "").strip()
+    building = (body.get("building") or body.get("address") or "").strip()
+    try:
+        _kv_cmd(["SADD", WWS_RESEARCH_DONE_KEY, jid])
+    except Exception:
+        pass
+    notified = False
+    if snapshot:
+        try:
+            _notify("WWS research snapshot — " + (building or jid)[:80],
+                    "A /check building was researched (it was NOT on our enforcement lists):\n\n"
+                    + snapshot + "\n\n— auto-research runner")
+            notified = True
+        except Exception:
+            notified = False
+    _log_activity("research_resolved", (building or jid)[:120], name="research-runner")
+    return jsonify({"ok": True, "resolved": jid, "notified": notified})
+
+
 # ---- admin activity log ----
 WWS_ACTIVITY_KEY = "wws:admin_activity"
 WWS_ACTIVITY_MAX = 1000
@@ -719,7 +1148,8 @@ def _log_activity(action, detail="", name=None):
 @app.get("/api/admin/activity")
 def admin_activity():
     if not _is_admin(): return jsonify({"ok": False, "error": "forbidden"}), 403
-    raw = _kv_cmd(["LRANGE", WWS_ACTIVITY_KEY, 0, 199]) or []
+    raw, _cfg = _kv_cmd(["LRANGE", WWS_ACTIVITY_KEY, 0, 199])
+    raw = raw or []
     entries = []
     for r in raw:
         try: entries.append(json.loads(r))

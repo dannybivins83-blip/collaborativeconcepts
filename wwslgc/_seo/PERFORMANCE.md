@@ -17,5 +17,5 @@
 7. **Defer GA/analytics execution** to `requestIdleCallback`/`load` so it's out of the critical path (minor once #3 is done).
 
 ## How to measure
-- PageSpeed Insights: https://pagespeed.web.dev/?url=https://wwslgc.collaborativeconceptsfl.com/wwslgc
+- PageSpeed Insights: https://pagespeed.web.dev/?url=https://roofanchorcert.com
 - GSC → Experience → Core Web Vitals (field data, ~28-day rolling)

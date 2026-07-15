@@ -1,7 +1,11 @@
 # Google Business Profile — Ready-to-Publish Draft
+
+> 🔴 **STATUS 2026-07-08 — GBP RESTART ON A CLEAN ACCOUNT (Danny's decision).** The first GBP attempt was on Danny's existing account (dannybivins83@gmail.com), which carries a **legacy "Kyle Morse" identity** in its verification layer (leftover ~2013; blocks Google ID checks — it killed the free Google Voice number). **ABANDON that in-progress GBP.** New plan: fresh Google account under Danny's real name → free Google Voice **954** number (ID check now matches his ID) → create the La Gala Construction GBP on that clean account, which becomes the durable home for La Gala/WWS's GBP. Collaborative Concept LLC's existing GBP + Business Manager stay on the old account for now (different business; migrate later if wanted) and keep **(561) 475-8615**. Old unclaimed **"La Gala Homes"** listing (236 SE 9th Ave #3, (954) 421-0711, 3.7★): claim/retire separately. Reuse everything below EXCEPT: address shown (not hidden) + the NEW 954 Voice number (never 475-8615).
+>
+> ⚠️ **PHONE CONFLICT — RESOLVED DIRECTION (Danny, 2026-07-08):** **(561) 475-8615 BELONGS TO Collaborative Concept LLC** (its GBP already uses it; it appears 607× across the whole repo as the umbrella number). **La Gala Construction/WWS gets a NEW dedicated local number** (Deerfield Beach home base → prefer a 954 number). DO NOT finish this GBP or build any citation until the new number exists — enter the NEW number in the GBP, never 475-8615. Swap scope once the number exists (one commit): hand-authored wwslgc pages (index, money page, 8 city pages, portal) incl. JSON-LD `telephone`, `_wws_blog_builder.py` (then regenerate the 39 guides — never hand-edit generated HTML), WWS strings in `api/index.py` (lead autoresponse etc.), and the NAP blocks in CITATIONS.md + this file. Apex/blog/presentations keep 475-8615 (that's Collab's number). Note: Google surfaced the old unclaimed **"La Gala Homes"** listing (236 SE 9th Ave #3, (954) 421-0711, 3.7★) — we chose "This doesn't match"; claim that listing separately to control/retire it.
 **La Gala Construction** · created by the WWS SEO workflow
 
-> ⚠️ **Review before publishing.** A GBP is public-facing. Confirm address handling (service-area business vs. storefront), phone, and any "identifies as" attributes before going live. Set up at https://www.google.com/business/
+> ✅ **DECIDED 2026-07-08 (Danny):** Canonical NAP is locked — **La Gala Construction · 25 SE 7th Street, Suite 12, Deerfield Beach, FL 33441 · (561) 475-8615**. Use byte-for-byte everywhere. **Show the physical address** (storefront w/ service areas), do NOT hide it — shown address = proximity signal for map-pack ranking. All legacy listings (Blue Book, BuildZoom, Yelp "La Gala Homes", Manta, YP, Builder Market — 236 SE 9th Ave / old phones) must be corrected to this NAP. Set up at https://www.google.com/business/
 
 ---
 
@@ -10,9 +14,9 @@
 - **Primary category:** Construction company
 - **Additional categories:** Safety equipment supplier · Roofing contractor · Engineering consultant · General contractor
 - **Phone:** (561) 475-8615
-- **Website:** https://wwslgc.collaborativeconceptsfl.com/wwslgc
+- **Website:** https://roofanchorcert.com
 - **Address:** 25 SE 7th Street, Suite 12, Deerfield Beach, FL 33441
-  - *Recommend setting as a **service-area business** (hide the suite address) since work is performed at client sites.*
+  - *DECIDED: show the address (storefront + service areas). A visible physical address is the proximity ranking signal; hiding it forfeits it.*
 
 ## Short description
 > Florida general contractor (CGC 059211) certifying roof anchors and davits to OSHA Walking-Working Surfaces standards, plus corrective work, across South Florida.

@@ -109,3 +109,5 @@ h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacin
 .ownertake .ot-h{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:#14556E;margin-bottom:7px;display:flex;align-items:center;gap:8px}
 .ownertake p{margin:0;font-size:14.5px;color:#33555f;line-height:1.65;font-style:italic}
 @media(max-width:560px){.authorbox{flex-direction:column;gap:12px}}
+.blog-sticky{display:none}
+@media(max-width:820px){.blog-sticky{display:flex;align-items:center;justify-content:center;gap:8px;position:fixed;bottom:0;left:0;right:0;z-index:60;background:linear-gradient(135deg,#3E9DB5,#6fc8dc);color:#07202c;text-align:center;padding:14px;font-weight:800;text-decoration:none;box-shadow:0 -4px 16px rgba(0,0,0,.3)}body{padding-bottom:56px}}
