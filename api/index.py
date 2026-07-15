@@ -1028,20 +1028,58 @@ def wws_building_check():
 
 
 # ---- WWS research queue (buildings checked that weren't on our lists) ----
+WWS_RESEARCH_DONE_KEY = "wws:research_done"   # SET of resolved job ids
+
+
 @app.get("/api/admin/research")
 def admin_research_list():
     if not _is_admin():
         return jsonify({"ok": False, "error": "forbidden"}), 403
+    only_pending = (request.args.get("pending") or "").strip() in ("1", "true", "yes")
     raw = _kv_cmd(["LRANGE", WWS_RESEARCH_KEY, 0, 499]) or []
+    done_raw = _kv_cmd(["SMEMBERS", WWS_RESEARCH_DONE_KEY]) or []
+    done = set(done_raw)
     items = []
     for r in raw:
         try:
-            items.append(json.loads(r))
+            j = json.loads(r)
         except Exception:
-            pass
+            continue
+        j["status"] = "done" if j.get("id") in done else (j.get("status") or "pending")
+        items.append(j)
     items.reverse()  # newest first
-    pending = [i for i in items if (i.get("status") or "pending") == "pending"]
-    return jsonify({"ok": True, "items": items, "count": len(items), "pending": len(pending)})
+    pending = [i for i in items if i["status"] == "pending"]
+    out = pending if only_pending else items
+    return jsonify({"ok": True, "items": out, "count": len(items), "pending": len(pending)})
+
+
+@app.post("/api/admin/research/resolve")
+def admin_research_resolve():
+    """Runner posts a completed research snapshot here: emails it to the WWS notify
+    address (Danny) and marks the queue job done. 'notify me only' delivery."""
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    body = request.get_json(force=True, silent=True) or {}
+    jid = (body.get("id") or "").strip()
+    if not jid:
+        return jsonify({"ok": False, "error": "id required"}), 400
+    snapshot = (body.get("snapshot") or "").strip()
+    building = (body.get("building") or body.get("address") or "").strip()
+    try:
+        _kv_cmd(["SADD", WWS_RESEARCH_DONE_KEY, jid])
+    except Exception:
+        pass
+    notified = False
+    if snapshot:
+        try:
+            _notify("WWS research snapshot — " + (building or jid)[:80],
+                    "A /check building was researched (it was NOT on our enforcement lists):\n\n"
+                    + snapshot + "\n\n— auto-research runner")
+            notified = True
+        except Exception:
+            notified = False
+    _log_activity("research_resolved", (building or jid)[:120], name="research-runner")
+    return jsonify({"ok": True, "resolved": jid, "notified": notified})
 
 
 # ---- admin activity log ----
