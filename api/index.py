@@ -949,7 +949,7 @@ def _wws_analysis_text(a):
     """Format the analyzer result as a plain-text compliance brief for the notify email."""
     if not a:
         return ""
-    lines = ["==== INSTANT COMPLIANCE ANALYSIS (auto) ====",
+    lines = ["-- INSTANT COMPLIANCE ANALYSIS (auto) --",
              "Location: " + (a.get("place") or "South Florida")
              + ("  |  COASTAL" if a.get("coastal") else ""),
              "",
