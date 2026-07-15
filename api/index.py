@@ -897,12 +897,17 @@ def _wws_analyze(query, building):
     coastal = _wws_is_coastal(text, city)
     place = ((city.title() + ", ") if city else "") + (county + " County" if county else "South Florida")
     programs = []
-    yr = 25 if coastal else 30
+    if county in ("Miami-Dade", "Broward"):
+        ms_by = "25 years of age (Miami-Dade and Broward adopted the earlier 25-year trigger)"
+        ms_past = "Most South Florida towers built before ~2000 are already past it."
+    else:
+        ms_by = "30 years of age (25 in the counties/cities that adopted the earlier local trigger)"
+        ms_past = "Buildings built before ~1995 are already past it."
     programs.append({
         "name": "Florida Milestone Structural Inspection (§ 553.899)",
         "detail": ("Condominium & co-op buildings 3+ habitable stories must complete a milestone structural "
-                   "inspection at %d years of age%s, then re-inspect every 10 years. Most South Florida coastal "
-                   "towers are already past this threshold." % (yr, " (within ~3 miles of the coast)" if coastal else "")),
+                   "inspection by " + ms_by + ", then re-inspect every 10 years. " + ms_past
+                   + " (Per SB 154/HB 913 the old automatic 25-year 'within 3 miles of the coast' rule is now a local option.)"),
     })
     if county in ("Miami-Dade", "Broward"):
         programs.append({
@@ -927,9 +932,9 @@ def _wws_analyze(query, building):
     if coastal:
         headline = "Your building is almost certainly on the hook — it just hasn't been cited yet."
         summary = ("%s is an oceanfront / coastal corridor — buildings here are overwhelmingly 3+ story towers. "
-                   "That puts them under Florida's 25-year coastal milestone inspection and the recertification cycle, "
-                   "and an oceanfront tower almost always has roof anchors or davits for window washing that need annual "
-                   "inspection and PE-stamped load-test certification." % place)
+                   "That puts them under Florida's milestone structural-inspection law (§553.899) and the recertification "
+                   "cycle, and an oceanfront tower almost always has roof anchors or davits for window washing that need "
+                   "annual inspection and PE-stamped load-test certification." % place)
     elif county:
         headline = "Not cited today — but here's what still applies to your building."
         summary = ("Based on the address, your building sits in %s. If it's a 3+ story condo or co-op, Florida's "
