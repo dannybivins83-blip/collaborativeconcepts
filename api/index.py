@@ -945,6 +945,26 @@ def _wws_analyze(query, building):
     }
 
 
+def _wws_analysis_text(a):
+    """Format the analyzer result as a plain-text compliance brief for the notify email."""
+    if not a:
+        return ""
+    lines = ["==== INSTANT COMPLIANCE ANALYSIS (auto) ====",
+             "Location: " + (a.get("place") or "South Florida")
+             + ("  |  COASTAL" if a.get("coastal") else ""),
+             "",
+             a.get("headline") or "",
+             a.get("summary") or "",
+             "",
+             "What applies to a building like this:"]
+    for p in (a.get("programs") or []):
+        lines.append("  - " + (p.get("name") or "") + ": " + (p.get("detail") or ""))
+    lines.append("")
+    lines.append("A deeper per-building snapshot (year built, association, actual county records, "
+                 "sources) follows automatically from the research runner.")
+    return "\n".join(lines)
+
+
 @app.post("/api/wws/check")
 def wws_building_check():
     allowed, retry = _rate_limit("check:ip:" + _client_ip(), 40, 3600)
@@ -1015,8 +1035,11 @@ def wws_building_check():
             except Exception:
                 queued = False
         try:
+            body_txt = "A building compliance check was submitted on the WWS site:\n\n" + _lead_summary(lead)
+            if not hits and analysis:
+                body_txt += "\n\n" + _wws_analysis_text(analysis)
             _notify("WWS building check — " + status.upper() + " — " + (name or email or phone or query),
-                    "A building compliance check was submitted on the WWS site:\n\n" + _lead_summary(lead))
+                    body_txt)
         except Exception:
             pass
     resp = {"ok": True, "status": status, "count": len(matches),
