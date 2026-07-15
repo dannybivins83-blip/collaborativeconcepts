@@ -1036,9 +1036,10 @@ def admin_research_list():
     if not _is_admin():
         return jsonify({"ok": False, "error": "forbidden"}), 403
     only_pending = (request.args.get("pending") or "").strip() in ("1", "true", "yes")
-    raw = _kv_cmd(["LRANGE", WWS_RESEARCH_KEY, 0, 499]) or []
-    done_raw = _kv_cmd(["SMEMBERS", WWS_RESEARCH_DONE_KEY]) or []
-    done = set(done_raw)
+    raw, _cfg = _kv_cmd(["LRANGE", WWS_RESEARCH_KEY, 0, 499])
+    raw = raw or []
+    done_raw, _dcfg = _kv_cmd(["SMEMBERS", WWS_RESEARCH_DONE_KEY])
+    done = set(done_raw or [])
     items = []
     for r in raw:
         try:
