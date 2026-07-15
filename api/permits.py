@@ -189,6 +189,11 @@ APPRAISER_SEARCH = {
 # --------------------------------------------------------------------------
 TAG_RULES = [
     ("roofing",        "Roofing",            r"\bre-?roof|\broof(ing|\b)|shingle|roof\s*repl|tpo\b|torch\s*down|flat\s*roof|tile\s*roof|metal\s*roof"),
+    # reroof = FULL roof replacement (tear-off/recover/new) — the work that
+    # DISTURBS rooftop fall-protection anchors and voids their OSHA cert. Kept
+    # separate from "roofing" (which also matches minor repairs) so it drives the
+    # post-re-roof anchor-recertification lead list. See /api/permits/reroof.
+    ("reroof",         "Re-Roof (full)",     r"\bre-?\s?roof|roof\s*(replac|re-?cover|recover|over\b)|replac\w*\s+(the\s+)?(existing\s+)?roof|tear[\s-]?off|\bnew\s+roof|roof\s+install"),
     ("solar",          "Solar",              r"solar|photovoltaic|\bpv\b"),
     ("hvac",           "HVAC / AC",          r"\bhvac\b|\ba/?c\b(?!\w)|air\s*cond|mini[-\s]?split|change\s*out|changeout|condenser|air\s*handler|duct"),
     ("pool_spa",       "Pool / Spa",         r"\bpool\b|\bspa\b|hot\s*tub|pool\s*heater|marcite|resurfac.*pool|pool.*resurfac"),
@@ -1393,10 +1398,76 @@ def run_search(params):
 
 
 # --------------------------------------------------------------------------
+# Re-roof lead shaping (post-re-roof anchor-recertification campaign)
+# --------------------------------------------------------------------------
+def _reroof_pitch(p):
+    """One-line, board-ready reason this re-roof is an anchor-recert lead."""
+    parts = ["Re-roof permit"]
+    if p.get("permit_number"):
+        parts.append("#" + str(p["permit_number"]))
+    d = p.get("issued_date") or p.get("applied_date")
+    if d:
+        parts.append("issued " + d)
+    if p.get("contractor"):
+        parts.append("by " + str(p["contractor"]))
+    return (" ".join(parts) + " — the roof was torn off and replaced, so the "
+            "rooftop fall-protection anchors were disturbed and their OSHA "
+            "1910.27(b) certification is now void. Anchor re-certification is due "
+            "before any window-washing or facade crew uses the roof.")
+
+
+def run_reroof_leads(params):
+    """Recent FULL re-roof permits, shaped as anchor-recertification leads.
+    Defaults to the counties with queryable permit feeds (Miami-Dade + Broward)
+    and an 18-month lookback (the window in which anchors still need recert)."""
+    args = dict(params)
+    args.setdefault("counties", "Miami-Dade,Broward")
+    args.setdefault("months", "18")
+    args.setdefault("limit", "500")
+    args["tags"] = "reroof"            # force the high-signal tag
+    args.pop("category", None)         # permits only, never violations
+    data = run_search(args)
+    leads = []
+    for p in data.get("permits", []):
+        if not p.get("address"):
+            continue
+        leads.append({
+            "address": p.get("address"),
+            "city": p.get("city"),
+            "county": p.get("county"),
+            "permit_number": p.get("permit_number"),
+            "issued_date": p.get("issued_date") or p.get("applied_date"),
+            "contractor": p.get("contractor"),
+            "type": p.get("type"),
+            "description": p.get("description"),
+            "value": p.get("value"),
+            "appraiser_url": p.get("appraiser_url"),
+            "pitch": _reroof_pitch(p),
+        })
+    return {
+        "ok": True,
+        "generated_at": data.get("generated_at"),
+        "window": data.get("params", {}).get("window"),
+        "counties": data.get("params", {}).get("counties"),
+        "demo": data.get("demo"),
+        "sources": data.get("sources"),
+        "count": len(leads),
+        "leads": leads,
+    }
+
+
+# --------------------------------------------------------------------------
 # Flask wiring
 # --------------------------------------------------------------------------
 def register_permits_routes(app):
     from flask import jsonify, request, Response
+
+    @app.route("/api/permits/reroof", methods=["GET"])
+    def permits_reroof():
+        """Post-re-roof anchor-recertification lead list. Recent full re-roof
+        permits in Miami-Dade + Broward (override with ?counties= &months= &limit=
+        &city= via q). Each lead carries a ready pitch line."""
+        return jsonify(run_reroof_leads(request.args))
 
     @app.route("/api/permits/search", methods=["GET"])
     def permits_search():

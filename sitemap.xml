@@ -140,91 +140,337 @@
   </url>
   <url>
     <loc>https://collaborativeconceptsfl.com/wake</loc>
-    <lastmod>2026-07-09</lastmod>
+    <lastmod>2026-07-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://collaborativeconceptsfl.com/wake/pages/charter-experiences</loc>
-    <lastmod>2026-07-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/pages/fishing-charters-palm-beach</loc>
+    <lastmod>2026-07-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://collaborativeconceptsfl.com/wake/pages/wake-boat-dealer-west-palm-beach</loc>
-    <lastmod>2026-07-09</lastmod>
+    <lastmod>2026-07-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://collaborativeconceptsfl.com/wake/pages/wake-boat-service-malibu-nautique-moomba</loc>
-    <lastmod>2026-07-09</lastmod>
+    <lastmod>2026-07-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://collaborativeconceptsfl.com/wake/blog</loc>
-    <lastmod>2026-07-10</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://collaborativeconceptsfl.com/wake/blog/wakesurfing-lake-osborne-local-guide</loc>
-    <lastmod>2026-07-10</lastmod>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/100-hour-wake-boat-service</loc>
+    <lastmod>2026-07-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://collaborativeconceptsfl.com/wake/blog/best-places-to-wakesurf-palm-beach-county</loc>
-    <lastmod>2026-07-10</lastmod>
+    <lastmod>2026-07-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://collaborativeconceptsfl.com/wake/blog/wakesurf-wakeboard-lessons-palm-beach-county-what-to-expect</loc>
-    <lastmod>2026-07-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://collaborativeconceptsfl.com/wake/blog/palm-beach-bachelorette-on-the-water</loc>
-    <lastmod>2026-07-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://collaborativeconceptsfl.com/wake/blog/private-boat-charter-palm-beach-pricing-guide</loc>
-    <lastmod>2026-07-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://collaborativeconceptsfl.com/wake/blog/whats-my-wake-boat-worth-south-florida-valuations</loc>
-    <lastmod>2026-07-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://collaborativeconceptsfl.com/wake/blog/sell-a-wake-boat-in-florida-without-marketplace-circus</loc>
-    <lastmod>2026-07-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://collaborativeconceptsfl.com/wake/blog/malibu-axis-nautique-service-no-local-dealer</loc>
-    <lastmod>2026-07-10</lastmod>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/best-time-of-year-wakesurf-south-florida</loc>
+    <lastmod>2026-07-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://collaborativeconceptsfl.com/wake/blog/best-wake-boats-for-beginners-palm-beach</loc>
-    <lastmod>2026-07-10</lastmod>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/birthday-boat-party-ideas-palm-beach-county</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/boat-show-buying-season-south-florida-timing</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/boynton-beach-boating-guide-for-visitors</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/buying-used-wake-boat-south-florida-checklist</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/consignment-vs-private-sale-vs-trade-in-wake-boat</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/corporate-team-building-on-the-water-palm-beach</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/delray-beach-on-the-water-hotels-dining-charter</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/do-wake-boats-hold-their-value-depreciation-engine-hours</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/financing-a-wake-boat-what-to-know</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/florida-boat-sales-tax-trade-ins-savings-explained</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/florida-tow-sports-laws-wakesurfers</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/how-splitting-cost-group-boat-charter-works</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/how-to-wakesurf-first-timer-guide-behind-an-inboard</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/is-wakesurfing-hard-to-learn-why-most-first-timers-get-up-day-one</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/john-prince-park-lake-osborne-ramp-hours-tips</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/lake-ida-wakeboarding-boating-guide-delray-beach</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/malibu-axis-nautique-service-no-local-dealer</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/mastercraft-vs-nautique-vs-malibu-surf-boat</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/nautique-g23-mastercraft-xt-malibu-23-lsv-value</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/new-vs-used-wake-boat-which-is-right</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/no-wake-zones-protecting-shorelines-palm-beach-county</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/palm-beach-bachelorette-on-the-water</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/palm-beach-bachelorette-weekend-where-to-stay</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/palm-beach-on-water-activities-you-cant-miss</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/perfect-family-day-on-the-water-palm-beach-county</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/private-boat-charter-palm-beach-pricing-guide</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/saltwater-wake-boat-maintenance-south-florida</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/sandbar-day-grill-out-cruise-palm-beach</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/sell-a-wake-boat-in-florida-without-marketplace-circus</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/stub-lake-canal-cruise-west-palm-pool-and-canal-day</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/sunset-cruises-palm-beach-best-way-to-end-the-day</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/teaching-kids-to-wakeboard-a-parents-guide</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/things-to-do-on-the-water-lantana-lake-worth-beach</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/tubing-in-palm-beach-all-ages-fun-on-the-lakes</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/wake-boat-ballast-surf-system-troubleshooting</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/wake-boat-charter-faq-questions-answered</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/wake-boat-cost-to-own-florida</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/wake-boat-hurricane-off-season-prep-florida</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/wake-boat-safety-life-jackets-observers-etiquette</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/wakesurf-vs-wakeboard-which-should-you-try-first</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/wakesurf-wakeboard-lessons-palm-beach-county-what-to-expect</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/wakesurfing-lake-osborne-local-guide</loc>
+    <lastmod>2026-07-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://collaborativeconceptsfl.com/wake/blog/waterfront-hotels-near-lake-osborne-lantana</loc>
-    <lastmod>2026-07-10</lastmod>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/weekend-guide-seeing-palm-beach-county-by-boat</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/whats-included-wake-boat-charter-what-to-bring</loc>
+    <lastmod>2026-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://collaborativeconceptsfl.com/wake/blog/whats-my-wake-boat-worth-south-florida-valuations</loc>
+    <lastmod>2026-07-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
