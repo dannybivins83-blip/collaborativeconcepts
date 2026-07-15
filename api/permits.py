@@ -42,8 +42,9 @@ from datetime import datetime, timedelta, timezone
 import requests
 
 UA = "CollaborativeConcepts-PermitLeads/1.0 (+https://collaborativeconceptsfl.com)"
-HTTP_TIMEOUT = 12          # per outbound request, seconds
-SOURCE_BUDGET = 25         # per-source total budget, seconds
+HTTP_TIMEOUT = 8           # per outbound request, seconds
+SOURCE_BUDGET = 12         # per-source total budget, seconds
+REQUEST_BUDGET = 45        # whole fan-out budget (must stay under vercel maxDuration=60)
 CACHE_TTL_RESULTS = 600    # search results, seconds
 CACHE_TTL_META = 12 * 3600 # layer metadata / item resolution / discovery
 
@@ -213,8 +214,8 @@ TAG_RULES = [
     ("landscape",      "Landscape / Tree",   r"landscap|irrigation|\btree\b"),
     ("commercial",     "Commercial",         r"commercial|office|retail|restaurant|warehouse"),
     # code-violation-oriented tags (high value for structural/WWS lead-gen)
-    ("unsafe_structure","Unsafe Structure",  r"unsafe|unsound|structural|collaps|dilapidat|deterior|hazard"),
-    ("no_permit",      "Work w/o Permit",    r"without\s*(a\s*)?permit|no\s*permit|unpermitted|expired\s*permit|work.*permit"),
+    ("unsafe_structure","Unsafe Structure",  r"unsafe\s*(structure|building|condition)|structurally\s*(unsound|deficient|compromised)|\bunsound\b|collaps|dilapidat|derelict|condemn"),
+    ("no_permit",      "Work w/o Permit",    r"without\s*(a\s*)?permit|\bunpermitted\b|expired\s*permit|no\s*permit\b|illegal\s*(construction|work|structure)"),
     ("property_maint", "Property Maintenance",r"maintenance|overgrow|debris|trash|junk|derelict|abandon|nuisance"),
 ]
 _COMPILED_TAGS = [(key, label, re.compile(rx, re.I)) for key, label, rx in TAG_RULES]
@@ -546,7 +547,7 @@ def _and_where(a, b):
 
 
 def query_layer(layer_url, order_field=None, date_field=None, start_ms=None,
-                end_ms=None, record_count=2000, max_records=4000, base_where=None):
+                end_ms=None, record_count=2000, max_records=2000, base_where=None):
     """Pull records, preferring a SERVER-SIDE date filter (so historical windows
     return the right rows, not just the newest N) but degrading safely.
 
@@ -576,8 +577,8 @@ def query_layer(layer_url, order_field=None, date_field=None, start_ms=None,
     base = (base_where or "1=1").strip() or "1=1"
     where_options = []
     if date_field and (start_ms is not None or end_ms is not None):
-        where_options.append(_and_where(base, _build_date_where(date_field, start_ms, end_ms, "ts")))
-        where_options.append(_and_where(base, _build_date_where(date_field, start_ms, end_ms, "epoch")))
+        for style in ("ts", "epoch", "date"):  # cover all ArcGIS date dialects
+            where_options.append(_and_where(base, _build_date_where(date_field, start_ms, end_ms, style)))
     where_options.append(base)
 
     chosen_where, use_order, first = None, bool(order_field), None
@@ -786,7 +787,12 @@ def _epoch_to_iso(v):
             v = v.strip()
             m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", v)
             if m:
-                return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+                iso = f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+                try:  # validate real month/day, reject 2024-13-99 etc.
+                    datetime.strptime(iso, "%Y-%m-%d")
+                    return iso
+                except ValueError:
+                    return None
             if not re.match(r"^-?\d+$", v):
                 return None
             v = int(v)
@@ -1127,6 +1133,18 @@ _DEMO_ROWS = [
 ]
 
 
+# A few sample code-violation rows so the "Code Violations" data type isn't
+# empty in demo mode. (county, city, zip, address, problem, status, folio)
+_DEMO_VIOLATIONS = [
+    ("Miami-Dade", "Miami", "33127", "220 NW 36 ST",
+     "UNSAFE STRUCTURE - ROOF PARTIALLY COLLAPSED, OPEN TO ELEMENTS", "Open", "0132340010010"),
+    ("Miami-Dade", "Hialeah", "33010", "455 E 9 ST",
+     "WORK WITHOUT PERMIT - UNPERMITTED SECOND-STORY ADDITION", "Lien", "0431210250020"),
+    ("Miami-Dade", "Miami", "33150", "8100 NW 2 AVE",
+     "DILAPIDATED STRUCTURE / PROPERTY MAINTENANCE - OVERGROWTH AND DEBRIS", "Open", "0131190080030"),
+]
+
+
 def demo_permits(now=None):
     now = now or datetime.now(timezone.utc)
     out = []
@@ -1153,6 +1171,29 @@ def demo_permits(now=None):
             "tags": tag_permit(f"{desc} {ptype}"),
             "appraiser_url": APPRAISER_SEARCH.get(county),
         })
+    for j, (county, city, zc, addr, desc, status, folio) in enumerate(_DEMO_VIOLATIONS):
+        opened = (now - timedelta(days=(j * 5) % 25, hours=j)).strftime("%Y-%m-%d")
+        out.append({
+            "source_id": "demo",
+            "county": county,
+            "category": "violation",
+            "permit_number": f"DEMO-CE-{now.year}-{200 + j}",
+            "type": "Code Violation",
+            "status": status,
+            "description": desc,
+            "address": addr,
+            "city": city,
+            "zip": zc,
+            "issued_date": opened,
+            "applied_date": None,
+            "value": None,
+            "contractor": None,
+            "owner": folio,
+            "lat": None,
+            "lon": None,
+            "tags": tag_permit(desc),
+            "appraiser_url": APPRAISER_SEARCH.get(county),
+        })
     return out
 
 
@@ -1165,7 +1206,10 @@ def _parse_counties(raw):
     wanted = []
     for tok in raw.split(","):
         tok = tok.strip().lower().replace("miami dade", "miami-dade")
-        if tok == "dade":
+        # accept URL-safe slugs too (palm-beach, miami_dade, ...)
+        tok = tok.replace("palm-beach", "palm beach").replace("palm_beach", "palm beach")
+        tok = tok.replace("miami_dade", "miami-dade")
+        if tok in ("dade", "miamidade"):
             tok = "miami-dade"
         for c in COUNTIES:
             if tok and (tok == c.lower() or tok in c.lower()) and c not in wanted:
@@ -1272,7 +1316,10 @@ def run_search(params):
                        for s in sources}
             done = set()
             try:
-                for fut in as_completed(futures, timeout=SOURCE_BUDGET + 10):
+                # whole-request budget (must stay under vercel maxDuration) so a
+                # hung source can't 504 the function — remaining sources are
+                # cancelled and reported as timeouts.
+                for fut in as_completed(futures, timeout=REQUEST_BUDGET):
                     done.add(fut)
                     try:
                         permits, info = fut.result()
@@ -1291,9 +1338,13 @@ def run_search(params):
                                       "label": s.get("label"), "status": "timeout",
                                       "count": 0, "error": "source timed out"})
 
+    # Demo fallback fires ONLY on genuine failure — i.e. no source actually
+    # reported data-bearing status. A source that succeeded but honestly
+    # returned 0 rows (e.g. "open violations, last 7 days") must NOT be masked
+    # with fabricated sample rows.
+    any_source_ok = any(i.get("status") in ("ok", "no_dataset") for i in infos)
     demo_used = force_demo
-    if not all_permits and not force_demo:
-        # every live source failed or was empty -> serve labeled sample data
+    if not all_permits and not force_demo and not any_source_ok:
         all_permits = [p for p in demo_permits() if p["county"] in counties]
         demo_used = True
 

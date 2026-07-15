@@ -26,8 +26,10 @@ import requests
 
 UA = "CollaborativeConcepts-PermitLeads/1.0 (+https://collaborativeconceptsfl.com)"
 ACA_BASE = "https://aca-prod.accela.com"
-TIMEOUT = 15
-MAX_PAGES = 8
+TIMEOUT = 8
+MAX_PAGES = 3
+DEFAULT_DEADLINE = 18   # seconds — hard wall-clock cap so a slow portal can't
+                        # eat the whole serverless budget (was unbounded ~135s)
 
 
 # --------------------------------------------------------------------------
@@ -220,13 +222,19 @@ def _session():
 
 
 def scrape_accela(agency, start_date, end_date, module="Building",
-                  base=ACA_BASE, max_pages=MAX_PAGES):
+                  base=ACA_BASE, max_pages=MAX_PAGES, deadline=DEFAULT_DEADLINE):
     """Search an Accela ACA agency's General Search by date range.
 
-    start_date/end_date: datetime (any tz). Returns (rows, diag) where rows are
-    canonical permit dicts and diag records exactly what happened at each step.
-    Never raises.
+    start_date/end_date: datetime (any tz). deadline: hard wall-clock seconds
+    cap. Returns (rows, diag) where rows are canonical permit dicts and diag
+    records exactly what happened at each step. Never raises.
     """
+    import time as _time
+    _start = _time.time()
+
+    def _over_budget():
+        return (_time.time() - _start) > deadline
+
     diag = {"agency": agency, "steps": [], "pages": 0}
     sess = _session()
     search_url = (f"{base}/{agency}/Cap/CapHome.aspx"
@@ -235,6 +243,9 @@ def scrape_accela(agency, start_date, end_date, module="Building",
     ed = end_date.strftime("%m/%d/%Y")
 
     try:
+        if _over_budget():
+            diag["error"] = "deadline exceeded before search"
+            return [], diag
         r = sess.get(search_url, timeout=TIMEOUT)
         diag["steps"].append(f"GET search page: {r.status_code}")
         if r.status_code != 200:
@@ -286,6 +297,9 @@ def scrape_accela(agency, start_date, end_date, module="Building",
 
         # pagination
         for _ in range(max_pages - 1):
+            if _over_budget():
+                diag["steps"].append("stopped paginating: deadline")
+                break
             targets = [t for t in find_pagination_targets(html) if t[1] not in seen_pages]
             if not targets:
                 break

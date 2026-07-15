@@ -81,6 +81,19 @@
       background:#fbe9e7;color:#b0341d;border:1px solid #f2c4bc;border-radius:4px;
       padding:1px 5px;margin-left:6px;vertical-align:middle}
   tr.vio-row td:first-child{box-shadow:inset 3px 0 0 #d9534f}
+  tr.lead{cursor:pointer}
+  tr.lead .caret{display:inline-block;color:var(--muted);font-size:10px;transition:transform .12s;width:9px}
+  tr.lead.expanded .caret{transform:rotate(90deg);color:var(--steel)}
+  tr.lead.expanded td{background:#eef4fb}
+  tr.detail-row td{background:#f7fafd;padding:14px 18px;border-bottom:2px solid var(--line)}
+  .detail-wrap{max-width:1000px}
+  .dl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:4px 22px;margin-top:10px}
+  .dl-row{display:flex;gap:8px;font-size:13px;padding:3px 0;border-bottom:1px dotted #e4ebf2}
+  .dl-k{color:var(--muted);min-width:120px;flex:0 0 120px}
+  .dl-v{color:var(--ink);font-weight:600;word-break:break-word}
+  .dl-links{margin-top:11px;font-size:12.5px;display:flex;flex-wrap:wrap;gap:2px;align-items:center}
+  .dl-links a{color:var(--steel);text-decoration:none;font-weight:600}
+  .dl-links a:hover{text-decoration:underline}
   .empty{padding:40px;text-align:center;color:var(--muted)}
   .spinner{padding:40px;text-align:center;color:var(--muted)}
   .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
@@ -298,6 +311,14 @@
   function renderSources(infos, demo){
     var host = $("sources");
     host.innerHTML = "";
+    // In demo/sample mode, the live source errors are noise — show one honest
+    // "sample data" chip instead of a wall of red that reads as "broken".
+    if(demo){
+      host.innerHTML = '<span class="src demo"><span class="dot"></span>' +
+        '<span class="lbl">Sample data</span><span class="sub">◎ live county feeds unavailable — showing bundled examples</span></span>';
+      $("statSources").textContent = "demo";
+      return;
+    }
     var okCount = 0, total = 0;
     (infos || []).forEach(function(s){
       total++;
@@ -361,41 +382,94 @@
     });
   }
 
+  function mapsLink(p){
+    var q = [p.address, p.city, p.zip].filter(Boolean).join(", ");
+    if(!q) return "";
+    return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q + ", FL");
+  }
+
+  function detailHtml(p){
+    var cityLine = [p.city, p.zip].filter(Boolean).join(" ");
+    var rows = [
+      ["Category", p.category === "violation" ? "Code Violation" : "Permit"],
+      ["Record #", p.permit_number],
+      ["County", p.county],
+      ["City / ZIP", cityLine],
+      ["Address", p.address],
+      ["Type", p.type],
+      ["Status", p.status],
+      ["Issued", p.issued_date],
+      ["Applied / opened", p.applied_date],
+      ["Est. value", p.value != null ? fmtMoney(p.value) : null],
+      ["Contractor", p.contractor],
+      ["Owner / folio", p.owner],
+      ["Coordinates", (p.lat != null && p.lon != null) ? (p.lat.toFixed(5) + ", " + p.lon.toFixed(5)) : null],
+      ["Source", p.source_id]
+    ];
+    var dl = rows.filter(function(r){ return r[1] != null && r[1] !== ""; }).map(function(r){
+      return "<div class='dl-row'><span class='dl-k'>" + esc(r[0]) + "</span><span class='dl-v'>" + esc(r[1]) + "</span></div>";
+    }).join("");
+    var fullDesc = "<div class='dl-row'><span class='dl-k'>Description</span><span class='dl-v'>" + esc(p.description || "—") + "</span></div>";
+    var tagline = (p.tags && p.tags.length) ? "<div class='tags' style='margin-top:8px'>" +
+      p.tags.map(function(t){ return "<span class='tg'>" + esc(state.tagLabels[t] || t) + "</span>"; }).join("") + "</div>" : "";
+    var links = [];
+    if(p.appraiser_url) links.push("<a href='" + esc(p.appraiser_url) + "' target='_blank' rel='noopener'>Property appraiser (owner lookup) ↗</a>");
+    var ml = mapsLink(p);
+    if(ml) links.push("<a href='" + ml + "' target='_blank' rel='noopener'>Map ↗</a>");
+    var addrCopy = p.address ? "<button class='copy' data-addr='" + esc(p.address + (cityLine ? ", " + cityLine : "")) + "'>copy address</button>" : "";
+    var linkbar = "<div class='dl-links'>" + links.join(" · ") + (addrCopy ? " · " + addrCopy : "") + "</div>";
+    return "<div class='detail-wrap'>" + fullDesc + "<div class='dl-grid'>" + dl + "</div>" + tagline + linkbar + "</div>";
+  }
+
   function renderRows(){
     var tb = $("rows");
     if(!state.permits.length){
-      tb.innerHTML = '<tr><td colspan="9" class="empty">No permits matched — widen the window or clear filters.</td></tr>';
+      var msg = state.category === "violation"
+        ? "No open code violations matched — widen the window or switch data type."
+        : "No permits matched — widen the window or clear filters.";
+      tb.innerHTML = '<tr><td colspan="9" class="empty">' + msg + '</td></tr>';
       return;
     }
-    tb.innerHTML = state.permits.map(function(p){
+    tb.innerHTML = state.permits.map(function(p, i){
       var tags = (p.tags || []).map(function(t){
         return '<span class="tg">' + esc(state.tagLabels[t] || t) + "</span>";
       }).join("");
       var cityLine = [p.city, p.zip].filter(Boolean).join(" ");
-      var addr = esc(p.address || "—");
-      var paLink = p.appraiser_url ?
-        ' <a href="' + esc(p.appraiser_url) + '" target="_blank" rel="noopener" title="County property appraiser — owner lookup">owner ↗</a>' : "";
-      var copyBtn = p.address ?
-        ' <button class="copy" data-addr="' + esc(p.address + (cityLine ? ", " + cityLine : "")) + '">copy</button>' : "";
       var vio = p.category === "violation";
       var catBadge = vio ? ' <span class="vio-badge" title="Code violation, not a permit">VIOLATION</span>' : "";
-      return '<tr class="lead' + (vio ? ' vio-row' : '') + '">' +
-        '<td style="white-space:nowrap">' + esc(p.issued_date || p.applied_date || "—") + "</td>" +
+      return '<tr class="lead' + (vio ? ' vio-row' : '') + '" data-i="' + i + '" title="Click to see full record">' +
+        '<td style="white-space:nowrap"><span class="caret">▸</span> ' + esc(p.issued_date || p.applied_date || "—") + "</td>" +
         "<td><strong>" + esc(p.county) + "</strong>" + catBadge + "<div class='mini'>" + esc(cityLine) + "</div></td>" +
         "<td style='white-space:nowrap'>" + esc(p.permit_number || "—") + "</td>" +
         "<td><div class='mini'>" + esc(p.type || "") + "</div><div class='tags'>" + tags + "</div></td>" +
-        '<td class="desc"><div class="txt" onclick="this.classList.toggle(\'open\')">' + esc(p.description || "—") + "</div></td>" +
-        '<td class="addr">' + addr + "<div class='mini'>" + paLink + copyBtn + "</div></td>" +
+        '<td class="desc"><div class="txt">' + esc(p.description || "—") + "</div></td>" +
+        '<td class="addr">' + esc(p.address || "—") + "</td>" +
         '<td class="money">' + fmtMoney(p.value) + "</td>" +
         "<td>" + esc(p.contractor || "—") + "</td>" +
         "<td>" + statusPill(p.status) + "</td>" +
-        "</tr>";
+        "</tr>" +
+        '<tr class="detail-row" data-di="' + i + '" style="display:none"><td colspan="9">' + detailHtml(p) + "</td></tr>";
     }).join("");
+
+    // row click -> toggle its detail row
+    tb.querySelectorAll("tr.lead").forEach(function(tr){
+      tr.onclick = function(ev){
+        if(ev.target.closest("a,button")) return;   // let links/buttons act
+        var i = tr.getAttribute("data-i");
+        var d = tb.querySelector('tr.detail-row[data-di="' + i + '"]');
+        if(!d) return;
+        var open = d.style.display !== "none";
+        d.style.display = open ? "none" : "table-row";
+        tr.classList.toggle("expanded", !open);
+      };
+    });
+    // copy buttons inside detail panels
     tb.querySelectorAll(".copy").forEach(function(btn){
-      btn.onclick = function(){
+      btn.onclick = function(ev){
+        ev.stopPropagation();
         navigator.clipboard && navigator.clipboard.writeText(btn.getAttribute("data-addr"));
         btn.textContent = "copied ✓";
-        setTimeout(function(){ btn.textContent = "copy"; }, 1400);
+        setTimeout(function(){ btn.textContent = "copy address"; }, 1400);
       };
     });
   }
@@ -417,7 +491,8 @@
         renderRows();
         renderStats(data);
         renderSources(data.sources, data.demo);
-        $("demoBanner").style.display = data.demo ? "block" : "none";
+        // only claim "bundled examples below" when demo rows are actually shown
+        $("demoBanner").style.display = (data.demo && data.count > 0) ? "block" : "none";
       })
       .catch(function(e){
         if(e.name === "AbortError") return;

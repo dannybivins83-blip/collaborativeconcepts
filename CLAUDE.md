@@ -85,8 +85,12 @@ The startup hook will pick it up automatically on the next session.
   from real record values when column names don't match); a blocklist rejects
   known wrong-jurisdiction ArcGIS orgs. Time window supports days/months/years/
   specific-year with server-side date filtering + pagination. Add/override
-  feeds via `PERMITS_EXTRA_SOURCES` env var — no deploy needed. Offline tests:
-  `python3 _permits_tests.py` (61) and `python3 _accela_tests.py` (14), all
+  feeds via `PERMITS_EXTRA_SOURCES` env var — no deploy needed. Also serves
+  Miami-Dade RER **code violations** (EnerGov layer 86, open cases) as a
+  distinct "violation" category. Click any dashboard row to expand a full
+  record detail panel. Serverless-safe: whole-request time budget + Accela
+  deadline stay under `vercel.json` `maxDuration`. Offline tests:
+  `python3 _permits_tests.py` (79) and `python3 _accela_tests.py` (14), all
   network mocked.
 
 ## Local tooling

@@ -62,6 +62,22 @@ class TagEngineTests(unittest.TestCase):
     def test_no_tags_for_unrelated(self):
         self.assertEqual(permits.tag_permit("MISC ADMINISTRATIVE CORRECTION"), [])
 
+    def test_violation_tags_no_false_positives(self):
+        # these ordinary permits must NOT be tagged as violations
+        for text in ["WORK COMPLETED UNDER MASTER PERMIT #123",
+                     "SCOPE OF WORK PER PERMIT DRAWINGS",
+                     "STRUCTURAL ADDITION 400 SF MASTER SUITE",
+                     "NEW STRUCTURAL STEEL FOR COMMERCIAL BLDG"]:
+            tags = permits.tag_permit(text)
+            self.assertNotIn("no_permit", tags, text)
+            self.assertNotIn("unsafe_structure", tags, text)
+
+    def test_violation_tags_true_positives(self):
+        self.assertIn("no_permit", permits.tag_permit("UNPERMITTED ADDITION"))
+        self.assertIn("no_permit", permits.tag_permit("WORK WITHOUT PERMIT"))
+        self.assertIn("unsafe_structure", permits.tag_permit("UNSAFE STRUCTURE - ROOF COLLAPSED"))
+        self.assertIn("unsafe_structure", permits.tag_permit("DILAPIDATED / CONDEMNED BUILDING"))
+
     def test_tag_catalog_matches_rules(self):
         keys = [k for k, _, _ in permits.TAG_RULES]
         self.assertEqual(len(keys), len(set(keys)), "duplicate tag keys")
@@ -633,7 +649,7 @@ class DateQueryTests(unittest.TestCase):
         with mock.patch.object(permits, "_get_json", side_effect=world):
             feats = permits.query_layer("https://x/FeatureServer/0", order_field="D",
                                         date_field="D", start_ms=1_600_000_000_000,
-                                        end_ms=1_700_000_000_000)
+                                        end_ms=1_700_000_000_000, max_records=4000)
         self.assertEqual(len(feats), 2001)  # paginated across two pages
         used = [c for c in calls if not c.get("returnCountOnly")][0]["where"]
         self.assertIn("TIMESTAMP", used)   # server-side date filter applied
@@ -863,6 +879,18 @@ class EndpointTests(unittest.TestCase):
             r = self.client.get("/api/permits/search?days=90&q=roofco")
             self.assertEqual([p["permit_number"] for p in r.get_json()["permits"]], ["M-1"])
 
+    def test_no_demo_when_source_ok_but_zero_rows(self):
+        """A source that succeeds but honestly returns 0 rows must NOT be masked
+        with fabricated demo data (regression: 'open violations last 7 days')."""
+        def ok_empty(source, record_count=2000, start_ms=None, end_ms=None):
+            return [], {"id": source["id"], "county": source["county"],
+                        "label": source.get("label"), "status": "ok", "count": 0}
+        with mock.patch.object(permits, "fetch_source", side_effect=ok_empty):
+            r = self.client.get("/api/permits/search?county=miami-dade&days=7")
+        data = r.get_json()
+        self.assertFalse(data["demo"])       # no fabricated rows
+        self.assertEqual(data["count"], 0)   # truthful empty
+
     def test_search_demo_fallback_when_all_sources_fail(self):
         def dead_fetch(source, record_count=2000, start_ms=None, end_ms=None):
             return [], {"id": source["id"], "county": source["county"],
@@ -946,7 +974,15 @@ class DemoDataTests(unittest.TestCase):
                            "most demo rows should carry project tags")
         for r in rows:
             self.assertIsNotNone(r["issued_date"])
-            self.assertIsNotNone(r["value"])
+            if r["category"] == "permit":
+                self.assertIsNotNone(r["value"])  # violations have no job value
+
+    def test_demo_includes_violations(self):
+        rows = permits.demo_permits()
+        vios = [r for r in rows if r["category"] == "violation"]
+        self.assertGreaterEqual(len(vios), 3)
+        self.assertTrue(any("unsafe_structure" in r["tags"] for r in vios))
+        self.assertTrue(any("no_permit" in r["tags"] for r in vios))
 
 
 if __name__ == "__main__":
