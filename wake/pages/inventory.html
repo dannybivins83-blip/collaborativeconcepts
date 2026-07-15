@@ -24,6 +24,7 @@
 const CONFIG = {
   PHONE_DISPLAY: "(561) 475-8615",
   PHONE_TEL:     "+15614758615",
+  FORM_ENDPOINT: "https://formsubmit.co/ajax/colabconceptfl@gmail.com",
   LEAD_EMAIL:    "colabconceptfl@gmail.com",
   DEALER_NAME:   "South Florida Marine",
   GA_ID:         ""
@@ -94,9 +95,37 @@ const CONFIG = {
   .meta{font-size:12.5px;color:var(--mut-light);margin-bottom:14px}
   .price{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;color:var(--action);margin-bottom:16px}
   .price.call{font-size:16px;color:var(--mut-light);font-weight:500}
-  .view{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:11px;
-        background:var(--grad-btn);color:#fff;font-weight:700;font-size:14px}
+  .view{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:11px;border:0;cursor:pointer;
+        background:var(--grad-btn);color:#fff;font-weight:700;font-size:14px;font-family:inherit}
   .view:hover{filter:brightness(1.12);color:#fff}
+
+  /* inquiry modal */
+  .modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(7,32,44,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+  .modal.open{display:flex}
+  .sheet{background:#fff;color:var(--on-light);border-radius:20px;max-width:460px;width:100%;padding:24px 26px 22px;box-shadow:0 40px 90px -30px rgba(0,0,0,.6);max-height:92vh;overflow:auto}
+  .mrow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .sheet h3{font-size:20px;line-height:1.2}
+  .mx{background:none;border:0;font-size:26px;line-height:1;color:var(--mut-light);cursor:pointer;padding:0 2px;font-family:inherit}
+  .msub{font-size:13px;color:var(--mut-light);margin:4px 0 16px;line-height:1.5}
+  .boat{display:flex;gap:12px;align-items:center;background:var(--light);border:1px solid var(--line-light);border-radius:12px;padding:10px 12px;margin-bottom:14px}
+  .boat .bth{width:66px;height:46px;border-radius:8px;background:#dfe8e8 url('/wake/img/mastercraft-water.jpg') center/cover;flex:none}
+  .boat .bt{font-weight:700;font-size:14px;color:var(--on-light);line-height:1.25}
+  .boat .bp{font-size:12.5px;color:var(--action);font-weight:600;margin-top:2px}
+  .fld{display:block;margin-top:11px}
+  .fld .l{display:block;font-size:12px;font-weight:600;color:var(--action);margin-bottom:5px}
+  .fld input,.fld textarea{width:100%;padding:11px 13px;border:1px solid var(--input);border-radius:10px;font-size:14.5px;color:var(--on-light);background:#fff;font-family:inherit}
+  .fld textarea{min-height:62px;resize:vertical}
+  .consent{display:flex;gap:9px;align-items:flex-start;margin-top:13px}
+  .consent input{margin-top:3px;flex:none} .consent span{font-size:12px;color:#52707a;line-height:1.5}
+  .msub-btn{width:100%;margin-top:15px;padding:14px;border:0;border-radius:12px;background:var(--grad-btn);color:#fff;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit}
+  .msub-btn:hover{filter:brightness(1.12)}
+  .msub-btn[disabled]{opacity:.6;cursor:default}
+  .merr{color:var(--err);font-size:12.5px;margin-top:10px;display:none;line-height:1.5}
+  .merr a{color:var(--err);text-decoration:underline}
+  .mfoot{font-size:11.5px;color:var(--mut-light);text-align:center;margin-top:13px}
+  .mok{text-align:center;padding:10px 0}
+  .mok svg{color:var(--teal);margin-bottom:6px}
+  .mok h3{margin-bottom:6px}
 
   .leadcta{margin:20px 52px 0;background:linear-gradient(135deg,#0B2A3A,#14556E);border-radius:20px;padding:34px 38px;
         display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between}
@@ -136,7 +165,7 @@ const CONFIG = {
       <a href="/wake/pages/charter-experiences">Charters</a>
       <a href="/wake#service">Service</a>
     </div>
-    <a class="nav-cta" href="#" data-tel>
+    <a class="nav-cta" href="tel:+15614758615" data-tel>
       <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 21A16 16 0 0 1 3 8.5 2 2 0 0 1 5 6.3l2-.2a1.4 1.4 0 0 1 1.5 1l.7 2.3a1.4 1.4 0 0 1-.5 1.6l-1 .7a12 12 0 0 0 4.6 4.6l.7-1a1.4 1.4 0 0 1 1.6-.5l2.3.7a1.4 1.4 0 0 1 1 1.5l-.2 2A2 2 0 0 1 15.5 21z"/></svg>
       Call now
     </a>
@@ -147,7 +176,7 @@ const CONFIG = {
   <div class="wrap">
     <div class="eyebrow dark">Current inventory · updated July 2026</div>
     <h1>Wake boats &amp; pontoons for sale in Palm Beach County</h1>
-    <p>Browse current new &amp; used inventory available through our authorized MasterCraft dealer partner in Boynton Beach. Tap any boat for full photos, specs and pricing on the dealer's lot — or call us and we'll help you buy, finance, or trade toward it.</p>
+    <p>Browse current new &amp; used inventory available through our authorized MasterCraft dealer partner in Boynton Beach. Tap any boat to ask about it — we'll send current photos, out-the-door pricing, and set up an on-water demo. We help you buy, finance, or trade toward it, no pressure.</p>
     <div class="toolbar">
       <div class="filters">
         <button class="filt on" data-f="all">All</button>
@@ -171,8 +200,36 @@ const CONFIG = {
     <p>We're your local guide to these boats — help with financing, trade-in value on your current boat, and an on-water wakesurf demo before you commit. No pressure.</p>
   </div>
   <div class="actions">
-    <a class="btn call" href="#" data-tel><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 21A16 16 0 0 1 3 8.5 2 2 0 0 1 5 6.3l2-.2a1.4 1.4 0 0 1 1.5 1l.7 2.3a1.4 1.4 0 0 1-.5 1.6l-1 .7a12 12 0 0 0 4.6 4.6l.7-1a1.4 1.4 0 0 1 1.6-.5l2.3.7a1.4 1.4 0 0 1 1 1.5l-.2 2A2 2 0 0 1 15.5 21z"/></svg> <span data-phone></span></a>
+    <a class="btn call" href="tel:+15614758615" data-tel><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 21A16 16 0 0 1 3 8.5 2 2 0 0 1 5 6.3l2-.2a1.4 1.4 0 0 1 1.5 1l.7 2.3a1.4 1.4 0 0 1-.5 1.6l-1 .7a12 12 0 0 0 4.6 4.6l.7-1a1.4 1.4 0 0 1 1.6-.5l2.3.7a1.4 1.4 0 0 1 1 1.5l-.2 2A2 2 0 0 1 15.5 21z"/></svg> <span data-phone></span></a>
     <a class="btn ghost" href="/wake#valform">Value my trade-in →</a>
+  </div>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mttl">
+  <div class="sheet">
+    <form id="inqForm">
+      <div class="mrow"><h3 id="mttl">Ask about this boat</h3><button type="button" class="mx" id="mClose" aria-label="Close">&times;</button></div>
+      <div class="msub">Tell us how to reach you — we'll send current photos, out-the-door pricing, and set up a wakesurf demo. No pressure, no spam.</div>
+      <div class="boat"><span class="bth" id="mThumb"></span><div><div class="bt" id="mBoat">—</div><div class="bp" id="mPrice"></div></div></div>
+      <label class="fld"><span class="l">Your name</span><input id="i_name" name="name" required autocomplete="name"></label>
+      <label class="fld"><span class="l">Mobile phone</span><input id="i_phone" name="phone" type="tel" required autocomplete="tel"></label>
+      <label class="fld"><span class="l">Email <span style="font-weight:400;color:#8aa">(optional)</span></span><input id="i_email" name="email" type="email" autocomplete="email"></label>
+      <label class="fld"><span class="l">Message</span><textarea id="i_msg" name="message"></textarea></label>
+      <input type="hidden" id="i_boat" name="boat">
+      <input type="hidden" id="i_stock" name="stock">
+      <input type="hidden" id="i_subject" name="_subject">
+      <input type="hidden" name="_template" value="table">
+      <label class="consent"><input type="checkbox" id="i_consent" required><span id="i_consent_text"></span></label>
+      <div class="merr" id="mErr"></div>
+      <button type="submit" class="msub-btn" id="mSubmit">Send my request &rarr;</button>
+      <div class="mfoot" id="mDealer"></div>
+    </form>
+    <div class="mok" id="mOk" style="display:none">
+      <svg aria-hidden="true" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>
+      <h3>Got it — talk soon!</h3>
+      <p style="font-size:14px;color:var(--mut-light)">We'll reach out shortly with details on this boat. Prefer to talk now? Call or text <a href="tel:+15614758615" data-tel><span data-phone></span></a>.</p>
+      <button type="button" class="msub-btn" id="mDone" style="max-width:180px;margin:16px auto 0">Done</button>
+    </div>
   </div>
 </div>
 
@@ -189,23 +246,24 @@ document.querySelectorAll('[data-phone]').forEach(s=>s.textContent=CONFIG.PHONE_
 document.getElementById('yr').textContent=new Date().getFullYear();
 
 function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-function card(u){
+function boatTitle(u){return (u.year+' '+(u.brand?u.brand+' ':'')+u.model).replace(/\s+/g,' ').trim();}
+function card(u,i){
   var used=u.condition!=='New';
   var priceCall=/call|inquire/i.test(u.price);
-  var title=esc(u.year+' '+(u.brand?u.brand+' ':'')+u.model).replace(/\s+/g,' ').trim();
-  return '<a class="card" href="'+esc(u.url)+'" target="_blank" rel="noopener nofollow">'
-    +'<div class="ph"><img loading="lazy" alt="'+title+' for sale at South Florida Marine" src="'+esc(u.thumb||u.image)+'" '
+  var title=esc(boatTitle(u));
+  return '<div class="card">'
+    +'<div class="ph"><img loading="lazy" alt="'+title+'" src="'+esc(u.thumb||u.image)+'" '
     +'onerror="this.style.display=\'none\'"><span class="badge'+(used?' used':'')+'">'+esc(u.condition)+'</span></div>'
     +'<div class="body"><h3>'+title+'</h3>'
     +'<div class="meta">'+(u.stock?'Stock #'+esc(u.stock.slice(-8)):'&nbsp;')+'</div>'
     +'<div class="price'+(priceCall?' call':'')+'">'+esc(u.price)+'</div>'
-    +'<span class="view">View at South Florida Marine '
-    +'<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>'
-    +'</div></a>';
+    +'<button class="view" type="button" data-i="'+i+'">Ask about this boat '
+    +'<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>'
+    +'</div></div>';
 }
 function render(f){
   var list=f==='all'?INVENTORY:INVENTORY.filter(u=>u.condition===f);
-  document.getElementById('grid').innerHTML=list.map(card).join('');
+  document.getElementById('grid').innerHTML=list.map(u=>card(u,INVENTORY.indexOf(u))).join('');
   document.getElementById('count').textContent=list.length+' of '+INVENTORY.length+' boats';
 }
 document.querySelectorAll('.filt').forEach(b=>b.addEventListener('click',function(){
@@ -213,6 +271,58 @@ document.querySelectorAll('.filt').forEach(b=>b.addEventListener('click',functio
   this.classList.add('on'); render(this.getAttribute('data-f'));
 }));
 render('all');
+
+/* ---------- inquiry modal (captures the lead on our site) ---------- */
+var modal=document.getElementById('modal'), inqForm=document.getElementById('inqForm');
+document.getElementById('i_consent_text').innerHTML='I agree to be contacted by call/text about this boat by Palm Beach Wake Boats and its dealer partner, '+esc(CONFIG.DEALER_NAME)+'. Reply STOP to opt out.';
+
+function openModal(u){
+  var title=boatTitle(u);
+  document.getElementById('mBoat').textContent=title;
+  document.getElementById('mPrice').textContent=u.price||'';
+  document.getElementById('mThumb').style.backgroundImage="url('"+String(u.thumb||u.image).replace(/'/g,'%27')+"')";
+  document.getElementById('i_boat').value=title;
+  document.getElementById('i_stock').value=u.stock||'';
+  document.getElementById('i_subject').value='Inventory inquiry: '+title;
+  document.getElementById('i_msg').value="I'm interested in the "+title+(u.stock?' (Stock #'+u.stock.slice(-8)+')':'')+'. Please send current photos, pricing and availability.';
+  document.getElementById('mDealer').innerHTML=u.url?'Prefer to browse first? <a href="'+esc(u.url)+'" target="_blank" rel="noopener nofollow">See the full listing at '+esc(CONFIG.DEALER_NAME)+' ↗</a>':'';
+  document.getElementById('mErr').style.display='none';
+  inqForm.style.display=''; document.getElementById('mOk').style.display='none';
+  var btn=document.getElementById('mSubmit'); btn.disabled=false; btn.innerHTML='Send my request →';
+  modal.classList.add('open');
+  setTimeout(function(){document.getElementById('i_name').focus();},60);
+}
+function closeModal(){modal.classList.remove('open');}
+document.getElementById('grid').addEventListener('click',function(e){
+  var b=e.target.closest('.view'); if(!b)return;
+  var i=parseInt(b.getAttribute('data-i'),10); if(INVENTORY[i])openModal(INVENTORY[i]);
+});
+document.getElementById('mClose').addEventListener('click',closeModal);
+document.getElementById('mDone').addEventListener('click',closeModal);
+modal.addEventListener('click',function(e){if(e.target===modal)closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))closeModal();});
+
+inqForm.addEventListener('submit',function(e){
+  e.preventDefault();
+  var consent=document.getElementById('i_consent');
+  if(!consent.checked){consent.focus();return;}
+  var err=document.getElementById('mErr'), btn=document.getElementById('mSubmit');
+  var payload={name:document.getElementById('i_name').value,phone:document.getElementById('i_phone').value,
+    email:document.getElementById('i_email').value,message:document.getElementById('i_msg').value,
+    boat:document.getElementById('i_boat').value,stock:document.getElementById('i_stock').value,
+    _subject:document.getElementById('i_subject').value,_template:'table'};
+  var done=function(){clearTimeout(to);inqForm.style.display='none';document.getElementById('mOk').style.display='block';};
+  var fail=function(){clearTimeout(to);btn.disabled=false;btn.innerHTML='Send my request →';
+    err.innerHTML="That didn't go through — please call or text <a href='tel:"+CONFIG.PHONE_TEL+"'>"+CONFIG.PHONE_DISPLAY+"</a>, or email <a href='mailto:"+CONFIG.LEAD_EMAIL+"?subject="+encodeURIComponent(payload._subject)+"'>"+CONFIG.LEAD_EMAIL+"</a>.";
+    err.style.display='block';};
+  btn.disabled=true; btn.innerHTML='Sending…'; err.style.display='none';
+  var to=setTimeout(fail,9000);
+  if(!CONFIG.FORM_ENDPOINT){fail();return;}
+  fetch(CONFIG.FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json().catch(function(){return {};});})
+    .then(function(d){(d&&d.success)?done():fail();})
+    .catch(function(){fail();});
+});
 </script>
 </body>
 </html>
