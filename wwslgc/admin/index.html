@@ -62,6 +62,7 @@
 <!-- tabs -->
 <div class="flex items-center gap-1 border-b border-line mb-4">
 <button data-tab="war" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary inline-flex items-center gap-1"><span class="ms text-base text-secondary">crisis_alert</span> War Room <span id="cWar" class="text-mute font-normal"></span></button>
+<button data-tab="research" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary inline-flex items-center gap-1"><span class="ms text-base text-secondary">search_insights</span> Research <span id="cResearch" class="text-mute font-normal"></span></button>
 <button data-tab="leads" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-secondary text-primary">Leads <span id="cLeads" class="text-mute font-normal"></span></button>
 <button data-tab="reqs" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspection requests <span id="cReqs" class="text-mute font-normal"></span></button>
 <button data-tab="insp" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Inspections <span id="cInsp" class="text-mute font-normal"></span></button>
@@ -69,7 +70,11 @@
 <button data-tab="activity" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Activity</button>
 <button data-tab="coi" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">COI requests <span id="cCoi" class="text-mute font-normal"></span></button>
 <button data-tab="settings" class="tabbtn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Settings</button>
-<button onclick="openClientProperties()" class="ml-auto text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">domain</span> Client properties</button>
+<a href="/permits" target="_blank" rel="noopener" class="ml-auto text-mute hover:text-primary text-sm inline-flex items-center gap-1" title="SoFlo Permit Leads dashboard"><span class="ms text-base">receipt_long</span> Permits</a>
+<a href="/ops" target="_blank" rel="noopener" class="text-mute hover:text-primary text-sm inline-flex items-center gap-1" title="Ops dashboard"><span class="ms text-base">insights</span> Ops</a>
+<a href="/portal" target="_blank" rel="noopener" class="text-mute hover:text-primary text-sm inline-flex items-center gap-1" title="Client portal"><span class="ms text-base">badge</span> Portal</a>
+<span class="text-line">|</span>
+<button onclick="openClientProperties()" class="text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">domain</span> Client properties</button>
 <button onclick="loadLeads()" class="text-mute hover:text-primary text-sm inline-flex items-center gap-1"><span class="ms text-base">refresh</span> Refresh</button>
 </div>
 
@@ -94,6 +99,9 @@
 
 <!-- war room -->
 <section id="tab-war" class="hidden"></section>
+
+<!-- research queue -->
+<section id="tab-research" class="hidden"></section>
 
 <!-- requests -->
 <section id="tab-reqs" class="hidden">
@@ -346,6 +354,7 @@ function switchTab(t){
   document.querySelectorAll('.tabbtn').forEach(function(b){var on=b.dataset.tab===t;b.classList.toggle('border-secondary',on);b.classList.toggle('text-primary',on);b.classList.toggle('border-transparent',!on);b.classList.toggle('text-mute',!on);});
   document.getElementById('tab-leads').classList.toggle('hidden',t!=='leads');
   document.getElementById('tab-war').classList.toggle('hidden',t!=='war');
+  document.getElementById('tab-research').classList.toggle('hidden',t!=='research');
   document.getElementById('tab-reqs').classList.toggle('hidden',t!=='reqs');
   document.getElementById('tab-insp').classList.toggle('hidden',t!=='insp');
   document.getElementById('tab-inv').classList.toggle('hidden',t!=='inv');
@@ -353,6 +362,7 @@ function switchTab(t){
   document.getElementById('tab-coi').classList.toggle('hidden',t!=='coi');
   document.getElementById('tab-settings').classList.toggle('hidden',t!=='settings');
   if(t==='war') renderWarRoom();
+  if(t==='research') renderResearch();
   if(t==='insp') loadInspections();
   if(t==='inv') loadInvoices();
   if(t==='activity') loadActivity();
@@ -765,6 +775,36 @@ function renderWarRoom(){
 }
 (function(){ var c=document.getElementById('cWar'); if(c)c.textContent='('+P1.length+')'; })();
 /* =================== END P1 WAR ROOM =================== */
+
+/* ===================== BUILDING-CHECK RESEARCH QUEUE ===================== */
+function renderResearch(){
+  var host=document.getElementById('tab-research'); if(!host) return;
+  host.innerHTML='<div class="text-mute text-sm p-6">Loading research queue…</div>';
+  api('/api/admin/research').then(function(d){
+    if(!d||!d.ok){ host.innerHTML='<div class="p-8 text-center text-mute">Couldn’t load the research queue'+((d&&d.error)?' ('+esc(d.error)+')':'')+'.</div>'; return; }
+    var items=d.items||[]; var cr=document.getElementById('cResearch'); if(cr)cr.textContent='('+(d.pending||0)+')';
+    var rows=items.map(function(j){
+      var st=j.status||'pending';
+      var cls=st==='done'?'bg-green-100 text-green-700':'bg-amber-100 text-amber-700';
+      var who=[j.name,j.email,j.phone].filter(Boolean).map(esc).join(' · ')||'—';
+      return '<tr class="border-t border-line hover:bg-surface">'+
+        '<td class="px-3 py-2 text-mute whitespace-nowrap">'+esc(ago(j.ts))+'</td>'+
+        '<td class="px-3 py-2"><div class="font-semibold text-primary">'+esc(j.building||j.query||'—')+'</div><div class="text-mute text-xs">'+esc(j.county||'')+(j.coastal?' · coastal':'')+'</div></td>'+
+        '<td class="px-3 py-2 text-xs">'+who+'</td>'+
+        '<td class="px-3 py-2"><span class="inline-block text-[11px] font-bold px-2 py-0.5 rounded-full '+cls+'">'+esc(st)+'</span></td></tr>';
+    }).join('');
+    host.innerHTML=
+      '<div class="flex items-start justify-between flex-wrap gap-2 mb-3">'+
+        '<div><h2 class="text-lg font-extrabold text-primary">Building-check research queue</h2>'+
+        '<p class="text-xs text-mute mt-0.5 max-w-2xl">Buildings visitors checked on <b>/check</b> that weren’t on our enforcement lists. The auto-research runner (every 3h) researches each and emails Danny a compliance snapshot, then marks it done.</p></div>'+
+        '<div class="text-sm text-mute whitespace-nowrap">'+(d.pending||0)+' pending · '+(d.count||0)+' total</div>'+
+      '</div>'+
+      (items.length?
+        '<div class="bg-white rounded-xl border border-line overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-surface text-mute text-left text-xs uppercase tracking-wide"><tr><th class="px-3 py-2 font-semibold">When</th><th class="px-3 py-2 font-semibold">Building</th><th class="px-3 py-2 font-semibold">Submitter</th><th class="px-3 py-2 font-semibold">Status</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>'
+        :'<div class="p-10 text-center text-mute bg-white rounded-xl border border-line">No research queued yet. When someone checks a building at <b>/check</b> that isn’t on our lists, it lands here.</div>');
+  }).catch(function(){ host.innerHTML='<div class="p-8 text-center text-mute">Network error loading the research queue.</div>'; });
+}
+/* =================== END RESEARCH QUEUE =================== */
 
 document.querySelectorAll('.tabbtn').forEach(function(b){b.addEventListener('click',function(){switchTab(b.dataset.tab);});});
 boot();
