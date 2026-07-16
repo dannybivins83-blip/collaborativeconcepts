@@ -322,6 +322,135 @@ class ArcGISAdapterTests(unittest.TestCase):
                 permits.query_layer("https://x/FeatureServer/0")
 
 
+class TagPushdownTests(unittest.TestCase):
+    """The pushdown pre-filters the fetch in SQL. It must never be able to lose
+    rows the client-side regex would have kept — so every failure mode has to
+    degrade to the old fetch-wide behavior."""
+
+    MAP = {"description": "DESCR", "type": "PTYPE", "issue_date": "D"}
+
+    def test_superset_contract_holds_against_the_real_regex(self):
+        """The guard rail: for every tag with a pushdown, any text the regex
+        matches MUST also match at least one SQL pattern. If this fails, live
+        searches silently drop leads."""
+        import re as _re
+        rx = {k: r for k, _l, r in permits.TAG_RULES}
+        # texts the regex genuinely matches, incl. the awkward ones
+        probes = {
+            "reroof": ["RE-ROOF SHINGLE 24SQ", "REROOF FLAT DECK", "RE ROOF",
+                       "ROOF REPLACEMENT 30 SQ", "ROOF RECOVER TPO",
+                       "ROOF OVER EXISTING", "REPLACING THE EXISTING ROOF",
+                       "TEAR OFF AND DISPOSE", "TEAR-OFF", "TEAROFF",
+                       "NEW ROOF INSTALL", "ROOF INSTALLATION"],
+            "roofing": ["RE-ROOF", "ROOFING REPAIR", "SHINGLE REPAIR",
+                        "TPO MEMBRANE", "TORCH DOWN MOD BIT", "FLAT ROOF PATCH",
+                        "TILE ROOF", "METAL ROOF"],
+        }
+        for tag, sups in permits.TAG_SQL_SUPERSETS.items():
+            regex = _re.compile(rx[tag], _re.I)
+            for text in probes[tag]:
+                self.assertTrue(regex.search(text),
+                                f"probe {text!r} should match the {tag} regex")
+                up = text.upper()
+                # SQL LIKE '%A%B%' == python: A then B in order
+                def like(pat):
+                    parts = [p for p in pat.split("%") if p]
+                    pos = 0
+                    for p in parts:
+                        i = up.find(p, pos)
+                        if i < 0:
+                            return False
+                        pos = i + len(p)
+                    return True
+                self.assertTrue(any(like(p) for p in sups),
+                                f"SUPERSET VIOLATION: {tag} regex matches {text!r} "
+                                f"but no SQL pattern in {sups} does — this would "
+                                f"silently drop the lead")
+
+    def test_builds_clause_over_both_tagged_fields(self):
+        w = permits._build_tag_where(["reroof"], self.MAP)
+        self.assertIn("UPPER(DESCR) LIKE '%ROOF%'", w)
+        self.assertIn("UPPER(PTYPE) LIKE '%ROOF%'", w)
+        self.assertIn("%TEAR%OFF%", w)
+        self.assertTrue(w.startswith("(") and " OR " in w)
+
+    def test_no_pushdown_for_unmapped_tag(self):
+        # all-or-nothing: one unmapped tag disables pushdown for the whole OR set
+        self.assertIsNone(permits._build_tag_where(["hvac"], self.MAP))
+        self.assertIsNone(permits._build_tag_where(["reroof", "hvac"], self.MAP))
+        self.assertIsNone(permits._build_tag_where([], self.MAP))
+        self.assertIsNone(permits._build_tag_where(None, self.MAP))
+
+    def test_no_pushdown_when_no_searchable_columns(self):
+        self.assertIsNone(permits._build_tag_where(["reroof"], {"address": "A"}))
+
+    def test_pushdown_is_applied_and_narrows_the_fetch(self):
+        seen = []
+        def fake(url, params=None, timeout=None):
+            seen.append(params["where"])
+            return {"features": [{"attributes": {"A": 1}}]}
+        with mock.patch.object(permits, "_get_json", side_effect=fake):
+            permits.query_layer("https://x/FeatureServer/0",
+                                tag_where="(UPPER(D) LIKE '%ROOF%')")
+        self.assertIn("%ROOF%", seen[0])
+
+    def test_falls_back_wide_when_pushdown_errors(self):
+        """A server that rejects UPPER()/LIKE must not cost us the whole source."""
+        seen = []
+        def fake(url, params=None, timeout=None):
+            w = params["where"]
+            seen.append(w)
+            if "ROOF" in w:
+                return {"error": {"message": "Invalid query parameters."}}
+            return {"features": [{"attributes": {"A": 1}}]}
+        with mock.patch.object(permits, "_get_json", side_effect=fake):
+            feats = permits.query_layer("https://x/FeatureServer/0",
+                                        tag_where="(UPPER(D) LIKE '%ROOF%')")
+        self.assertEqual(len(feats), 1)          # data survived
+        self.assertTrue(any("ROOF" not in w for w in seen))  # retried wide
+
+    def test_falls_back_wide_when_pushdown_returns_empty(self):
+        seen = []
+        def fake(url, params=None, timeout=None):
+            w = params["where"]
+            seen.append(w)
+            if "ROOF" in w:
+                return {"features": []}
+            return {"features": [{"attributes": {"A": 1}}]}
+        with mock.patch.object(permits, "_get_json", side_effect=fake):
+            feats = permits.query_layer("https://x/FeatureServer/0",
+                                        tag_where="(UPPER(D) LIKE '%ROOF%')")
+        self.assertEqual(len(feats), 1)
+
+    def test_no_tag_where_is_byte_for_byte_the_old_ladder(self):
+        """Regression guard: sources/tags without pushdown must be untouched."""
+        seen = []
+        def fake(url, params=None, timeout=None):
+            seen.append(params["where"])
+            return {"features": [{"attributes": {"A": 1}}]}
+        with mock.patch.object(permits, "_get_json", side_effect=fake):
+            permits.query_layer("https://x/FeatureServer/0", date_field="D",
+                                start_ms=1_600_000_000_000, base_where="S='x'")
+        self.assertEqual(len(seen), 1)
+        self.assertIn("S='x'", seen[0])
+        self.assertNotIn("ROOF", seen[0])
+
+    def test_pushdown_combines_with_base_where(self):
+        seen = []
+        def fake(url, params=None, timeout=None):
+            seen.append(params["where"])
+            return {"features": [{"attributes": {"A": 1}}]}
+        with mock.patch.object(permits, "_get_json", side_effect=fake):
+            permits.query_layer("https://x/FeatureServer/0", base_where="S='open'",
+                                tag_where="(UPPER(D) LIKE '%ROOF%')")
+        self.assertIn("S='open'", seen[0])
+        self.assertIn("%ROOF%", seen[0])
+
+    def test_quotes_in_mapping_cannot_build_sql(self):
+        self.assertIsNone(
+            permits._build_tag_where(["reroof"], {"description": "A'; DROP--"}))
+
+
 class HubDiscoveryTests(unittest.TestCase):
     def setUp(self):
         permits._cache.clear()
@@ -505,7 +634,7 @@ class FloridaGuardTests(unittest.TestCase):
              "city": "Virginia Beach", "zip": "23456", "issued_date": _iso_days_ago(1),
              "value": 2000.0, "tags": ["pool_spa"], "appraiser_url": "x"},
         ]
-        def fake_fetch(source, record_count=2000, start_ms=None, end_ms=None):
+        def fake_fetch(source, record_count=2000, start_ms=None, end_ms=None, tags=None):
             mine = [p for p in rows if p["source_id"] == source["id"]]
             return mine, {"id": source["id"], "county": source["county"],
                           "status": "ok" if mine else "empty", "count": len(mine)}
@@ -596,7 +725,7 @@ class CodeViolationsTests(unittest.TestCase):
              "permit_number": "V-1", "description": "UNSAFE STRUCTURE", "issued_date": _iso_days_ago(3),
              "value": None, "tags": ["unsafe_structure"]},
         ]
-        def fake_fetch(source, record_count=2000, start_ms=None, end_ms=None):
+        def fake_fetch(source, record_count=2000, start_ms=None, end_ms=None, tags=None):
             mine = [p for p in rows if p["source_id"] == source["id"]]
             return mine, {"id": source["id"], "county": source["county"],
                           "status": "ok" if mine else "empty", "count": len(mine)}
@@ -864,7 +993,7 @@ class EndpointTests(unittest.TestCase):
 
     def _patch_live(self):
         rows = self._live_permits()
-        def fake_fetch(source, record_count=2000, start_ms=None, end_ms=None):
+        def fake_fetch(source, record_count=2000, start_ms=None, end_ms=None, tags=None):
             mine = [p for p in rows if p["source_id"] == source["id"]]
             status = "ok" if mine else "empty"
             return mine, {"id": source["id"], "county": source["county"],
@@ -905,7 +1034,7 @@ class EndpointTests(unittest.TestCase):
     def test_no_demo_when_source_ok_but_zero_rows(self):
         """A source that succeeds but honestly returns 0 rows must NOT be masked
         with fabricated demo data (regression: 'open violations last 7 days')."""
-        def ok_empty(source, record_count=2000, start_ms=None, end_ms=None):
+        def ok_empty(source, record_count=2000, start_ms=None, end_ms=None, tags=None):
             return [], {"id": source["id"], "county": source["county"],
                         "label": source.get("label"), "status": "ok", "count": 0}
         with mock.patch.object(permits, "fetch_source", side_effect=ok_empty):
@@ -915,7 +1044,7 @@ class EndpointTests(unittest.TestCase):
         self.assertEqual(data["count"], 0)   # truthful empty
 
     def test_search_demo_fallback_when_all_sources_fail(self):
-        def dead_fetch(source, record_count=2000, start_ms=None, end_ms=None):
+        def dead_fetch(source, record_count=2000, start_ms=None, end_ms=None, tags=None):
             return [], {"id": source["id"], "county": source["county"],
                         "label": source.get("label"), "status": "error",
                         "count": 0, "error": "unreachable"}
@@ -1006,6 +1135,69 @@ class DemoDataTests(unittest.TestCase):
         self.assertGreaterEqual(len(vios), 3)
         self.assertTrue(any("unsafe_structure" in r["tags"] for r in vios))
         self.assertTrue(any("no_permit" in r["tags"] for r in vios))
+
+
+class PaginationAndAggregateTests(unittest.TestCase):
+    """The stat tiles used to be computed client-side off the truncated page, so
+    a capped view under-reported its own totals. These lock the contract:
+    aggregates come from the FULL match set; only `permits` is paginated."""
+
+    def _search(self, **kw):
+        p = {"demo": "1", "counties": "Miami-Dade,Broward,Palm Beach,Martin",
+             "days": "3650"}
+        p.update(kw)
+        return permits.run_search(p)
+
+    def test_total_reflects_all_matches_not_the_page(self):
+        full = self._search(limit="5000")
+        page = self._search(limit="2")
+        self.assertEqual(page["total"], full["total"])       # total ignores paging
+        self.assertLessEqual(page["returned"], 2)
+        self.assertEqual(page["count"], page["returned"])    # back-compat field
+        if full["total"] > 2:
+            self.assertTrue(page["has_more"])
+
+    def test_stats_are_computed_over_all_matches(self):
+        full = self._search(limit="5000")
+        page = self._search(limit="1")
+        self.assertEqual(page["stats"]["total_value"], full["stats"]["total_value"])
+        self.assertEqual(page["stats"]["tag_counts"], full["stats"]["tag_counts"])
+        self.assertEqual(page["stats"]["top_tag"], full["stats"]["top_tag"])
+
+    def test_offset_walks_pages_without_gaps_or_overlap(self):
+        full = self._search(limit="5000")
+        if full["total"] < 4:
+            self.skipTest("not enough demo rows to page")
+        a = self._search(limit="2", offset="0")["permits"]
+        b = self._search(limit="2", offset="2")["permits"]
+        walked = [p.get("permit_number") for p in a + b]
+        self.assertEqual(len(walked), len(set(walked)), "pages overlap")
+        expected = [p.get("permit_number") for p in full["permits"][:4]]
+        self.assertEqual(walked, expected, "paging diverges from the full ordering")
+
+    def test_offset_past_the_end_is_empty_not_an_error(self):
+        r = self._search(limit="10", offset="999999")
+        self.assertTrue(r["ok"])
+        self.assertEqual(r["returned"], 0)
+        self.assertFalse(r["has_more"])
+        self.assertGreater(r["total"], 0)   # total still reports the real match count
+
+    def test_completeness_contract_present(self):
+        r = self._search()
+        for k in ("total", "returned", "offset", "limit", "has_more", "complete",
+                  "capped", "capped_sources", "fetch_cap", "stats"):
+            self.assertIn(k, r, f"missing `{k}` in search result")
+        self.assertIsInstance(r["stats"]["tag_counts"], dict)
+
+    def test_tag_facet_counts_match_a_filtered_search(self):
+        full = self._search(limit="5000")
+        counts = full["stats"]["tag_counts"]
+        if not counts:
+            self.skipTest("no tagged demo rows")
+        tag = max(counts.items(), key=lambda kv: kv[1])[0]
+        only = self._search(limit="5000", tags=tag)
+        # the facet count advertised on the chip must equal what clicking it yields
+        self.assertEqual(only["total"], counts[tag])
 
 
 if __name__ == "__main__":
