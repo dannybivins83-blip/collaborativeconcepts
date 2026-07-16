@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wake Boat Dealer in West Palm Beach | Palm Beach Wake Boats — New, Used & Service</title>
-<link rel="icon" href="/wake/img/favicon.svg" type="image/svg+xml">
-<meta name="description" content="Looking for a wake boat dealer near West Palm Beach? Palm Beach Wake Boats connects WPB buyers to the only wake-boat dealership in Palm Beach County — a 4.8-star, family-owned MasterCraft dealer 15–20 minutes south in Boynton Beach. New & used surf boats, plus service for Malibu, Nautique, Moomba & all inboard brands.">
-<link rel="canonical" href="https://collaborativeconceptsfl.com/wake/pages/wake-boat-dealer-west-palm-beach">
+<title>Wake Boat Dealer in West Palm Beach | Palm Beach Wake Boats</title>
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+<meta name="description" content="New & used MasterCraft, trade-ins and wake boat service in West Palm Beach. Talk to a local first: (561) 475-8615.">
+<link rel="canonical" href="https://palmbeachwakeboats.com/pages/wake-boat-dealer-west-palm-beach">
 <meta property="og:type" content="website">
 <meta property="og:title" content="West Palm Beach's Local Wake Boat Dealer — New, Used & Service">
 <meta property="og:description" content="Palm Beach County's only wake-boat dealership — a 4.8-star family-owned MasterCraft dealer 15–20 minutes south of downtown WPB. New & used surf boats + all-brand inboard service.">
-<meta property="og:url" content="https://collaborativeconceptsfl.com/wake/pages/wake-boat-dealer-west-palm-beach">
-<meta property="og:image" content="https://collaborativeconceptsfl.com/wake/img/mastercraft-water.jpg">
+<meta property="og:url" content="https://palmbeachwakeboats.com/pages/wake-boat-dealer-west-palm-beach">
+<meta property="og:image" content="https://palmbeachwakeboats.com/img/mastercraft-water.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,6 +53,7 @@ const CONFIG = {
   p{margin:0}
   input,select,button{font-family:inherit}
   input:focus,select:focus{outline:none}
+  input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
   .wrap{max-width:1120px;margin:0 auto}
   .eyebrow{font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px}
   .eyebrow.dark{color:var(--eyebrow)}
@@ -71,6 +72,13 @@ const CONFIG = {
   .nav-links a:hover,.nav-links a.active{color:#fff}
   .nav-cta{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;background:var(--grad-cta);color:#07202c;font-weight:700;font-size:14px}
   .nav-cta:hover{filter:brightness(1.08);color:#07202c}
+  /* ---------- MOBILE NAV (burger) ---------- */
+  .nav-burger{display:none;align-items:center;justify-content:center;width:42px;height:42px;padding:0;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;flex:none}
+  .nav-burger:hover{background:rgba(255,255,255,.12)}
+  .nav-burger .x{display:none}
+  .nav.open .nav-burger .x{display:block}
+  .nav.open .nav-burger .bars{display:none}
+
 
   /* breadcrumb */
   .crumb{background:var(--footer);padding:10px 52px;font-size:12.5px;color:var(--mut-dark-3);border-bottom:1px solid rgba(255,255,255,.06)}
@@ -78,7 +86,7 @@ const CONFIG = {
 
   /* HERO */
   .hero{position:relative;padding:56px 52px 66px;overflow:hidden;background:linear-gradient(158deg,var(--navy) 0%,var(--navy-2) 55%,var(--navy-3) 100%)}
-  .hero-bg{position:absolute;inset:0;z-index:0;background-image:url('/wake/img/mastercraft-water.jpg');background-size:cover;background-position:center}
+  .hero-bg{position:absolute;inset:0;z-index:0;background-image:url('/img/mastercraft-water.jpg');background-size:cover;background-position:center}
   .hero-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(158deg,rgba(11,42,58,.90) 0%,rgba(13,58,77,.86) 52%,rgba(15,71,93,.84) 100%)}
   .hero-glow{position:absolute;top:-10%;right:-6%;width:520px;height:520px;z-index:1;pointer-events:none;background:radial-gradient(circle,rgba(62,157,181,.28),transparent 62%)}
   .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:start;max-width:1120px;margin:0 auto}
@@ -174,7 +182,12 @@ const CONFIG = {
 
   @media(max-width:900px){
     .nav{padding:14px 22px}
-    .nav-links{display:none}
+    .nav-burger{display:inline-flex}
+    .nav-right{gap:10px}
+    .nav-links{position:absolute;top:100%;left:0;right:0;display:none;flex-direction:column;gap:0;padding:6px 22px 14px;background:rgba(9,32,44,.98);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.1);box-shadow:0 12px 28px rgba(0,0,0,.35);max-height:calc(100vh - 66px);overflow-y:auto}
+    .nav.open .nav-links{display:flex}
+    .nav-links a{padding:13px 2px;font-size:16px;color:#cfe6ee;border-bottom:1px solid rgba(255,255,255,.07)}
+    .nav-links a:last-child{border-bottom:0}
     .crumb{padding:9px 22px}
     .hero{padding:38px 22px 48px}
     .hero-grid,.split,.cards3,.linkcards,.footer-grid{grid-template-columns:1fr}
@@ -193,24 +206,25 @@ const CONFIG = {
 
 <!-- NAV -->
 <nav class="nav">
-  <a class="brand" href="/wake" style="text-decoration:none">
+  <a class="brand" href="/" style="text-decoration:none">
     <span class="logo-tile"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8c1.7 0 1.7 1.4 3.3 1.4S7 8 8.7 8s1.7 1.4 3.3 1.4S13.7 8 15.3 8 17 9.4 18.7 9.4 20.3 8 22 8"/><path d="M2 14c1.7 0 1.7 1.4 3.3 1.4S7 14 8.7 14s1.7 1.4 3.3 1.4S13.7 14 15.3 14 17 15.4 18.7 15.4 20.3 14 22 14"/></svg></span>
     <span class="name">Palm Beach Wake Boats</span>
   </a>
   <div class="nav-right">
-    <div class="nav-links">
-      <a href="/wake">Value / sell</a>
-      <a href="/wake/pages/inventory">Inventory</a>
-      <a href="/wake/pages/wake-boat-dealer-west-palm-beach" class="active">Dealer</a>
-      <a href="/wake/pages/wake-boat-service-malibu-nautique-moomba">Service</a>
-      <a href="/wake/pages/charter-experiences">Charters</a>
-      <a href="/wake/blog">Guides</a>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Value / sell</a>
+      <a href="/pages/inventory">Inventory</a>
+      <a href="/pages/wake-boat-dealer-west-palm-beach" class="active">Dealer</a>
+      <a href="/pages/wake-boat-service-malibu-nautique-moomba">Service</a>
+      <a href="/pages/charter-experiences">Charters</a>
+      <a href="/pages/fishing-charters-palm-beach">Fishing</a>
+      <a href="/blog">Guides</a>
     </div>
-    <a class="nav-cta" href="tel:+15614758615" data-tel><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 21A16 16 0 0 1 3 8.5 2 2 0 0 1 5 6.3l2-.2a1.4 1.4 0 0 1 1.5 1l.7 2.3a1.4 1.4 0 0 1-.5 1.6l-1 .7a12 12 0 0 0 4.6 4.6l.7-1a1.4 1.4 0 0 1 1.6-.5l2.3.7a1.4 1.4 0 0 1 1 1.5l-.2 2A2 2 0 0 1 15.5 21z"/></svg> Call</a>
+    <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks"><svg class="bars" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg><svg class="x" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><a class="nav-cta" href="tel:+15614758615" data-tel><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 21A16 16 0 0 1 3 8.5 2 2 0 0 1 5 6.3l2-.2a1.4 1.4 0 0 1 1.5 1l.7 2.3a1.4 1.4 0 0 1-.5 1.6l-1 .7a12 12 0 0 0 4.6 4.6l.7-1a1.4 1.4 0 0 1 1.6-.5l2.3.7a1.4 1.4 0 0 1 1 1.5l-.2 2A2 2 0 0 1 15.5 21z"/></svg> Call</a>
   </div>
 </nav>
 
-<div class="crumb"><div class="wrap"><a href="/wake">Palm Beach Wake Boats</a> › Wake Boat Dealer — West Palm Beach</div></div>
+<div class="crumb"><div class="wrap"><a href="/">Palm Beach Wake Boats</a> › Wake Boat Dealer — West Palm Beach</div></div>
 
 <!-- HERO -->
 <div class="hero">
@@ -235,7 +249,7 @@ const CONFIG = {
 
     <!-- BUYER LEAD FORM -->
     <div class="form-card" id="leadform">
-      <h3>Talk to the local wake boat dealer</h3>
+      <h2>Talk to the local wake boat dealer</h2>
       <p class="card-sub">West Palm Beach buyers · Real answers · No pressure</p>
       <div id="form">
         <div class="grid2">
@@ -317,12 +331,12 @@ const CONFIG = {
 <div class="section light" style="padding-top:0">
   <div class="lead" style="margin-bottom:28px"><h2 style="font-size:26px">Keep going</h2></div>
   <div class="linkcards">
-    <a class="linkcard" href="/wake/pages/wake-boat-service-malibu-nautique-moomba">
+    <a class="linkcard" href="/pages/wake-boat-service-malibu-nautique-moomba">
       <div class="lk">Service &amp; Repair</div>
       <h3>Wake boat service — Malibu, Nautique &amp; Moomba →</h3>
       <p>No dealer left in town for your brand? Our partner's factory-trained shop services every inboard wake boat, plus ballast, surf systems, canvas and upholstery.</p>
     </a>
-    <a class="linkcard" href="/wake">
+    <a class="linkcard" href="/">
       <div class="lk">Sell / Consign</div>
       <h3>What's your wake boat worth? →</h3>
       <p>Free 60-second valuation, then a real written offer through the dealer's consignment desk. Sell without the Marketplace scammers and no-shows.</p>
@@ -338,7 +352,7 @@ const CONFIG = {
         <span class="logo-tile" style="width:34px;height:34px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8c1.7 0 1.7 1.4 3.3 1.4S7 8 8.7 8s1.7 1.4 3.3 1.4S13.7 8 15.3 8 17 9.4 18.7 9.4 20.3 8 22 8"/><path d="M2 14c1.7 0 1.7 1.4 3.3 1.4S7 14 8.7 14s1.7 1.4 3.3 1.4S13.7 14 15.3 14 17 15.4 18.7 15.4 20.3 14 22 14"/></svg></span>
         <span class="name">Palm Beach Wake Boats</span>
       </div>
-      <div class="flinks"><a href="/wake">Value / sell</a><a href="/wake/pages/inventory">Inventory</a><a href="/wake/pages/wake-boat-dealer-west-palm-beach">Dealer</a><a href="/wake/pages/wake-boat-service-malibu-nautique-moomba">Service</a><a href="/wake/pages/charter-experiences">Charters</a><a href="/wake/blog">Guides</a></div>
+      <div class="flinks"><a href="/">Value / sell</a><a href="/pages/inventory">Inventory</a><a href="/pages/wake-boat-dealer-west-palm-beach">Dealer</a><a href="/pages/wake-boat-service-malibu-nautique-moomba">Service</a><a href="/pages/charter-experiences">Charters</a><a href="/blog">Guides</a></div>
       <p class="disc">An independent marketing site serving West Palm Beach, Riviera Beach, Palm Beach, Lake Worth Beach, Boynton Beach, and greater Palm Beach County, Florida. We may be compensated by our dealer partners when you buy, sell, consign, or service a boat through this site.</p>
       <p class="fine">MASTERCRAFT® is a registered trademark of MasterCraft Boat Company, LLC. Malibu®, Nautique®, Moomba®, Supra®, Axis®, Centurion® and Tige® are trademarks of their respective owners. This site is not owned by, operated by, or affiliated with MasterCraft Boat Company, LLC or any boat manufacturer; brand names are used only to identify the boats we help owners buy, sell, value, and service.</p>
     </div>
@@ -354,7 +368,7 @@ const CONFIG = {
 <a class="sticky-call" href="#leadform">📞 Talk to the local dealer</a>
 
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"AutoDealer","name":"Palm Beach Wake Boats — Wake Boat Dealer (West Palm Beach)","description":"Local connection to Palm Beach County's authorized MasterCraft wake-boat dealer in Boynton Beach, serving West Palm Beach with new & used surf boats and all-brand inboard service.","url":"https://collaborativeconceptsfl.com/wake/pages/wake-boat-dealer-west-palm-beach","telephone":"+15614758615","areaServed":["West Palm Beach FL","Riviera Beach FL","Palm Beach FL","Lake Worth Beach FL","Boynton Beach FL","Palm Beach County FL"],"address":{"@type":"PostalAddress","addressRegion":"FL","addressCountry":"US"}}
+{"@context":"https://schema.org","@type":"AutoDealer","name":"Palm Beach Wake Boats — Wake Boat Dealer (West Palm Beach)","description":"Local connection to Palm Beach County's authorized MasterCraft wake-boat dealer in Boynton Beach, serving West Palm Beach with new & used surf boats and all-brand inboard service.","url":"https://palmbeachwakeboats.com/pages/wake-boat-dealer-west-palm-beach","telephone":"+15614758615","areaServed":["West Palm Beach FL","Riviera Beach FL","Palm Beach FL","Lake Worth Beach FL","Boynton Beach FL","Palm Beach County FL"],"address":{"@type":"PostalAddress","streetAddress":"725 N Federal Hwy","addressLocality":"Boynton Beach","addressRegion":"FL","postalCode":"33435","addressCountry":"US"},"geo":{"@type":"GeoCoordinates","latitude":26.5470,"longitude":-80.0530}}
 </script>
 
 <script>
@@ -373,7 +387,7 @@ document.getElementById('submitBtn').addEventListener('click',function(){
   if(!data.name||!data.phone){setErr('Add your name and phone so the dealer can call you back.');return;}
   if(!document.getElementById('f_consent').checked){setErr('Please check the consent box so we can legally call/text you back.');return;}
   setErr('');
-  data.consent='yes ('+new Date().toISOString()+')';data.page=location.href;
+  data.consent='yes ('+new Date().toISOString()+')';data.consent_language=(consent.closest('label')||consent.parentElement).innerText.replace(/\s+/g,' ').trim();data.page=location.href;
   if(CONFIG.FORM_ENDPOINT){
     var ac=new AbortController(),to=setTimeout(function(){ac.abort();},9000);
     var fail=function(){setErr('That didn’t go through — please call or text '+CONFIG.PHONE_DISPLAY+' and we’ll grab your details right away.');};
@@ -387,5 +401,5 @@ function mail(data){var body=encodeURIComponent(Object.keys(data).map(function(k
 function done(){track('lead_submitted_wpb_buyer');document.getElementById('form').classList.add('hide');document.getElementById('stepdone').classList.remove('hide');}
 function track(ev){if(window.gtag)gtag('event',ev);if(window.fbq)fbq('trackCustom',ev);}
 </script>
-</body>
+<script>(function(){var n=document.querySelector('.nav');var b=n&&n.querySelector('.nav-burger');if(!n||!b)return;function s(o){n.classList.toggle('open',o);b.setAttribute('aria-expanded',o?'true':'false');b.setAttribute('aria-label',o?'Close menu':'Open menu');}b.addEventListener('click',function(e){e.stopPropagation();s(!n.classList.contains('open'));});Array.prototype.forEach.call(n.querySelectorAll('.nav-links a'),function(a){a.addEventListener('click',function(){s(false);});});document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Esc')s(false);});document.addEventListener('click',function(e){if(!n.contains(e.target))s(false);});window.addEventListener('resize',function(){if(window.innerWidth>900)s(false);});})();</script></body>
 </html>

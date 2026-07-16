@@ -63,19 +63,37 @@ DEFAULT_SOURCES = [
         "county": "Miami-Dade",
         "label": "Miami-Dade County — Building Permits (countywide, 2yr+)",
         "kind": "arcgis_layer",
-        # Miami-Dade's OFFICIAL open-data permit datasets, resolved via the Hub
-        # v3 dataset API (clean JSON; works despite the sharing-API permission
-        # error the raw items return). "_0" is the first layer of each dataset.
-        "hub_dataset_ids": [
-            "f2181fb7e4ae46adbc633e478a607226_0",  # "Building Permits Issued ... 2 Previous Years to Present"
-            "31cd319f45544648b59f0418aea60091_0",  # "Building Permit" (rolling ~3 years, points)
+        # FIXED 2026-07-15 — this source was silently returning ZERO rows.
+        # Root cause (verified live): the old open-data item ids
+        # (f2181fb7e4ae46adbc633e478a607226 / 31cd319f45544648b59f0418aea60091)
+        # are DEAD — Hub v3 -> 404 "Resource Not Found"; the ArcGIS sharing API
+        # -> "Item does not exist or is inaccessible" / "no permissions". The
+        # gis-mdc DCAT catalog now returns 0 datasets. Miami-Dade's live permit
+        # feed is the MDPublisher service below (~140k permits, 2 prior yrs).
+        #
+        # The explicit field_map is REQUIRED, not cosmetic: MDC's schema uses
+        # non-standard names, and the roof signal lives in
+        # ApplicationTypeDescription ("RE-ROOF/REPAIR", 16.8k rows) +
+        # DetailDescriptionComments. The name-based auto-mapper misses both, and
+        # because tag_permit() runs over description+type, the "reroof" tag would
+        # never fire -> no anchor-recert leads. Live-verified 2026-07-15.
+        "layer_urls": [
+            "https://services.arcgis.com/8Pc9XBTAsYuxx9Ny/arcgis/rest/services/miamidade_permit_data/FeatureServer/0",
         ],
-        "item_ids": [
-            "31cd319f45544648b59f0418aea60091",
-            "f2181fb7e4ae46adbc633e478a607226",
-        ],
-        "hub_sites": ["https://gis-mdc.opendata.arcgis.com"],
-        "portal": "https://gis-mdc.opendata.arcgis.com/datasets/MDC::building-permit/about",
+        "field_map": {
+            "permit_number": "PermitNumber",
+            "issue_date": "PermitIssuedDate",
+            "type": "ApplicationTypeDescription",   # carries "RE-ROOF/REPAIR" -> drives the reroof tag
+            "description": "DetailDescriptionComments",
+            "address": "PropertyAddress",
+            "owner": "OwnerName",
+            "contractor": "ContractorName",
+            "value": "EstimatedValue",
+        },
+        "portal": "https://services.arcgis.com/8Pc9XBTAsYuxx9Ny/arcgis/rest/services/miamidade_permit_data/FeatureServer/0",
+        "note": ("Live MDC permit feed (owner: MDPublisher). ResidentialCommercial='C' "
+                 "isolates commercial/condo roofs — the anchor-recert buyers (~3.5k "
+                 "commercial re-roofs in the last 18 months vs ~115 in Broward)."),
     },
     {
         # Miami-Dade RER EnerGov "Code Violations" (layer 86, 181,835 rows).
@@ -1052,10 +1070,28 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
             try:
                 meta = layer_metadata(layer_url)
                 mapping = map_fields(meta.get("fields"))
-                # explicit per-source field map wins over auto-mapping (used for
-                # known-schema layers like the EnerGov code-violations layer).
+                # Explicit per-source field map wins over auto-mapping (used for
+                # known-schema layers like the EnerGov code-violations layer and
+                # the pinned MDC permit feed) — but ONLY for fields that actually
+                # exist in THIS layer. A source can fall back to a *discovered*
+                # layer whose schema differs (see the MDC hub-v3 recovery path);
+                # forcing the pinned schema onto it would map every field to
+                # nothing and silently return empty rows.
                 field_map = source.get("field_map") or {}
-                mapping.update({k: v for k, v in field_map.items() if v})
+                _have = {str(f.get("name") or "") for f in (meta.get("fields") or [])}
+                _by_ci = {n.lower(): n for n in _have}
+                applied_map = {}
+                for _k, _v in field_map.items():
+                    if not _v:
+                        continue
+                    # resolve to the layer's REAL field name (casing differs between
+                    # the pinned feed and any discovered fallback layer)
+                    _real = _v if _v in _have else _by_ci.get(str(_v).lower())
+                    if _real:
+                        applied_map[_k] = _real
+                mapping.update(applied_map)
+                _map_fully_applied = bool(field_map) and len(applied_map) == len(
+                    [v for v in field_map.values() if v])
                 if not mapping.get("issue_date") and not mapping.get("applied_date") \
                         and not mapping.get("permit_number"):
                     raise RuntimeError("layer has no recognizable permit fields")
@@ -1066,8 +1102,10 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
                                     base_where=source.get("where_clause"))
                 # data-driven refinement: recover fields the name-mapper missed
                 # and fix an implausible value column, using the real sample.
-                # Skip when an explicit field_map is supplied (schema is known).
-                if not field_map:
+                # Skip only when the explicit field_map applied IN FULL to this
+                # layer (schema known). On a discovered fallback layer it applies
+                # partially at best, so we still need the sample-based refinement.
+                if not _map_fully_applied:
                     mapping = refine_mapping_with_samples(mapping, meta.get("fields"), feats)
                 permits = [normalize_feature(f, mapping, source) for f in feats]
                 info.update({
