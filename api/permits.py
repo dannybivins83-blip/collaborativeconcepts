@@ -47,12 +47,15 @@ SOURCE_BUDGET = 12         # per-source total budget, seconds
 REQUEST_BUDGET = 45        # whole fan-out budget (must stay under vercel maxDuration=60)
 CACHE_TTL_RESULTS = 600    # search results, seconds
 CACHE_TTL_META = 12 * 3600 # layer metadata / item resolution / discovery
-# Per-source row ceiling for a single search. Tag/date/county filters are pushed
-# into SQL where possible (see _build_tag_where), so a *filtered* view normally
-# fits well under this and is therefore complete. A wide unfiltered multi-county
-# sweep will hit this (or the time budget first) — we then report `capped` rather
-# than silently truncating. Raise via env with no deploy: PERMITS_FETCH_CAP.
-FETCH_CAP = max(500, min(100000, int(os.environ.get("PERMITS_FETCH_CAP") or 20000)))
+# Per-source row ceiling for a single search. ArcGIS pages at 2000, so this is
+# ~3 pages — deliberately sized to be REACHABLE inside SOURCE_BUDGET, so the row
+# cap (which we can detect and report as `capped`) binds before the clock (which
+# we can't). Tag/date/county filters push into SQL (see _build_tag_where), so a
+# *filtered* view — e.g. re-roofs, one county, 12 months — normally lands well
+# under this and is therefore complete + exact. A wide unfiltered multi-county
+# sweep hits it and is reported as capped rather than silently truncated.
+# Tune without a deploy: PERMITS_FETCH_CAP (higher = deeper but slower).
+FETCH_CAP = max(500, min(100000, int(os.environ.get("PERMITS_FETCH_CAP") or 6000)))
 
 COUNTIES = ["Martin", "Palm Beach", "Broward", "Miami-Dade"]
 
@@ -728,7 +731,14 @@ def query_layer(layer_url, order_field=None, date_field=None, start_ms=None,
 
     features = list(first.get("features") or [])
     data, offset = first, page
+    paging_started = time.time()
     while len(features) < max_records and data.get("exceededTransferLimit"):
+        # Safety net: a deep pull must never eat the whole serverless budget.
+        # FETCH_CAP is sized to be reachable inside SOURCE_BUDGET, so in practice
+        # the row cap binds first (and is reported as `capped`) — this only
+        # catches a pathologically slow layer.
+        if time.time() - paging_started > SOURCE_BUDGET:
+            break
         data = fetch_page(chosen_where, offset, use_order)
         if data.get("error"):
             break
@@ -1261,6 +1271,10 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None, tags=Non
                 feats = query_layer(layer_url, order_field=order_field,
                                     date_field=order_field, start_ms=start_ms,
                                     end_ms=end_ms, record_count=record_count,
+                                    # the caller's ceiling must reach the pager —
+                                    # without this it silently defaulted to 2000
+                                    # and truncated while reporting "not capped".
+                                    max_records=record_count,
                                     base_where=source.get("where_clause"),
                                     tag_where=tag_where)
                 # data-driven refinement: recover fields the name-mapper missed

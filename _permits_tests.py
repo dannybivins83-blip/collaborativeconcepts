@@ -1276,6 +1276,22 @@ class PaginationAndAggregateTests(unittest.TestCase):
             self.assertIn(k, r, f"missing `{k}` in search result")
         self.assertIsInstance(r["stats"]["tag_counts"], dict)
 
+    def test_fetch_cap_reaches_the_pager(self):
+        """Regression: fetch_source passed record_count but not max_records, so
+        query_layer kept its 2000 default — every source truncated at 2000 while
+        `capped` (which compares against FETCH_CAP) stayed False. The ceiling the
+        caller asks for must be the ceiling the pager enforces."""
+        import inspect
+        src = inspect.getsource(permits.fetch_source)
+        self.assertIn("max_records=record_count", src,
+                      "fetch_source must forward its ceiling to query_layer, or "
+                      "query_layer silently truncates at its 2000 default")
+        # and the cap must be reachable inside a source's time budget, otherwise
+        # the clock truncates us without setting `capped`
+        pages = permits.FETCH_CAP / 2000.0
+        self.assertLessEqual(pages, 6, "FETCH_CAP needs more pages than "
+                                       "SOURCE_BUDGET can realistically fetch")
+
     def test_tag_facet_counts_match_a_filtered_search(self):
         full = self._search(limit="5000")
         counts = full["stats"]["tag_counts"]
