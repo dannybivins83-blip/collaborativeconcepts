@@ -678,7 +678,7 @@ function submitLead(kind){
   if(!data.name||!data.phone){setErr(errId,'Add your name and phone so we can send your '+(isVal?'offer':'demo times')+'.');return;}
   if(!consent.checked){setErr(errId,'Please check the consent box so we can legally call/text you back.');return;}
   setErr(errId,'');
-  data.consent='yes ('+new Date().toISOString()+')';data.page=location.href;
+  data.consent='yes ('+new Date().toISOString()+')';data.consent_language=(consent.closest('label')||consent.parentElement).innerText.replace(/\s+/g,' ').trim();data.page=location.href;
   if(CONFIG.FORM_ENDPOINT){
     var ac=new AbortController(),to=setTimeout(function(){ac.abort();},9000);
     var fail=function(){setErr(errId,'That didn’t go through — please call or text '+CONFIG.PHONE_DISPLAY+' and we’ll grab your details right away.');track('lead_submit_failed_'+kind);};

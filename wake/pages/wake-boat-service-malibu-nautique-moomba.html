@@ -414,7 +414,7 @@ document.getElementById('submitBtn').addEventListener('click',function(){
   if(!data.name||!data.phone){setErr('Add your name and phone so we can confirm your service.');return;}
   if(!document.getElementById('s_consent').checked){setErr('Please check the consent box so we can legally call/text you back.');return;}
   setErr('');
-  data.consent='yes ('+new Date().toISOString()+')';data.page=location.href;
+  data.consent='yes ('+new Date().toISOString()+')';data.consent_language=(consent.closest('label')||consent.parentElement).innerText.replace(/\s+/g,' ').trim();data.page=location.href;
   if(CONFIG.FORM_ENDPOINT){
     var ac=new AbortController(),to=setTimeout(function(){ac.abort();},9000);
     var fail=function(){setErr('That didn’t go through — please call or text '+CONFIG.PHONE_DISPLAY+' and we’ll grab your details right away.');};
