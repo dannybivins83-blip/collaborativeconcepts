@@ -136,6 +136,21 @@ DEFAULT_SOURCES = [
         "note": "Broward issues permits per-municipality. Fort Lauderdale + unincorporated county are wired in; add more cities via PERMITS_EXTRA_SOURCES.",
     },
     {
+        # City of Boca Raton publishes permits as monthly Excel files
+        # (AppliedPermits_YYYY-MM-DD.xlsx / IssuedPermits_*.xlsx) — the only
+        # queryable bulk permit data found for any Palm Beach jurisdiction.
+        "id": "boca",
+        "county": "Palm Beach",
+        "label": "Palm Beach — Boca Raton Building Permits (published spreadsheets)",
+        "kind": "xlsx_index",
+        "index_url": "https://www.myboca.us/2487/AppliedIssued-Permits",
+        "city": "Boca Raton",
+        "portal": "https://www.myboca.us/2487/AppliedIssued-Permits",
+        "note": ("City of Boca Raton posts monthly applied/issued permit spreadsheets. "
+                 "The engine downloads the recent files in the window and parses them. "
+                 "Covers Boca Raton only — a slice of Palm Beach County."),
+    },
+    {
         "id": "broward_uninc",
         "county": "Broward",
         "label": "Broward County — Building Permits (unincorporated + contract cities)",
@@ -994,6 +1009,48 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
             info["error"] = diag.get("error", "accela scrape returned no rows")
             return [], info
 
+        # Jurisdictions that publish permits as downloadable Excel files
+        # (e.g. City of Boca Raton's Applied/Issued Permits page).
+        if source.get("kind") == "xlsx_index":
+            from datetime import datetime as _dt, timezone as _tz
+            try:
+                from xlsx_source import fetch_xlsx_index
+            except ImportError:
+                from api.xlsx_source import fetch_xlsx_index
+            end_dt = _dt.fromtimestamp((end_ms or int(time.time() * 1000)) / 1000, tz=_tz.utc)
+            start_dt = _dt.fromtimestamp((start_ms or int((time.time() - 730 * 86400) * 1000)) / 1000,
+                                        tz=_tz.utc)
+            rows, diag = fetch_xlsx_index(source.get("index_url"), start_dt, end_dt)
+            county = source.get("county", "")
+            city_default = source.get("city")
+            permits = []
+            for r in rows:
+                desc = r.get("description")
+                ptype = r.get("type")
+                permits.append({
+                    "source_id": source.get("id"), "county": county,
+                    "category": source.get("category", "permit"),
+                    "permit_number": r.get("permit_number"), "type": ptype,
+                    "status": r.get("status"), "description": desc,
+                    "address": r.get("address"),
+                    "city": r.get("city") or city_default, "zip": r.get("zip"),
+                    "issued_date": _epoch_to_iso(r.get("issue_date")),
+                    "applied_date": _epoch_to_iso(r.get("applied_date")),
+                    "value": _to_float(r.get("value")), "contractor": r.get("contractor"),
+                    "owner": r.get("owner"), "lat": None, "lon": None,
+                    "tags": tag_permit(f"{desc or ''} {ptype or ''}"),
+                    "appraiser_url": APPRAISER_SEARCH.get(county),
+                })
+            info["xlsx"] = {k: diag.get(k) for k in
+                            ("index_url", "links_found", "files_chosen", "files",
+                             "parsed", "error")}
+            if permits:
+                info.update({"status": "ok", "count": len(permits)})
+                return permits, info
+            info["status"] = "error"
+            info["error"] = diag.get("error", "xlsx index returned no rows")
+            return [], info
+
         # Build candidate layer URLs from every strategy the source declares,
         # in priority order: pinned direct layers -> resolved items ->
         # catalog discovery. This lets a source pin a known-good endpoint AND
@@ -1533,7 +1590,7 @@ def register_permits_routes(app):
                 return s["id"], {k: info.get(k) for k in
                                  ("status", "error", "layer_url", "layer_name",
                                   "count", "discovered", "attempts", "fallback_notes",
-                                  "resolved_fields", "layer_fields", "accela")}
+                                  "resolved_fields", "layer_fields", "accela", "xlsx")}
             with ThreadPoolExecutor(max_workers=min(8, len(sources))) as pool:
                 futs = {pool.submit(probe, s): s for s in sources}
                 try:

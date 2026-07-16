@@ -947,8 +947,8 @@ class EndpointTests(unittest.TestCase):
         data = r.get_json()
         ids = [s["id"] for s in data["sources"]]
         self.assertEqual(set(ids),
-                         {"mdc", "mdc_violations", "ftl", "broward_uninc", "pbc",
-                          "martin", "martin_dev"})
+                         {"mdc", "mdc_violations", "ftl", "boca", "broward_uninc",
+                          "pbc", "martin", "martin_dev"})
         self.assertEqual(data["counties"], permits.COUNTIES)
         # every county still represented by at least one source
         counties = {s["county"] for s in data["sources"]}
