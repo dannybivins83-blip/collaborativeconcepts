@@ -145,19 +145,25 @@ DEFAULT_SOURCES = [
         "note": "Broward issues permits per-municipality. Fort Lauderdale + unincorporated county are wired in; add more cities via PERMITS_EXTRA_SOURCES.",
     },
     {
-        # City of Boca Raton publishes permits as monthly Excel files
-        # (AppliedPermits_YYYY-MM-DD.xlsx / IssuedPermits_*.xlsx) — the only
-        # queryable bulk permit data found for any Palm Beach jurisdiction.
+        # City of Boca Raton publishes monthly Applied/Issued permit CSVs at a
+        # stable URL pattern on apps.ci.boca-raton.fl.us (the myboca.us page is a
+        # JS-rendered CivicPlus iframe; the real data is the direct CSVs). This is
+        # the only queryable bulk permit feed found for any Palm Beach jurisdiction.
         "id": "boca",
         "county": "Palm Beach",
-        "label": "Palm Beach — Boca Raton Building Permits (published spreadsheets)",
-        "kind": "xlsx_index",
-        "index_url": "https://www.myboca.us/2487/AppliedIssued-Permits",
+        "label": "Palm Beach — Boca Raton Building Permits (monthly CSV)",
+        "kind": "csv_monthly",
         "city": "Boca Raton",
+        "csv_pattern": "https://apps.ci.boca-raton.fl.us/bp/PublicRequests/{feed}Permits/{feed}Permits_{ym}-01.csv",
+        "feeds": ["Applied", "Issued"],
+        "columns": {"permit": "PERMIT", "desc": "bpatds", "value": "PAMAOUNT",
+                    "owner": "OWNAME", "zip": "zipcode", "date": "APPLICATION_DATE",
+                    "addr_parts": ["ABABTX_", "ABCHCD", "ABACCD", "ABDFCD", "STSUFFIX"]},
+        "months_back": 18,
         "portal": "https://www.myboca.us/2487/AppliedIssued-Permits",
-        "note": ("City of Boca Raton posts monthly applied/issued permit spreadsheets. "
-                 "The engine downloads the recent files in the window and parses them. "
-                 "Covers Boca Raton only — a slice of Palm Beach County."),
+        "note": ("City of Boca Raton posts monthly Applied/Issued permit CSVs at a "
+                 "stable direct URL on apps.ci.boca-raton.fl.us; the engine pulls the "
+                 "recent months in the window. Covers Boca Raton — a slice of Palm Beach County."),
     },
     {
         "id": "broward_uninc",
@@ -1149,6 +1155,84 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None, tags=Non
                 return permits, info
             info["status"] = "error"
             info["error"] = diag.get("error", "xlsx index returned no rows")
+            return [], info
+
+        # Jurisdictions that publish permits as monthly CSV files at a stable
+        # URL pattern (e.g. City of Boca Raton). Deterministic — no scraping.
+        if source.get("kind") == "csv_monthly":
+            from datetime import datetime as _dt, timezone as _tz
+            end_dt = _dt.fromtimestamp((end_ms or int(time.time() * 1000)) / 1000, tz=_tz.utc)
+            start_dt = _dt.fromtimestamp((start_ms or int((time.time() - 730 * 86400) * 1000)) / 1000, tz=_tz.utc)
+            cols = source.get("columns", {})
+            pat = source.get("csv_pattern", "")
+            feeds = source.get("feeds", ["Applied"])
+            county = source.get("county", "")
+            city_default = source.get("city")
+            addr_parts = cols.get("addr_parts", [])
+            start_first = _dt(start_dt.year, start_dt.month, 1, tzinfo=_tz.utc)
+
+            def _mdy_iso(s):
+                mm = re.match(r"\s*(\d{1,2})/(\d{1,2})/(\d{4})", s or "")
+                return "%04d-%02d-%02d" % (int(mm.group(3)), int(mm.group(1)), int(mm.group(2))) if mm else None
+
+            months, y, m = [], end_dt.year, end_dt.month
+            for _ in range(int(source.get("months_back", 18))):
+                first = _dt(y, m, 1, tzinfo=_tz.utc)
+                if start_first <= first <= end_dt:
+                    months.append("%04d-%02d" % (y, m))
+                m -= 1
+                if m == 0:
+                    m, y = 12, y - 1
+            urls = [(feed, pat.format(feed=feed, ym=ym)) for feed in feeds for ym in months]
+
+            def _pull(t):
+                feed, url = t
+                if time.time() - started > SOURCE_BUDGET - 2:
+                    return None
+                try:
+                    resp = requests.get(url, timeout=6, headers={"User-Agent": "Mozilla/5.0"})
+                    if resp.status_code != 200 or len(resp.content) < 120:
+                        return None
+                    txt = resp.content.decode("utf-8-sig", errors="ignore")
+                    return [(feed, row) for row in csv.DictReader(io.StringIO(txt))]
+                except Exception:
+                    return None
+
+            permits, files_ok, files_err = [], 0, 0
+            with ThreadPoolExecutor(max_workers=8) as _ex:
+                for res in _ex.map(_pull, urls):
+                    if res is None:
+                        files_err += 1
+                        continue
+                    files_ok += 1
+                    for feed, row in res:
+                        desc = (row.get(cols.get("desc", "")) or "").strip()
+                        addr = re.sub(r"\s+", " ", " ".join((row.get(c) or "").strip() for c in addr_parts)).strip()
+                        iso = _mdy_iso(row.get(cols.get("date", "")))
+                        is_issued = str(feed).lower().startswith("issue")
+                        permits.append({
+                            "source_id": source.get("id"), "county": county,
+                            "category": source.get("category", "permit"),
+                            "permit_number": (row.get(cols.get("permit", "")) or "").strip(),
+                            "type": None, "status": feed,
+                            "description": desc, "address": addr,
+                            "city": city_default, "zip": (row.get(cols.get("zip", "")) or "").strip(),
+                            "issued_date": iso if is_issued else None,
+                            "applied_date": iso if not is_issued else None,
+                            "value": _to_float(row.get(cols.get("value", ""))),
+                            "contractor": None,
+                            "owner": (row.get(cols.get("owner", "")) or "").strip() or None,
+                            "lat": None, "lon": None,
+                            "tags": tag_permit(desc),
+                            "appraiser_url": APPRAISER_SEARCH.get(county),
+                        })
+            info["csv_monthly"] = {"pattern": pat, "months": len(months),
+                                   "feeds": feeds, "files_ok": files_ok, "files_err": files_err}
+            if permits:
+                info.update({"status": "ok", "count": len(permits)})
+                return permits, info
+            info["status"] = "error"
+            info["error"] = "csv_monthly: no rows (files_ok=%d files_err=%d)" % (files_ok, files_err)
             return [], info
 
         # Build candidate layer URLs from every strategy the source declares,
