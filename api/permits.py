@@ -701,8 +701,11 @@ def discover_via_hub_search(query, county_tokens, limit=30):
     hit = _cache_get(ck)
     if hit is not None:
         return hit
+    # Hub v3 is JSON:API — pagination is page[size], not the invalid `num`
+    # (which returned HTTP 400 and killed discovery for PBC + Broward-uninc).
     data = _get_json("https://hub.arcgis.com/api/v3/datasets",
-                     params={"q": query, "num": limit}, timeout=HTTP_TIMEOUT + 8)
+                     params={"q": query, "page[size]": limit},
+                     timeout=HTTP_TIMEOUT + 8)
     out = []
     for d in data.get("data", []) or []:
         a = d.get("attributes", {}) or {}
