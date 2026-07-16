@@ -1243,7 +1243,19 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None, tags=Non
                         and not mapping.get("permit_number"):
                     raise RuntimeError("layer has no recognizable permit fields")
                 order_field = mapping.get("issue_date") or mapping.get("applied_date")
-                tag_where = _build_tag_where(tags, mapping)
+                # The pushdown is built HERE, but refine_mapping_with_samples()
+                # below runs AFTER the fetch and can still recover `description`
+                # (it fills missing slots; it never touches `type`). Pushing down
+                # while `description` is unmapped would filter on `type` alone
+                # while tag_permit() later reads description+type — a strict
+                # SUBSET of the tagged fields, i.e. the silent-lead-loss the
+                # TAG_SQL_SUPERSETS contract forbids. So only push down once the
+                # tagged fields can no longer change: either the pinned field_map
+                # applied in full (refinement is skipped), or description is
+                # already mapped.
+                tag_where = None
+                if _map_fully_applied or mapping.get("description"):
+                    tag_where = _build_tag_where(tags, mapping)
                 if tag_where:
                     info["tag_pushdown"] = tag_where
                 feats = query_layer(layer_url, order_field=order_field,

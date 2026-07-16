@@ -27,6 +27,19 @@ def _epoch_ms_days_ago(n):
     return int((datetime.now(timezone.utc) - timedelta(days=n)).timestamp() * 1000)
 
 
+def _sql_like(pattern, value):
+    """Faithful model of SQL `value LIKE pattern`, used to check the
+    TAG_SQL_SUPERSETS contract. Must be ANCHORED (fullmatch): a pattern like
+    '%SHINGLE' (no trailing %) matches only strings ENDING in SHINGLE, so an
+    unanchored 'does A appear then B' model would call a lead-dropping pattern
+    safe. Escape per-character — re.escape() does not escape '%' on py3.7+, so
+    escaping first and then replacing '%' would silently fail to expand it."""
+    import re as _re
+    rx = "".join(".*" if ch == "%" else "." if ch == "_" else _re.escape(ch)
+                 for ch in pattern)
+    return _re.fullmatch(rx, value, _re.S) is not None
+
+
 class TagEngineTests(unittest.TestCase):
     CASES = [
         ("RE-ROOF SHINGLE 24SQ", "roofing"),
@@ -352,17 +365,7 @@ class TagPushdownTests(unittest.TestCase):
                 self.assertTrue(regex.search(text),
                                 f"probe {text!r} should match the {tag} regex")
                 up = text.upper()
-                # SQL LIKE '%A%B%' == python: A then B in order
-                def like(pat):
-                    parts = [p for p in pat.split("%") if p]
-                    pos = 0
-                    for p in parts:
-                        i = up.find(p, pos)
-                        if i < 0:
-                            return False
-                        pos = i + len(p)
-                    return True
-                self.assertTrue(any(like(p) for p in sups),
+                self.assertTrue(any(_sql_like(p, up) for p in sups),
                                 f"SUPERSET VIOLATION: {tag} regex matches {text!r} "
                                 f"but no SQL pattern in {sups} does — this would "
                                 f"silently drop the lead")
@@ -449,6 +452,72 @@ class TagPushdownTests(unittest.TestCase):
     def test_quotes_in_mapping_cannot_build_sql(self):
         self.assertIsNone(
             permits._build_tag_where(["reroof"], {"description": "A'; DROP--"}))
+
+    def _opaque_desc_world(self, seen_wheres):
+        """A layer whose description column has an unconventional name, so
+        map_fields() misses it pre-fetch and refine_mapping_with_samples()
+        recovers it AFTER the fetch — the exact shape that made the pushdown
+        search a strict subset of the tagged fields."""
+        def world(url, params=None, timeout=None):
+            if url.endswith("/query"):
+                p = params or {}
+                seen_wheres.append(p.get("where") or "")
+                rows = [
+                    {"attributes": {"PERMITNO": "R-1", "PERMITTYPE": "ROOFING",
+                                    "NARRATIVE": "ROOF REPAIR MINOR",
+                                    "ISSUEDDATE": _epoch_ms_days_ago(3)}},
+                    # roof signal lives ONLY in the opaque description column
+                    {"attributes": {"PERMITNO": "B-2", "PERMITTYPE": "BUILDING",
+                                    "NARRATIVE": "RE-ROOF: TEAR OFF AND INSTALL "
+                                                 "NEW SHINGLE ROOF 24 SQ",
+                                    "ISSUEDDATE": _epoch_ms_days_ago(4)}},
+                ]
+                w = (p.get("where") or "").upper()
+                # honor the WHERE the way a real server would
+                if "LIKE" in w:
+                    rows = [r for r in rows
+                            if "ROOF" in str(r["attributes"]["PERMITTYPE"]).upper()]
+                return {"features": rows}
+            return {"name": "P", "fields": [
+                {"name": "PERMITNO", "type": "esriFieldTypeString"},
+                {"name": "PERMITTYPE", "type": "esriFieldTypeString"},
+                {"name": "NARRATIVE", "type": "esriFieldTypeString"},
+                {"name": "ISSUEDDATE", "type": "esriFieldTypeDate"}]}
+        return world
+
+    def test_no_pushdown_when_refinement_could_still_recover_description(self):
+        """REGRESSION: the pushdown is built BEFORE refine_mapping_with_samples()
+        runs. If `description` is unmapped at that point, SQL would filter on
+        `type` alone while tag_permit() later reads the description refinement
+        recovers — silently dropping every lead whose roof signal lives only in
+        the description. Must degrade to the wide fetch instead."""
+        seen = []
+        src = {"id": "x", "county": "Broward", "label": "L", "kind": "arcgis_layer",
+               "layer_urls": ["https://x/FeatureServer/0"]}
+        with mock.patch.object(permits, "_get_json",
+                               side_effect=self._opaque_desc_world(seen)):
+            rows, info = permits.fetch_source(src, start_ms=1, end_ms=None,
+                                              tags=["reroof"])
+        self.assertEqual(info["status"], "ok")
+        # refinement did recover the opaque column post-fetch...
+        self.assertEqual(info["resolved_fields"].get("description"), "NARRATIVE")
+        # ...so the pushdown must NOT have been applied
+        self.assertNotIn("tag_pushdown", info)
+        self.assertTrue(all("LIKE" not in w for w in seen),
+                        f"pushdown leaked into SQL on an unmapped-description "
+                        f"layer: {seen}")
+        # and the lead whose roof signal is description-only survives
+        nums = [r["permit_number"] for r in rows]
+        self.assertIn("B-2", nums)
+        b2 = [r for r in rows if r["permit_number"] == "B-2"][0]
+        self.assertIn("reroof", b2["tags"])
+
+    def test_pushdown_still_applies_when_description_is_mapped(self):
+        """The guard must not throw away the optimization on real sources:
+        once description is mapped pre-fetch the tagged fields are final."""
+        w = permits._build_tag_where(["reroof"], {"description": "D", "type": "T"})
+        self.assertIsNotNone(w)
+        self.assertIn("UPPER(D) LIKE '%ROOF%'", w)
 
 
 class HubDiscoveryTests(unittest.TestCase):
@@ -1000,6 +1069,24 @@ class EndpointTests(unittest.TestCase):
                           "label": source.get("label"), "status": status,
                           "count": len(mine)}
         return mock.patch.object(permits, "fetch_source", side_effect=fake_fetch)
+
+    def test_tags_filter_reaches_fetch_source(self):
+        """Wiring guard: run_search must hand the tag filter to fetch_source or
+        the SQL pushdown silently never happens and tag searches go back to
+        returning a fraction of the real matches (333 of ~3,500 on Miami-Dade).
+        Nothing else in the suite fails if that argument is dropped."""
+        seen = []
+        def fake_fetch(source, record_count=2000, start_ms=None, end_ms=None, tags=None):
+            seen.append(tags)
+            return [], {"id": source["id"], "county": source["county"],
+                        "label": source.get("label"), "status": "ok", "count": 0}
+        with mock.patch.object(permits, "fetch_source", side_effect=fake_fetch):
+            self.client.get("/api/permits/search?days=30&tags=reroof")
+        self.assertTrue(seen, "fetch_source was never called")
+        for got in seen:
+            self.assertEqual(got, ["reroof"],
+                             "run_search must pass the tag filter down to "
+                             "fetch_source so the SQL pushdown can apply")
 
     def test_search_basic(self):
         with self._patch_live():
