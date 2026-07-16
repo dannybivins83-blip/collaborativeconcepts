@@ -75,6 +75,13 @@ const CONFIG = {
   .nav-links a:hover{color:#fff}
   .nav-cta{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;background:var(--grad-cta);color:#07202c;font-weight:700;font-size:14px}
   .nav-cta:hover{filter:brightness(1.08);color:#07202c}
+  /* ---------- MOBILE NAV (burger) ---------- */
+  .nav-burger{display:none;align-items:center;justify-content:center;width:42px;height:42px;padding:0;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;flex:none}
+  .nav-burger:hover{background:rgba(255,255,255,.12)}
+  .nav-burger .x{display:none}
+  .nav.open .nav-burger .x{display:block}
+  .nav.open .nav-burger .bars{display:none}
+
 
   /* HERO */
   .hero{position:relative;padding:56px 52px 66px;overflow:hidden;
@@ -262,7 +269,12 @@ const CONFIG = {
 
   @media(max-width:900px){
     .nav{padding:14px 22px}
-    .nav-links{display:none}
+    .nav-burger{display:inline-flex}
+    .nav-right{gap:10px}
+    .nav-links{position:absolute;top:100%;left:0;right:0;display:none;flex-direction:column;gap:0;padding:6px 22px 14px;background:rgba(9,32,44,.98);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.1);box-shadow:0 12px 28px rgba(0,0,0,.35);max-height:calc(100vh - 66px);overflow-y:auto}
+    .nav.open .nav-links{display:flex}
+    .nav-links a{padding:13px 2px;font-size:16px;color:#cfe6ee;border-bottom:1px solid rgba(255,255,255,.07)}
+    .nav-links a:last-child{border-bottom:0}
     .hero{padding:38px 22px 48px}
     .hero-grid{grid-template-columns:1fr;gap:30px}
     .hero h1{font-size:33px}
@@ -298,14 +310,14 @@ const CONFIG = {
     <span class="name">Palm Beach Wake Boats</span>
   </div>
   <div class="nav-right">
-    <div class="nav-links">
+    <div class="nav-links" id="navLinks">
       <a href="#book">Charters</a>
       <a href="#faq">How it works</a>
       <a href="/pages/fishing-charters-palm-beach">Fishing</a>
       <a href="/blog">Guides</a>
       <a href="/">Value / sell</a>
     </div>
-    <a class="nav-cta" href="#book">Book a charter</a>
+    <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks"><svg class="bars" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg><svg class="x" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><a class="nav-cta" href="#book">Book a charter</a>
   </div>
 </nav>
 
@@ -766,5 +778,5 @@ recompute();
 {"@type":"Question","name":"What should we bring?","acceptedAnswer":{"@type":"Answer","text":"Swimsuits, a towel, sunscreen, and whatever snacks or drinks you like. We provide the boat, captain, boards, tubes, ropes, life jackets, fuel and ice."}}
 ]}
 </script>
-</body>
+<script>(function(){var n=document.querySelector('.nav');var b=n&&n.querySelector('.nav-burger');if(!n||!b)return;function s(o){n.classList.toggle('open',o);b.setAttribute('aria-expanded',o?'true':'false');b.setAttribute('aria-label',o?'Close menu':'Open menu');}b.addEventListener('click',function(e){e.stopPropagation();s(!n.classList.contains('open'));});Array.prototype.forEach.call(n.querySelectorAll('.nav-links a'),function(a){a.addEventListener('click',function(){s(false);});});document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Esc')s(false);});document.addEventListener('click',function(e){if(!n.contains(e.target))s(false);});window.addEventListener('resize',function(){if(window.innerWidth>900)s(false);});})();</script></body>
 </html>

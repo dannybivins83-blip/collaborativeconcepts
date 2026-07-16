@@ -74,6 +74,13 @@ const CONFIG = {
   .nav-links a{color:var(--mut-dark-2)} .nav-links a:hover{color:#fff} .nav-links a.active{color:#fff}
   .nav-cta{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;background:var(--grad-cta);color:#06182E;font-weight:700;font-size:14px}
   .nav-cta:hover{filter:brightness(1.08);color:#06182E}
+  /* ---------- MOBILE NAV (burger) ---------- */
+  .nav-burger{display:none;align-items:center;justify-content:center;width:42px;height:42px;padding:0;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;flex:none}
+  .nav-burger:hover{background:rgba(255,255,255,.12)}
+  .nav-burger .x{display:none}
+  .nav.open .nav-burger .x{display:block}
+  .nav.open .nav-burger .bars{display:none}
+
 
   /* HERO */
   .hero{position:relative;padding:60px 52px 64px;overflow:hidden;background:var(--grad-water)}
@@ -188,7 +195,14 @@ const CONFIG = {
   .sticky-call{display:none}
 
   @media(max-width:920px){
-    .nav{padding:14px 22px} .nav-links{display:none}
+    .nav{padding:14px 22px}
+    .nav-burger{display:inline-flex}
+    .nav-right{gap:10px}
+    .nav-links{position:absolute;top:100%;left:0;right:0;display:none;flex-direction:column;gap:0;padding:6px 22px 14px;background:rgba(9,32,44,.98);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.1);box-shadow:0 12px 28px rgba(0,0,0,.35);max-height:calc(100vh - 66px);overflow-y:auto}
+    .nav.open .nav-links{display:flex}
+    .nav-links a{padding:13px 2px;font-size:16px;color:#cfe6ee;border-bottom:1px solid rgba(255,255,255,.07)}
+    .nav-links a:last-child{border-bottom:0}
+
     .hero{padding:44px 22px 48px} .hero-grid{grid-template-columns:1fr;gap:30px} .hero h1{font-size:36px}
     .section,.book{padding:46px 22px}
     .about-grid,.boat-grid,.book-grid{grid-template-columns:1fr;gap:28px}
@@ -209,14 +223,14 @@ const CONFIG = {
     <span class="name">Trident Charters</span>
   </div>
   <div class="nav-right">
-    <div class="nav-links">
+    <div class="nav-links" id="navLinks">
       <a href="#trips">Trips</a>
       <a href="#book">Book</a>
       <a href="#faq">FAQ</a>
       <a href="/pages/charter-experiences">Wakesurf charters</a>
       <a href="/">Palm Beach Wake Boats ↗</a>
     </div>
-    <a class="nav-cta" href="tel:+15614758615" data-tel>
+    <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks"><svg class="bars" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg><svg class="x" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button><a class="nav-cta" href="tel:+15614758615" data-tel>
       <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 21A16 16 0 0 1 3 8.5 2 2 0 0 1 5 6.3l2-.2a1.4 1.4 0 0 1 1.5 1l.7 2.3a1.4 1.4 0 0 1-.5 1.6l-1 .7a12 12 0 0 0 4.6 4.6l.7-1a1.4 1.4 0 0 1 1.6-.5l2.3.7a1.4 1.4 0 0 1 1 1.5l-.2 2A2 2 0 0 1 15.5 21z"/></svg>
       Call / text
     </a>
@@ -489,5 +503,5 @@ document.getElementById('tripForm').addEventListener('submit',function(e){
     .catch(function(){fail();});
 });
 </script>
-</body>
+<script>(function(){var n=document.querySelector('.nav');var b=n&&n.querySelector('.nav-burger');if(!n||!b)return;function s(o){n.classList.toggle('open',o);b.setAttribute('aria-expanded',o?'true':'false');b.setAttribute('aria-label',o?'Close menu':'Open menu');}b.addEventListener('click',function(e){e.stopPropagation();s(!n.classList.contains('open'));});Array.prototype.forEach.call(n.querySelectorAll('.nav-links a'),function(a){a.addEventListener('click',function(){s(false);});});document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Esc')s(false);});document.addEventListener('click',function(e){if(!n.contains(e.target))s(false);});window.addEventListener('resize',function(){if(window.innerWidth>900)s(false);});})();</script></body>
 </html>
