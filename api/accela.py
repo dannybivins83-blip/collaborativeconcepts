@@ -221,22 +221,71 @@ def _session():
     return s
 
 
+# ACA General Search rejects/overflows on wide date ranges (per-search result
+# caps), so long windows are searched as several RECENT short chunks instead.
+CHUNK_TRIGGER_DAYS = 45   # ranges up to this go through as a single search
+CHUNK_DAYS = 30           # chunk length
+MAX_CHUNKS = 3            # newest-first; bounded by the deadline anyway
+
+
 def scrape_accela(agency, start_date, end_date, module="Building",
                   base=ACA_BASE, max_pages=MAX_PAGES, deadline=DEFAULT_DEADLINE):
     """Search an Accela ACA agency's General Search by date range.
 
-    start_date/end_date: datetime (any tz). deadline: hard wall-clock seconds
-    cap. Returns (rows, diag) where rows are canonical permit dicts and diag
-    records exactly what happened at each step. Never raises.
+    Wide ranges (portal per-search limits make them return no grid) are split
+    into up to MAX_CHUNKS recent CHUNK_DAYS windows, newest first, sharing one
+    session and one wall-clock deadline. Returns (rows, diag). Never raises.
     """
     import time as _time
+    from datetime import timedelta as _td
     _start = _time.time()
+    span_days = max(0, (end_date - start_date).days)
+
+    if span_days <= CHUNK_TRIGGER_DAYS:
+        return _scrape_range(agency, start_date, end_date, module, base,
+                             max_pages, deadline, _session(), _start)
+
+    diag = {"agency": agency, "steps": [], "pages": 0, "chunks": 0,
+            "chunk_windows": []}
+    sess = _session()
+    rows, seen = [], set()
+    chunk_end = end_date
+    for _ in range(MAX_CHUNKS):
+        if (_time.time() - _start) > deadline or chunk_end <= start_date:
+            break
+        chunk_start = max(start_date, chunk_end - _td(days=CHUNK_DAYS))
+        crows, cdiag = _scrape_range(agency, chunk_start, chunk_end, module,
+                                     base, max_pages, deadline, sess, _start)
+        diag["chunks"] += 1
+        diag["chunk_windows"].append(
+            f"{chunk_start.strftime('%m/%d/%Y')}-{chunk_end.strftime('%m/%d/%Y')}"
+            f": {len(crows)} rows" + (f" ({cdiag['error']})" if cdiag.get("error") else ""))
+        diag["pages"] += cdiag.get("pages", 0)
+        diag["steps"].extend(cdiag.get("steps", [])[:3])
+        if not diag.get("fields_found") and cdiag.get("fields_found"):
+            diag["fields_found"] = cdiag["fields_found"]
+        for r in crows:
+            key = r.get("permit_number") or f"{r.get('address')}|{r.get('issued_date')}"
+            if key not in seen:
+                seen.add(key)
+                rows.append(r)
+        chunk_end = chunk_start
+    diag["parsed"] = len(rows)
+    if not rows:
+        diag["error"] = ("no rows across chunked searches — grid structure may "
+                         "differ from expected or portal returned no results")
+    return rows, diag
+
+
+def _scrape_range(agency, start_date, end_date, module, base, max_pages,
+                  deadline, sess, _start):
+    """One General Search over a single date range (the original flow)."""
+    import time as _time
 
     def _over_budget():
         return (_time.time() - _start) > deadline
 
     diag = {"agency": agency, "steps": [], "pages": 0}
-    sess = _session()
     search_url = (f"{base}/{agency}/Cap/CapHome.aspx"
                   f"?module={module}&TabName={module}")
     sd = start_date.strftime("%m/%d/%Y")

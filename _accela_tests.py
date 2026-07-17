@@ -165,6 +165,34 @@ class ScrapeFlowTests(unittest.TestCase):
         self.assertTrue(any("StartDate" in k for k in data))
         self.assertTrue(any("btnNewSearch" in k for k in data))
 
+    RESULTS_NO_PAGINATION = RESULTS_PAGE.replace(
+        """<a href="javascript:__doPostBack(&#39;ctl00$PlaceHolderMain$dgvPermitList$gdvPermitList&#39;,&#39;Page$2&#39;)">2</a>""",
+        "")
+
+    def test_wide_range_is_chunked_newest_first(self):
+        """A 2-year window must be searched as several recent 30-day chunks
+        (the portal rejects/overflows wide ranges), deduped across chunks."""
+        sess = self._mock_session(SEARCH_PAGE,
+                                  [self.RESULTS_NO_PAGINATION] * accela.MAX_CHUNKS)
+        with mock.patch.object(accela, "_session", return_value=sess):
+            rows, diag = accela.scrape_accela(
+                "MARTINCO",
+                datetime(2024, 7, 15, tzinfo=timezone.utc),
+                datetime(2026, 7, 15, tzinfo=timezone.utc))
+        self.assertEqual(diag["chunks"], accela.MAX_CHUNKS)
+        self.assertEqual(len(diag["chunk_windows"]), accela.MAX_CHUNKS)
+        # identical grids across chunks -> deduped to the 3 unique permits
+        self.assertEqual(len(rows), 3)
+        # each chunk POSTed a DIFFERENT, newest-first date window
+        starts = []
+        for call in sess.post.call_args_list:
+            data = call.kwargs.get("data") or call.args[1]
+            sd = [v for k, v in data.items() if "StartDate" in k][0]
+            starts.append(sd)
+        self.assertEqual(len(set(starts)), accela.MAX_CHUNKS)
+        parsed = [datetime.strptime(s, "%m/%d/%Y") for s in starts]
+        self.assertEqual(parsed, sorted(parsed, reverse=True))  # newest first
+
     def test_scrape_reports_missing_date_fields(self):
         page = "<html><form><input type=hidden name=__VIEWSTATE value=x></form></html>"
         sess = self._mock_session(page, [])

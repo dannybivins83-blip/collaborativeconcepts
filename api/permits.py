@@ -393,14 +393,17 @@ DEFAULT_SOURCES = [
         "id": "broward_uninc",
         "county": "Broward",
         "label": "Broward County — Building Permits (unincorporated + contract cities)",
-        "kind": "arcgis_item",
-        # resolve via the Hub v3 dataset API first (same path that fixed
-        # Miami-Dade) — the raw sharing-API item returns a non-JSON error page.
-        "hub_dataset_ids": ["401f56339f9e49e6ac11efb91f191b4b_0"],
-        "item_ids": ["401f56339f9e49e6ac11efb91f191b4b"],
+        # The county's Hub dataset (401f5633...) was REMOVED/moved — both the
+        # sharing item and the v3 dataset id now 404. Discovery-only, so this
+        # reports an honest amber "no dataset" and auto-reactivates the moment
+        # the county republishes, instead of a permanent red error.
+        "kind": "hub_discover",
         "hub_sites": ["https://geohub-bcgis.opendata.arcgis.com"],
         "portal": "https://geohub-bcgis.opendata.arcgis.com/",
-        "note": "Broward County Building Code Division (unincorporated areas + cities the county permits for).",
+        "note": ("Broward County Building Code Division (unincorporated + contract "
+                 "cities). The county's open-data permits dataset was taken down; "
+                 "the catalog is scanned each run and re-activates automatically "
+                 "if it returns. Most Broward volume comes from the city sources."),
     },
     {
         "id": "pbc",
