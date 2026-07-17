@@ -77,10 +77,25 @@ The startup hook will pick it up automatically on the next session.
   Miami-Dade. Engine in `api/permits.py` (routes `/api/permits/*`: search,
   tags, sources, discover, CSV export). Pulls real permits per county:
   Miami-Dade (official open-data, resolved via ArcGIS Hub v3 dataset API),
-  Broward (Fort Lauderdale + Pembroke Pines + unincorporated county ArcGIS
-  layers), Martin (Accela portal scraper in `api/accela.py` +
-  development-projects layer). Palm Beach publishes no queryable permit feed
-  (Accela/Click2Gov portals) — documented, auto-activates if that changes.
+  Broward (Fort Lauderdale + unincorporated county ArcGIS layers), Martin
+  (Accela portal scraper in `api/accela.py` + development-projects layer).
+  **FL cities permit independently of their county, so each city is its own
+  source** — 19 run Tyler EnerGov Civic Access (`kind: energov_css`) and Boca
+  publishes monthly CSVs (`kind: csv_monthly`). Palm Beach therefore has 8
+  sources, not zero (that earlier "no queryable feed" note was wrong).
+  EnerGov gotchas, all learned the hard way — don't re-litigate:
+  the `tenantName` header is **ignored** (the server resolves the tenant from
+  the Host; bogus/empty values return identical data), so a new city needs only
+  a host — find it by DNS-probing `<slug>-energovweb|energovpub.tylerhost.net`
+  patterns, then confirm with a real search call. Self-hosted cities use a
+  site-specific IIS path (`path` key; Sunrise is `/EnerGov_Prod/SelfService`).
+  Paging dies at Elasticsearch's 10k `max_result_window`, so bulk pulls must
+  filter server-side via `PermitCriteria.Description` +
+  `EnableDescriptionSearch` — and that match is **OR over tokens** (`ExactMatch`
+  does nothing), so multi-word terms are junk: use single words and classify
+  locally. Records carry `MainParcel` (folio/PCN) — the join key to each county
+  appraiser for owner + mailing. Miami Beach runs CSS but its search API 500s
+  for everyone including its own page; not wired up.
   Schema auto-mapping is name-based then **content-based** (infers fields
   from real record values when column names don't match); a blocklist rejects
   known wrong-jurisdiction ArcGIS orgs. Time window supports days/months/years/
@@ -89,9 +104,11 @@ The startup hook will pick it up automatically on the next session.
   Miami-Dade RER **code violations** (EnerGov layer 86, open cases) as a
   distinct "violation" category. Click any dashboard row to expand a full
   record detail panel. Serverless-safe: whole-request time budget + Accela
-  deadline stay under `vercel.json` `maxDuration`. Offline tests:
-  `python3 _permits_tests.py` (79) and `python3 _accela_tests.py` (14), all
-  network mocked.
+  deadline stay under `vercel.json` `maxDuration` (measured: per-county 16-17s,
+  all-counties 31s vs a 45s budget). Offline tests:
+  `python3 _permits_tests.py` (97) and `python3 _accela_tests.py` (14), all
+  network mocked. **Known broken (pre-existing):** `broward_uninc` 404s on a
+  moved ArcGIS Hub dataset and `martin` parses no rows — both return 0.
 
 ## Local tooling
 
