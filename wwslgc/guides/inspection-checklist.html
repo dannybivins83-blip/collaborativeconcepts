@@ -16,7 +16,13 @@
 <link rel="icon" type="image/png" href="/assets/lagala-mark.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/wws.css"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+  tailwind.config = { darkMode:"class", theme:{ extend:{
+    colors:{ primary:"#13233f","primary-container":"#1e3a5f",secondary:"#c9a227","secondary-container":"#e8c547","secondary-fixed":"#f0d060","on-secondary-fixed":"#3d2e00",steel:"#8b97a8",surface:"#f7f6f3","surface-container-low":"#f0eee8","surface-container-lowest":"#ffffff","surface-container-high":"#e8e5dd","on-surface":"#1a1a1a","on-surface-variant":"#54606f","outline-variant":"#dcd8cf","on-primary":"#ffffff" },
+    borderRadius:{ DEFAULT:"0.625rem", lg:"0.875rem", xl:"1.25rem", "2xl":"1.5rem", full:"9999px" },
+    fontFamily:{ headline:["Manrope"], body:["Inter"] } } } }
+</script>
 <style>body{font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}h1,h2,h3{font-family:'Manrope',sans-serif;letter-spacing:-0.01em}.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400}html{scroll-behavior:smooth}a,button{transition:all .2s ease}section.bg-primary,footer{background-image:radial-gradient(90% 75% at 100% 0%,rgba(201,162,39,0.12),transparent 52%),linear-gradient(150deg,#13233f 0%,#1f3c63 100%)}</style>
 <link rel="preconnect" href="https://www.googletagmanager.com"/>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-K9ZEXRRMCK"></script>
@@ -26,7 +32,7 @@
 <div class="h-1 w-full bg-gradient-to-r from-secondary via-secondary-fixed to-secondary"></div>
 <nav class="w-full sticky top-0 z-50 bg-[#f8f7f5]/80 backdrop-blur-md border-b border-outline-variant/20">
 <div class="flex justify-between items-center px-6 sm:px-8 py-4 max-w-7xl mx-auto">
-<a href="/" class="flex items-center" aria-label="La Gala Construction"><picture><source type="image/webp" srcset="/assets/lagala-logo.webp"/><img src="/assets/lagala-logo.png" alt="La Gala Construction" class="h-10 sm:h-12 w-auto"/></picture></a>
+<a href="/" class="flex items-center" aria-label="La Gala Construction"><img src="/assets/lagala-logo.png" alt="La Gala Construction" class="h-10 sm:h-12 w-auto"/></a>
 <div class="hidden md:flex items-center space-x-8">
 <a class="text-primary opacity-80 hover:text-secondary transition-colors" href="/roof-anchor-certification">Roof Anchors</a>
 <a class="text-primary opacity-80 hover:text-secondary transition-colors" href="/#schedule">Deadlines</a>
@@ -68,12 +74,13 @@
 <p class="text-on-primary/75 mt-3 max-w-2xl mx-auto">Our PE partner certifies it and our crews fix it, under one contract. Start with a comprehensive, no-obligation assessment, or build a custom compliance plan in two minutes.</p>
 <div class="flex flex-wrap gap-4 justify-center mt-7">
 <a href="/#assessment" class="bg-secondary text-white px-7 py-3.5 rounded-xl font-bold hover:bg-secondary-container hover:text-on-secondary-fixed transition-colors">Get a comprehensive assessment</a>
+<a href="/swing-stage-osha-training" class="border-2 border-secondary-fixed text-secondary-fixed px-7 py-3.5 rounded-xl font-bold hover:bg-secondary-fixed hover:text-on-secondary-fixed transition-colors inline-flex items-center gap-2"><span class="material-symbols-outlined">school</span>Schedule Certified Training</a>
 <a href="/#plans" class="border-2 border-secondary-fixed text-secondary-fixed px-7 py-3.5 rounded-xl font-bold hover:bg-secondary-fixed hover:text-on-secondary-fixed transition-colors">Build a plan</a>
 </div></div>
 </article>
 </main>
 <footer class="w-full py-12 px-6 sm:px-8 flex flex-col items-center text-center space-y-5 bg-[#1a1a2e] text-[#f8f7f5]">
-<a href="/" class="inline-block"><picture><source type="image/webp" srcset="/assets/lagala-logo.webp"/><img src="/assets/lagala-logo.png" alt="La Gala Construction" class="h-11 w-auto" style="filter:brightness(0) invert(1)"/></picture></a>
+<a href="/" class="inline-block"><img src="/assets/lagala-logo.png" alt="La Gala Construction" class="h-11 w-auto" style="filter:brightness(0) invert(1)"/></a>
 <p class="text-sm text-[#f8f7f5]/70 max-w-xl">Concrete Restoration &middot; Waterproofing &middot; Fall-Protection &amp; Compliance &mdash; South Florida.</p>
 <div class="flex flex-wrap justify-center gap-6 text-sm"><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/guides">All guides</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#plans">Build a plan</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#assessment">Comprehensive assessment</a></div>
 <p class="text-xs text-[#f8f7f5]/50">25 SE 7th Street, Ste 12 &middot; Deerfield Beach, FL 33441 &middot; (561) 475-8615 &middot; danny@lagalacon.com</p>
