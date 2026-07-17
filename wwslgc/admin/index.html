@@ -90,6 +90,7 @@
 
 <!-- leads -->
 <section id="tab-leads">
+<div id="quickFilters" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-3"></div>
 <div class="flex flex-wrap items-center gap-2 mb-3">
 <input id="search" oninput="renderLeads()" placeholder="Search name, company, email…" class="flex-1 min-w-[200px] rounded-lg border border-line bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/>
 <select id="fstage" onchange="renderLeads()" class="rounded-lg border border-line bg-white px-3 py-2 text-sm"><option value="">All stages</option></select>
@@ -271,14 +272,47 @@ function renderStats(){
 }
 function setStage(s){ document.getElementById('fstage').value=s; switchTab('leads'); renderLeads(); }
 
+/* ---- quick filters: one-tap slices of the lead list ---- */
+function _qblob(l){
+  var f=''; try{ f=Object.keys(l.fields||{}).map(function(k){return k+' '+l.fields[k];}).join(' '); }catch(e){}
+  return ((l.company||'')+' '+(l.property||'')+' '+(l.message||'')+' '+(l.source||'')+' '+f).toLowerCase();
+}
+var QUICK=[
+ {k:'phone',   icon:'call',            label:'Callable',      hint:'has a phone number',            test:function(l){return !!l.phone;}},
+ {k:'pm',      icon:'person',          label:'PM named',      hint:'a real contact name on file',   test:function(l){return !!(l.name&&l.name.length>2);}},
+ {k:'hot',     icon:'local_fire_department', label:'Self-checked', hint:'used the /check tool themselves', test:function(l){return /compliance check/.test((l.source||'').toLowerCase());}},
+ {k:'p1',      icon:'gavel',           label:'Enforcement',   hint:'P1 / NOV / active citation',    test:function(l){return /p1[- ]enforcement|notice.{0,4}of.{0,4}violation|\bnov\b|bsip|unsafe.structure|flagged/.test(_qblob(l));}},
+ {k:'lien',    icon:'account_balance', label:'Fined / Lien',  hint:'lien filed or fine on record',  test:function(l){return /\blien\b|fined|\bfine\b|penalt/.test(_qblob(l));}},
+ {k:'reroof',  icon:'roofing',         label:'New roof',      hint:'recent re-roof / roof permit',  test:function(l){return /re-?roof|roof\s*(repl|permit)|new\s*roof/.test(_qblob(l));}},
+ {k:'coastal', icon:'waves',           label:'Coastal',       hint:'oceanfront / intracoastal',     test:function(l){return /ocean|beach|coastal|intracoastal|waterfront|harbou?r|surf\b|fisher island/.test(_qblob(l));}},
+ {k:'research',icon:'search_insights', label:'Researched',    hint:'auto-research ran on it',       test:function(l){return /needs research|snapshot|past-?due/.test(_qblob(l));}},
+ {k:'newlead', icon:'fiber_new',       label:'New',           hint:'stage: new / untouched',        test:function(l){return (l.status||'new')==='new';}},
+ {k:'email',   icon:'mail',            label:'Emailable',     hint:'has an email address',          test:function(l){return !!l.email;}}
+];
+var quickActive={};
+function toggleQuick(k){ if(quickActive[k])delete quickActive[k]; else quickActive[k]=1; renderLeads(); }
+function renderQuickFilters(){
+  var host=document.getElementById('quickFilters'); if(!host||!DATA||!DATA.leads) return;
+  host.innerHTML=QUICK.map(function(f){
+    var n=0; for(var i=0;i<DATA.leads.length;i++){ if(f.test(DATA.leads[i])) n++; }
+    var on=!!quickActive[f.k];
+    return '<button onclick="toggleQuick(\''+f.k+'\')" title="'+f.hint+'" class="rounded-xl border px-3 py-2.5 text-left transition-colors '+(on?'bg-primary border-primary text-white':'bg-white border-line hover:border-secondary')+'">'+
+      '<div class="flex items-center gap-1.5"><span class="ms text-lg text-secondary">'+f.icon+'</span>'+
+      '<span class="text-xl font-extrabold font-h '+(on?'text-white':'text-primary')+'">'+n+'</span></div>'+
+      '<div class="text-[11px] font-bold uppercase tracking-wide mt-0.5 '+(on?'text-white/80':'text-mute')+'">'+f.label+'</div></button>';
+  }).join('');
+}
 function renderLeads(){
   var q=(document.getElementById('search').value||'').toLowerCase();
   var st=document.getElementById('fstage').value;
+  var act=QUICK.filter(function(f){return quickActive[f.k];});
   var rows=DATA.leads.filter(function(l){
     if(st && l.status!==st) return false;
+    for(var i=0;i<act.length;i++){ if(!act[i].test(l)) return false; }
     if(!q) return true;
     return ((l.name||'')+' '+(l.company||'')+' '+(l.email||'')+' '+(l.phone||'')+' '+(l.property||'')).toLowerCase().indexOf(q)>=0;
   });
+  renderQuickFilters();
   document.getElementById('leadEmpty').classList.toggle('hidden', rows.length>0);
   document.getElementById('leadRows').innerHTML=rows.map(function(l){
     return '<tr class="border-t border-line hover:bg-surface cursor-pointer" onclick="openDrawer(\''+l.id+'\')">'+
