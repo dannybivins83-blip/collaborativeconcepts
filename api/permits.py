@@ -209,6 +209,9 @@ DEFAULT_SOURCES = [
         "county": "Broward",
         "label": "Broward County — Building Permits (unincorporated + contract cities)",
         "kind": "arcgis_item",
+        # resolve via the Hub v3 dataset API first (same path that fixed
+        # Miami-Dade) — the raw sharing-API item returns a non-JSON error page.
+        "hub_dataset_ids": ["401f56339f9e49e6ac11efb91f191b4b_0"],
         "item_ids": ["401f56339f9e49e6ac11efb91f191b4b"],
         "hub_sites": ["https://geohub-bcgis.opendata.arcgis.com"],
         "portal": "https://geohub-bcgis.opendata.arcgis.com/",
@@ -241,27 +244,10 @@ DEFAULT_SOURCES = [
                  "system of record) for issued building permits by date range. "
                  "Best-effort — portal HTML can change."),
     },
-    {
-        "id": "martin_dev",
-        "county": "Martin",
-        "label": "Martin County — Countywide Development Projects (Accela permits not public)",
-        "kind": "arcgis_layer",
-        # Martin building permits are Accela-only. Their open-data DOES publish
-        # countywide development-review projects — real active construction
-        # leads (has PERMIT_NUMBER + PROJECT_NAME + status), just not the full
-        # issued-permit stream. Labeled honestly.
-        "layer_urls": [
-            "https://geoweb.martin.fl.us/arcgis/rest/services/Administrative_Areas/Proposed_Developments/MapServer/0",
-        ],
-        "hub_dataset_ids": ["154ce08f06cf4048936536ba490e5c90_0"],
-        "hub_sites": ["https://data-mcgov.opendata.arcgis.com"],
-        "portal": "https://data-mcgov.opendata.arcgis.com/datasets/mcgov::countywide-development-projects",
-        "note": ("Martin County issued building permits live in Accela (aca-prod.accela.com/"
-                 "MARTINCO) with no public GIS/API export. This layer is the county's "
-                 "development-review projects — real construction activity, but not the "
-                 "full permit stream."),
-    },
 ]
+# (a former "martin_dev" source pointed at Martin's Proposed_Developments layer,
+#  which has no permit fields and only produced a permanent error chip — removed.
+#  Martin's real permit path is the Accela scraper above.)
 
 # County property-appraiser search pages (free owner lookup — "layer 2").
 APPRAISER_SEARCH = {
