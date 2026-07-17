@@ -141,8 +141,30 @@ DEFAULT_SOURCES = [
         "layer_urls": [
             "https://gis.fortlauderdale.gov/arcgis/rest/services/BuildingPermitTracker/BuildingPermitTracker/MapServer/0",
         ],
+        # FIXED 2026-07-16 — the auto-mapper picked COISSUE for issue_date and
+        # created_date for applied_date. Verified live against the layer: on all
+        # 12,595 roof permits COISSUE and APPROVEDT are 100% NULL, and
+        # created_date is a single bulk-sync stamp (every row = 2026-03-17). The
+        # ONLY real, populated date is SUBMITDT (spread 2021..2026). Left on
+        # auto-mapping, every Fort Lauderdale permit date was wrong — date-window
+        # filtering never worked and re-roof leads all showed the sync date. Pin
+        # the schema so issue_date resolves to SUBMITDT (the permit submission
+        # date — the best real proxy for when the work happened, since the true
+        # issue/CO dates are unpopulated in this feed).
+        "field_map": {
+            "permit_number": "PERMITID",
+            "type": "PERMITTYPE",
+            "status": "PERMITSTAT",
+            "description": "PERMITDESC",
+            "address": "FULLADDR",
+            "owner": "OWNERNAME",
+            "contractor": "CONTRACTOR",
+            "value": "ESTCOST",
+            "city": "OWNERCITY",
+            "issue_date": "SUBMITDT",
+        },
         "portal": "https://gis.fortlauderdale.gov/arcgis/rest/services/BuildingPermitTracker/BuildingPermitTracker/MapServer/0",
-        "note": "Broward issues permits per-municipality. Fort Lauderdale + unincorporated county are wired in; add more cities via PERMITS_EXTRA_SOURCES.",
+        "note": "Broward issues permits per-municipality. Fort Lauderdale + unincorporated county are wired in; add more cities via PERMITS_EXTRA_SOURCES. Date is SUBMITDT (submission) — COISSUE/APPROVEDT are null in this feed.",
     },
     {
         # City of Boca Raton publishes monthly Applied/Issued permit CSVs at a
