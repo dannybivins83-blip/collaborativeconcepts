@@ -204,6 +204,191 @@ DEFAULT_SOURCES = [
         "portal": "https://palmbeachgardensfl-energovweb.tylerhost.net/apps/selfservice",
         "note": "City of Palm Beach Gardens — Tyler EnerGov Civic Access public search API.",
     },
+    # Verified live by direct probe (DNS sweep of tylerhost.net tenant patterns +
+    # per-host search-API check). Every host below returned real permit rows; cities
+    # running Accela / eTRAKiT / Click2Gov instead were checked and rejected (no bulk
+    # feed). Miami Beach runs CSS at energovcss.miamibeachfl.gov but its search API
+    # returns HTTP 500 for everyone — including its own page with a full session — so
+    # it is deliberately NOT wired up; re-check if the city fixes it.
+    {
+        "id": "coral_gables",
+        "county": "Miami-Dade",
+        "label": "Miami-Dade — Coral Gables Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://coralgablesfl-energovpub.tylerhost.net",
+        "tenant": "coralgablesfl",
+        "city": "Coral Gables",
+        "portal": "https://coralgablesfl-energovpub.tylerhost.net/apps/selfservice",
+        "note": "City of Coral Gables — Tyler EnerGov Civic Access public search API (~20,831 permits reachable).",
+    },
+    {
+        "id": "hialeah",
+        "county": "Miami-Dade",
+        "label": "Miami-Dade — Hialeah Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://hialeahfl-energovpub.tylerhost.net",
+        "tenant": "hialeahfl",
+        "city": "Hialeah",
+        "portal": "https://hialeahfl-energovpub.tylerhost.net/apps/selfservice",
+        "note": "City of Hialeah — Tyler EnerGov Civic Access public search API (~15,438 permits reachable).",
+    },
+    {
+        "id": "miami_gardens",
+        "county": "Miami-Dade",
+        "label": "Miami-Dade — Miami Gardens Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://miamigardensfl-energovpub.tylerhost.net",
+        "tenant": "miamigardensfl",
+        "city": "Miami Gardens",
+        "portal": "https://miamigardensfl-energovpub.tylerhost.net/apps/selfservice",
+        "note": "City of Miami Gardens — Tyler EnerGov Civic Access public search API (~11,038 permits reachable).",
+    },
+    {
+        "id": "doral",
+        "county": "Miami-Dade",
+        "label": "Miami-Dade — Doral Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://doralfl-energovweb.tylerhost.net",
+        "tenant": "doralfl",
+        "city": "Doral",
+        "portal": "https://doralfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Doral — Tyler EnerGov Civic Access public search API (~8,964 permits reachable).",
+    },
+    {
+        "id": "miami_shores",
+        "county": "Miami-Dade",
+        "label": "Miami-Dade — Miami Shores Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://villageofmiamishoresfl-energovweb.tylerhost.net",
+        "tenant": "villageofmiamishoresfl",
+        "city": "Miami Shores",
+        "portal": "https://villageofmiamishoresfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Miami Shores — Tyler EnerGov Civic Access public search API (~4,839 permits reachable).",
+    },
+    {
+        "id": "surfside",
+        "county": "Miami-Dade",
+        "label": "Miami-Dade — Surfside Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://surfsidefl-energovpub.tylerhost.net",
+        "tenant": "surfsidefl",
+        "city": "Surfside",
+        "portal": "https://surfsidefl-energovpub.tylerhost.net/apps/selfservice",
+        "note": "City of Surfside — Tyler EnerGov Civic Access public search API (~800 permits reachable).",
+    },
+    {
+        "id": "homestead",
+        "county": "Miami-Dade",
+        "label": "Miami-Dade — Homestead Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://cityofhomesteadfl-energovweb.tylerhost.net",
+        "tenant": "cityofhomesteadfl",
+        "city": "Homestead",
+        "portal": "https://cityofhomesteadfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Homestead — Tyler EnerGov Civic Access public search API (~377 permits reachable).",
+    },
+    {
+        "id": "cutler_bay",
+        "county": "Miami-Dade",
+        "label": "Miami-Dade — Cutler Bay Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://townofcutlerbayfl-energovweb.tylerhost.net",
+        "tenant": "townofcutlerbayfl",
+        "city": "Cutler Bay",
+        "portal": "https://townofcutlerbayfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Cutler Bay — Tyler EnerGov Civic Access public search API (~15 permits reachable).",
+    },
+    {
+        "id": "pembroke_pines",
+        "county": "Broward",
+        "label": "Broward — Pembroke Pines Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://pembrokepinesfl-energovweb.tylerhost.net",
+        "tenant": "pembrokepinesfl",
+        "city": "Pembroke Pines",
+        "portal": "https://pembrokepinesfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Pembroke Pines — Tyler EnerGov Civic Access public search API (~17,335 permits reachable).",
+    },
+    {
+        "id": "miramar",
+        "county": "Broward",
+        "label": "Broward — Miramar Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://miramarfl-energovweb.tylerhost.net",
+        "tenant": "miramarfl",
+        "city": "Miramar",
+        "portal": "https://miramarfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Miramar — Tyler EnerGov Civic Access public search API (~16,961 permits reachable).",
+    },
+    {
+        "id": "sunrise",
+        "county": "Broward",
+        "label": "Broward — Sunrise Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://energov.sunrisefl.gov",
+        "tenant": "SunriseFL Prod",
+        "city": "Sunrise",
+        "path": "/EnerGov_Prod/SelfService",
+        "portal": "https://energov.sunrisefl.gov/EnerGov_Prod/SelfService",
+        "note": ("City of Sunrise self-hosts Tyler EnerGov Civic Access on its own domain "
+                 "(not tylerhost.net), so the CSS app sits under /EnerGov_Prod/SelfService. "
+                 "~16,396 permits reachable."),
+    },
+    {
+        "id": "oakland_park",
+        "county": "Broward",
+        "label": "Broward — Oakland Park Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://oaklandparkfl-energovweb.tylerhost.net",
+        "tenant": "oaklandparkfl",
+        "city": "Oakland Park",
+        "portal": "https://oaklandparkfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Oakland Park — Tyler EnerGov Civic Access public search API (~6,510 permits reachable).",
+    },
+    {
+        "id": "dania_beach",
+        "county": "Broward",
+        "label": "Broward — Dania Beach Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://cityofdaniabeachfl-energovweb.tylerhost.net",
+        "tenant": "cityofdaniabeachfl",
+        "city": "Dania Beach",
+        "portal": "https://cityofdaniabeachfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Dania Beach — Tyler EnerGov Civic Access public search API (~4 permits reachable).",
+    },
+    {
+        "id": "wellington",
+        "county": "Palm Beach",
+        "label": "Palm Beach — Wellington Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://wellingtonfl-energovweb.tylerhost.net",
+        "tenant": "wellingtonfl",
+        "city": "Wellington",
+        "portal": "https://wellingtonfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Wellington — Tyler EnerGov Civic Access public search API (~11,806 permits reachable).",
+    },
+    {
+        "id": "palm_beach_town",
+        "county": "Palm Beach",
+        "label": "Palm Beach — Palm Beach Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://townofpalmbeachfl-energovweb.tylerhost.net",
+        "tenant": "townofpalmbeachfl",
+        "city": "Palm Beach",
+        "portal": "https://townofpalmbeachfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Palm Beach — Tyler EnerGov Civic Access public search API (~10,805 permits reachable).",
+    },
+    {
+        "id": "riviera_beach",
+        "county": "Palm Beach",
+        "label": "Palm Beach — Riviera Beach Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://rivierabeachfl-energovweb.tylerhost.net",
+        "tenant": "rivierabeachfl",
+        "city": "Riviera Beach",
+        "portal": "https://rivierabeachfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Riviera Beach — Tyler EnerGov Civic Access public search API (~6,375 permits reachable).",
+    },
     {
         "id": "broward_uninc",
         "county": "Broward",
@@ -1271,7 +1456,14 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None, tags=Non
             tenant = source.get("tenant") or ""
             county = source.get("county", "")
             city_default = source.get("city")
-            url = host + "/apps/selfservice/api/energov/search/search"
+            # Tyler-hosted tenants all live at /apps/selfservice; cities that self-host
+            # CSS on their own domain use a site-specific IIS path (Sunrise is
+            # /EnerGov_Prod/SelfService). The tenant header is NOT part of routing —
+            # the server resolves the tenant from the Host, and ignores tenantName
+            # entirely (verified: bogus + empty values return identical data). We still
+            # send the real tenant for politeness/log hygiene.
+            base_path = (source.get("path") or "/apps/selfservice").rstrip("/")
+            url = host + base_path + "/api/energov/search/search"
             headers = {
                 "Content-Type": "application/json;charset=utf-8", "tenantId": "1",
                 "tenantName": tenant, "Tyler-TenantUrl": "Home",
@@ -1307,7 +1499,12 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None, tags=Non
                 if time.time() - started > SOURCE_BUDGET - 2:
                     break
                 try:
-                    resp = requests.post(url, json=_envelope(page), headers=headers, timeout=8)
+                    # 8s dropped Oakland Park entirely — it answers in 7.7-8.9s, so the
+                    # first page was a coin flip and a lost toss failed the whole source.
+                    # SOURCE_BUDGET still caps total time, so a slow host costs pages, not
+                    # an error.
+                    resp = requests.post(url, json=_envelope(page), headers=headers,
+                                         timeout=int(source.get("timeout", 11)))
                     if resp.status_code != 200:
                         break
                     result = (resp.json() or {}).get("Result") or {}
@@ -1737,7 +1934,11 @@ def run_search(params):
         infos = [{"id": "demo", "county": "all", "label": "Bundled sample data",
                   "status": "demo", "count": len(all_permits)}]
     elif sources:
-        with ThreadPoolExecutor(max_workers=min(4, len(sources))) as pool:
+        # Fan-out width matters now that a single county can carry ~10 sources (each
+        # EnerGov city is its own source). These workers are I/O-bound on remote HTTP,
+        # so width is cheap; at 4 wide, a 26-source sweep needed 7 waves x SOURCE_BUDGET
+        # and blew REQUEST_BUDGET, timing out the tail. 10 keeps the worst case ~3 waves.
+        with ThreadPoolExecutor(max_workers=min(10, len(sources))) as pool:
             futures = {pool.submit(fetch_source, s, FETCH_CAP, start_ms, end_ms,
                                    tags_filter): s
                        for s in sources}

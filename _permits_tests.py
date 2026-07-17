@@ -1165,8 +1165,14 @@ class EndpointTests(unittest.TestCase):
         self.assertEqual(set(ids),
                          {"mdc", "mdc_violations", "ftl", "boca", "broward_uninc",
                           "pbc", "martin",
-                          # Tyler EnerGov Civic Access cities (Palm Beach)
-                          "delray", "wpb", "pbg"})
+                          # Tyler EnerGov Civic Access cities — each is its own source
+                          # because FL cities permit independently of their county.
+                          "delray", "wpb", "pbg", "wellington", "palm_beach_town",
+                          "riviera_beach",
+                          "coral_gables", "hialeah", "miami_gardens", "doral",
+                          "miami_shores", "surfside", "homestead", "cutler_bay",
+                          "pembroke_pines", "miramar", "sunrise", "oakland_park",
+                          "dania_beach"})
         self.assertEqual(data["counties"], permits.COUNTIES)
         # every county still represented by at least one source
         counties = {s["county"] for s in data["sources"]}
