@@ -176,6 +176,9 @@
     </table>
   </div>
 
+  <!-- paging + honest completeness note (populated by renderCompleteness) -->
+  <div id="moreBar" style="display:none;margin-top:12px;text-align:center"></div>
+
   <footer>
     <strong>How this works.</strong> The backend pulls permits straight from each jurisdiction's public GIS
     feeds, auto-maps each one's schema (by field name, then by the actual data when names don't match), and tags
@@ -216,7 +219,9 @@
     sortKey: "issued_date",
     sortDir: -1,
     permits: [],
-    tagLabels: {}
+    tagLabels: {},
+    limit: 250,             // rows per page; aggregates always cover the full set
+    offset: 0
   };
 
   var $ = function(id){ return document.getElementById(id); };
@@ -268,9 +273,11 @@
       var el = document.createElement("span");
       el.className = "chip tagchip";
       el.textContent = t.label;
+      el.setAttribute("data-tag", t.key);
       el.onclick = function(){
         state.tags.has(t.key) ? state.tags.delete(t.key) : state.tags.add(t.key);
         el.classList.toggle("on", state.tags.has(t.key));
+        state.offset = 0;              // new filter = start from page 1
         load();
       };
       host.appendChild(el);
@@ -287,6 +294,8 @@
     if(state.q) p.set("q", state.q);
     if(state.minValue) p.set("min_value", state.minValue);
     if(state.demo) p.set("demo", "1");
+    p.set("limit", String(state.limit || 250));
+    if(state.offset) p.set("offset", String(state.offset));
     return p.toString();
   }
 
@@ -359,19 +368,74 @@
     $("statSources").textContent = total ? (okCount + "/" + total) : (demo ? "demo" : "–");
   }
 
+  // Aggregates come from the SERVER, computed over every matching row — never
+  // off `data.permits`, which is only the current page. (Summing the page is
+  // what used to make a capped view under-report its own totals.)
   function renderStats(data){
-    $("statCount").textContent = data.count.toLocaleString();
-    $("statWindow").textContent = (data.params.window || state.windowLabel) + " · " +
-      data.params.counties.join(", ");
-    var totalVal = 0, tagCounts = {};
-    data.permits.forEach(function(p){
-      totalVal += (p.value || 0);
-      (p.tags || []).forEach(function(t){ tagCounts[t] = (tagCounts[t] || 0) + 1; });
+    var st       = data.stats || {};
+    var tagCounts= st.tag_counts || {};
+    var total    = (data.total != null) ? data.total : (data.count || 0);
+    var shown    = state.permits.length;
+
+    $("statCount").textContent = total.toLocaleString();
+    var scope = (data.params.window || state.windowLabel) + " · " +
+                data.params.counties.join(", ");
+    $("statWindow").textContent = scope + (shown < total
+      ? " · showing " + shown.toLocaleString() + " of " + total.toLocaleString()
+      : "");
+
+    $("statValue").textContent = fmtMoney(st.total_value || 0);
+    var top = st.top_tag;
+    $("statTag").textContent      = top ? (state.tagLabels[top] || top) : "—";
+    $("statTagCount").textContent = top ? (tagCounts[top] || 0).toLocaleString() + " permits" : "";
+
+    renderTagCounts(tagCounts);
+    renderCompleteness(data, total, shown);
+  }
+
+  // Facet counts on the filter chips. Only shown when NO tag filter is active —
+  // once a tag is selected the server only fetched that tag's rows, so the other
+  // chips' counts would be co-occurrence, not their true totals. Better blank
+  // than wrong.
+  function renderTagCounts(counts){
+    var filtering = state.tags.size > 0;
+    document.querySelectorAll("#tagChips .tagchip").forEach(function(el){
+      var k = el.getAttribute("data-tag");
+      var lbl = state.tagLabels[k] || k;
+      var n = counts[k];
+      var show = (!filtering || state.tags.has(k)) && n != null;
+      el.textContent = show ? (lbl + "  " + n.toLocaleString()) : lbl;
+      el.style.opacity = (!filtering && !n) ? "0.45" : "";   // dim empty facets
     });
-    $("statValue").textContent = fmtMoney(totalVal);
-    var top = Object.keys(tagCounts).sort(function(a,b){ return tagCounts[b]-tagCounts[a]; })[0];
-    $("statTag").textContent = top ? (state.tagLabels[top] || top) : "—";
-    $("statTagCount").textContent = top ? (tagCounts[top] + " permits") : "";
+  }
+
+  // Say plainly when `total` is a floor rather than the exact count.
+  function renderCompleteness(data, total, shown){
+    var bar = $("moreBar");
+    if(!bar) return;
+    var bits = [];
+    if(data.capped){
+      bits.push('<b>Source cap reached</b> — at least one feed returned its ' +
+        (data.fetch_cap || "").toLocaleString() + '-row ceiling, so <b>' +
+        total.toLocaleString() + ' is a floor, not the exact count</b>. ' +
+        'Narrow the window or pick a project tag to see everything.');
+    }
+    if((data.timed_out_sources || []).length){
+      bits.push('<b>' + data.timed_out_sources.length + ' source(s) timed out</b> — totals exclude them.');
+    }
+    var note = bits.length ? '<div class="mini" style="margin-bottom:8px">⚠ ' + bits.join(" ") + '</div>' : "";
+    var more = data.has_more
+      ? '<button id="loadMore" class="chip">Load 250 more (' + shown.toLocaleString() +
+        ' of ' + total.toLocaleString() + ')</button>'
+      : (total ? '<span class="mini">All ' + total.toLocaleString() + ' shown.</span>' : "");
+    bar.innerHTML = note + more;
+    bar.style.display = (note || more) ? "block" : "none";
+    var btn = $("loadMore");
+    if(btn) btn.onclick = function(){
+      btn.disabled = true; btn.textContent = "Loading…";
+      state.offset = state.permits.length;
+      load(true);
+    };
   }
 
   function sortPermits(){
@@ -478,23 +542,27 @@
 
   // ---- data ----
   var inFlight = null;
-  function load(){
+  function load(append){
     if(inFlight) inFlight.abort();
     var ctl = new AbortController();
     inFlight = ctl;
-    $("rows").innerHTML = '<tr><td colspan="9" class="spinner">Loading permits…</td></tr>';
+    if(!append){
+      state.offset = 0;
+      $("rows").innerHTML = '<tr><td colspan="9" class="spinner">Loading permits…</td></tr>';
+    }
     $("errBanner").className = "banner err"; $("errBanner").style.display = "none";
     $("refresh").disabled = true;
     fetch("/api/permits/search?" + queryString(), {signal: ctl.signal})
       .then(function(r){ if(!r.ok) throw new Error("API " + r.status); return r.json(); })
       .then(function(data){
-        state.permits = data.permits || [];
+        var rows = data.permits || [];
+        state.permits = append ? state.permits.concat(rows) : rows;
         sortPermits();
         renderRows();
         renderStats(data);
         renderSources(data.sources, data.demo);
         // only claim "bundled examples below" when demo rows are actually shown
-        $("demoBanner").style.display = (data.demo && data.count > 0) ? "block" : "none";
+        $("demoBanner").style.display = (data.demo && state.permits.length > 0) ? "block" : "none";
       })
       .catch(function(e){
         if(e.name === "AbortError") return;

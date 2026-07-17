@@ -47,6 +47,15 @@ SOURCE_BUDGET = 12         # per-source total budget, seconds
 REQUEST_BUDGET = 45        # whole fan-out budget (must stay under vercel maxDuration=60)
 CACHE_TTL_RESULTS = 600    # search results, seconds
 CACHE_TTL_META = 12 * 3600 # layer metadata / item resolution / discovery
+# Per-source row ceiling for a single search. ArcGIS pages at 2000, so this is
+# ~3 pages — deliberately sized to be REACHABLE inside SOURCE_BUDGET, so the row
+# cap (which we can detect and report as `capped`) binds before the clock (which
+# we can't). Tag/date/county filters push into SQL (see _build_tag_where), so a
+# *filtered* view — e.g. re-roofs, one county, 12 months — normally lands well
+# under this and is therefore complete + exact. A wide unfiltered multi-county
+# sweep hits it and is reported as capped rather than silently truncated.
+# Tune without a deploy: PERMITS_FETCH_CAP (higher = deeper but slower).
+FETCH_CAP = max(500, min(100000, int(os.environ.get("PERMITS_FETCH_CAP") or 6000)))
 
 COUNTIES = ["Martin", "Palm Beach", "Broward", "Miami-Dade"]
 
@@ -136,19 +145,25 @@ DEFAULT_SOURCES = [
         "note": "Broward issues permits per-municipality. Fort Lauderdale + unincorporated county are wired in; add more cities via PERMITS_EXTRA_SOURCES.",
     },
     {
-        # City of Boca Raton publishes permits as monthly Excel files
-        # (AppliedPermits_YYYY-MM-DD.xlsx / IssuedPermits_*.xlsx) — the only
-        # queryable bulk permit data found for any Palm Beach jurisdiction.
+        # City of Boca Raton publishes monthly Applied/Issued permit CSVs at a
+        # stable URL pattern on apps.ci.boca-raton.fl.us (the myboca.us page is a
+        # JS-rendered CivicPlus iframe; the real data is the direct CSVs). This is
+        # the only queryable bulk permit feed found for any Palm Beach jurisdiction.
         "id": "boca",
         "county": "Palm Beach",
-        "label": "Palm Beach — Boca Raton Building Permits (published spreadsheets)",
-        "kind": "xlsx_index",
-        "index_url": "https://www.myboca.us/2487/AppliedIssued-Permits",
+        "label": "Palm Beach — Boca Raton Building Permits (monthly CSV)",
+        "kind": "csv_monthly",
         "city": "Boca Raton",
+        "csv_pattern": "https://apps.ci.boca-raton.fl.us/bp/PublicRequests/{feed}Permits/{feed}Permits_{ym}-01.csv",
+        "feeds": ["Applied", "Issued"],
+        "columns": {"permit": "PERMIT", "desc": "bpatds", "value": "PAMAOUNT",
+                    "owner": "OWNAME", "zip": "zipcode", "date": "APPLICATION_DATE",
+                    "addr_parts": ["ABABTX_", "ABCHCD", "ABACCD", "ABDFCD", "STSUFFIX"]},
+        "months_back": 18,
         "portal": "https://www.myboca.us/2487/AppliedIssued-Permits",
-        "note": ("City of Boca Raton posts monthly applied/issued permit spreadsheets. "
-                 "The engine downloads the recent files in the window and parses them. "
-                 "Covers Boca Raton only — a slice of Palm Beach County."),
+        "note": ("City of Boca Raton posts monthly Applied/Issued permit CSVs at a "
+                 "stable direct URL on apps.ci.boca-raton.fl.us; the engine pulls the "
+                 "recent months in the window. Covers Boca Raton — a slice of Palm Beach County."),
     },
     {
         "id": "broward_uninc",
@@ -243,6 +258,66 @@ TAG_RULES = [
     ("property_maint", "Property Maintenance",r"maintenance|overgrow|debris|trash|junk|derelict|abandon|nuisance"),
 ]
 _COMPILED_TAGS = [(key, label, re.compile(rx, re.I)) for key, label, rx in TAG_RULES]
+
+# Server-side SQL pre-filter for tag searches ("tag pushdown").
+#
+# Why: fetch_source pulls the newest N records of EVERY type and only then
+# applies the tag regex client-side. On a large feed (Miami-Dade: ~106k permits
+# in 18 months) the N-record cap is hit long before enough re-roofs accumulate,
+# so a tag search silently returned a fraction of the real matches (333 of
+# ~3.5k commercial re-roofs). Pre-filtering in SQL means the N rows we fetch
+# are already roof-ish, so the newest-first page holds the true recent matches.
+#
+# CONTRACT — each pattern list MUST be a strict SUPERSET of its TAG_RULES regex.
+# The regex still runs client-side and is the authority; SQL only narrows what
+# we fetch. A too-wide list costs a little bandwidth. A too-narrow one SILENTLY
+# DROPS LEADS. When you edit a regex above, re-check its superset here.
+#
+#   reroof  regex alternatives: re-roof | roof replac | roof recover | roof over
+#           | replac...roof | new roof | roof install  -> all contain "roof";
+#           the only outlier is tear[\s-]?off          -> '%TEAR%OFF%'.
+#   roofing regex alternatives: re-roof | roof(ing) | roof repl | flat/tile/metal
+#           roof -> all contain "roof"; outliers: shingle, tpo, torch down.
+#
+# Tags absent from this table are simply not pushed down (they keep the old
+# fetch-then-filter behavior), which is always correct — just slower.
+TAG_SQL_SUPERSETS = {
+    "reroof":  ["%ROOF%", "%TEAR%OFF%"],
+    "roofing": ["%ROOF%", "%SHINGLE%", "%TPO%", "%TORCH%"],
+}
+
+# Fields tag_permit() reads (see normalize_feature) — the pushdown must search
+# exactly these, or SQL and the regex would disagree about what was searched.
+TAG_SQL_FIELDS = ("description", "type")
+
+
+def _build_tag_where(tags, mapping):
+    """SQL that matches a SUPERSET of `tags` over the same text tag_permit()
+    reads. Returns None when pushdown can't be done safely — the caller then
+    falls back to fetch-everything-then-filter.
+
+    Pushdown is all-or-nothing: tags are OR-ed, so if even one requested tag has
+    no superset we must fetch wide or we'd drop that tag's rows entirely.
+    """
+    if not tags:
+        return None
+    pats = []
+    for t in tags:
+        sup = TAG_SQL_SUPERSETS.get(t)
+        if not sup:
+            return None          # unknown/unmapped tag -> no safe pushdown
+        pats.extend(sup)
+    cols = [mapping.get(c) for c in TAG_SQL_FIELDS]
+    cols = [c for c in cols if c]
+    if not cols:
+        return None              # nothing to search -> don't filter anything out
+    ors = []
+    for col in cols:
+        for p in dict.fromkeys(pats):        # de-dupe, keep order
+            if "'" in p or "'" in col:       # never build SQL from quoted input
+                return None
+            ors.append(f"UPPER({col}) LIKE '{p}'")
+    return "(" + " OR ".join(ors) + ")" if ors else None
 
 # Field synonym tables for schema auto-mapping (normalized: uppercase, alnum only)
 FIELD_SYNONYMS = {
@@ -571,7 +646,8 @@ def _and_where(a, b):
 
 
 def query_layer(layer_url, order_field=None, date_field=None, start_ms=None,
-                end_ms=None, record_count=2000, max_records=2000, base_where=None):
+                end_ms=None, record_count=2000, max_records=2000, base_where=None,
+                tag_where=None):
     """Pull records, preferring a SERVER-SIDE date filter (so historical windows
     return the right rows, not just the newest N) but degrading safely.
 
@@ -580,7 +656,13 @@ def query_layer(layer_url, order_field=None, date_field=None, start_ms=None,
     and — critically — if a filtered query returns 0 rows we fall through to an
     UNFILTERED newest-first pull and let the caller's client-side window filter
     do the work. That guarantees a layer with data never reports empty just
-    because its date column didn't accept our literal."""
+    because its date column didn't accept our literal.
+
+    `tag_where` (optional) narrows the fetch to a SUPERSET of the caller's tag
+    filter so the newest-N cap holds real matches instead of mostly-irrelevant
+    rows. It is a pure optimization: we run the normal ladder with it ANDed on,
+    and if that errors or comes back empty we re-run the ladder without it. So
+    the worst case is exactly the behavior we'd have had with no pushdown."""
     qurl = f"{layer_url}/query"
     page = min(record_count, 2000)
 
@@ -598,37 +680,57 @@ def query_layer(layer_url, order_field=None, date_field=None, start_ms=None,
     # open-case CASE_STATUS IN (...)) is ANDed onto every variant, and the base
     # filter alone is always the final fallback so a live layer never returns
     # empty on a date-dialect miss while still honoring the base filter.
-    base = (base_where or "1=1").strip() or "1=1"
-    where_options = []
-    if date_field and (start_ms is not None or end_ms is not None):
-        for style in ("ts", "epoch", "date"):  # cover all ArcGIS date dialects
-            where_options.append(_and_where(base, _build_date_where(date_field, start_ms, end_ms, style)))
-    where_options.append(base)
+    def _ladder(base):
+        where_options = []
+        if date_field and (start_ms is not None or end_ms is not None):
+            for style in ("ts", "epoch", "date"):  # cover all ArcGIS date dialects
+                where_options.append(_and_where(base, _build_date_where(date_field, start_ms, end_ms, style)))
+        where_options.append(base)
 
-    chosen_where, use_order, first = None, bool(order_field), None
-    last_err = None
-    for i, where in enumerate(where_options):
-        is_last = (i == len(where_options) - 1)
-        uo = bool(order_field)
-        data = fetch_page(where, 0, uo)
-        if data.get("error") and uo:            # retry once without ORDER BY
-            uo = False
+        last_err = None
+        for i, where in enumerate(where_options):
+            is_last = (i == len(where_options) - 1)
+            uo = bool(order_field)
             data = fetch_page(where, 0, uo)
-        if data.get("error"):
-            last_err = data["error"].get("message", "error")
-            continue
-        feats = data.get("features") or []
-        # accept this WHERE if it yielded rows, or it's the final fallback (the
-        # base filter alone) — so a genuinely-empty result is still honored.
-        if feats or is_last:
-            chosen_where, use_order, first = where, uo, data
-            break
+            if data.get("error") and uo:            # retry once without ORDER BY
+                uo = False
+                data = fetch_page(where, 0, uo)
+            if data.get("error"):
+                last_err = data["error"].get("message", "error")
+                continue
+            feats = data.get("features") or []
+            # accept this WHERE if it yielded rows, or it's the final fallback (the
+            # base filter alone) — so a genuinely-empty result is still honored.
+            if feats or is_last:
+                return where, uo, data, None
+        return None, None, None, last_err
+
+    base = (base_where or "1=1").strip() or "1=1"
+    chosen_where = use_order = first = None
+    last_err = None
+    if tag_where:
+        chosen_where, use_order, first, last_err = _ladder(_and_where(base, tag_where))
+        # An empty pushdown result is ambiguous (no matches vs. a LIKE/UPPER the
+        # server took but applied oddly), so don't trust it — redo the ladder
+        # wide. Costs one extra round-trip in the rare genuinely-empty case.
+        if first is not None and not (first.get("features") or []):
+            chosen_where = use_order = first = None
+    if first is None:
+        chosen_where, use_order, first, err2 = _ladder(base)
+        last_err = err2 or last_err
     if first is None:
         raise RuntimeError(f"query error: {last_err or 'no working query variant'}")
 
     features = list(first.get("features") or [])
     data, offset = first, page
+    paging_started = time.time()
     while len(features) < max_records and data.get("exceededTransferLimit"):
+        # Safety net: a deep pull must never eat the whole serverless budget.
+        # FETCH_CAP is sized to be reachable inside SOURCE_BUDGET, so in practice
+        # the row cap binds first (and is reported as `capped`) — this only
+        # catches a pathologically slow layer.
+        if time.time() - paging_started > SOURCE_BUDGET:
+            break
         data = fetch_page(chosen_where, offset, use_order)
         if data.get("error"):
             break
@@ -920,8 +1022,12 @@ def normalize_feature(feature, mapping, source):
 # --------------------------------------------------------------------------
 # Per-source fetch
 # --------------------------------------------------------------------------
-def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
-    """Returns (permits, info). Never raises."""
+def fetch_source(source, record_count=2000, start_ms=None, end_ms=None, tags=None):
+    """Returns (permits, info). Never raises.
+
+    `tags` is the caller's tag filter, used only to pre-filter the fetch in SQL
+    (see _build_tag_where). The authoritative tag filter still runs client-side.
+    """
     info = {"id": source.get("id"), "county": source.get("county"),
             "label": source.get("label"), "status": "error", "count": 0,
             "note": source.get("note"), "portal": source.get("portal")}
@@ -1037,6 +1143,84 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
             info["error"] = diag.get("error", "xlsx index returned no rows")
             return [], info
 
+        # Jurisdictions that publish permits as monthly CSV files at a stable
+        # URL pattern (e.g. City of Boca Raton). Deterministic — no scraping.
+        if source.get("kind") == "csv_monthly":
+            from datetime import datetime as _dt, timezone as _tz
+            end_dt = _dt.fromtimestamp((end_ms or int(time.time() * 1000)) / 1000, tz=_tz.utc)
+            start_dt = _dt.fromtimestamp((start_ms or int((time.time() - 730 * 86400) * 1000)) / 1000, tz=_tz.utc)
+            cols = source.get("columns", {})
+            pat = source.get("csv_pattern", "")
+            feeds = source.get("feeds", ["Applied"])
+            county = source.get("county", "")
+            city_default = source.get("city")
+            addr_parts = cols.get("addr_parts", [])
+            start_first = _dt(start_dt.year, start_dt.month, 1, tzinfo=_tz.utc)
+
+            def _mdy_iso(s):
+                mm = re.match(r"\s*(\d{1,2})/(\d{1,2})/(\d{4})", s or "")
+                return "%04d-%02d-%02d" % (int(mm.group(3)), int(mm.group(1)), int(mm.group(2))) if mm else None
+
+            months, y, m = [], end_dt.year, end_dt.month
+            for _ in range(int(source.get("months_back", 18))):
+                first = _dt(y, m, 1, tzinfo=_tz.utc)
+                if start_first <= first <= end_dt:
+                    months.append("%04d-%02d" % (y, m))
+                m -= 1
+                if m == 0:
+                    m, y = 12, y - 1
+            urls = [(feed, pat.format(feed=feed, ym=ym)) for feed in feeds for ym in months]
+
+            def _pull(t):
+                feed, url = t
+                if time.time() - started > SOURCE_BUDGET - 2:
+                    return None
+                try:
+                    resp = requests.get(url, timeout=6, headers={"User-Agent": "Mozilla/5.0"})
+                    if resp.status_code != 200 or len(resp.content) < 120:
+                        return None
+                    txt = resp.content.decode("utf-8-sig", errors="ignore")
+                    return [(feed, row) for row in csv.DictReader(io.StringIO(txt))]
+                except Exception:
+                    return None
+
+            permits, files_ok, files_err = [], 0, 0
+            with ThreadPoolExecutor(max_workers=8) as _ex:
+                for res in _ex.map(_pull, urls):
+                    if res is None:
+                        files_err += 1
+                        continue
+                    files_ok += 1
+                    for feed, row in res:
+                        desc = (row.get(cols.get("desc", "")) or "").strip()
+                        addr = re.sub(r"\s+", " ", " ".join((row.get(c) or "").strip() for c in addr_parts)).strip()
+                        iso = _mdy_iso(row.get(cols.get("date", "")))
+                        is_issued = str(feed).lower().startswith("issue")
+                        permits.append({
+                            "source_id": source.get("id"), "county": county,
+                            "category": source.get("category", "permit"),
+                            "permit_number": (row.get(cols.get("permit", "")) or "").strip(),
+                            "type": None, "status": feed,
+                            "description": desc, "address": addr,
+                            "city": city_default, "zip": (row.get(cols.get("zip", "")) or "").strip(),
+                            "issued_date": iso if is_issued else None,
+                            "applied_date": iso if not is_issued else None,
+                            "value": _to_float(row.get(cols.get("value", ""))),
+                            "contractor": None,
+                            "owner": (row.get(cols.get("owner", "")) or "").strip() or None,
+                            "lat": None, "lon": None,
+                            "tags": tag_permit(desc),
+                            "appraiser_url": APPRAISER_SEARCH.get(county),
+                        })
+            info["csv_monthly"] = {"pattern": pat, "months": len(months),
+                                   "feeds": feeds, "files_ok": files_ok, "files_err": files_err}
+            if permits:
+                info.update({"status": "ok", "count": len(permits)})
+                return permits, info
+            info["status"] = "error"
+            info["error"] = "csv_monthly: no rows (files_ok=%d files_err=%d)" % (files_ok, files_err)
+            return [], info
+
         # Build candidate layer URLs from every strategy the source declares,
         # in priority order: pinned direct layers -> resolved items ->
         # catalog discovery. This lets a source pin a known-good endpoint AND
@@ -1139,10 +1323,30 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None):
                         and not mapping.get("permit_number"):
                     raise RuntimeError("layer has no recognizable permit fields")
                 order_field = mapping.get("issue_date") or mapping.get("applied_date")
+                # The pushdown is built HERE, but refine_mapping_with_samples()
+                # below runs AFTER the fetch and can still recover `description`
+                # (it fills missing slots; it never touches `type`). Pushing down
+                # while `description` is unmapped would filter on `type` alone
+                # while tag_permit() later reads description+type — a strict
+                # SUBSET of the tagged fields, i.e. the silent-lead-loss the
+                # TAG_SQL_SUPERSETS contract forbids. So only push down once the
+                # tagged fields can no longer change: either the pinned field_map
+                # applied in full (refinement is skipped), or description is
+                # already mapped.
+                tag_where = None
+                if _map_fully_applied or mapping.get("description"):
+                    tag_where = _build_tag_where(tags, mapping)
+                if tag_where:
+                    info["tag_pushdown"] = tag_where
                 feats = query_layer(layer_url, order_field=order_field,
                                     date_field=order_field, start_ms=start_ms,
                                     end_ms=end_ms, record_count=record_count,
-                                    base_where=source.get("where_clause"))
+                                    # the caller's ceiling must reach the pager —
+                                    # without this it silently defaulted to 2000
+                                    # and truncated while reporting "not capped".
+                                    max_records=record_count,
+                                    base_where=source.get("where_clause"),
+                                    tag_where=tag_where)
                 # data-driven refinement: recover fields the name-mapper missed
                 # and fix an implausible value column, using the real sample.
                 # Skip only when the explicit field_map applied IN FULL to this
@@ -1375,6 +1579,7 @@ def run_search(params):
         limit = max(1, min(5000, int(params.get("limit") or 250)))
     except Exception:
         limit = 250
+    offset = _clamp_int(params.get("offset"), 0, 0, 1000000)
     tags_filter = [t.strip() for t in (params.get("tags") or "").split(",") if t.strip()]
     q = (params.get("q") or "").strip().lower()
     min_value = _to_float(params.get("min_value"))
@@ -1382,7 +1587,7 @@ def run_search(params):
     source_filter = (params.get("source") or "").strip()
     category = (params.get("category") or "").strip().lower()  # "", permit, violation
 
-    cache_key = (f"search:{sorted(counties)}:{start_iso}:{end_iso}:{limit}:{tags_filter}"
+    cache_key = (f"search:{sorted(counties)}:{start_iso}:{end_iso}:{limit}:{offset}:{tags_filter}"
                  f":{q}:{min_value}:{force_demo}:{source_filter}:{category}")
     cached = _cache_get(cache_key)
     if cached:
@@ -1401,7 +1606,8 @@ def run_search(params):
                   "status": "demo", "count": len(all_permits)}]
     elif sources:
         with ThreadPoolExecutor(max_workers=min(4, len(sources))) as pool:
-            futures = {pool.submit(fetch_source, s, 2000, start_ms, end_ms): s
+            futures = {pool.submit(fetch_source, s, FETCH_CAP, start_ms, end_ms,
+                                   tags_filter): s
                        for s in sources}
             done = set()
             try:
@@ -1463,19 +1669,60 @@ def run_search(params):
     filtered = [p for p in all_permits if keep(p)]
     filtered.sort(key=lambda p: (p.get("issued_date") or p.get("applied_date") or ""),
                   reverse=True)
-    filtered = filtered[:limit]
+
+    # ---- aggregates over the FULL match set, never the page ----------------
+    # These used to be computed by the client off the truncated rows, so a
+    # capped view silently under-reported its own totals. Everything below is
+    # derived from `filtered` BEFORE pagination.
+    total = len(filtered)
+    total_value = 0.0
+    tag_counts = {}
+    for p in filtered:
+        v = p.get("value")
+        if isinstance(v, (int, float)):
+            total_value += v
+        for t in (p.get("tags") or []):
+            tag_counts[t] = tag_counts.get(t, 0) + 1
+    top_tag = max(tag_counts.items(), key=lambda kv: (kv[1], kv[0]))[0] if tag_counts else None
+
+    # A source that came back holding exactly its ceiling was almost certainly
+    # truncated upstream — say so instead of implying the total is complete.
+    capped_sources = [i.get("id") for i in infos
+                      if i.get("status") == "ok" and (i.get("count") or 0) >= FETCH_CAP]
+    timed_out = [i.get("id") for i in infos if i.get("status") == "timeout"]
+    complete = not capped_sources and not timed_out
+
+    page = filtered[offset:offset + limit]
 
     result = {
         "ok": True,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "params": {"counties": counties, "window": window_label,
                    "start": start_iso, "end": end_iso, "tags": tags_filter, "q": q,
-                   "min_value": min_value, "limit": limit},
+                   "min_value": min_value, "limit": limit, "offset": offset},
         "demo": demo_used,
         "sources": infos,
         "dropped_out_of_state": dropped_geo[0],
-        "count": len(filtered),
-        "permits": filtered,
+        # pagination
+        "total": total,                     # every row that matched the filters
+        "returned": len(page),              # rows in THIS page
+        "offset": offset,
+        "limit": limit,
+        "has_more": (offset + len(page)) < total,
+        # honest completeness signal
+        "complete": complete,               # False => `total` is a floor, not exact
+        "capped": bool(capped_sources),
+        "capped_sources": capped_sources,
+        "timed_out_sources": timed_out,
+        "fetch_cap": FETCH_CAP,
+        # aggregates over ALL matches (drive the stat tiles + filter chips)
+        "stats": {
+            "total_value": round(total_value, 2),
+            "tag_counts": tag_counts,       # facet count per project tag
+            "top_tag": top_tag,
+        },
+        "count": len(page),                 # back-compat: older clients read count
+        "permits": page,
     }
     _cache_put(cache_key, result, CACHE_TTL_RESULTS)
     return result
