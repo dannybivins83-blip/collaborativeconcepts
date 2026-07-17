@@ -476,6 +476,19 @@ TAG_RULES = [
     ("mechanical",     "Mechanical",         r"mechanical|exhaust\s*hood|ventilation"),
     ("landscape",      "Landscape / Tree",   r"landscap|irrigation|\btree\b"),
     ("commercial",     "Commercial",         r"commercial|office|retail|restaurant|warehouse"),
+    # ---- WWS building-type DISQUALIFIERS ---------------------------------
+    # WWS (roof anchors / davits / OSHA fall protection) only applies to
+    # buildings where crews work at height on a FLAT roof — mid/high-rise
+    # multifamily, condos, and commercial. A house or low-rise townhome has a
+    # PITCHED roof and no rooftop fall-protection need, so its re-roof is a junk
+    # WWS lead (e.g. 521 Silver Beach Rd — a 1980 shingle-roof single-family
+    # home that leaked into the list). These tags are the highest-PRECISION
+    # signal we can read from permit text alone (units/use-code aren't in the
+    # feed — those get filtered later by the appraiser-enrichment step). A flat
+    # commercial/condo roof is NEVER shingle/tile/metal, so a pitched-roof
+    # material is a reliable "not WWS" marker. See wws_disqualified().
+    ("pitched_roof",   "Pitched Roof (not WWS)", r"shingle|tile\s*roof|roof\s*tile|metal\s*roof|standing\s*seam|slope[d]?\s*roof|pitched\s*roof"),
+    ("single_family",  "Single-Family (not WWS)", r"single[\s-]*family|\bsfr\b|\bsfd\b|one[\s-]*family|\bduplex\b|town[\s-]*(house|home)|detached\s*(dwelling|residence|home|sfr)"),
     # code-violation-oriented tags (high value for structural/WWS lead-gen)
     ("unsafe_structure","Unsafe Structure",  r"unsafe\s*(structure|building|condition)|structurally\s*(unsound|deficient|compromised)|\bunsound\b|collaps|dilapidat|derelict|condemn"),
     ("no_permit",      "Work w/o Permit",    r"without\s*(a\s*)?permit|\bunpermitted\b|expired\s*permit|no\s*permit\b|illegal\s*(construction|work|structure)"),
@@ -1193,6 +1206,21 @@ def _out_of_florida(p):
 def tag_permit(text):
     tags = [key for key, _label, rx in _COMPILED_TAGS if rx.search(text or "")]
     return tags
+
+
+# Tags that mark a permit as NOT a WWS roof-anchor lead (pitched-roof material or
+# single-family/low-rise building type — no rooftop fall-protection surface).
+WWS_DISQUALIFY_TAGS = frozenset({"pitched_roof", "single_family"})
+
+
+def wws_disqualified(permit):
+    """True if this permit is a house / low-rise / pitched-roof job that can't be
+    a WWS (roof-anchor / davit / OSHA fall-protection) lead. Text-based only —
+    catches the high-confidence residential markers the feed actually carries.
+    Buildings with no building-type signal in the text are NOT disqualified here
+    (unknown != residential); the offline appraiser step filters those on
+    units/use-code. Keeps single-family reroofs off the WWS lead list at source."""
+    return bool(WWS_DISQUALIFY_TAGS & set(permit.get("tags") or []))
 
 
 def normalize_feature(feature, mapping, source):
@@ -2090,10 +2118,19 @@ def run_reroof_leads(params):
     args.setdefault("limit", "500")
     args["tags"] = "reroof"            # force the high-signal tag
     args.pop("category", None)         # permits only, never violations
+    # WWS = roof anchors on FLAT commercial/multifamily roofs. Drop single-family
+    # & pitched-roof (shingle/tile/metal) re-roofs by default — a house re-roof is
+    # a junk anchor-recert lead. Pass ?include_residential=1 to see everything.
+    include_res = str(params.get("include_residential") or "") in ("1", "true", "yes")
+    args.pop("include_residential", None)
     data = run_search(args)
     leads = []
+    filtered_residential = 0
     for p in data.get("permits", []):
         if not p.get("address"):
+            continue
+        if not include_res and wws_disqualified(p):
+            filtered_residential += 1
             continue
         leads.append({
             "address": p.get("address"),
@@ -2116,6 +2153,7 @@ def run_reroof_leads(params):
         "demo": data.get("demo"),
         "sources": data.get("sources"),
         "count": len(leads),
+        "filtered_residential": filtered_residential,
         "leads": leads,
     }
 
@@ -2130,7 +2168,10 @@ def register_permits_routes(app):
     def permits_reroof():
         """Post-re-roof anchor-recertification lead list. Recent full re-roof
         permits in Miami-Dade + Broward (override with ?counties= &months= &limit=
-        &city= via q). Each lead carries a ready pitch line."""
+        &city= via q). Single-family & pitched-roof (shingle/tile/metal) re-roofs
+        are excluded by default (a house re-roof is not a WWS lead) — the count of
+        those dropped is returned as filtered_residential; pass
+        ?include_residential=1 to keep them. Each lead carries a ready pitch line."""
         return jsonify(run_reroof_leads(request.args))
 
     @app.route("/api/permits/search", methods=["GET"])

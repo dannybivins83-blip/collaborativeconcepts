@@ -118,6 +118,60 @@ class TagEngineTests(unittest.TestCase):
         keys = [k for k, _, _ in permits.TAG_RULES]
         self.assertEqual(len(keys), len(set(keys)), "duplicate tag keys")
 
+    def test_wws_disqualifier_tags_fire(self):
+        # pitched-roof material == residential low-rise == not a WWS anchor lead
+        for txt in ["RE-ROOF SHINGLES", "REPLACE TILE ROOF", "NEW METAL ROOF",
+                    "STANDING SEAM ROOF", "SLOPED ROOF REPLACEMENT"]:
+            with self.subTest(txt=txt):
+                self.assertIn("pitched_roof", permits.tag_permit(txt))
+        for txt in ["REROOF SINGLE FAMILY RESIDENCE", "SFR ROOF REPLACEMENT",
+                    "DUPLEX RE-ROOF", "TOWNHOME ROOF", "TOWNHOUSE REROOF"]:
+            with self.subTest(txt=txt):
+                self.assertIn("single_family", permits.tag_permit(txt))
+
+    def test_flat_commercial_not_disqualified(self):
+        # the real WWS leads must NOT trip a disqualifier
+        for txt in ["RE-ROOF EXISTING FLAT ROOF TPO", "ROOF RECOVER MODIFIED BITUMEN",
+                    "BUILT-UP ROOF REPLACEMENT", "REPLACE EXISTING ROOF", "REROOF"]:
+            with self.subTest(txt=txt):
+                tags = permits.tag_permit(txt)
+                self.assertFalse(permits.WWS_DISQUALIFY_TAGS & set(tags), tags)
+                self.assertFalse(permits.wws_disqualified({"tags": tags}))
+
+    def test_wws_disqualified_helper(self):
+        self.assertTrue(permits.wws_disqualified({"tags": ["reroof", "pitched_roof"]}))
+        self.assertTrue(permits.wws_disqualified({"tags": ["single_family"]}))
+        self.assertFalse(permits.wws_disqualified({"tags": ["reroof", "commercial"]}))
+        self.assertFalse(permits.wws_disqualified({"tags": []}))
+        self.assertFalse(permits.wws_disqualified({}))
+
+    def test_reroof_leads_excludes_residential(self):
+        # run_reroof_leads must drop single-family / pitched-roof permits by default
+        fake = {
+            "generated_at": "2026-07-17T00:00:00Z",
+            "params": {"window": "18 months", "counties": ["Miami-Dade"]},
+            "demo": False, "sources": [],
+            "permits": [
+                {"address": "100 Ocean Dr", "county": "Miami-Dade", "tags": ["reroof"],
+                 "description": "RE-ROOF FLAT TPO", "type": "RE-ROOF"},
+                {"address": "521 Silver Beach Rd", "county": "Palm Beach",
+                 "tags": ["reroof", "pitched_roof", "single_family"],
+                 "description": "REROOF SHINGLES SINGLE FAMILY", "type": "RE-ROOF"},
+                {"address": "7 Palm Ct", "county": "Miami-Dade",
+                 "tags": ["reroof", "pitched_roof"], "description": "TILE ROOF", "type": "RE-ROOF"},
+            ],
+        }
+        with mock.patch.object(permits, "run_search", return_value=fake):
+            res = permits.run_reroof_leads({"counties": "Miami-Dade"})
+            self.assertEqual(res["count"], 1)
+            self.assertEqual(res["filtered_residential"], 2)
+            self.assertEqual(res["leads"][0]["address"], "100 Ocean Dr")
+            # override brings them all back
+            res2 = permits.run_reroof_leads({"counties": "Miami-Dade",
+                                             "include_residential": "1"})
+            self.assertEqual(res2["count"], 3)
+            self.assertEqual(res2["filtered_residential"], 0)
+
 
 class CoercionTests(unittest.TestCase):
     def test_epoch_ms(self):
