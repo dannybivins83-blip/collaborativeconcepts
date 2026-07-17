@@ -13,9 +13,9 @@
 <meta property="og:url" content="https://palmbeachwakeboats.com/pages/fishing-charters-palm-beach">
 <meta property="og:image" content="https://palmbeachwakeboats.com/img/trident-charters-boat.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="/fonts/hanken-grotesk-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/space-grotesk-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
 <script>
 /* ============================================================
    CONFIG — edit these lines, nothing else needs touching
@@ -495,10 +495,14 @@ document.getElementById('tripForm').addEventListener('submit',function(e){
     date:document.getElementById('f_date').value,
     group:document.getElementById('f_group').value,
     notes:document.getElementById('f_notes').value,
-    _subject:'New fishing/cruise charter request — '+CONFIG.CAPTAIN_NAME,
-    _template:'table'
+    consent:'yes ('+new Date().toISOString()+')',
+    consent_language:(function(){var c=document.getElementById('f_consent');return (c.closest('label')||c.parentElement).innerText.replace(/\s+/g,' ').trim();})(),
+    page:location.href,
+    _subject:'NEW LEAD (fishing/cruise) — '+document.getElementById('f_name').value+' · '+document.getElementById('f_phone').value,
+    _template:'table',
+    _autoresponse:"Thanks for reaching out to Palm Beach Wake Boats — we've got your request and we'll personally call or text you shortly, usually within the hour. Need us sooner? Call or text (561) 475-8615. See you on the water!"
   };
-  var done=function(){clearTimeout(to);form.style.display='none';document.getElementById('ok').style.display='block';};
+  var done=function(){clearTimeout(to);form.style.display='none';document.getElementById('ok').style.display='block';if(window.gtag)gtag('event','generate_lead',{form_id:'fishing_charter'});};
   var fail=function(){clearTimeout(to);btn.disabled=false;btn.innerHTML='Send my request →';
     err.innerHTML="That didn't go through — please call or text <a href='tel:"+CONFIG.PHONE_TEL+"'>"+CONFIG.PHONE_DISPLAY+"</a>, or email <a href='mailto:"+CONFIG.LEAD_EMAIL+"?subject="+encodeURIComponent(payload._subject)+"'>"+CONFIG.LEAD_EMAIL+"</a>.";
     err.style.display='block';};

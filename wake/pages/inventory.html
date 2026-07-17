@@ -13,9 +13,9 @@
 <meta property="og:url" content="https://palmbeachwakeboats.com/pages/inventory">
 <meta property="og:image" content="https://palmbeachwakeboats.com/img/mastercraft-water.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="/fonts/hanken-grotesk-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/space-grotesk-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
 <script>
 /* ============================================================
    CONFIG — edit these lines, nothing else needs touching
@@ -28,6 +28,8 @@ const CONFIG = {
   DEALER_NAME:   "South Florida Marine",
   GA_ID:         ""
 };
+if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.googletagmanager.com/gtag/js?id='+CONFIG.GA_ID;gs.async=1;document.head.appendChild(gs);
+  window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',CONFIG.GA_ID);}
 </script>
 <style>
   :root{
@@ -328,8 +330,9 @@ inqForm.addEventListener('submit',function(e){
   var payload={name:document.getElementById('i_name').value,phone:document.getElementById('i_phone').value,
     email:document.getElementById('i_email').value,message:document.getElementById('i_msg').value,
     boat:document.getElementById('i_boat').value,stock:document.getElementById('i_stock').value,
-    _subject:document.getElementById('i_subject').value,_template:'table'};
-  var done=function(){clearTimeout(to);inqForm.style.display='none';document.getElementById('mOk').style.display='block';};
+    consent:'yes ('+new Date().toISOString()+')',consent_language:(function(){var c=document.getElementById('i_consent');return (c.closest('label')||c.parentElement).innerText.replace(/\s+/g,' ').trim();})(),page:location.href,
+    _subject:'NEW LEAD (inventory) — '+document.getElementById('i_name').value+' · '+document.getElementById('i_phone').value,_template:'table',_autoresponse:"Thanks for reaching out to Palm Beach Wake Boats — we've got your request and we'll personally call or text you shortly, usually within the hour. Need us sooner? Call or text (561) 475-8615. See you on the water!"};
+  var done=function(){clearTimeout(to);inqForm.style.display='none';document.getElementById('mOk').style.display='block';if(window.gtag)gtag('event','generate_lead',{form_id:'inventory_inquiry'});};
   var fail=function(){clearTimeout(to);btn.disabled=false;btn.innerHTML='Send my request →';
     err.innerHTML="That didn't go through — please call or text <a href='tel:"+CONFIG.PHONE_TEL+"'>"+CONFIG.PHONE_DISPLAY+"</a>, or email <a href='mailto:"+CONFIG.LEAD_EMAIL+"?subject="+encodeURIComponent(payload._subject)+"'>"+CONFIG.LEAD_EMAIL+"</a>.";
     err.style.display='block';};
