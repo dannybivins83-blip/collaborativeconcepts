@@ -165,6 +165,45 @@ DEFAULT_SOURCES = [
                  "stable direct URL on apps.ci.boca-raton.fl.us; the engine pulls the "
                  "recent months in the window. Covers Boca Raton — a slice of Palm Beach County."),
     },
+    # Tyler EnerGov "Civic Self Service" exposes a public JSON search API at
+    # <base_url>/apps/selfservice/api/energov/search/search — no auth, no cookies.
+    # Several Palm Beach cities run it, which is the only bulk permit data for
+    # those jurisdictions (the county itself publishes no queryable feed).
+    {
+        "id": "delray",
+        "county": "Palm Beach",
+        "label": "Palm Beach — Delray Beach Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://cityofdelraybeachfl-energovweb.tylerhost.net",
+        "tenant": "EnerGovProd",
+        "city": "Delray Beach",
+        "portal": "https://cityofdelraybeachfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": ("City of Delray Beach runs Tyler EnerGov Civic Access; the engine queries its "
+                 "public search API by issue date. Records carry no job value (the search API "
+                 "omits it) — value requires the per-permit detail endpoint."),
+    },
+    {
+        "id": "wpb",
+        "county": "Palm Beach",
+        "label": "Palm Beach — West Palm Beach Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://westpalmbeachfl-energovpub.tylerhost.net",
+        "tenant": "WestPalmBeachFLProd",
+        "city": "West Palm Beach",
+        "portal": "https://westpalmbeachfl-energovpub.tylerhost.net/apps/selfservice",
+        "note": "City of West Palm Beach — Tyler EnerGov Civic Access public search API.",
+    },
+    {
+        "id": "pbg",
+        "county": "Palm Beach",
+        "label": "Palm Beach — Palm Beach Gardens Building Permits (EnerGov Civic Access)",
+        "kind": "energov_css",
+        "base_url": "https://palmbeachgardensfl-energovweb.tylerhost.net",
+        "tenant": "palmbeachgardensfl",
+        "city": "Palm Beach Gardens",
+        "portal": "https://palmbeachgardensfl-energovweb.tylerhost.net/apps/selfservice",
+        "note": "City of Palm Beach Gardens — Tyler EnerGov Civic Access public search API.",
+    },
     {
         "id": "broward_uninc",
         "county": "Broward",
@@ -1233,6 +1272,99 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None, tags=Non
                 return permits, info
             info["status"] = "error"
             info["error"] = "csv_monthly: no rows (files_ok=%d files_err=%d)" % (files_ok, files_err)
+            return [], info
+
+        if source.get("kind") == "energov_css":
+            # Tyler EnerGov Civic Self Service public search API. The envelope must
+            # carry every *Criteria block (the server 500s if one is missing), but
+            # each block only needs its paging keys — model binding nulls the rest.
+            from datetime import datetime as _dt, timezone as _tz
+            end_dt = _dt.fromtimestamp((end_ms or int(time.time() * 1000)) / 1000, tz=_tz.utc)
+            start_dt = _dt.fromtimestamp((start_ms or int((time.time() - 730 * 86400) * 1000)) / 1000, tz=_tz.utc)
+            host = (source.get("base_url") or "").rstrip("/")
+            tenant = source.get("tenant") or ""
+            county = source.get("county", "")
+            city_default = source.get("city")
+            url = host + "/apps/selfservice/api/energov/search/search"
+            headers = {
+                "Content-Type": "application/json;charset=utf-8", "tenantId": "1",
+                "tenantName": tenant, "Tyler-TenantUrl": "Home",
+                "Tyler-Tenant-Culture": "en-US", "User-Agent": "Mozilla/5.0",
+            }
+            page_size = int(source.get("page_size", 50))
+            max_pages = int(source.get("max_pages", 12))
+
+            def _envelope(page):
+                pg = {"PageNumber": page, "PageSize": page_size,
+                      "SortAscending": False, "SearchMainAddress": False}
+                blank = lambda: dict(pg)
+                return {
+                    "Keyword": "", "ExactMatch": True, "SearchModule": 2, "FilterModule": 1,
+                    "SearchMainAddress": False, "PageNumber": page, "PageSize": page_size,
+                    "SortBy": "IssueDate", "SortAscending": False,
+                    "PermitCriteria": dict(
+                        pg, PermitTypeId="none", PermitStatusId="none", SortBy="IssueDate",
+                        EnableDescriptionSearch=False,
+                        IssueDateFrom=start_dt.strftime("%Y-%m-%dT00:00:00.000Z"),
+                        IssueDateTo=end_dt.strftime("%Y-%m-%dT23:59:59.000Z"),
+                    ),
+                    "PlanCriteria": blank(), "InspectionCriteria": blank(),
+                    "CodeCaseCriteria": blank(), "RequestCriteria": blank(),
+                    "BusinessLicenseCriteria": blank(), "ProfessionalLicenseCriteria": blank(),
+                    "LicenseCriteria": blank(), "ProjectCriteria": blank(),
+                    "SortOrderList": [{"Key": True, "Value": "Ascending"},
+                                      {"Key": False, "Value": "Descending"}],
+                }
+
+            permits, pages_ok, total_found = [], 0, None
+            for page in range(1, max_pages + 1):
+                if time.time() - started > SOURCE_BUDGET - 2:
+                    break
+                try:
+                    resp = requests.post(url, json=_envelope(page), headers=headers, timeout=8)
+                    if resp.status_code != 200:
+                        break
+                    result = (resp.json() or {}).get("Result") or {}
+                except Exception:
+                    break
+                rows = result.get("EntityResults") or []
+                if total_found is None:
+                    total_found = result.get("TotalFound")
+                if not rows:
+                    break
+                pages_ok += 1
+                for row in rows:
+                    addr_obj = row.get("Address") or {}
+                    desc = (row.get("Description") or "").strip()
+                    ptype = (row.get("CaseType") or "").strip()
+                    permits.append({
+                        "source_id": source.get("id"), "county": county,
+                        "category": source.get("category", "permit"),
+                        "permit_number": (row.get("CaseNumber") or "").strip(),
+                        "type": ptype or None, "status": (row.get("CaseStatus") or "").strip() or None,
+                        "description": desc,
+                        "address": (row.get("AddressDisplay") or addr_obj.get("AddressLine1") or "").strip(),
+                        "city": (addr_obj.get("City") or city_default),
+                        "zip": (addr_obj.get("PostalCode") or "").strip(),
+                        "issued_date": (row.get("IssueDate") or "")[:10] or None,
+                        "applied_date": (row.get("ApplyDate") or "")[:10] or None,
+                        "value": None,          # search API omits valuation
+                        "contractor": None, "owner": None,
+                        "lat": None, "lon": None,
+                        "tags": tag_permit("%s %s" % (desc, ptype)),
+                        "appraiser_url": APPRAISER_SEARCH.get(county),
+                    })
+                if len(permits) >= record_count or len(rows) < page_size:
+                    break
+                if result.get("TotalPages") and page >= int(result["TotalPages"]):
+                    break
+            info["energov_css"] = {"host": host, "tenant": tenant, "pages_ok": pages_ok,
+                                   "total_found": total_found, "page_size": page_size}
+            if permits:
+                info.update({"status": "ok", "count": len(permits)})
+                return permits, info
+            info["status"] = "error"
+            info["error"] = "energov_css: no rows (pages_ok=%d)" % pages_ok
             return [], info
 
         # Build candidate layer URLs from every strategy the source declares,
