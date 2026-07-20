@@ -90,3 +90,74 @@ HAND-AUTHORED static HTML — edit those files directly.
 **Monitoring**
 - After any deploy, re-verify `/` still 308 -> `/wwslgc` and landing canonical still `.../wwslgc` (the old GSC "redirect error" came from canonical pointing at the redirecting `/`).
 - Watch GSC for the 5 tightened metas to re-index; confirm no description truncation remains.
+
+---
+
+## 2026-07-20 — Orphan-guide rescue + city titles ≤60 (Claude Opus 4.8) — commit `1233dd2`
+
+### 🚨 BLOCKER FOUND — no Search Console property for `roofanchorcert.com` (needs Danny)
+The 2026-07-15 migration moved every canonical to `roofanchorcert.com`. **That domain has no GSC
+property** — `dannybivins83@gmail.com` gets "you don't have access to this property." The only
+property that exists is the OLD subdomain `https://wwslgc.collaborativeconceptsfl.com/`, and the
+sitemap it is fed now contains **62 URLs that are all `roofanchorcert.com`** — i.e. entirely
+cross-domain. GSC ignores cross-domain sitemap URLs, which is exactly why that property is frozen at
+**"40 discovered pages, last read Jun 19, 2026"** — pre-migration, and it will never advance.
+
+**Net effect: the domain carrying 100% of the canonical signals has zero Search Console visibility.**
+No indexing data, no coverage reporting, no way to request indexing.
+
+**Deliberately did NOT resubmit the sitemap or request indexing this run** — every URL is
+cross-domain for the only property available, so submitting produces errors, not indexing.
+
+**Danny must:** add + verify `roofanchorcert.com` in Search Console (DNS TXT at the registrar, or the
+Vercel domain-verification route), then submit `https://roofanchorcert.com/sitemap-wws.xml` there.
+Requires registrar/DNS access — an agent can't and shouldn't self-verify a domain property.
+Until that's done the indexing half of this agent's job is inert. **This is now the #1 SEO priority —
+it outranks every remaining backlog item.**
+
+### Audited
+- Live-crawled landing, money page, all 8 city pages, /guides, all 48 guides: **every one 200**.
+- Redirect/canonical integrity intact: `/` → **308** → `/wwslgc`; landing canonical `.../wwslgc`.
+- Marker meta present on all edited pages.
+- **Found 4 live-but-orphaned guides** (below) — the run's main catch.
+- Sitemap was 58 URLs vs 48 guide files on disk → 4-file gap.
+
+### Shipped (commit `1233dd2`, verified live)
+1. **Rescued 4 orphaned guides.** `how-anchor-load-testing-works`, `visual-inspection-vs-load-test`,
+   `davit-certification-requirements`, `asme-a120-explained` were live and well-built (correct
+   Article + BreadcrumbList JSON-LD, canonical, marker) but **absent from both `sitemap-wws.xml`
+   and the `/guides` hub** — no crawl path, ~1 inbound link each. They are **hand-authored**, not in
+   the generator's `POSTS`/`TOPICS`, so a plain regen would never have picked them up.
+   Fix: added an **`EXTRA_GUIDES` registry** to `_wws_blog_builder.py` that feeds *both* the sitemap
+   and the guides-hub "More compliance guides" grid — so the fix **survives regeneration**. Their
+   HTML is not generated; **md5-verified byte-identical** after the regen run. Sitemap **58 → 62**.
+   Bonus: the cluster (davit / load-test / visual-vs-load-test) is squarely on-topic for the money
+   page, so hub linkage also tightens hub-and-spoke around the primary commercial term.
+2. **City-page titles → ≤60 (backlog P1.1 closed).** All 8 were 60–84 chars and truncating. Dropped
+   the `& [County]` clause, `| La Gala Construction` → `| La Gala` (matches landing/money shipped in
+   `307c866`). Now **47–54 chars**, all unique, keyword still front-loaded. `<title>` + `og:title` both.
+   | page | before | after |
+   |---|---|---|
+   | west-palm-beach | 84 | 51 |
+   | fort-lauderdale | 81 | 51 |
+   | boca-raton | 79 | 49 |
+   | miami | 67 | 54 |
+   | boynton-beach | 65 | 52 |
+   | pompano-beach | 65 | 52 |
+   | hollywood | 61 | 48 |
+   | aventura | 60 | 47 |
+- Verified live on `roofanchorcert.com`: all 10 titles serve, sitemap 62, 4 rescued guides
+  200 + in sitemap + in hub. Guardrails re-checked post-deploy: `/` → 308 → `/wwslgc`, canonical `.../wwslgc`.
+- Left untracked `.claude/launch.json` alone (not this lane's file) — used explicit paths, not `git add -A`.
+
+### Queued next
+- **P0 (Danny): verify `roofanchorcert.com` in GSC** — see blocker above. Everything indexing-related is blocked on this.
+- P1: **watch for more hand-authored guides** — a parallel session is adding them by hand. Any new
+  `guides/*.html` not in `POSTS`/`TOPICS` must be registered in `EXTRA_GUIDES` or it silently orphans.
+  Quick check: `ls guides/*.html | wc -l` vs `grep -c '/guides/' sitemap-wws.xml`.
+- P1: FAQPage schema on the Miami page (still missing; FtL & WPB have it) — carried from last run.
+- P1: body "free assessment" brand cleanup in index/hollywood/boynton (metas fixed; body still off-brand).
+- P1: CollectionPage + BreadcrumbList JSON-LD on `/guides` (still none) — do it in `build_index()`.
+- P2: the 4 rescued guides should get inbound links **from the money page + city pages**, not just the
+  hub — they're the strongest supporting content the money page has and it doesn't link them.
+- P2: long-tail gaps unchanged — "roof anchor load test cost Florida", "OSHA RDS cert vs FL milestone".
