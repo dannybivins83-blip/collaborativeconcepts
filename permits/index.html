@@ -144,6 +144,10 @@
       <span class="mini" style="margin-right:2px">PROJECT TAGS</span>
       <!-- tag chips injected -->
     </div>
+    <div class="controls" id="roofChips" style="margin-top:10px">
+      <span class="mini" style="margin-right:2px" title="Roofing permits only — commercial flat roofs are the WWS anchor / La Gala market; residential pitched roofs are the SeaBreeze market">ROOF CLASS</span>
+      <!-- roof-class chips injected -->
+    </div>
   </div>
 
   <div class="stats">
@@ -212,6 +216,8 @@
     window: "years:2",
     windowLabel: "Last 2 years",
     category: "",           // "" = all, "permit", "violation"
+    roofClass: "",          // "" = all (sectioned), commercial, residential, unknown
+    roofCounts: {},         // server-reported totals per class (pre-filter)
     tags: new Set(),
     q: "",
     minValue: "",
@@ -290,6 +296,7 @@
     var w = (state.window || "days:30").split(":");
     p.set(w[0], w[1]);   // days|months|years|year = N
     if(state.category) p.set("category", state.category);
+    if(state.roofClass) p.set("roof_class", state.roofClass);
     if(state.tags.size) p.set("tags", Array.from(state.tags).join(","));
     if(state.q) p.set("q", state.q);
     if(state.minValue) p.set("min_value", state.minValue);
@@ -409,6 +416,45 @@
     });
   }
 
+  // ---- roof class: commercial vs residential roofing ---------------------
+  // Two real markets, not signal vs noise: commercial flat roofs are the WWS
+  // anchor-recert + La Gala jobs; residential pitched roofs are SeaBreeze jobs.
+  // "" shows both, sectioned. Counts come from the server pre-filter, so the
+  // other class's total stays visible while one is selected.
+  var ROOF_CLASSES = [
+    { key: "",            label: "All roofs" },
+    { key: "commercial",  label: "Commercial" },
+    { key: "residential", label: "Residential" },
+    { key: "unknown",     label: "Unclassified" }
+  ];
+  function buildRoofChips(){
+    var box = $("roofChips");
+    ROOF_CLASSES.forEach(function(rc){
+      var b = document.createElement("button");
+      b.className = "chip roofchip";
+      b.setAttribute("data-rc", rc.key);
+      b.textContent = rc.label;
+      b.onclick = function(){
+        state.roofClass = (state.roofClass === rc.key) ? "" : rc.key;
+        state.offset = 0;
+        renderRoofChips();
+        load();
+      };
+      box.appendChild(b);
+    });
+    renderRoofChips();
+  }
+  function renderRoofChips(){
+    var c = state.roofCounts || {};
+    document.querySelectorAll("#roofChips .roofchip").forEach(function(el){
+      var k = el.getAttribute("data-rc");
+      var n = k ? c[k] : (( c.commercial||0 ) + ( c.residential||0 ) + ( c.unknown||0 ));
+      var lbl = (ROOF_CLASSES.filter(function(r){ return r.key === k; })[0] || {}).label || k;
+      el.textContent = (n != null) ? (lbl + "  " + n.toLocaleString()) : lbl;
+      el.classList.toggle("on", state.roofClass === k);
+    });
+  }
+
   // Say plainly when `total` is a floor rather than the exact count.
   function renderCompleteness(data, total, shown){
     var bar = $("moreBar");
@@ -496,7 +542,27 @@
       tb.innerHTML = '<tr><td colspan="9" class="empty">' + msg + '</td></tr>';
       return;
     }
-    tb.innerHTML = state.permits.map(function(p, i){
+    // Section the table into Commercial / Residential roofing when no explicit
+    // class is selected. Indices stay tied to state.permits so the detail-row
+    // toggle and sorting keep working.
+    var SECTION_META = {
+      commercial:  { title: "COMMERCIAL ROOFS",  hint: "flat roofs — WWS anchor + La Gala", color: "#2e86c1" },
+      residential: { title: "RESIDENTIAL ROOFS", hint: "pitched roofs — SeaBreeze",         color: "#b9770e" },
+      unknown:     { title: "UNCLASSIFIED / NON-ROOFING", hint: "no roof-type signal",      color: "#7f8c8d" }
+    };
+    var groups;
+    if(state.roofClass){
+      groups = [[null, state.permits.map(function(p, i){ return { p: p, i: i }; })]];
+    } else {
+      var b = { commercial: [], residential: [], unknown: [] };
+      state.permits.forEach(function(p, i){
+        (b[p.roof_class] || b.unknown).push({ p: p, i: i });
+      });
+      groups = [["commercial", b.commercial], ["residential", b.residential],
+                ["unknown", b.unknown]].filter(function(g){ return g[1].length; });
+    }
+
+    function rowHtml(p, i){
       var tags = (p.tags || []).map(function(t){
         return '<span class="tg">' + esc(state.tagLabels[t] || t) + "</span>";
       }).join("");
@@ -515,6 +581,19 @@
         "<td>" + statusPill(p.status) + "</td>" +
         "</tr>" +
         '<tr class="detail-row" data-di="' + i + '" style="display:none"><td colspan="9">' + detailHtml(p) + "</td></tr>";
+    }
+
+    tb.innerHTML = groups.map(function(g){
+      var key = g[0], items = g[1], head = "";
+      if(key){
+        var m = SECTION_META[key];
+        head = '<tr class="section-hdr"><td colspan="9" style="background:#0e1a26;' +
+               'border-left:4px solid ' + m.color + ';padding:9px 12px;font-weight:700;' +
+               'letter-spacing:.06em;font-size:12px;color:' + m.color + '">' +
+               esc(m.title) + ' <span style="opacity:.72;font-weight:500">· ' +
+               items.length.toLocaleString() + ' shown · ' + esc(m.hint) + '</span></td></tr>';
+      }
+      return head + items.map(function(o){ return rowHtml(o.p, o.i); }).join("");
     }).join("");
 
     // row click -> toggle its detail row
@@ -557,6 +636,8 @@
       .then(function(data){
         var rows = data.permits || [];
         state.permits = append ? state.permits.concat(rows) : rows;
+        state.roofCounts = data.roof_counts || {};
+        renderRoofChips();
         sortPermits();
         renderRows();
         renderStats(data);
@@ -624,6 +705,7 @@
 
   buildWindowOptions();
   buildCountyChips();
+  buildRoofChips();
   loadTags();
   load();
 })();
