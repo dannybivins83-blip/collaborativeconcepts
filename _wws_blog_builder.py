@@ -284,6 +284,21 @@ TOPICS = [
   "",(("priority_high","The two-key system"),("payments","The exposure math"),("school","Both halves, one contract")),"roof-anchors"),
 ]
 
+# HAND-AUTHORED guides — the HTML in wwslgc/guides/ is written by hand, NOT generated here.
+# Registered so they still get a sitemap entry + a card in the guides hub (otherwise they
+# are live-but-orphaned: no crawl path, no internal links). Do NOT regenerate their HTML.
+# (slug, title, standard-badge, one-line blurb)
+EXTRA_GUIDES = [
+ ("how-anchor-load-testing-works","How Roof Anchor Load Testing Works","&sect;1910.27",
+  "What actually happens on the roof during a proof-load test."),
+ ("visual-inspection-vs-load-test","Visual Inspection vs. Load Test","&sect;1910.27",
+  "The annual qualified-person check and the 10-year certification are not the same thing."),
+ ("davit-certification-requirements","Davit Certification Requirements","ASME A120.1",
+  "What window-washing and facade-access davits must pass &mdash; and how often."),
+ ("asme-a120-explained","ASME A120.1 Explained: Davit &amp; Suspended-Access Standards","ASME A120.1",
+  "Davits, outriggers and roof cars &mdash; and the 2&times; working-load test."),
+]
+
 HEAD = """<!DOCTYPE html>
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
@@ -412,6 +427,8 @@ def build_index():
     for tp in TOPICS:
         tslug,ttitle,tstd,tshort = tp[0],tp[1],tp[2],tp[4]
         topics += f"""<a href="/guides/{tslug}" class="group bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all p-5 flex flex-col"><span class="text-[11px] font-bold text-secondary">{tstd}</span><h3 class="font-bold text-primary mt-1 leading-tight">{ttitle}</h3><p class="text-sm text-on-surface-variant mt-1.5 flex-1">{tshort}</p><span class="text-sm font-semibold text-primary mt-3 inline-flex items-center gap-1 group-hover:text-secondary">Read the guide <span class="material-symbols-outlined text-base">arrow_forward</span></span></a>"""
+    for xslug, xtitle, xstd, xshort in EXTRA_GUIDES:
+        topics += f"""<a href="/guides/{xslug}" class="group bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-sm hover:shadow-lg hover:border-secondary transition-all p-5 flex flex-col"><span class="text-[11px] font-bold text-secondary">{xstd}</span><h3 class="font-bold text-primary mt-1 leading-tight">{xtitle}</h3><p class="text-sm text-on-surface-variant mt-1.5 flex-1">{xshort}</p><span class="text-sm font-semibold text-primary mt-3 inline-flex items-center gap-1 group-hover:text-secondary">Read the guide <span class="material-symbols-outlined text-base">arrow_forward</span></span></a>"""
     downloads = """<section id="downloads" class="bg-surface-container-low border-y border-outline-variant/20 py-16 mt-4">
 <div class="max-w-7xl mx-auto px-6 sm:px-8">
 <div class="max-w-3xl"><span class="text-secondary font-semibold tracking-widest uppercase text-xs">Free downloads</span>
@@ -528,7 +545,7 @@ print("Landing gallery synced:",len(POSTS),"cards")
 BASEW="https://roofanchorcert.com"
 import datetime as _dt
 LASTMOD=_dt.date.today().isoformat()  # auto-fresh on every regen so crawlers see the real last-build date
-sm_urls=[(BASEW+"/wwslgc","1.0","weekly"),(BASEW+"/roof-anchor-certification","0.9","weekly"),(BASEW+"/reroof-anchor-certification","0.9","monthly"),(BASEW+"/bee-access-dealer","0.8","monthly"),(BASEW+"/swing-stage-osha-training","0.8","monthly"),(BASEW+"/miami-roof-anchor-certification","0.8","monthly"),(BASEW+"/fort-lauderdale-roof-anchor-certification","0.8","monthly"),(BASEW+"/west-palm-beach-roof-anchor-certification","0.8","monthly"),(BASEW+"/hollywood-roof-anchor-certification","0.8","monthly"),(BASEW+"/aventura-roof-anchor-certification","0.8","monthly"),(BASEW+"/boca-raton-roof-anchor-certification","0.8","monthly"),(BASEW+"/boynton-beach-roof-anchor-certification","0.8","monthly"),(BASEW+"/pompano-beach-roof-anchor-certification","0.8","monthly"),(BASEW+"/guides","0.8","weekly")]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in POSTS]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in TOPICS]
+sm_urls=[(BASEW+"/wwslgc","1.0","weekly"),(BASEW+"/roof-anchor-certification","0.9","weekly"),(BASEW+"/reroof-anchor-certification","0.9","monthly"),(BASEW+"/bee-access-dealer","0.8","monthly"),(BASEW+"/swing-stage-osha-training","0.8","monthly"),(BASEW+"/miami-roof-anchor-certification","0.8","monthly"),(BASEW+"/fort-lauderdale-roof-anchor-certification","0.8","monthly"),(BASEW+"/west-palm-beach-roof-anchor-certification","0.8","monthly"),(BASEW+"/hollywood-roof-anchor-certification","0.8","monthly"),(BASEW+"/aventura-roof-anchor-certification","0.8","monthly"),(BASEW+"/boca-raton-roof-anchor-certification","0.8","monthly"),(BASEW+"/boynton-beach-roof-anchor-certification","0.8","monthly"),(BASEW+"/pompano-beach-roof-anchor-certification","0.8","monthly"),(BASEW+"/guides","0.8","weekly")]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in POSTS]+[(BASEW+"/guides/"+p[0],"0.7","monthly") for p in TOPICS]+[(BASEW+"/guides/"+g[0],"0.7","monthly") for g in EXTRA_GUIDES]
 sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
 for u,pr,cf in sm_urls:
     sm+='  <url><loc>'+u+'</loc><lastmod>'+LASTMOD+'</lastmod><changefreq>'+cf+'</changefreq><priority>'+pr+'</priority></url>\n'
