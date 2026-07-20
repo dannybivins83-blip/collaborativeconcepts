@@ -1368,6 +1368,36 @@ def admin_leads_import():
     return jsonify({"ok": True, "added": added, "skipped": skipped})
 
 
+@app.post("/api/admin/leads/delete")
+def admin_leads_delete():
+    """Delete leads by id (the wws:leads Redis LIST is otherwise append-only, so
+    there was previously NO way to remove a bad import batch). Body: {ids:[...]}.
+    Uses LREM on the exact stored JSON value, which is atomic per element and
+    safe against concurrent RPUSH from other importers. Admin-gated."""
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    b = request.get_json(force=True, silent=True) or {}
+    ids = b.get("ids") or []
+    if not isinstance(ids, list) or not ids:
+        return jsonify({"ok": False, "error": "no ids provided"}), 400
+    want = {str(i) for i in ids[:5000]}
+    raw, configured = _kv_cmd(["LRANGE", WWS_LEADS_KEY, "0", "-1"])
+    if not configured:
+        return jsonify({"ok": False, "error": "store not configured"}), 200
+    removed = 0
+    for item in (raw or []):
+        try:
+            lead = json.loads(item)
+        except Exception:
+            continue
+        if str(lead.get("id")) in want:
+            # remove exactly ONE occurrence of this precise stored value
+            _kv_cmd(["LREM", WWS_LEADS_KEY, "1", item])
+            removed += 1
+    _log_activity("leads_delete", "Deleted {} lead(s)".format(removed))
+    return jsonify({"ok": True, "removed": removed})
+
+
 # ==========================================================================
 # Multi-property / portfolio switcher
 # ==========================================================================
