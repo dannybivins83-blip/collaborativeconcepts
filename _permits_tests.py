@@ -145,6 +145,50 @@ class TagEngineTests(unittest.TestCase):
         self.assertFalse(permits.wws_disqualified({"tags": []}))
         self.assertFalse(permits.wws_disqualified({}))
 
+    def _p(self, desc, value=None, ptype=""):
+        """Build a permit the way a source would: tags derived from desc+type."""
+        return {"description": desc, "type": ptype, "value": value,
+                "tags": permits.tag_permit(desc + " " + ptype)}
+
+    def test_classify_roof_commercial(self):
+        for desc in ["Re-roof to TPO", "ROOF RECOVER MODIFIED BITUMEN",
+                     "FLAT REROOF REPLACEMENT ONLY - BLDG 10",
+                     "BUILT-UP ROOF REPLACEMENT", "REROOF EPDM SINGLE PLY"]:
+            with self.subTest(desc=desc):
+                self.assertEqual(permits.classify_roof(self._p(desc)), "commercial")
+        # condo/multifamily wording and commercial-scale value both promote
+        self.assertEqual(permits.classify_roof(self._p("REROOF CONDO TOWER")), "commercial")
+        self.assertEqual(
+            permits.classify_roof(self._p("RE-ROOF", value=400000)), "commercial")
+
+    def test_classify_roof_residential(self):
+        for desc in ["REROOF SHINGLES", "RE-ROOF TILE TO TILE", "reroof concrete tile",
+                     "Full Roof Replacement Shingle to Metal",
+                     "ROOF INSTALLATION FOR NEW SINGLE FAMILY RESIDENCE"]:
+            with self.subTest(desc=desc):
+                self.assertEqual(permits.classify_roof(self._p(desc)), "residential")
+        # mixed pitched+flat reads residential — empirically these are houses
+        # with a flat porch section (verified on the Riviera Beach feed)
+        self.assertEqual(permits.classify_roof(self._p("RE-ROOF METAL AND FLAT")),
+                         "residential")
+        # explicit single-family beats a commercial-scale value
+        self.assertEqual(
+            permits.classify_roof(self._p("SFR RE-ROOF", value=900000)), "residential")
+
+    def test_classify_roof_only_applies_to_roofing(self):
+        # a big non-roofing job must NOT land in a "Commercial Roofs" section
+        self.assertEqual(
+            permits.classify_roof(self._p("INTERIOR REMODEL", value=500000)), "unknown")
+        self.assertEqual(permits.classify_roof(self._p("POOL RESURFACE")), "unknown")
+        self.assertEqual(permits.classify_roof({"tags": [], "description": ""}), "unknown")
+        # roofing with no type signal is honestly unknown, not guessed
+        self.assertEqual(permits.classify_roof(self._p("REROOF")), "unknown")
+
+    def test_wws_disqualified_tracks_classification(self):
+        self.assertTrue(permits.wws_disqualified(self._p("REROOF SHINGLES")))
+        self.assertFalse(permits.wws_disqualified(self._p("Re-roof to TPO")))
+        self.assertFalse(permits.wws_disqualified(self._p("REROOF")))  # unknown != residential
+
     def test_reroof_leads_excludes_residential(self):
         # run_reroof_leads must drop single-family / pitched-roof permits by default
         fake = {

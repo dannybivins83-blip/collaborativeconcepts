@@ -1237,15 +1237,83 @@ def tag_permit(text):
 # single-family/low-rise building type — no rooftop fall-protection surface).
 WWS_DISQUALIFY_TAGS = frozenset({"pitched_roof", "single_family"})
 
+# Roof-material signals used to split roofing work into COMMERCIAL vs RESIDENTIAL.
+# Both classes are real business — commercial flat roofs are the WWS anchor +
+# La Gala market, residential pitched roofs are the SeaBreeze market — so the
+# dashboard sections them rather than throwing either away.
+_RX_PITCHED_MAT = re.compile(
+    r"shingle|\btile\b|\bmetal\b|standing\s*seam|slope[d]?|pitch(ed)?", re.I)
+_RX_FLAT_MAT = re.compile(
+    r"\bflat\b|\btpo\b|modified\s*bitumen|mod\.?\s*bit\b|built[-\s]?up|\bbur\b|"
+    r"\bepdm\b|torch|tar\s*and\s*gravel|single[-\s]?ply|coping|parapet", re.I)
+_RX_MULTIFAMILY = re.compile(
+    r"condo|apartment|multi[-\s]?family|\bhoa\b|association|clubhouse|"
+    r"high[-\s]?rise|\btower\b|\bunits?\b\s*\d|bldg\s*\d", re.I)
+
+# A declared job value at/above this is commercial-scale roofing work. A
+# single-family re-roof in South Florida runs ~$15-40k; commercial flat-roof
+# jobs start well above it. Only used when the feed actually carries a value.
+COMMERCIAL_VALUE_FLOOR = 150000
+
+# Only these tags make a permit "roofing work" eligible for a commercial/
+# residential roof class. Everything else is left "unknown" (non-roofing).
+ROOF_TAGS = frozenset({"roofing", "reroof"})
+
+
+def classify_roof(permit):
+    """Split a roofing permit into 'commercial' | 'residential' | 'unknown'.
+
+    Text-only — the permit feeds carry no unit count or use code, so this reads
+    building-type words, roof MATERIAL (a flat commercial/condo roof is never
+    shingle; a house is never TPO), and declared value. Precedence matters:
+
+      1. explicit single-family wording always wins
+      2. commercial / multifamily wording or a commercial-scale value
+      3. any pitched material (incl. mixed 'metal and flat') -> residential.
+         Empirically these are houses: the Riviera Beach 'RE-ROOF METAL AND FLAT'
+         permits were all single-family streets (flat porch over a pitched house).
+      4. flat material with no pitched material -> commercial
+      5. otherwise unknown — reported honestly rather than guessed
+    """
+    tags = set(permit.get("tags") or [])
+    # Only ROOFING work gets a roof class. Without this gate a $500k interior
+    # remodel would trip the value rule and land in a "Commercial Roofs" section.
+    if not (ROOF_TAGS & tags):
+        return "unknown"
+    text = "%s %s" % (permit.get("description") or "", permit.get("type") or "")
+    try:
+        value = float(permit.get("value") or 0)
+    except (TypeError, ValueError):
+        value = 0.0
+
+    if "single_family" in tags:
+        return "residential"
+    if ("commercial" in tags or _RX_MULTIFAMILY.search(text)
+            or value >= COMMERCIAL_VALUE_FLOOR):
+        return "commercial"
+    pitched = "pitched_roof" in tags or _RX_PITCHED_MAT.search(text)
+    flat = _RX_FLAT_MAT.search(text)
+    if pitched:
+        return "residential"
+    if flat:
+        return "commercial"
+    return "unknown"
+
 
 def wws_disqualified(permit):
     """True if this permit is a house / low-rise / pitched-roof job that can't be
     a WWS (roof-anchor / davit / OSHA fall-protection) lead. Text-based only —
     catches the high-confidence residential markers the feed actually carries.
-    Buildings with no building-type signal in the text are NOT disqualified here
-    (unknown != residential); the offline appraiser step filters those on
-    units/use-code. Keeps single-family reroofs off the WWS lead list at source."""
-    return bool(WWS_DISQUALIFY_TAGS & set(permit.get("tags") or []))
+    Buildings with no building-type signal are NOT disqualified (unknown !=
+    residential); the offline appraiser step filters those on units/use-code.
+
+    Union of two signals: an explicit residential building-type tag always
+    disqualifies (even on a permit that never earned a roofing tag, so the
+    classify_roof roofing-gate can't let one through), plus anything the roof
+    classifier calls residential — which adds the mixed 'metal and flat' case."""
+    if WWS_DISQUALIFY_TAGS & set(permit.get("tags") or []):
+        return True
+    return classify_roof(permit) == "residential"
 
 
 def normalize_feature(feature, mapping, source):
@@ -1968,9 +2036,13 @@ def run_search(params):
     force_demo = str(params.get("demo") or "") in ("1", "true", "yes")
     source_filter = (params.get("source") or "").strip()
     category = (params.get("category") or "").strip().lower()  # "", permit, violation
+    # "", commercial, residential, unknown — sections the roofing work
+    roof_class_filter = (params.get("roof_class") or "").strip().lower()
+    if roof_class_filter not in ("", "commercial", "residential", "unknown"):
+        roof_class_filter = ""
 
     cache_key = (f"search:{sorted(counties)}:{start_iso}:{end_iso}:{limit}:{offset}:{tags_filter}"
-                 f":{q}:{min_value}:{force_demo}:{source_filter}:{category}")
+                 f":{q}:{min_value}:{force_demo}:{source_filter}:{category}:{roof_class_filter}")
     cached = _cache_get(cache_key)
     if cached:
         return cached
@@ -2031,6 +2103,12 @@ def run_search(params):
 
     dropped_geo = [0]
 
+    # Stamp commercial/residential on every permit before filtering, so the
+    # dashboard can section roofing work and ?roof_class= can filter on it.
+    # Done here (not per-source) because every source funnels through run_search.
+    for _p in all_permits:
+        _p["roof_class"] = classify_roof(_p)
+
     def keep(p):
         if _out_of_florida(p):        # wrong-jurisdiction guard
             dropped_geo[0] += 1
@@ -2055,6 +2133,18 @@ def run_search(params):
     filtered = [p for p in all_permits if keep(p)]
     filtered.sort(key=lambda p: (p.get("issued_date") or p.get("applied_date") or ""),
                   reverse=True)
+
+    # Roofing section counts are taken BEFORE the roof_class filter is applied —
+    # otherwise picking "commercial" would report residential as 0 and the UI's
+    # section tabs would collapse. Counts describe the whole match set; the
+    # filter only narrows which rows come back.
+    roof_counts = {"commercial": 0, "residential": 0, "unknown": 0}
+    for p in filtered:
+        rc = p.get("roof_class") or "unknown"
+        if rc in roof_counts:
+            roof_counts[rc] += 1
+    if roof_class_filter:
+        filtered = [p for p in filtered if p.get("roof_class") == roof_class_filter]
 
     # ---- aggregates over the FULL match set, never the page ----------------
     # These used to be computed by the client off the truncated rows, so a
@@ -2085,9 +2175,11 @@ def run_search(params):
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "params": {"counties": counties, "window": window_label,
                    "start": start_iso, "end": end_iso, "tags": tags_filter, "q": q,
-                   "min_value": min_value, "limit": limit, "offset": offset},
+                   "min_value": min_value, "limit": limit, "offset": offset,
+                   "roof_class": roof_class_filter},
         "demo": demo_used,
         "sources": infos,
+        "roof_counts": roof_counts,
         "dropped_out_of_state": dropped_geo[0],
         # pagination
         "total": total,                     # every row that matched the filters
