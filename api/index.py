@@ -3284,6 +3284,128 @@ def portal_invoice_receipt(iid):
 
 
 # ==========================================================================
+# Training documents — sign-in roster + per-attendee certificates (reportlab)
+# ==========================================================================
+def _doc_training(p):
+    import io
+    from reportlab.lib.pagesizes import letter, landscape
+    from reportlab.lib.units import inch
+    from reportlab.lib import colors
+    from reportlab.pdfgen import canvas as _canvas
+
+    NAVY = colors.HexColor("#13233f")
+    GOLD = colors.HexColor("#c9a227")
+    MUTE = colors.HexColor("#54606f")
+
+    course = (p.get("course") or "Suspended Scaffold (Swing Stage) User Training")[:120]
+    stds = (p.get("standards") or "29 CFR 1926.454 · 29 CFR 1910.27(b) · ANSI/IWCA I-14.1 · ASME A120.1")[:160]
+    date = (p.get("date") or "")[:40]
+    location = (p.get("location") or "")[:120]
+    trainer = (p.get("trainer") or "")[:120]
+    company = (p.get("company") or "")[:120]
+    attendees = [a.strip()[:80] for a in (p.get("attendees") or []) if a and a.strip()][:60]
+
+    buf = io.BytesIO()
+    c = _canvas.Canvas(buf, pagesize=letter)
+    W, H = letter
+
+    # ---- page 1: sign-in roster (portrait) ----
+    c.setFillColor(NAVY); c.rect(0, H - 1.1 * inch, W, 1.1 * inch, stroke=0, fill=1)
+    c.setFillColor(colors.white); c.setFont("Helvetica-Bold", 18)
+    c.drawString(0.75 * inch, H - 0.62 * inch, "Training Sign-In Roster")
+    c.setFillColor(GOLD); c.setFont("Helvetica-Bold", 9)
+    c.drawString(0.75 * inch, H - 0.85 * inch, "LA GALA CONSTRUCTION  ·  FL CGC 059211")
+    c.setFillColor(NAVY); c.setFont("Helvetica-Bold", 12)
+    c.drawString(0.75 * inch, H - 1.5 * inch, course)
+    c.setFillColor(MUTE); c.setFont("Helvetica", 9.5)
+    c.drawString(0.75 * inch, H - 1.72 * inch, "Standards covered: " + stds)
+    meta = "  ·  ".join(x for x in ["Date: " + date if date else "", "Location: " + location if location else "",
+                                    "Company: " + company if company else "", "Trainer: " + trainer if trainer else ""] if x)
+    c.drawString(0.75 * inch, H - 1.92 * inch, meta[:120])
+    y = H - 2.35 * inch
+    c.setFillColor(NAVY); c.setFont("Helvetica-Bold", 9)
+    c.drawString(0.75 * inch, y, "#"); c.drawString(1.05 * inch, y, "NAME (PRINT)")
+    c.drawString(4.3 * inch, y, "SIGNATURE"); c.drawString(6.9 * inch, y, "DATE")
+    c.setStrokeColor(GOLD); c.setLineWidth(1.4); c.line(0.75 * inch, y - 6, W - 0.75 * inch, y - 6)
+    c.setFont("Helvetica", 10); c.setStrokeColor(colors.HexColor("#c9ccd4")); c.setLineWidth(0.6)
+    rows = attendees if attendees else [""] * 14
+    yy = y - 0.35 * inch
+    for i, name in enumerate(rows):
+        if yy < 0.9 * inch:
+            c.showPage(); yy = H - 1.0 * inch
+            c.setFont("Helvetica", 10); c.setStrokeColor(colors.HexColor("#c9ccd4")); c.setLineWidth(0.6)
+        c.setFillColor(MUTE); c.drawString(0.75 * inch, yy, str(i + 1))
+        c.setFillColor(NAVY); c.drawString(1.05 * inch, yy, name)
+        c.line(4.3 * inch, yy - 2, 6.6 * inch, yy - 2)
+        c.line(6.9 * inch, yy - 2, 7.75 * inch, yy - 2)
+        yy -= 0.34 * inch
+    c.setFillColor(MUTE); c.setFont("Helvetica", 7.5)
+    c.drawString(0.75 * inch, 0.55 * inch,
+                 "Retain in the employer's training records. Training delivered per 29 CFR 1926.454 by a person qualified in the subject matter.")
+    c.showPage()
+
+    # ---- certificate pages (landscape, one per attendee) ----
+    LW, LH = landscape(letter)
+    day = re.sub(r"[^0-9]", "", date)[:8] or "00000000"
+    for i, name in enumerate(attendees):
+        c.setPageSize(landscape(letter))
+        c.setStrokeColor(GOLD); c.setLineWidth(3)
+        c.rect(0.45 * inch, 0.45 * inch, LW - 0.9 * inch, LH - 0.9 * inch)
+        c.setStrokeColor(NAVY); c.setLineWidth(1)
+        c.rect(0.55 * inch, 0.55 * inch, LW - 1.1 * inch, LH - 1.1 * inch)
+        c.setFillColor(GOLD); c.setFont("Helvetica-Bold", 11)
+        c.drawCentredString(LW / 2, LH - 1.15 * inch, "LA GALA CONSTRUCTION  ·  FL CGC 059211")
+        c.setFillColor(NAVY); c.setFont("Helvetica-Bold", 30)
+        c.drawCentredString(LW / 2, LH - 1.75 * inch, "Certificate of Training")
+        c.setFillColor(MUTE); c.setFont("Helvetica", 12)
+        c.drawCentredString(LW / 2, LH - 2.25 * inch, "This certifies that")
+        c.setFillColor(NAVY); c.setFont("Helvetica-Bold", 24)
+        c.drawCentredString(LW / 2, LH - 2.8 * inch, name)
+        c.setStrokeColor(GOLD); c.setLineWidth(1.2)
+        c.line(LW / 2 - 2.6 * inch, LH - 2.95 * inch, LW / 2 + 2.6 * inch, LH - 2.95 * inch)
+        c.setFillColor(MUTE); c.setFont("Helvetica", 12)
+        c.drawCentredString(LW / 2, LH - 3.35 * inch, "has successfully completed")
+        c.setFillColor(NAVY); c.setFont("Helvetica-Bold", 16)
+        c.drawCentredString(LW / 2, LH - 3.8 * inch, course)
+        c.setFillColor(MUTE); c.setFont("Helvetica", 10.5)
+        c.drawCentredString(LW / 2, LH - 4.15 * inch, "Standards covered: " + stds)
+        extra = "  ·  ".join(x for x in [("Delivered " + date) if date else "", location, ("for " + company) if company else ""] if x)
+        if extra:
+            c.drawCentredString(LW / 2, LH - 4.45 * inch, extra[:130])
+        sy = 1.45 * inch
+        c.setStrokeColor(NAVY); c.setLineWidth(0.8)
+        c.line(1.3 * inch, sy, 4.0 * inch, sy)
+        c.line(LW - 4.0 * inch, sy, LW - 1.3 * inch, sy)
+        c.setFillColor(MUTE); c.setFont("Helvetica", 9)
+        c.drawCentredString(2.65 * inch, sy - 0.22 * inch, ("Trainer: " + trainer) if trainer else "Trainer (qualified person, 29 CFR 1926.454)")
+        c.drawCentredString(LW - 2.65 * inch, sy - 0.22 * inch, "La Gala Construction — authorized representative")
+        c.setFillColor(GOLD); c.setFont("Helvetica-Bold", 9)
+        c.drawCentredString(LW / 2, 0.75 * inch, "Certificate ID  LGT-%s-%02d" % (day, i + 1))
+        c.showPage()
+
+    c.save()
+    return buf.getvalue()
+
+
+@app.post("/api/admin/training/docs")
+def admin_training_docs():
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    b = request.get_json(force=True, silent=True) or {}
+    if not (b.get("attendees") or []):
+        return jsonify({"ok": False, "error": "Add at least one attendee (one name per line)."}), 400
+    try:
+        pdf = _doc_training(b)
+    except Exception as e:
+        return jsonify({"ok": False, "error": "pdf failed: " + str(e)}), 500
+    _log_activity("training_docs", "%d certs — %s" % (len(b.get("attendees") or []), (b.get("company") or "")[:60]))
+    resp = make_response(pdf)
+    resp.headers["Content-Type"] = "application/pdf"
+    resp.headers["Content-Disposition"] = 'attachment; filename="LaGala_Training_%s.pdf"' % re.sub(r"[^0-9A-Za-z]", "", (b.get("date") or "docs"))[:16]
+    return resp
+
+
+# ==========================================================================
 # One-click board-ready compliance packet — cover sheet (reportlab)
 # ==========================================================================
 def _compliance_status(insp):
