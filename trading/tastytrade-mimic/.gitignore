@@ -1,0 +1,6 @@
+# Runtime state + local signal drops — never commit
+state.json
+signals.json
+KILL_SWITCH
+.env
+*.env

@@ -1,0 +1,2 @@
+# Standard library only — urllib for the tastytrade Open API and Telegram Bot API.
+# No third-party deps keeps the VM deploy (pm2 + python3) trivial.

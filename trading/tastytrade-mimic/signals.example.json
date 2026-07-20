@@ -1,0 +1,16 @@
+[
+  {
+    "id": "example-2026-07-20-1",
+    "trader": "Tom",
+    "symbol": "SPY",
+    "description": "45 DTE put credit spread, ~10 delta",
+    "order_type": "Limit",
+    "price": 1.05,
+    "price_effect": "Credit",
+    "quantity": 1,
+    "legs": [
+      {"instrument_type": "Equity Option", "symbol": "SPY   260904P00550000", "action": "Sell to Open", "quantity": 1},
+      {"instrument_type": "Equity Option", "symbol": "SPY   260904P00545000", "action": "Buy to Open", "quantity": 1}
+    ]
+  }
+]
