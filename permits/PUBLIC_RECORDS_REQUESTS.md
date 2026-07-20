@@ -20,6 +20,31 @@ Signature block for all of them:
 
 ---
 
+## ⚠️ Before you use owner phone/email — read this
+
+These requests ask for **owner/applicant/contractor phone and email** (permit
+apps capture them, and they're generally public record). But **obtaining a number
+is not consent to call or text it.**
+
+- **Direct mail** to the site/mailing address → **safe**, needs no consent. This
+  is the primary channel — it's what the WWSLGC collateral (flyer, postcard,
+  Subpart D checklist) is built for.
+- **Manual, individually-dialed calls** to a **contractor/business** line →
+  lower risk.
+- **Autodialed/prerecorded calls, cold texts, or bulk email to homeowners** →
+  **high liability.** Florida's **FTSA** (§501.059) and the federal **TCPA**
+  require **prior express written consent** and carry **$500–$1,500 per
+  message**; Florida sees heavy FTSA class-action litigation. A phone number
+  from a public record gives **zero** consent.
+- Scrub any call/text list against the **National DNC Registry** and honor
+  STOP/opt-outs (the WWSLGC signature already includes an opt-out line).
+
+Bottom line: request the contact fields (great for verification, skip-tracing,
+and mail), but **run outreach as direct mail** unless you have written consent.
+This is guidance, not legal advice — confirm your call/text program with counsel.
+
+---
+
 ## A) Building-permit export (the core request — send to every jurisdiction)
 
 > **Subject:** Public Records Request — Building Permit Data Export
@@ -28,12 +53,20 @@ Signature block for all of them:
 > permits issued by **[JURISDICTION]** from **January 1, 2024 to present**, with:
 > permit/record number; permit type and description (scope of work); site address,
 > city, ZIP; parcel/folio (PCN); application date; issue date; status; declared
-> job valuation; contractor name and license #; and property-owner name and
-> mailing address if maintained.
+> job valuation; contractor name, license #, phone, and email; applicant name,
+> phone, and email; and property-owner name, mailing address, phone, and email —
+> **as maintained in the permit record**, with any information exempt under
+> §119.071, F.S. redacted as you deem required.
 >
 > Please provide as **CSV or Excel (.xlsx)** — a database export, not PDFs. If a
 > **recurring monthly export** of newly issued permits is possible, I'd like to
 > set that up. Notify me of any duplication cost over $25 before processing.
+
+*(The "phone and email … as maintained, with §119.071 exemptions redacted"
+wording is deliberate: it asks for the contact fields, and pre-authorizes the
+agency to redact the legally-exempt ones so they can't use "we'd have to redact"
+as a reason to deny the whole request. Contractor contact info is almost always
+released; owner/applicant phone/email is a mix by agency.)*
 
 Highest-value targets not already in the tool: **City of Miami**, **Miami Beach**,
 **Hollywood**, **Pompano Beach**, **Coral Springs**, **Davie**, **Boynton Beach**,
