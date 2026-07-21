@@ -21,11 +21,18 @@ class TastytradeBroker:
     def _token(self) -> str:
         if self._access_token and time.monotonic() < self._token_expiry - 60:
             return self._access_token
-        body = urllib.parse.urlencode({
+        params = {
             "grant_type": "refresh_token",
             "refresh_token": self.cfg.tt_refresh_token,
             "client_secret": self.cfg.tt_client_secret,
-        }).encode()
+        }
+        # tastytrade provisions a client_id alongside the secret (TT_CLIENT_ID is
+        # already in the VM's .env); include it when set — standard OAuth2 refresh
+        # grant. Absent -> legacy secret-only body, behavior unchanged. If the
+        # sandbox ever rejects with invalid_client, unset TT_CLIENT_ID to revert.
+        if getattr(self.cfg, "tt_client_id", ""):
+            params["client_id"] = self.cfg.tt_client_id
+        body = urllib.parse.urlencode(params).encode()
         req = urllib.request.Request(
             f"{self.cfg.api_base}/oauth/token", data=body,
             headers={"Content-Type": "application/x-www-form-urlencoded"})

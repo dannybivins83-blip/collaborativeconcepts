@@ -5,9 +5,16 @@ existing `pm2` + watchdog + KILL_SWITCH stack at `/home/opc/auto-trader`
 (owned by the `coinbase-trader` agent). Deploys **disarmed / paper** — see the
 hard rails in [`README.md`](./README.md) before you ever go live.
 
-Prereq: complete the one-time "Setup (Danny)" steps in the README first
-(unlock tastytrade, create the OAuth app + refresh token + sandbox account,
-create the Telegram bot, get your chat id).
+Prereq status (verified on the VM 2026-07-21 by overlord): the **tastytrade
+OAuth setup is already DONE** — `TT_CLIENT_SECRET`, `TT_REFRESH_TOKEN`, and
+`TT_CLIENT_ID` are populated on the VM (sourced from the main
+`/home/opc/auto-trader/.env`). Do NOT redo that setup. The module folder and
+its `env.sh` already exist beside it; the **only remaining blank is
+`TELEGRAM_CHAT_ID`** (see step 2).
+
+This module notifies over **Telegram only** — it never publishes to the shared
+`kjburnz-trading-alerts` ntfy topic, and its Telegram calls back off on HTTP
+429, so it cannot join the ntfy rate-limit crash loop.
 
 ## 1. Pull the module onto the VM
 
@@ -22,21 +29,25 @@ git clone --depth 1 --branch claude/tastytrade-mimic-setup-jwcmaa \
 cp -r tt-src/trading/tastytrade-mimic ./tastytrade-mimic && rm -rf tt-src
 cd tastytrade-mimic
 
-python3 _tests.py        # expect: Ran 24 tests ... OK
+python3 _tests.py        # expect: Ran 29 tests ... OK  (24 before the client_id/429 revision)
 ```
 
 No `pip install` needed — the module is standard-library only.
 
-## 2. Fill in secrets (env.sh)
+## 2. Complete the Telegram credentials (the only gap)
 
-`env.sh` holds real secrets, is gitignored, and never gets committed. Copy the
-template, fill it in with a text editor, then lock it down:
+The module reads secrets from the **process environment** — module `env.sh`
+(sourced by `start.sh`), the shared `/home/opc/auto-trader/.env`, or pm2's env
+all work. On this VM, `env.sh` already exists beside the module (mode 600,
+gitignored) with the tastytrade vars populated; only `TELEGRAM_CHAT_ID` is
+blank. To fill it: Danny messages the bot once, then reads the chat id from
+`https://api.telegram.org/bot<TOKEN>/getUpdates` and enters it in `env.sh`
+**on the VM directly** — never through chat.
 
-```bash
-cp env.sh.example env.sh
-nano env.sh              # replace every PASTE_HERE, keep MODE=paper
-chmod 600 env.sh
-```
+Fresh-target fallback: `cp env.sh.example env.sh`, fill in all four values,
+`chmod 600 env.sh`. Either way keep `MODE=paper`. `TT_CLIENT_ID` is
+optional-but-used: the token request includes it when set. `TASTYTRADE_USER`
+is **not** needed — auth is the OAuth refresh flow, no username/password.
 
 > A secret pasted into a chat, commit, bus message, or screenshot is **burned** —
 > regenerate it before use. Only ever confirm a secret by NAME, never its value.

@@ -7,17 +7,43 @@ without a human tapping the Approve button for this specific trade.
 """
 import json
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
 API = "https://api.telegram.org/bot{token}/{method}"
 
+_MAX_ATTEMPTS = 3
 
-def _call(token: str, method: str, params: dict) -> dict:
+
+def _sleep(seconds: float) -> None:  # indirection so tests can patch the wait
+    time.sleep(seconds)
+
+
+def _call(token: str, method: str, params: dict, attempts: int = _MAX_ATTEMPTS) -> dict:
+    """POST to the Telegram Bot API, retrying on 429/5xx with backoff.
+
+    Telegram rate-limits with HTTP 429 (+ Retry-After). Without backoff a burst
+    would raise and could crash the loop — the same failure class that killed
+    the shared-ntfy-topic processes on the VM. Retry-After is honored; 4xx
+    other than 429 fail fast.
+    """
     data = urllib.parse.urlencode(params).encode()
-    req = urllib.request.Request(API.format(token=token, method=method), data=data)
-    with urllib.request.urlopen(req, timeout=35) as resp:
-        return json.loads(resp.read().decode())
+    last_exc = None
+    for attempt in range(max(1, attempts)):
+        req = urllib.request.Request(API.format(token=token, method=method), data=data)
+        try:
+            with urllib.request.urlopen(req, timeout=35) as resp:
+                return json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            last_exc = e
+            retryable = e.code == 429 or 500 <= e.code < 600
+            if not retryable or attempt == attempts - 1:
+                raise
+            retry_after = e.headers.get("Retry-After") if e.headers else None
+            delay = int(retry_after) if (retry_after and str(retry_after).isdigit()) else 2 ** attempt
+            _sleep(min(delay, 30))
+    raise last_exc  # pragma: no cover - loop always returns or raises above
 
 
 def format_trade_card(sig: dict, multiplier: int, mode: str) -> str:
@@ -49,11 +75,14 @@ def request_approval(cfg, sig: dict, multiplier: int) -> bool:
         {"text": "✅ Copy this trade", "callback_data": approve_data},
         {"text": "❌ Skip", "callback_data": skip_data},
     ]]}
-    sent = _call(cfg.telegram_bot_token, "sendMessage", {
-        "chat_id": cfg.telegram_chat_id,
-        "text": format_trade_card(sig, multiplier, cfg.mode),
-        "reply_markup": json.dumps(keyboard),
-    })
+    try:
+        sent = _call(cfg.telegram_bot_token, "sendMessage", {
+            "chat_id": cfg.telegram_chat_id,
+            "text": format_trade_card(sig, multiplier, cfg.mode),
+            "reply_markup": json.dumps(keyboard),
+        })
+    except OSError:
+        return False  # can't reach the human gate -> no approval -> SKIP (never yes)
     if not sent.get("ok"):
         return False
     message_id = sent["result"]["message_id"]
@@ -88,11 +117,14 @@ def request_approval(cfg, sig: dict, multiplier: int) -> bool:
             _call(cfg.telegram_bot_token, "answerCallbackQuery", {"callback_query_id": cq["id"]})
 
     outcome = "✅ Approved" if decision else ("❌ Skipped" if answered else "⏰ Expired → skipped")
-    _call(cfg.telegram_bot_token, "editMessageText", {
-        "chat_id": cfg.telegram_chat_id,
-        "message_id": message_id,
-        "text": format_trade_card(sig, multiplier, cfg.mode) + f"\n\n{outcome}",
-    })
+    try:  # cosmetic status edit — never let it override or crash the decision
+        _call(cfg.telegram_bot_token, "editMessageText", {
+            "chat_id": cfg.telegram_chat_id,
+            "message_id": message_id,
+            "text": format_trade_card(sig, multiplier, cfg.mode) + f"\n\n{outcome}",
+        })
+    except OSError:
+        pass
     return decision
 
 

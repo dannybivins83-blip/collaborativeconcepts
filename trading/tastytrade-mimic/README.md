@@ -43,16 +43,23 @@ signals.py  ──▶  main.py loop  ──▶  telegram_gate.py  ──▶  bro
 
 ## Setup (Danny — one time, ~10 min)
 
-1. Unlock the tastytrade account (see the "Account locked" email) and enable 2FA.
+> Status (verified on the deploy VM 2026-07-21): **steps 1–2 are already DONE**
+> — the OAuth app, refresh token, and sandbox exist; `TT_CLIENT_SECRET`,
+> `TT_REFRESH_TOKEN`, and `TT_CLIENT_ID` are already on the VM. Don't redo them.
+> Only **step 3 (Telegram)** remains — specifically getting `TELEGRAM_CHAT_ID`
+> into the VM's `env.sh`.
+
+1. Unlock the tastytrade account (see the "Account locked" email) and enable 2FA. ✅ done
 2. At https://developer.tastytrade.com sign in, opt into the Open API, and create an
    **OAuth application** → note the client secret and generate a refresh token.
-   Also create a **sandbox** account at the same portal for paper mode.
+   Also create a **sandbox** account at the same portal for paper mode. ✅ done
 3. Create a Telegram bot with @BotFather → bot token. Message the bot once, then get
    your chat id from `https://api.telegram.org/bot<TOKEN>/getUpdates`.
 4. Set env vars **on the VM / deploy target only** (never in git):
    `TT_CLIENT_SECRET`, `TT_REFRESH_TOKEN`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`,
-   optional `TT_ACCOUNT` (defaults to first account), `MODE` (`paper`|`live`),
-   `KILL_SWITCH_FILE` (default `./KILL_SWITCH`), `MAX_CONTRACTS` (default `1`).
+   optional `TT_CLIENT_ID` (sent on the token request when set), `TT_ACCOUNT`
+   (defaults to first account), `MODE` (`paper`|`live`), `KILL_SWITCH_FILE`
+   (default `./KILL_SWITCH`), `MAX_CONTRACTS` (default `1`).
 
 ## Run
 

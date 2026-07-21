@@ -4,6 +4,7 @@ import os
 import sys
 import tempfile
 import unittest
+import urllib.error
 from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -282,6 +283,98 @@ class ApprovalGateTests(unittest.TestCase):
             return {"ok": True}
 
         with mock.patch.object(telegram_gate, "_call", side_effect=fake_call):
+            self.assertFalse(telegram_gate.request_approval(cfg, sample_signal(), 1))
+
+
+class TokenRequestTests(unittest.TestCase):
+    """The OAuth refresh body — client_id is included only when provisioned."""
+
+    def _capture_token_body(self, env):
+        captured = {}
+
+        class OKResp:
+            def __enter__(self_):
+                return self_
+
+            def __exit__(self_, *a):
+                return False
+
+            def read(self_):
+                return json.dumps({"access_token": "AT", "expires_in": 900}).encode()
+
+        def fake_urlopen(req, timeout=0):
+            captured["body"] = req.data.decode()
+            return OKResp()
+
+        with mock.patch.dict(os.environ, env, clear=True), \
+             mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            token = TastytradeBroker(Config())._token()
+        self.assertEqual(token, "AT")
+        return captured["body"]
+
+    def test_token_includes_client_id_when_set(self):
+        body = self._capture_token_body(
+            {"TT_CLIENT_SECRET": "s", "TT_REFRESH_TOKEN": "r", "TT_CLIENT_ID": "cid"})
+        self.assertIn("client_id=cid", body)
+        self.assertIn("grant_type=refresh_token", body)
+
+    def test_token_omits_client_id_when_absent(self):
+        body = self._capture_token_body({"TT_CLIENT_SECRET": "s", "TT_REFRESH_TOKEN": "r"})
+        self.assertNotIn("client_id", body)
+
+
+class TelegramTransportTests(unittest.TestCase):
+    def test_call_retries_on_429_then_succeeds(self):
+        import telegram_gate
+        calls = {"n": 0}
+
+        class OKResp:
+            def __enter__(self_):
+                return self_
+
+            def __exit__(self_, *a):
+                return False
+
+            def read(self_):
+                return json.dumps({"ok": True, "result": {}}).encode()
+
+        def fake_urlopen(req, timeout=0):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise urllib.error.HTTPError(
+                    "http://x", 429, "Too Many Requests", {"Retry-After": "1"}, None)
+            return OKResp()
+
+        with mock.patch.object(telegram_gate, "_sleep") as slept, \
+             mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            out = telegram_gate._call("tok", "sendMessage", {"a": 1})
+        self.assertEqual(out, {"ok": True, "result": {}})
+        self.assertEqual(calls["n"], 2)   # retried once after the 429
+        slept.assert_called_once()        # honored the backoff instead of crashing
+
+    def test_call_fails_fast_on_4xx(self):
+        import telegram_gate
+
+        def fake_urlopen(req, timeout=0):
+            raise urllib.error.HTTPError("http://x", 400, "Bad Request", {}, None)
+
+        with mock.patch.object(telegram_gate, "_sleep") as slept, \
+             mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            with self.assertRaises(urllib.error.HTTPError):
+                telegram_gate._call("tok", "sendMessage", {"a": 1})
+        slept.assert_not_called()         # non-429 4xx is not retried
+
+    def test_approval_returns_false_when_send_fails(self):
+        import telegram_gate
+        cfg = Config()
+        object.__setattr__(cfg, "telegram_bot_token", "x")
+        object.__setattr__(cfg, "telegram_chat_id", "1")
+
+        def boom(token, method, params):
+            raise OSError("telegram unreachable")
+
+        with mock.patch.object(telegram_gate, "_call", side_effect=boom):
+            # a dead gate must mean SKIP, never approve, and never crash the loop
             self.assertFalse(telegram_gate.request_approval(cfg, sample_signal(), 1))
 
 
