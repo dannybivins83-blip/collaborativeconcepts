@@ -25,6 +25,7 @@ as a multiplier cap on top.
 import json
 import os
 from datetime import datetime, timezone
+from typing import Optional
 
 DEFAULT_FOLLOW_FEED_URL = (
     "https://follow.tastylive.com/api/public_orders"
@@ -94,7 +95,7 @@ class FollowFeedSource(SignalSource):
                                  trader_names=self.trader_names)
 
 
-def occ_symbol(feed_symbol: str) -> str | None:
+def occ_symbol(feed_symbol: str) -> Optional[str]:
     """'SPXW 260721P07435000' -> 'SPXW  260721P07435000' (OCC root padded to 6)."""
     parts = feed_symbol.split()
     if len(parts) != 2:
@@ -105,7 +106,7 @@ def occ_symbol(feed_symbol: str) -> str | None:
     return f"{root:<6}{rest}"
 
 
-def _reduce_ratio(quantities: list[float]) -> list[int] | None:
+def _reduce_ratio(quantities: list[float]) -> Optional[list[int]]:
     """[10, 10, 20] -> [1, 1, 2]; smallest leg becomes 1 unit."""
     if not quantities or any(q <= 0 for q in quantities):
         return None
@@ -116,8 +117,8 @@ def _reduce_ratio(quantities: list[float]) -> list[int] | None:
     return reduced
 
 
-def parse_follow_feed(raw, max_age_min: int = 180, trader_names: dict | None = None,
-                      now: datetime | None = None) -> list[dict]:
+def parse_follow_feed(raw, max_age_min: int = 180, trader_names: Optional[dict] = None,
+                      now: Optional[datetime] = None) -> list[dict]:
     """Map tastylive public_orders onto internal signals.
 
     Only FILLED orders are copied (a placed-but-unfilled order may be canceled),

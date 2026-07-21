@@ -66,3 +66,15 @@ runs as an API dry-run only until you deliberately arm it.
   `pm2 start ./start.sh --name tt-mimic -- --execute`. Even then, **every trade
   still requires your per-trade Telegram tap**; an unanswered request expires to
   SKIP.
+
+## TARGET ENVIRONMENT — verified on the VM 2026-07-21 (do not regress)
+- The Oracle VM runs **Python 3.9.25**. There is no newer interpreter installed.
+- **Do NOT use PEP-604 unions** (`dict | None`). They are a syntax error on 3.9 and WILL fail the
+  deploy even though the test suite passes on a modern Python. Use `Optional[dict]` from `typing`.
+  This bit us once: 5 occurrences across broker.py/signals.py had to be converted on the VM.
+- `pip3` is NOT on PATH. Use `python3 -m pip`.
+- Verified after the fix: `python3 _tests.py` → **Ran 24 tests, OK, exit 0** on the VM itself.
+- Default posture re-verified: `main.py` computes `armed = cfg.mode == "live" and execute_flag`,
+  and MODE defaults to `paper`. Arming requires BOTH. Unchanged by the compatibility fix.
+- `env.sh` lives beside the module, mode 600, gitignored. TT_CLIENT_ID / TT_CLIENT_SECRET /
+  TT_REFRESH_TOKEN are already populated from the main .env. Only TELEGRAM_CHAT_ID remains blank.
