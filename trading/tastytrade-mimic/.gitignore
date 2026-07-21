@@ -1,0 +1,8 @@
+# Runtime state + local signal drops — never commit
+state.json
+signals.json
+KILL_SWITCH
+.env
+*.env
+# Deploy secrets — filled from env.sh.example on the VM, never committed
+env.sh
