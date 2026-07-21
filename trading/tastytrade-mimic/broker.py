@@ -8,6 +8,7 @@ import json
 import time
 import urllib.parse
 import urllib.request
+from typing import Optional
 
 
 class TastytradeBroker:
@@ -34,7 +35,7 @@ class TastytradeBroker:
         self._token_expiry = time.monotonic() + int(data.get("expires_in", 900))
         return self._access_token
 
-    def _request(self, method: str, path: str, payload: dict | None = None) -> dict:
+    def _request(self, method: str, path: str, payload: Optional[dict] = None) -> dict:
         body = json.dumps(payload).encode() if payload is not None else None
         req = urllib.request.Request(
             f"{self.cfg.api_base}{path}", data=body, method=method,
