@@ -285,5 +285,70 @@ class ApprovalGateTests(unittest.TestCase):
             self.assertFalse(telegram_gate.request_approval(cfg, sample_signal(), 1))
 
 
+
+
+class ResilienceTests(unittest.TestCase):
+    """A feed outage or handler bug must never crash the process (pm2 crash-loop
+    guard, per overlord 2026-07-21 directive)."""
+
+    ENV = {"MODE": "paper", "TT_CLIENT_SECRET": "x", "TT_REFRESH_TOKEN": "x",
+           "TELEGRAM_BOT_TOKEN": "x", "TELEGRAM_CHAT_ID": "1"}
+
+    def test_poll_exception_does_not_crash(self):
+        class ExplodingSource:
+            def poll(self):
+                raise OSError("HTTP 429: rate limited")
+
+        with tempfile.TemporaryDirectory() as d:
+            env = dict(self.ENV, STATE_FILE=os.path.join(d, "s.json"),
+                       KILL_SWITCH_FILE=os.path.join(d, "KILL_SWITCH"))
+            with mock.patch.dict(os.environ, env, clear=True), \
+                 mock.patch.object(main_mod, "make_source", return_value=ExplodingSource()), \
+                 mock.patch.object(main_mod, "notify"):
+                rc = main_mod.run(Config(), execute_flag=False, once=True)
+        self.assertEqual(rc, 1)  # clean exit code, no traceback
+
+    def test_process_signal_exception_is_contained(self):
+        with tempfile.TemporaryDirectory() as d:
+            sig_path = os.path.join(d, "signals.json")
+            with open(sig_path, "w") as f:
+                json.dump([sample_signal(id="a"), sample_signal(id="b")], f)
+            env = dict(self.ENV, SIGNAL_SOURCE="file", SIGNAL_FILE=sig_path,
+                       STATE_FILE=os.path.join(d, "s.json"),
+                       KILL_SWITCH_FILE=os.path.join(d, "KILL_SWITCH"))
+            calls = []
+
+            def boom(cfg, broker, sig, armed):
+                calls.append(sig["id"])
+                raise RuntimeError("unexpected handler bug")
+
+            with mock.patch.dict(os.environ, env, clear=True), \
+                 mock.patch.object(main_mod, "process_signal", side_effect=boom), \
+                 mock.patch.object(main_mod, "notify"):
+                rc = main_mod.run(Config(), execute_flag=False, once=True)
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls, ["a", "b"])  # second signal still processed
+
+
+class ClientIdTests(unittest.TestCase):
+    def test_client_id_included_only_when_set(self):
+        captured = {}
+
+        def fake_urlopen(req, timeout=None):
+            captured["body"] = req.data.decode()
+            raise OSError("stop here")
+
+        for client_id, expect in (("", False), ("abc123", True)):
+            env = {"TT_CLIENT_SECRET": "s", "TT_REFRESH_TOKEN": "r",
+                   "TT_CLIENT_ID": client_id}
+            with mock.patch.dict(os.environ, env, clear=True), \
+                 mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+                try:
+                    TastytradeBroker(Config())._token()
+                except OSError:
+                    pass
+            self.assertEqual("client_id" in captured["body"], expect)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

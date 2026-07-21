@@ -67,6 +67,7 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
     source = make_source(cfg)
     state = load_state(cfg.state_file)
 
+    poll_failures = 0
     while True:
         if cfg.kill_switch_engaged():
             print("KILL_SWITCH engaged — idling, no polling, no orders")
@@ -74,12 +75,30 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
                 return 0
             time.sleep(cfg.poll_interval_s)
             continue
-        for sig in source.poll():
+        # A feed outage or rate limit must NEVER crash the process (a pm2
+        # restart loop would hammer the endpoint) — back off and keep living.
+        try:
+            signals = source.poll()
+            poll_failures = 0
+        except Exception as e:
+            poll_failures += 1
+            wait = min(cfg.poll_interval_s * (2 ** min(poll_failures, 5)), 900)
+            print(f"poll failed ({type(e).__name__}: {e}) — retry in {wait}s")
+            if once:
+                return 1
+            time.sleep(wait)
+            continue
+        for sig in signals:
             if sig["id"] in state["seen"]:
                 continue
             state["seen"] = state["seen"][-500:] + [sig["id"]]
             save_state(cfg.state_file, state)  # mark seen BEFORE acting: never double-fire
-            outcome = process_signal(cfg, broker, sig, armed)
+            try:
+                outcome = process_signal(cfg, broker, sig, armed)
+            except Exception as e:
+                outcome = "error"
+                print(f"process_signal failed ({type(e).__name__}: {e})")
+                notify(cfg, f"⚠️ Error handling {sig.get('symbol', '?')} signal — skipped safely.")
             print(f"signal {sig['id']} ({sig['trader']} {sig['symbol']}): {outcome}")
         if once:
             return 0

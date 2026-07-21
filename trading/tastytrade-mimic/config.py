@@ -8,6 +8,7 @@ class Config:
     mode: str = field(default_factory=lambda: os.environ.get("MODE", "paper").lower())
     tt_client_secret: str = field(default_factory=lambda: os.environ.get("TT_CLIENT_SECRET", ""))
     tt_refresh_token: str = field(default_factory=lambda: os.environ.get("TT_REFRESH_TOKEN", ""))
+    tt_client_id: str = field(default_factory=lambda: os.environ.get("TT_CLIENT_ID", ""))  # optional
     tt_account: str = field(default_factory=lambda: os.environ.get("TT_ACCOUNT", ""))
     telegram_bot_token: str = field(default_factory=lambda: os.environ.get("TELEGRAM_BOT_TOKEN", ""))
     telegram_chat_id: str = field(default_factory=lambda: os.environ.get("TELEGRAM_CHAT_ID", ""))
