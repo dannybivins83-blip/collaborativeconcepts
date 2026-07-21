@@ -45,6 +45,9 @@ def process_signal(cfg: Config, broker: TastytradeBroker, sig: dict, armed: bool
     except BrokerError as e:
         notify(cfg, f"⚠️ Order failed for {sig['symbol']}: {e}")
         return "error"
+    except Exception as e:  # never fail silently or crash the poll loop on a surprise
+        notify(cfg, f"⚠️ Unexpected error handling {sig['symbol']}: {type(e).__name__}: {e}")
+        return "error"
     if result["status"] == "submitted":
         notify(cfg, f"📬 LIVE order submitted for {sig['symbol']} (id {result.get('order_id')})")
     else:

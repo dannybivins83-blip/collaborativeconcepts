@@ -378,5 +378,65 @@ class TelegramTransportTests(unittest.TestCase):
             self.assertFalse(telegram_gate.request_approval(cfg, sample_signal(), 1))
 
 
+class TokenErrorTests(unittest.TestCase):
+    """Auth/network failures must surface as BrokerError, never silent crashes."""
+
+    def _broker(self, env):
+        with mock.patch.dict(os.environ, env, clear=True):
+            return TastytradeBroker(Config())
+
+    def test_token_http_error_becomes_broker_error(self):
+        import io
+        from broker import BrokerError
+        broker = self._broker({"TT_CLIENT_SECRET": "s", "TT_REFRESH_TOKEN": "r"})
+
+        def fake_urlopen(req, timeout=0):
+            raise urllib.error.HTTPError(
+                "http://x/oauth/token", 401, "Unauthorized", {},
+                io.BytesIO(b'{"error":"invalid_client"}'))
+
+        with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            with self.assertRaises(BrokerError) as ctx:
+                broker._token()
+        self.assertIn("401", str(ctx.exception))
+
+    def test_token_network_error_becomes_broker_error(self):
+        from broker import BrokerError
+        broker = self._broker({"TT_CLIENT_SECRET": "s", "TT_REFRESH_TOKEN": "r"})
+
+        def fake_urlopen(req, timeout=0):
+            raise urllib.error.URLError("connection refused")
+
+        with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            with self.assertRaises(BrokerError):
+                broker._token()
+
+
+class ProcessSignalErrorTests(unittest.TestCase):
+    """After approval, any failure must notify the owner and not crash the loop."""
+
+    def _run_with_place(self, place_exc):
+        cfg = Config()
+        broker = TastytradeBroker(cfg)
+        msgs = []
+        with mock.patch.object(broker, "place", side_effect=place_exc), \
+             mock.patch.object(main_mod, "request_approval", return_value=True), \
+             mock.patch.object(main_mod, "notify", side_effect=lambda c, t: msgs.append(t)):
+            outcome = main_mod.process_signal(cfg, broker, sample_signal(), armed=False)
+        return outcome, msgs
+
+    def test_broker_error_notifies_order_failed(self):
+        from broker import BrokerError
+        outcome, msgs = self._run_with_place(BrokerError("HTTP 401: invalid_client"))
+        self.assertEqual(outcome, "error")
+        self.assertTrue(any("Order failed" in m and "401" in m for m in msgs))
+
+    def test_unexpected_error_still_notifies_and_returns_error(self):
+        # a raw KeyError (the old silent-crash path) must now notify, not propagate
+        outcome, msgs = self._run_with_place(KeyError("account-number"))
+        self.assertEqual(outcome, "error")
+        self.assertTrue(any("SPY" in m for m in msgs))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

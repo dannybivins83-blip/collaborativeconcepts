@@ -6,6 +6,7 @@ submitted ONLY when armed=True, which main.py sets only for MODE=live plus the
 """
 import json
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from typing import Optional
@@ -36,8 +37,23 @@ class TastytradeBroker:
         req = urllib.request.Request(
             f"{self.cfg.api_base}/oauth/token", data=body,
             headers={"Content-Type": "application/x-www-form-urlencoded"})
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read().decode())
+        # Wrap every failure as BrokerError so the caller notifies instead of
+        # dying silently. Auth failure is the most common first-run problem —
+        # e.g. a production refresh token 401s against the cert/sandbox base.
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode()[:500]
+            raise BrokerError(
+                f"OAuth token refresh -> HTTP {e.code}: {detail} "
+                f"(authenticating against {self.cfg.api_base}; a production "
+                f"refresh token will 401 against the cert/sandbox base)") from e
+        except (urllib.error.URLError, OSError) as e:
+            raise BrokerError(f"OAuth token refresh -> network error reaching "
+                              f"{self.cfg.api_base}: {e}") from e
+        if not isinstance(data, dict) or "access_token" not in data:
+            raise BrokerError(f"OAuth token refresh returned no access_token: {str(data)[:200]}")
         self._access_token = data["access_token"]
         self._token_expiry = time.monotonic() + int(data.get("expires_in", 900))
         return self._access_token
