@@ -1,15 +1,50 @@
 """Signal sources: where "a followed trader just made a trade" events come from.
 
-A signal dict:
-  {"id": "unique-string", "trader": "Tom", "symbol": "SPY", "description": "...",
-   "order_type": "Limit", "price": 1.05, "price_effect": "Credit",
-   "legs": [{"instrument_type": "Equity Option", "symbol": "SPY   260821P00550000",
+The primary source is tastylive's PUBLIC follow-feed endpoint (captured
+2026-07-21, confirmed unauthenticated — no cookies or tokens involved):
+
+  GET https://follow.tastylive.com/api/public_orders?traders[]=...&attrs[open_close]=O
+
+Response shape: {"public_orders": [{id, order_type: "net_credit"|"net_debit",
+price, strategy, reason, placed_at, filled_at, trader_id,
+order_legs: [{symbol: "SPXW 260721P07435000", action: "selltoopen",
+quantity: "1.0", underlying_symbol, ...}], ...}]}
+
+Internal signal dict produced here:
+  {"id": "43227967", "trader": "Tom Preston", "symbol": "SPX",
+   "description": "...", "order_type": "Limit", "price": 0.2,
+   "price_effect": "Credit",
+   "legs": [{"instrument_type": "Equity Option",
+             "symbol": "SPXW  260721P07435000",   # OCC: root padded to 6
              "action": "Sell to Open", "quantity": 1}, ...]}
 
-Leg symbols use the OCC format the tastytrade API expects.
+Leg quantities are ratio-reduced (smallest leg = 1) so a 10-lot from a
+followed trader becomes a 1-lot-per-unit copy; main.py applies MAX_CONTRACTS
+as a multiplier cap on top.
 """
 import json
 import os
+from datetime import datetime, timezone
+
+DEFAULT_FOLLOW_FEED_URL = (
+    "https://follow.tastylive.com/api/public_orders"
+    "?traders[]=Tom Preston&traders[]=Jim Schultz&traders[]=Mike"
+    "&traders[]=Jermal&traders[]=Chris&traders[]=Ilya&traders[]=Errol"
+    "&traders[]=Gus&traders[]=Katie&traders[]=Tony MX&traders[]=Tom C"
+    "&attrs[open_close]=O"
+)
+
+ACTION_MAP = {
+    "buytoopen": "Buy to Open",
+    "selltoopen": "Sell to Open",
+    "buytoclose": "Buy to Close",
+    "selltoclose": "Sell to Close",
+}
+
+ORDER_TYPE_MAP = {
+    "net_credit": ("Limit", "Credit"),
+    "net_debit": ("Limit", "Debit"),
+}
 
 
 class SignalSource:
@@ -18,12 +53,8 @@ class SignalSource:
 
 
 class FileSignalSource(SignalSource):
-    """Reads signals from a JSON file (a list of signal dicts).
-
-    Used for paper-cycle testing, and as the drop-point for any external watcher
-    that writes signals it captures. Malformed files return no signals rather
-    than crashing the loop.
-    """
+    """Reads pre-shaped signal dicts from a JSON list file (paper testing /
+    external drop-point). Malformed files return no signals rather than crash."""
 
     def __init__(self, path: str):
         self.path = path
@@ -42,47 +73,118 @@ class FileSignalSource(SignalSource):
 
 
 class FollowFeedSource(SignalSource):
-    """Polls the follow-feed endpoint captured from a logged-in browser session.
+    """Polls the public tastylive follow-feed endpoint (read-only, no auth)."""
 
-    The Follow Feed is not part of the public Open API, so the URL + headers must
-    be captured once via DevTools (see README). Read-only: this source never
-    posts anything to tastytrade.
-    """
-
-    def __init__(self, url: str, headers: dict):
-        if not url:
-            raise ValueError(
-                "FOLLOW_FEED_URL not set — capture the endpoint per README, "
-                "or use SIGNAL_SOURCE=file for paper testing."
-            )
-        self.url = url
+    def __init__(self, url: str, headers: dict, max_age_min: int, trader_names: dict):
+        self.url = url or DEFAULT_FOLLOW_FEED_URL
         self.headers = headers
+        self.max_age_min = max_age_min
+        self.trader_names = trader_names
 
     def poll(self) -> list[dict]:
+        import urllib.parse
         import urllib.request
 
-        req = urllib.request.Request(self.url, headers=self.headers)
+        # the captured URL contains spaces and [] — quote them for urllib
+        url = urllib.parse.quote(self.url, safe=":/?&=%")
+        req = urllib.request.Request(url, headers=self.headers)
         with urllib.request.urlopen(req, timeout=30) as resp:
             raw = json.loads(resp.read().decode())
-        return parse_follow_feed(raw)
+        return parse_follow_feed(raw, max_age_min=self.max_age_min,
+                                 trader_names=self.trader_names)
 
 
-def parse_follow_feed(raw) -> list[dict]:
-    """Map the platform's feed payload onto our signal shape.
+def occ_symbol(feed_symbol: str) -> str | None:
+    """'SPXW 260721P07435000' -> 'SPXW  260721P07435000' (OCC root padded to 6)."""
+    parts = feed_symbol.split()
+    if len(parts) != 2:
+        return None
+    root, rest = parts
+    if len(rest) != 15 or len(root) > 6:  # YYMMDD + C/P + 8-digit strike
+        return None
+    return f"{root:<6}{rest}"
 
-    The exact payload shape is unknown until the endpoint is captured, so this
-    handles the conventional tastytrade envelope ({"data": {"items": [...]}})
-    and passes through items that already carry the fields we need. Anything it
-    can't map is skipped, never guessed.
+
+def _reduce_ratio(quantities: list[float]) -> list[int] | None:
+    """[10, 10, 20] -> [1, 1, 2]; smallest leg becomes 1 unit."""
+    if not quantities or any(q <= 0 for q in quantities):
+        return None
+    smallest = min(quantities)
+    reduced = [round(q / smallest) for q in quantities]
+    if any(r < 1 for r in reduced):
+        return None
+    return reduced
+
+
+def parse_follow_feed(raw, max_age_min: int = 180, trader_names: dict | None = None,
+                      now: datetime | None = None) -> list[dict]:
+    """Map tastylive public_orders onto internal signals.
+
+    Only FILLED orders are copied (a placed-but-unfilled order may be canceled),
+    and only fills newer than max_age_min (so a restart doesn't replay history).
+    Orders that can't be mapped cleanly are skipped, never guessed at.
     """
-    items = raw
-    if isinstance(raw, dict):
-        items = raw.get("data", raw)
-        if isinstance(items, dict):
-            items = items.get("items", [])
-    if not isinstance(items, list):
-        return []
-    return [i for i in items if isinstance(i, dict) and validate_signal(i) == []]
+    trader_names = trader_names or {}
+    now = now or datetime.now(timezone.utc)
+    orders = raw.get("public_orders", []) if isinstance(raw, dict) else []
+    signals = []
+    for o in orders:
+        if not isinstance(o, dict) or not o.get("filled_at") or not o.get("id"):
+            continue
+        try:
+            filled = datetime.fromisoformat(str(o["filled_at"]).replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        if (now - filled).total_seconds() > max_age_min * 60:
+            continue
+        mapped = ORDER_TYPE_MAP.get(o.get("order_type"))
+        if not mapped:
+            continue
+        order_type, price_effect = mapped
+        raw_legs = o.get("order_legs") or []
+        legs, quantities = [], []
+        for leg in raw_legs:
+            symbol = occ_symbol(str(leg.get("symbol", "")))
+            action = ACTION_MAP.get(str(leg.get("action", "")).lower())
+            try:
+                qty = float(leg.get("quantity", 0))
+            except (TypeError, ValueError):
+                qty = 0
+            if not symbol or not action or qty <= 0:
+                legs = []
+                break
+            legs.append({"instrument_type": "Equity Option", "symbol": symbol,
+                         "action": action})
+            quantities.append(qty)
+        reduced = _reduce_ratio(quantities) if legs else None
+        if not legs or reduced is None:
+            continue
+        for leg, q in zip(legs, reduced):
+            leg["quantity"] = q
+        underlying = raw_legs[0].get("underlying_symbol", "?")
+        trader = trader_names.get(str(o.get("trader_id")), f"Trader {o.get('trader_id')}")
+        desc_bits = [o.get("strategy", ""), o.get("reason", "")]
+        pop = o.get("probability_of_profit")
+        if pop:
+            try:
+                desc_bits.append(f"POP {float(pop):.0f}%")
+            except (TypeError, ValueError):
+                pass
+        try:
+            price = float(o.get("price"))
+        except (TypeError, ValueError):
+            continue
+        signals.append({
+            "id": str(o["id"]),
+            "trader": trader,
+            "symbol": underlying,
+            "description": " — ".join(b for b in desc_bits if b),
+            "order_type": order_type,
+            "price": price,
+            "price_effect": price_effect,
+            "legs": legs,
+        })
+    return signals
 
 
 def validate_signal(sig: dict) -> list[str]:
@@ -106,5 +208,10 @@ def validate_signal(sig: dict) -> list[str]:
 
 def make_source(cfg) -> SignalSource:
     if cfg.signal_source == "follow-feed":
-        return FollowFeedSource(cfg.follow_feed_url, json.loads(cfg.follow_feed_headers_json))
+        return FollowFeedSource(
+            cfg.follow_feed_url,
+            json.loads(cfg.follow_feed_headers_json),
+            cfg.max_signal_age_min,
+            json.loads(cfg.trader_names_json),
+        )
     return FileSignalSource(cfg.signal_file)

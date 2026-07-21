@@ -62,7 +62,8 @@ class TastytradeBroker:
 
     # -- orders -------------------------------------------------------------
     @staticmethod
-    def build_order(sig: dict, qty: int) -> dict:
+    def build_order(sig: dict, multiplier: int) -> dict:
+        """Leg quantities are the signal's ratio-reduced values times multiplier."""
         order = {
             "order-type": sig.get("order_type", "Limit"),
             "time-in-force": "Day",
@@ -70,7 +71,7 @@ class TastytradeBroker:
                 "instrument-type": leg["instrument_type"],
                 "symbol": leg["symbol"],
                 "action": leg["action"],
-                "quantity": qty,
+                "quantity": int(leg["quantity"]) * multiplier,
             } for leg in sig["legs"]],
         }
         if sig.get("price") is not None:
@@ -78,9 +79,9 @@ class TastytradeBroker:
             order["price-effect"] = sig.get("price_effect", "Credit")
         return order
 
-    def place(self, sig: dict, qty: int, armed: bool) -> dict:
+    def place(self, sig: dict, multiplier: int, armed: bool) -> dict:
         acct = self.account_number()
-        order = self.build_order(sig, qty)
+        order = self.build_order(sig, multiplier)
         dry = self._request("POST", f"/accounts/{acct}/orders/dry-run", order)
         warnings = dry.get("data", {}).get("warnings", [])
         if not armed:

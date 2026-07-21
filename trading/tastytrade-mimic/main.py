@@ -34,12 +34,14 @@ def save_state(path: str, state: dict) -> None:
 
 
 def process_signal(cfg: Config, broker: TastytradeBroker, sig: dict, armed: bool) -> str:
-    qty = min(cfg.max_contracts, max(1, int(sig.get("quantity", 1))))
-    approved = request_approval(cfg, sig, qty)
+    # Legs carry ratio-reduced quantities; MAX_CONTRACTS caps the largest leg.
+    max_leg = max(int(leg.get("quantity", 1)) for leg in sig["legs"])
+    multiplier = max(1, cfg.max_contracts // max_leg)
+    approved = request_approval(cfg, sig, multiplier)
     if not approved:
         return "skipped"
     try:
-        result = broker.place(sig, qty, armed=armed)
+        result = broker.place(sig, multiplier, armed=armed)
     except BrokerError as e:
         notify(cfg, f"⚠️ Order failed for {sig['symbol']}: {e}")
         return "error"

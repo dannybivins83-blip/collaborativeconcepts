@@ -31,10 +31,15 @@ signals.py  ──▶  main.py loop  ──▶  telegram_gate.py  ──▶  bro
 - `broker.py` talks to the **official** tastytrade Open API directly (OAuth2
   refresh-token flow) — no password logins, so it can never lock the account.
   Every order is validated with the API's `/orders/dry-run` before submission.
-- `signals.py` is pluggable. The Follow Feed is **not** in the public API, so the
-  follow-feed source needs its endpoint captured once from a logged-in browser
-  session (instructions below). Until then the `file` source lets us run full
-  paper cycles end-to-end.
+- `signals.py` polls the follow feed at
+  `https://follow.tastylive.com/api/public_orders` — captured 2026-07-21 and
+  confirmed **public and unauthenticated** (no cookies/tokens), so watching it
+  is plain read-only consumption of a public feed. Only FILLED opening orders
+  newer than `MAX_SIGNAL_AGE_MIN` become signals; leg quantities are
+  ratio-reduced (a trader's 10-lot becomes a 1-lot unit copy) and
+  `MAX_CONTRACTS` caps the largest leg. `SIGNAL_SOURCE=file` remains available
+  for offline paper cycles. Map trader ids to names via `TRADER_NAMES_JSON`
+  (e.g. `{"36625": "Tom Preston"}`).
 
 ## Setup (Danny — one time, ~10 min)
 
@@ -61,15 +66,12 @@ python3 _tests.py                  # offline tests, no network
 
 pm2 (on the VM, by coinbase-trader): `pm2 start main.py --name tt-mimic --interpreter python3`
 
-## Capturing the Follow-Feed endpoint (one-time, from a logged-in browser)
+## Follow-Feed endpoint (captured 2026-07-21 — done)
 
-The platform's own web app fetches the feed; we reuse the same call read-only:
-
-1. Log into https://my.tastytrade.com, open the Follow Feed panel.
-2. DevTools → Network → filter XHR/WS → find the request that returns the followed
-   traders' trades (look for `follow`, `feed`, or `public-portfolio` in the URL).
-3. Copy the URL + method + any non-cookie headers into `FOLLOW_FEED_URL` /
-   `FOLLOW_FEED_HEADERS_JSON` env vars. `signals.py::FollowFeedSource` does the rest.
-
-Note: that endpoint is unofficial (gray area, may break on platform updates). Order
-placement stays on the official API regardless.
+`GET https://follow.tastylive.com/api/public_orders?traders[]=<name>&...&attrs[open_close]=O`
+— public, unauthenticated, returns `{"public_orders": [...]}` with per-order
+`order_legs` in near-OCC symbols (`SPXW 260721P07435000`; the parser pads the
+root to 6 chars for the tastytrade order API). Default URL is baked into
+`signals.py`; override with `FOLLOW_FEED_URL` to change the trader list.
+It is unofficial and could change shape — the parser skips anything it can't
+map cleanly, and order placement stays on the official API regardless.

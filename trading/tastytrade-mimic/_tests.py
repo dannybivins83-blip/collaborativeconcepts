@@ -8,10 +8,34 @@ from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from datetime import datetime, timezone
+
 from broker import TastytradeBroker
 from config import Config
-from signals import FileSignalSource, parse_follow_feed, validate_signal
+from signals import FileSignalSource, occ_symbol, parse_follow_feed, validate_signal
 import main as main_mod
+
+# Real payload captured from the public follow-feed endpoint on 2026-07-21
+CAPTURED_FEED = {"public_orders": [{
+    "id": 43227967, "expiration": "DAY", "order_type": "net_credit",
+    "price": "0.2", "strategy": "Custom", "reason": "Super bear for today!",
+    "executed_at": "2026-07-21T14:11:00Z", "filled_at": "2026-07-21T14:11:47Z",
+    "probability_of_profit": "80.9986714293475", "underlying_price": "7476.76",
+    "placed_at": "2026-07-21T13:31:38Z", "trader_id": 36625, "is_hedge": True,
+    "tos_iv_rank": "42.7565392",
+    "order_legs": [
+        {"symbol": "SPXW 260721P07435000", "action": "selltoopen", "quantity": "1.0",
+         "underlying_symbol": "SPX", "strike_price": "7435.0", "call_or_put": "P"},
+        {"symbol": "SPXW 260721C07520000", "action": "buytoopen", "quantity": "1.0",
+         "underlying_symbol": "SPX", "strike_price": "7520.0", "call_or_put": "C"},
+        {"symbol": "SPXW 260721C07510000", "action": "selltoopen", "quantity": "1.0",
+         "underlying_symbol": "SPX", "strike_price": "7510.0", "call_or_put": "C"},
+        {"symbol": "SPXW 260721P07445000", "action": "buytoopen", "quantity": "1.0",
+         "underlying_symbol": "SPX", "strike_price": "7445.0", "call_or_put": "P"},
+    ],
+    "comments": [],
+}]}
+FEED_NOW = datetime(2026, 7, 21, 14, 30, tzinfo=timezone.utc)
 
 
 def sample_signal(**overrides):
@@ -84,14 +108,54 @@ class SignalTests(unittest.TestCase):
                 f.write("{not json")
             self.assertEqual(FileSignalSource(path).poll(), [])
 
-    def test_parse_follow_feed_envelope(self):
-        raw = {"data": {"items": [sample_signal(), {"noise": 1}]}}
-        self.assertEqual(len(parse_follow_feed(raw)), 1)
+    def test_parse_captured_feed_payload(self):
+        sigs = parse_follow_feed(CAPTURED_FEED, trader_names={"36625": "Tom Preston"},
+                                 now=FEED_NOW)
+        self.assertEqual(len(sigs), 1)
+        sig = sigs[0]
+        self.assertEqual(sig["id"], "43227967")
+        self.assertEqual(sig["trader"], "Tom Preston")
+        self.assertEqual(sig["symbol"], "SPX")
+        self.assertEqual(sig["order_type"], "Limit")
+        self.assertEqual(sig["price_effect"], "Credit")
+        self.assertEqual(sig["price"], 0.2)
+        self.assertEqual(len(sig["legs"]), 4)
+        self.assertEqual(sig["legs"][0]["symbol"], "SPXW  260721P07435000")  # OCC padding
+        self.assertEqual(sig["legs"][0]["action"], "Sell to Open")
+        self.assertEqual(sig["legs"][1]["action"], "Buy to Open")
+        self.assertTrue(all(leg["quantity"] == 1 for leg in sig["legs"]))
+        self.assertEqual(validate_signal(sig), [])  # feeds straight into the pipeline
+
+    def test_parse_skips_unfilled_orders(self):
+        feed = {"public_orders": [dict(CAPTURED_FEED["public_orders"][0], filled_at=None)]}
+        self.assertEqual(parse_follow_feed(feed, now=FEED_NOW), [])
+
+    def test_parse_skips_stale_orders(self):
+        old_now = datetime(2026, 7, 22, 14, 30, tzinfo=timezone.utc)  # next day
+        self.assertEqual(parse_follow_feed(CAPTURED_FEED, max_age_min=180, now=old_now), [])
+
+    def test_parse_reduces_ratio_quantities(self):
+        order = dict(CAPTURED_FEED["public_orders"][0])
+        order["order_legs"] = [
+            dict(order["order_legs"][0], quantity="10.0"),
+            dict(order["order_legs"][1], quantity="20.0"),
+        ]
+        sigs = parse_follow_feed({"public_orders": [order]}, now=FEED_NOW)
+        self.assertEqual([leg["quantity"] for leg in sigs[0]["legs"]], [1, 2])
+
+    def test_parse_unknown_trader_gets_id_label(self):
+        sigs = parse_follow_feed(CAPTURED_FEED, now=FEED_NOW)
+        self.assertEqual(sigs[0]["trader"], "Trader 36625")
+
+    def test_occ_symbol_padding(self):
+        self.assertEqual(occ_symbol("SPXW 260721P07435000"), "SPXW  260721P07435000")
+        self.assertEqual(occ_symbol("SPY 260904P00550000"), "SPY   260904P00550000")
+        self.assertIsNone(occ_symbol("garbage"))
 
 
 class BrokerTests(unittest.TestCase):
     def test_build_order_maps_legs_and_price(self):
-        order = TastytradeBroker.build_order(sample_signal(), qty=1)
+        order = TastytradeBroker.build_order(sample_signal(), 1)
         self.assertEqual(order["order-type"], "Limit")
         self.assertEqual(order["price"], "1.05")
         self.assertEqual(len(order["legs"]), 2)
@@ -110,7 +174,7 @@ class BrokerTests(unittest.TestCase):
 
         with mock.patch.object(broker, "_request", side_effect=fake_request), \
              mock.patch.object(broker, "account_number", return_value="5WT00000"):
-            result = broker.place(sample_signal(), qty=1, armed=False)
+            result = broker.place(sample_signal(), 1, armed=False)
         self.assertEqual(result["status"], "dry-run-only")
         self.assertTrue(all("dry-run" in c for c in calls if "orders" in c))
 
@@ -129,7 +193,7 @@ class ArmingTests(unittest.TestCase):
             sig_path = os.path.join(d, "signals.json")
             with open(sig_path, "w") as f:
                 json.dump([sample_signal()], f)
-            env.update({"SIGNAL_FILE": sig_path, "STATE_FILE": os.path.join(d, "s.json"),
+            env.update({"SIGNAL_SOURCE": "file", "SIGNAL_FILE": sig_path, "STATE_FILE": os.path.join(d, "s.json"),
                         "KILL_SWITCH_FILE": os.path.join(d, "KILL_SWITCH")})
             with mock.patch.dict(os.environ, env, clear=True), \
                  mock.patch.object(main_mod, "process_signal", side_effect=fake_process), \
@@ -161,7 +225,7 @@ class ArmingTests(unittest.TestCase):
             sig_path = os.path.join(d, "signals.json")
             with open(sig_path, "w") as f:
                 json.dump([sample_signal()], f)
-            env.update({"SIGNAL_FILE": sig_path, "STATE_FILE": os.path.join(d, "s.json"),
+            env.update({"SIGNAL_SOURCE": "file", "SIGNAL_FILE": sig_path, "STATE_FILE": os.path.join(d, "s.json"),
                         "KILL_SWITCH_FILE": kill})
             with mock.patch.dict(os.environ, env, clear=True), \
                  mock.patch.object(main_mod, "process_signal") as proc, \
@@ -177,7 +241,7 @@ class ArmingTests(unittest.TestCase):
             sig_path = os.path.join(d, "signals.json")
             with open(sig_path, "w") as f:
                 json.dump([sample_signal()], f)
-            env.update({"SIGNAL_FILE": sig_path, "STATE_FILE": os.path.join(d, "s.json"),
+            env.update({"SIGNAL_SOURCE": "file", "SIGNAL_FILE": sig_path, "STATE_FILE": os.path.join(d, "s.json"),
                         "KILL_SWITCH_FILE": os.path.join(d, "KILL_SWITCH")})
             with mock.patch.dict(os.environ, env, clear=True), \
                  mock.patch.object(main_mod, "process_signal", return_value="skipped") as proc, \
@@ -196,7 +260,7 @@ class ApprovalGateTests(unittest.TestCase):
         object.__setattr__(cfg, "telegram_chat_id", "1")
         with mock.patch.object(telegram_gate, "_call",
                                return_value={"ok": True, "result": {"message_id": 1}}):
-            self.assertFalse(telegram_gate.request_approval(cfg, sample_signal(), qty=1))
+            self.assertFalse(telegram_gate.request_approval(cfg, sample_signal(), 1))
 
     def test_wrong_chat_cannot_approve(self):
         import telegram_gate
@@ -218,7 +282,7 @@ class ApprovalGateTests(unittest.TestCase):
             return {"ok": True}
 
         with mock.patch.object(telegram_gate, "_call", side_effect=fake_call):
-            self.assertFalse(telegram_gate.request_approval(cfg, sample_signal(), qty=1))
+            self.assertFalse(telegram_gate.request_approval(cfg, sample_signal(), 1))
 
 
 if __name__ == "__main__":

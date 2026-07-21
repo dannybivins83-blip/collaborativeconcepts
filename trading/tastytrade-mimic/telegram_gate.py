@@ -20,14 +20,15 @@ def _call(token: str, method: str, params: dict) -> dict:
         return json.loads(resp.read().decode())
 
 
-def format_trade_card(sig: dict, qty: int, mode: str) -> str:
+def format_trade_card(sig: dict, multiplier: int, mode: str) -> str:
     lines = [
         f"📣 {sig['trader']} traded {sig['symbol']}",
         sig.get("description", ""),
         "",
     ]
     for leg in sig["legs"]:
-        lines.append(f"  • {leg['action']} {qty}x {leg['symbol']} ({leg['instrument_type']})")
+        qty = int(leg.get("quantity", 1)) * multiplier
+        lines.append(f"  • {leg['action']} {qty}x {leg['symbol']}")
     price = sig.get("price")
     if price is not None:
         lines.append(f"  @ {price} {sig.get('price_effect', '')}".rstrip())
@@ -36,7 +37,7 @@ def format_trade_card(sig: dict, qty: int, mode: str) -> str:
     return "\n".join(line for line in lines if line is not None)
 
 
-def request_approval(cfg, sig: dict, qty: int) -> bool:
+def request_approval(cfg, sig: dict, multiplier: int) -> bool:
     """Send the trade card with Approve/Skip buttons; block until a tap or expiry.
 
     Returns True ONLY on an explicit Approve tap for this trade. Expiry, Skip,
@@ -50,7 +51,7 @@ def request_approval(cfg, sig: dict, qty: int) -> bool:
     ]]}
     sent = _call(cfg.telegram_bot_token, "sendMessage", {
         "chat_id": cfg.telegram_chat_id,
-        "text": format_trade_card(sig, qty, cfg.mode),
+        "text": format_trade_card(sig, multiplier, cfg.mode),
         "reply_markup": json.dumps(keyboard),
     })
     if not sent.get("ok"):
@@ -90,7 +91,7 @@ def request_approval(cfg, sig: dict, qty: int) -> bool:
     _call(cfg.telegram_bot_token, "editMessageText", {
         "chat_id": cfg.telegram_chat_id,
         "message_id": message_id,
-        "text": format_trade_card(sig, qty, cfg.mode) + f"\n\n{outcome}",
+        "text": format_trade_card(sig, multiplier, cfg.mode) + f"\n\n{outcome}",
     })
     return decision
 
