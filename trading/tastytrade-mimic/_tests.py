@@ -491,3 +491,27 @@ class NotifyDedupeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+# --- reconciliation safety: armed vs disarmed on a dead broker (overlord 2026-07-22) ---
+import unittest as _ut
+from broker import TastytradeBroker as _TB, BrokerError as _BE
+
+class BrokerDegradationTest(_ut.TestCase):
+    def _broker(self):
+        class _Cfg:
+            tt_client_secret="x"; tt_refresh_token="x"
+            api_base="https://api.cert.tastyworks.com"; max_contracts=1
+        b=_TB(_Cfg())
+        def _boom(*a,**k): raise _BE("OAuth token refresh -> HTTP 400: Grant revoked")
+        b.account_number=_boom            # simulate dead grant
+        b._request=_boom
+        return b
+    def _sig(self):
+        return {"symbol":"SPY","trader":"Tom","legs":[{"symbol":"SPY","quantity":1,"action":"Sell to Open"}]}
+    def test_disarmed_unreachable_degrades(self):
+        r=self._broker().place(self._sig(),1,armed=False)
+        self.assertEqual(r["status"],"notification-only")   # graceful, no crash
+    def test_armed_unreachable_raises(self):
+        with self.assertRaises(_BE):                         # loud fail, places nothing
+            self._broker().place(self._sig(),1,armed=True)

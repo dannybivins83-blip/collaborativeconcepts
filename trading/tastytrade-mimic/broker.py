@@ -111,12 +111,27 @@ class TastytradeBroker:
         return order
 
     def place(self, sig: dict, multiplier: int, armed: bool) -> dict:
-        acct = self.account_number()
         order = self.build_order(sig, multiplier)
+        if not armed:
+            # Disarmed/paper: the approval card IS the product and nothing is placed.
+            # Validate against the broker when reachable, but a broker/auth outage
+            # (e.g. a revoked cert grant) must NOT hard-fail the notification loop —
+            # degrade to notification-only instead of a loud error on every tap.
+            try:
+                acct = self.account_number()
+                dry = self._request("POST", f"/accounts/{acct}/orders/dry-run", order)
+                warnings = dry.get("data", {}).get("warnings", [])
+                return {"status": "dry-run-only", "warnings": warnings, "order": order}
+            except BrokerError as e:
+                return {"status": "notification-only",
+                        "warnings": [f"broker offline ({e}); no validation performed — "
+                                     "notification-only until the cert grant is restored"],
+                        "order": order}
+        # Armed/live: any broker failure MUST propagate (never a fake OK, never a silent
+        # skip). BrokerError raised here bubbles to the caller and places nothing.
+        acct = self.account_number()
         dry = self._request("POST", f"/accounts/{acct}/orders/dry-run", order)
         warnings = dry.get("data", {}).get("warnings", [])
-        if not armed:
-            return {"status": "dry-run-only", "warnings": warnings, "order": order}
         placed = self._request("POST", f"/accounts/{acct}/orders", order)
         return {"status": "submitted", "warnings": warnings,
                 "order_id": placed.get("data", {}).get("order", {}).get("id")}
