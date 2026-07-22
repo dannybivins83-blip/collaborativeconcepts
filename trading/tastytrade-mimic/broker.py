@@ -45,10 +45,17 @@ class TastytradeBroker:
                 data = json.loads(resp.read().decode())
         except urllib.error.HTTPError as e:
             detail = e.read().decode()[:500]
-            raise BrokerError(
-                f"OAuth token refresh -> HTTP {e.code}: {detail} "
-                f"(authenticating against {self.cfg.api_base}; a production "
-                f"refresh token will 401 against the cert/sandbox base)") from e
+            low = detail.lower()
+            if e.code == 400 or "invalid_grant" in low or "revok" in low:
+                hint = (" -> refresh token REVOKED or invalid; regenerate it at "
+                        "developer.tastytrade.com and set the new TT_REFRESH_TOKEN on the VM "
+                        "(an account lock/unlock or password reset revokes OAuth grants)")
+            elif e.code in (401, 403):
+                hint = (f" -> auth rejected at {self.cfg.api_base}; note a production "
+                        f"refresh token will fail against the cert/sandbox base")
+            else:
+                hint = ""
+            raise BrokerError(f"OAuth token refresh -> HTTP {e.code}: {detail}{hint}") from e
         except (urllib.error.URLError, OSError) as e:
             raise BrokerError(f"OAuth token refresh -> network error reaching "
                               f"{self.cfg.api_base}: {e}") from e

@@ -411,6 +411,21 @@ class TokenErrorTests(unittest.TestCase):
             with self.assertRaises(BrokerError):
                 broker._token()
 
+    def test_token_400_gives_regenerate_hint(self):
+        import io
+        from broker import BrokerError
+        broker = self._broker({"TT_CLIENT_SECRET": "s", "TT_REFRESH_TOKEN": "r"})
+
+        def fake_urlopen(req, timeout=0):
+            raise urllib.error.HTTPError(
+                "http://x/oauth/token", 400, "Bad Request", {},
+                io.BytesIO(b'{"error":"invalid_grant","error_description":"Grant revoked"}'))
+
+        with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            with self.assertRaises(BrokerError) as ctx:
+                broker._token()
+        self.assertIn("regenerate", str(ctx.exception).lower())  # actionable hint
+
 
 class ProcessSignalErrorTests(unittest.TestCase):
     """After approval, any failure must notify the owner and not crash the loop."""
@@ -421,7 +436,7 @@ class ProcessSignalErrorTests(unittest.TestCase):
         msgs = []
         with mock.patch.object(broker, "place", side_effect=place_exc), \
              mock.patch.object(main_mod, "request_approval", return_value=True), \
-             mock.patch.object(main_mod, "notify", side_effect=lambda c, t: msgs.append(t)):
+             mock.patch.object(main_mod, "notify", side_effect=lambda c, t, **kw: msgs.append(t)):
             outcome = main_mod.process_signal(cfg, broker, sample_signal(), armed=False)
         return outcome, msgs
 
@@ -436,6 +451,42 @@ class ProcessSignalErrorTests(unittest.TestCase):
         outcome, msgs = self._run_with_place(KeyError("account-number"))
         self.assertEqual(outcome, "error")
         self.assertTrue(any("SPY" in m for m in msgs))
+
+
+class NotifyDedupeTests(unittest.TestCase):
+    def setUp(self):
+        import telegram_gate
+        telegram_gate._recent_alerts.clear()
+
+    def _cfg(self):
+        cfg = Config()
+        object.__setattr__(cfg, "telegram_bot_token", "x")
+        object.__setattr__(cfg, "telegram_chat_id", "1")
+        return cfg
+
+    def test_keyed_alert_deduped_within_cooldown(self):
+        import telegram_gate
+        cfg = self._cfg()
+        with mock.patch.object(telegram_gate, "_call") as call:
+            telegram_gate.notify(cfg, "cred dead", key="order-failed", cooldown_s=3600)
+            telegram_gate.notify(cfg, "cred still dead", key="order-failed", cooldown_s=3600)
+        self.assertEqual(call.call_count, 1)  # repeat suppressed within cooldown
+
+    def test_unkeyed_alert_always_sends(self):
+        import telegram_gate
+        cfg = self._cfg()
+        with mock.patch.object(telegram_gate, "_call") as call:
+            telegram_gate.notify(cfg, "dry-run ok")
+            telegram_gate.notify(cfg, "dry-run ok")
+        self.assertEqual(call.call_count, 2)  # confirmations never deduped
+
+    def test_distinct_keys_both_send(self):
+        import telegram_gate
+        cfg = self._cfg()
+        with mock.patch.object(telegram_gate, "_call") as call:
+            telegram_gate.notify(cfg, "a", key="order-failed", cooldown_s=3600)
+            telegram_gate.notify(cfg, "b", key="unexpected-error", cooldown_s=3600)
+        self.assertEqual(call.call_count, 2)
 
 
 if __name__ == "__main__":

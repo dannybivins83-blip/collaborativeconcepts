@@ -128,7 +128,19 @@ def request_approval(cfg, sig: dict, multiplier: int) -> bool:
     return decision
 
 
-def notify(cfg, text: str) -> None:
+_recent_alerts = {}  # dedupe key -> monotonic time last sent
+
+
+def notify(cfg, text: str, key: str = None, cooldown_s: int = 0) -> None:
+    """Send a Telegram message (best-effort). With a `key` + `cooldown_s`, a
+    repeat of the same key is suppressed within the window — so a persistent
+    failure (e.g. a revoked credential on every poll) pings ONCE, not forever."""
+    if key is not None and cooldown_s > 0:
+        now = time.monotonic()
+        last = _recent_alerts.get(key)
+        if last is not None and (now - last) < cooldown_s:
+            return
+        _recent_alerts[key] = now
     try:
         _call(cfg.telegram_bot_token, "sendMessage", {"chat_id": cfg.telegram_chat_id, "text": text})
     except OSError:

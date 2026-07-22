@@ -43,10 +43,13 @@ def process_signal(cfg: Config, broker: TastytradeBroker, sig: dict, armed: bool
     try:
         result = broker.place(sig, multiplier, armed=armed)
     except BrokerError as e:
-        notify(cfg, f"⚠️ Order failed for {sig['symbol']}: {e}")
+        # de-dupe: a systemic failure (revoked token) hits every trade -> alert once
+        notify(cfg, f"⚠️ Order failed for {sig['symbol']}: {e}",
+               key="order-failed", cooldown_s=cfg.alert_cooldown_s)
         return "error"
     except Exception as e:  # never fail silently or crash the poll loop on a surprise
-        notify(cfg, f"⚠️ Unexpected error handling {sig['symbol']}: {type(e).__name__}: {e}")
+        notify(cfg, f"⚠️ Unexpected error handling {sig['symbol']}: {type(e).__name__}: {e}",
+               key="unexpected-error", cooldown_s=cfg.alert_cooldown_s)
         return "error"
     if result["status"] == "submitted":
         notify(cfg, f"📬 LIVE order submitted for {sig['symbol']} (id {result.get('order_id')})")

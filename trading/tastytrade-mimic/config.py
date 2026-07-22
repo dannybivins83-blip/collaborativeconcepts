@@ -15,6 +15,7 @@ class Config:
     kill_switch_file: str = field(default_factory=lambda: os.environ.get("KILL_SWITCH_FILE", "KILL_SWITCH"))
     max_contracts: int = field(default_factory=lambda: int(os.environ.get("MAX_CONTRACTS", "1")))
     approval_timeout_s: int = field(default_factory=lambda: int(os.environ.get("APPROVAL_TIMEOUT_S", "900")))
+    alert_cooldown_s: int = field(default_factory=lambda: int(os.environ.get("ALERT_COOLDOWN_S", "21600")))
     signal_source: str = field(default_factory=lambda: os.environ.get("SIGNAL_SOURCE", "follow-feed"))
     signal_file: str = field(default_factory=lambda: os.environ.get("SIGNAL_FILE", "signals.json"))
     follow_feed_url: str = field(default_factory=lambda: os.environ.get("FOLLOW_FEED_URL", ""))
