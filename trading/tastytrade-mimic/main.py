@@ -52,7 +52,8 @@ def execute_signal(cfg: Config, broker: TastytradeBroker, sig: dict, multiplier:
                key="unexpected-error", cooldown_s=cfg.alert_cooldown_s)
         return "error"
     if result["status"] == "submitted":
-        notify(cfg, f"📬 LIVE order submitted for {sig['symbol']} (id {result.get('order_id')})")
+        venue = "LIVE" if cfg.mode == "live" else "PAPER (sandbox)"
+        notify(cfg, f"📬 {venue} order submitted for {sig['symbol']} (id {result.get('order_id')})")
     else:
         cost = ""
         if result.get("bp_change") is not None:
@@ -84,10 +85,16 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
     if problems:
         print("Config problems:\n  " + "\n  ".join(problems), file=sys.stderr)
         return 1
-    armed = cfg.mode == "live" and execute_flag
-    print(f"mode={cfg.mode} armed={armed} source={cfg.signal_source} api={cfg.api_base}")
-    if armed:
-        notify(cfg, "🔴 tt-mimic is ARMED (live + --execute). Every trade still needs your tap.")
+    live_execute = cfg.mode == "live" and execute_flag       # submits to PRODUCTION (real money)
+    paper_execute = cfg.mode == "paper" and cfg.paper_execute  # submits to CERT sandbox (fake money)
+    armed = live_execute or paper_execute
+    print(f"mode={cfg.mode} armed={armed} (paper_exec={paper_execute} live_exec={live_execute}) "
+          f"source={cfg.signal_source} api={cfg.api_base}")
+    if live_execute:
+        notify(cfg, "🔴 tt-mimic is LIVE-ARMED (real money). Every trade still needs your tap.")
+    elif paper_execute:
+        notify(cfg, "🧪 tt-mimic PAPER-EXECUTE on — approved trades will FILL in the cert sandbox "
+                    "(fake money, real fills). Every trade still needs your tap.")
 
     broker = TastytradeBroker(cfg)
     source = make_source(cfg)

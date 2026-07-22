@@ -6,6 +6,9 @@ from dataclasses import dataclass, field
 @dataclass
 class Config:
     mode: str = field(default_factory=lambda: os.environ.get("MODE", "paper").lower())
+    # PAPER_EXECUTE=1 -> actually SUBMIT approved orders to the cert SANDBOX (fake money).
+    # This can never touch production: api_base is cert whenever mode != "live".
+    paper_execute: bool = field(default_factory=lambda: os.environ.get("PAPER_EXECUTE", "0") == "1")
     tt_client_secret: str = field(default_factory=lambda: os.environ.get("TT_CLIENT_SECRET", ""))
     tt_refresh_token: str = field(default_factory=lambda: os.environ.get("TT_REFRESH_TOKEN", ""))
     tt_client_id: str = field(default_factory=lambda: os.environ.get("TT_CLIENT_ID", ""))

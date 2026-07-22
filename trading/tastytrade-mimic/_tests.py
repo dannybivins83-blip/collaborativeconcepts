@@ -568,3 +568,29 @@ class SpreadEconomicsTest(_ut2.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+# --- paper-execute safety: paper fills go to cert, real money needs MODE=live (overlord 2026-07-22) ---
+import unittest as _ut3, os as _os3
+from config import Config as _Cfg3
+class PaperExecuteSafetyTest(_ut3.TestCase):
+    def _cfg(self, **env):
+        old = dict(_os3.environ)
+        try:
+            for k in ("MODE","PAPER_EXECUTE"): _os3.environ.pop(k, None)
+            _os3.environ.update({k: v for k, v in env.items()})
+            return _Cfg3()
+        finally:
+            _os3.environ.clear(); _os3.environ.update(old)
+    def test_paper_execute_uses_cert_never_prod(self):
+        c = self._cfg(MODE="paper", PAPER_EXECUTE="1")
+        self.assertTrue(c.paper_execute)
+        self.assertIn("cert", c.api_base)                 # sandbox host
+        self.assertNotIn("api.tastytrade.com", c.api_base)  # NEVER production
+    def test_live_is_the_only_path_to_prod(self):
+        c = self._cfg(MODE="live")
+        self.assertEqual(c.api_base, "https://api.tastytrade.com")
+    def test_default_is_dry_run_only(self):
+        c = self._cfg(MODE="paper")
+        self.assertFalse(c.paper_execute)                 # off unless explicitly set
+        self.assertIn("cert", c.api_base)
