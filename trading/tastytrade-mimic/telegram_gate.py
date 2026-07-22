@@ -58,6 +58,17 @@ def format_trade_card(sig: dict, multiplier: int, mode: str) -> str:
     price = sig.get("price")
     if price is not None:
         lines.append(f"  @ {price} {sig.get('price_effect', '')}".rstrip())
+        try:
+            total = float(price) * multiplier * 100  # options: 100 shares/contract
+            eff = (sig.get("price_effect") or "").lower()
+            if eff == "credit":
+                lines.append(f"  💰 Est. credit received: +${total:,.0f}")
+            elif eff == "debit":
+                lines.append(f"  💰 Est. cost: -${total:,.0f}")
+            else:
+                lines.append(f"  💰 Est. amount: ${total:,.0f}")
+        except (TypeError, ValueError):
+            pass
     lines.append("")
     lines.append("🧪 PAPER account" if mode != "live" else "💵 LIVE account")
     return "\n".join(line for line in lines if line is not None)

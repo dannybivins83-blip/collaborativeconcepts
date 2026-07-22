@@ -54,7 +54,16 @@ def process_signal(cfg: Config, broker: TastytradeBroker, sig: dict, armed: bool
     if result["status"] == "submitted":
         notify(cfg, f"📬 LIVE order submitted for {sig['symbol']} (id {result.get('order_id')})")
     else:
-        notify(cfg, f"🧪 Dry-run OK for {sig['symbol']} — not armed, no order placed. "
+        cost = ""
+        if result.get("bp_change") is not None:
+            try:
+                sign = "-" if result.get("bp_effect") == "Debit" else "+"
+                cost = f" Buying power: {sign}${float(result['bp_change']):,.2f}."
+                if result.get("fees") not in (None, ""):
+                    cost += f" Fees: ${float(result['fees']):,.2f}."
+            except (TypeError, ValueError):
+                cost = ""
+        notify(cfg, f"🧪 Dry-run OK for {sig['symbol']} — not armed, no order placed.{cost} "
                     f"Warnings: {result.get('warnings') or 'none'}")
     return result["status"]
 

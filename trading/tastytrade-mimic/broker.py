@@ -120,8 +120,10 @@ class TastytradeBroker:
             try:
                 acct = self.account_number()
                 dry = self._request("POST", f"/accounts/{acct}/orders/dry-run", order)
-                warnings = dry.get("data", {}).get("warnings", [])
-                return {"status": "dry-run-only", "warnings": warnings, "order": order}
+                data = dry.get("data", {})
+                warnings = data.get("warnings", [])
+                return {"status": "dry-run-only", "warnings": warnings, "order": order,
+                        **_cost_fields(data)}
             except BrokerError as e:
                 return {"status": "notification-only",
                         "warnings": [f"broker offline ({e}); no validation performed — "
@@ -133,8 +135,19 @@ class TastytradeBroker:
         dry = self._request("POST", f"/accounts/{acct}/orders/dry-run", order)
         warnings = dry.get("data", {}).get("warnings", [])
         placed = self._request("POST", f"/accounts/{acct}/orders", order)
-        return {"status": "submitted", "warnings": warnings,
+        return {"status": "submitted", "warnings": warnings, **_cost_fields(dry.get("data", {})),
                 "order_id": placed.get("data", {}).get("order", {}).get("id")}
+
+
+def _cost_fields(data: dict) -> dict:
+    """Pull the human-facing cost numbers out of a tastytrade dry-run response."""
+    bp = data.get("buying-power-effect", {}) or {}
+    fees = data.get("fee-calculation", {}) or {}
+    return {
+        "bp_change": bp.get("change-in-buying-power"),
+        "bp_effect": bp.get("change-in-buying-power-effect"),
+        "fees": fees.get("total-fees"),
+    }
 
 
 class BrokerError(Exception):
