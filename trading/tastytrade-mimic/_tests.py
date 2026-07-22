@@ -69,6 +69,12 @@ class ConfigTests(unittest.TestCase):
         with mock.patch.dict(os.environ, {"MODE": "live"}, clear=False):
             self.assertEqual(Config().api_base, "https://api.tastytrade.com")
 
+    def test_api_base_env_overridable(self):
+        with mock.patch.dict(os.environ, {"MODE": "live", "TT_API_BASE_LIVE": "https://api.example.com"}, clear=True):
+            self.assertEqual(Config().api_base, "https://api.example.com")
+        with mock.patch.dict(os.environ, {"MODE": "paper", "TT_API_BASE_PAPER": "https://sbx.example.com"}, clear=True):
+            self.assertEqual(Config().api_base, "https://sbx.example.com")
+
     def test_validate_reports_names_not_values(self):
         with mock.patch.dict(os.environ, {"TT_CLIENT_SECRET": "supersecret"}, clear=True):
             problems = Config().validate()

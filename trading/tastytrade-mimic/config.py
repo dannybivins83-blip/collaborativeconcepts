@@ -24,13 +24,18 @@ class Config:
     trader_names_json: str = field(default_factory=lambda: os.environ.get("TRADER_NAMES_JSON", "{}"))
     poll_interval_s: int = field(default_factory=lambda: int(os.environ.get("POLL_INTERVAL_S", "30")))
     state_file: str = field(default_factory=lambda: os.environ.get("STATE_FILE", "state.json"))
+    # API hosts are env-overridable so the path stays turnkey if tastytrade ever
+    # consolidates domains. Defaults are the current canonical hosts (both verified
+    # reachable). NOTE — the prod/sandbox subdomain mismatch is INTENTIONAL, not a
+    # typo: tastytrade rebranded only production to tastytrade.com; the cert/sandbox
+    # environment stayed on the legacy tastyworks.com domain. Do not "fix" it.
+    api_base_live: str = field(default_factory=lambda: os.environ.get("TT_API_BASE_LIVE", "https://api.tastytrade.com"))
+    api_base_paper: str = field(default_factory=lambda: os.environ.get("TT_API_BASE_PAPER", "https://api.cert.tastyworks.com"))
 
     @property
     def api_base(self) -> str:
         # Paper mode ALWAYS points at the sandbox; only live touches production.
-        if self.mode == "live":
-            return "https://api.tastytrade.com"
-        return "https://api.cert.tastyworks.com"
+        return self.api_base_live if self.mode == "live" else self.api_base_paper
 
     def kill_switch_engaged(self) -> bool:
         return os.path.exists(self.kill_switch_file)
