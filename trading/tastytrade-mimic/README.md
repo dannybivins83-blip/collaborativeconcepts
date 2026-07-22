@@ -67,9 +67,29 @@ signals.py  ──▶  main.py loop  ──▶  telegram_gate.py  ──▶  bro
 pip install -r requirements.txt
 python3 main.py                    # paper mode, file signal source
 python3 main.py --once             # process pending signals then exit
+python3 main.py --scorecard        # print the paper P&L scorecard, then exit
 MODE=live python3 main.py --execute  # ARMED — per-trade approval still required
 python3 _tests.py                  # offline tests, no network
 ```
+
+## Paper trade log + P&L scorecard
+
+Every copied trade is recorded — no orders are placed, it's pure record-keeping:
+
+- **Ledger** (`trades.jsonl`, append-only): one line per copied trade + one per
+  close — trader, symbol, legs, credit/debit, the dry-run's buying-power & fees,
+  and realized P&L. Full reviewable/exportable history.
+- **Positions** (`positions.json`): each copy is tracked as an open paper position
+  and **closed automatically when the followed trader closes it** (the mimic polls
+  the feed's closing orders and matches by trader + leg symbols). Realized P&L =
+  open cash flow + close cash flow (credit +, debit −).
+- **Scorecard** (`python3 main.py --scorecard`): per-trader and overall realized
+  P&L + win rate — the actual "does copying this trader make money" answer. A
+  running total also pings Telegram each time a position closes.
+- **Honest limits:** trades the trader lets *expire* (no explicit close) are marked
+  `expired` and excluded from realized P&L (no settlement data); no intraday
+  unrealized mark-to-market. Toggle with `TRACK_PNL=0`; paths via `LEDGER_FILE` /
+  `POSITIONS_FILE`.
 
 pm2 (on the VM, by coinbase-trader): `pm2 start ./start.sh --name tt-mimic` —
 `start.sh` sources the colocated `env.sh` (secrets) and execs `main.py`

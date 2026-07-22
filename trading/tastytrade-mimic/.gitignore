@@ -1,6 +1,8 @@
 # Runtime state + local signal drops — never commit
 state.json
 signals.json
+trades.jsonl
+positions.json
 KILL_SWITCH
 .env
 *.env

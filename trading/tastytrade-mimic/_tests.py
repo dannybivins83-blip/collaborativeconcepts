@@ -15,6 +15,7 @@ from broker import TastytradeBroker
 from config import Config
 from signals import FileSignalSource, occ_symbol, parse_follow_feed, validate_signal
 import main as main_mod
+import ledger
 
 # Real payload captured from the public follow-feed endpoint on 2026-07-21
 CAPTURED_FEED = {"public_orders": [{
@@ -564,6 +565,81 @@ class SpreadEconomicsTest(_ut2.TestCase):
     def test_single_leg_returns_none(self):
         s={"symbol":"SPY","price":1.0,"price_effect":"Credit","legs":[{"symbol":"SPY   260821P00700000","action":"Sell to Open","quantity":1}]}
         self.assertIsNone(_tg._spread_economics(s,1))
+
+
+class LedgerTest(unittest.TestCase):
+    def _open_sig(self):
+        return {"id": "o1", "trader": "Tom", "symbol": "SPY", "price": 1.05, "price_effect": "Credit",
+                "legs": [{"symbol": "SPY   260821P00550000"}, {"symbol": "SPY   260821P00545000"}]}
+
+    def _close(self, trader="Tom", price=0.40, eff="Debit"):
+        return {"trader": trader, "symbol": "SPY", "price": price, "price_effect": eff,
+                "legs": [{"symbol": "SPY   260821P00550000"}, {"symbol": "SPY   260821P00545000"}]}
+
+    def test_cashflow_signs(self):
+        self.assertEqual(ledger.cashflow(1.05, "Credit", 1), 105.0)   # credit in, +
+        self.assertEqual(ledger.cashflow(0.40, "Debit", 2), -80.0)    # debit out, -
+
+    def test_leg_key_ignores_spaces_and_order(self):
+        a = ledger.leg_key([{"symbol": "SPY   260821P00545000"}, {"symbol": "SPY   260821P00550000"}])
+        b = ledger.leg_key([{"symbol": "SPY260821P00550000"}, {"symbol": "SPY260821P00545000"}])
+        self.assertEqual(a, b)
+
+    def test_open_then_trader_close_realizes_pnl(self):
+        pos = {}
+        rec = ledger.record_open(self._open_sig(), 1, {"status": "dry-run-only"}, "t0")
+        pos[rec["id"]] = rec
+        closed = ledger.match_and_close(pos, self._close(price=0.40), "t1")
+        self.assertIsNotNone(closed)
+        self.assertEqual(closed["realized_pnl"], 65.0)   # +105 credit, -40 to buy back
+        self.assertEqual(pos["o1"]["status"], "closed")
+
+    def test_close_wrong_trader_no_match(self):
+        pos = {}
+        rec = ledger.record_open(self._open_sig(), 1, {}, "t0")
+        pos[rec["id"]] = rec
+        self.assertIsNone(ledger.match_and_close(pos, self._close(trader="Jim"), "t1"))
+        self.assertEqual(pos["o1"]["status"], "open")
+
+    def test_scorecard_rollup_and_winrate(self):
+        pos = {}
+        rec = ledger.record_open(self._open_sig(), 1, {}, "t0")
+        pos[rec["id"]] = rec
+        ledger.match_and_close(pos, self._close(price=0.40), "t1")   # +65 win
+        sc = ledger.scorecard(pos)
+        self.assertEqual(sc["overall"]["realized_pnl"], 65.0)
+        self.assertEqual(sc["overall"]["closed"], 1)
+        self.assertEqual(sc["overall"]["wins"], 1)
+        self.assertEqual(sc["per_trader"]["Tom"]["realized_pnl"], 65.0)
+
+    def test_losing_close_counts_as_loss(self):
+        pos = {}
+        rec = ledger.record_open(self._open_sig(), 1, {}, "t0")
+        pos[rec["id"]] = rec
+        ledger.match_and_close(pos, self._close(price=2.00), "t1")   # +105 - 200 = -95
+        self.assertEqual(pos["o1"]["realized_pnl"], -95.0)
+        self.assertEqual(ledger.scorecard(pos)["overall"]["losses"], 1)
+
+    def test_mark_expired_excluded_from_realized(self):
+        pos = {}
+        rec = ledger.record_open(self._open_sig(), 1, {}, "t0")   # expiry 260821
+        pos[rec["id"]] = rec
+        self.assertTrue(ledger.mark_expired(pos, "260901"))        # past expiry
+        self.assertEqual(pos["o1"]["status"], "expired")
+        sc = ledger.scorecard(pos)
+        self.assertEqual(sc["overall"]["expired"], 1)
+        self.assertEqual(sc["overall"]["realized_pnl"], 0.0)
+
+    def test_ledger_and_positions_file_roundtrip(self):
+        with tempfile.TemporaryDirectory() as d:
+            pp = os.path.join(d, "positions.json")
+            ledger.save_positions(pp, {"o1": {"trader": "Tom", "status": "open"}})
+            self.assertEqual(ledger.load_positions(pp)["o1"]["trader"], "Tom")
+            lj = os.path.join(d, "trades.jsonl")
+            ledger.append_jsonl(lj, {"event": "open", "id": "o1"})
+            ledger.append_jsonl(lj, {"event": "close", "id": "o1"})
+            with open(lj) as f:
+                self.assertEqual(len(f.read().strip().splitlines()), 2)
 
 
 if __name__ == "__main__":

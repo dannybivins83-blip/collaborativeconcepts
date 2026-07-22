@@ -216,3 +216,16 @@ def make_source(cfg) -> SignalSource:
             json.loads(cfg.trader_names_json),
         )
     return FileSignalSource(cfg.signal_file)
+
+
+def make_close_source(cfg):
+    """Source for the followed traders' CLOSING orders, used to realize the P&L
+    of copied trades. Only meaningful for the live follow-feed; None otherwise."""
+    if cfg.signal_source != "follow-feed":
+        return None
+    url = cfg.follow_feed_close_url
+    if not url:
+        base = cfg.follow_feed_url or DEFAULT_FOLLOW_FEED_URL
+        url = base.replace("open_close]=O", "open_close]=C")  # same feed, closes
+    return FollowFeedSource(url, json.loads(cfg.follow_feed_headers_json),
+                            cfg.max_signal_age_min, json.loads(cfg.trader_names_json))

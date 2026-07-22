@@ -27,6 +27,11 @@ class Config:
     trader_names_json: str = field(default_factory=lambda: os.environ.get("TRADER_NAMES_JSON", "{}"))
     poll_interval_s: int = field(default_factory=lambda: int(os.environ.get("POLL_INTERVAL_S", "30")))
     state_file: str = field(default_factory=lambda: os.environ.get("STATE_FILE", "state.json"))
+    # Paper trade ledger + P&L scorecard (pure record-keeping, no orders placed).
+    ledger_file: str = field(default_factory=lambda: os.environ.get("LEDGER_FILE", "trades.jsonl"))
+    positions_file: str = field(default_factory=lambda: os.environ.get("POSITIONS_FILE", "positions.json"))
+    follow_feed_close_url: str = field(default_factory=lambda: os.environ.get("FOLLOW_FEED_CLOSE_URL", ""))
+    track_pnl: bool = field(default_factory=lambda: os.environ.get("TRACK_PNL", "1") != "0")
     # API hosts are env-overridable so the path stays turnkey if tastytrade ever
     # consolidates domains. Defaults are the current canonical hosts (both verified
     # reachable). NOTE — the prod/sandbox subdomain mismatch is INTENTIONAL, not a

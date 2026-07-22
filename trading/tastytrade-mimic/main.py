@@ -11,10 +11,12 @@ import json
 import os
 import sys
 import time
+from datetime import datetime, timezone
 
+import ledger
 from broker import BrokerError, TastytradeBroker
 from config import Config
-from signals import make_source
+from signals import make_source, make_close_source
 from telegram_gate import notify, request_approval, send_card, poll_callbacks, finalize_card
 
 
@@ -69,6 +71,14 @@ def execute_signal(cfg: Config, broker: TastytradeBroker, sig: dict, multiplier:
                   "rejected": "🚫 Order rejected"}.get(result["status"], "📣 Notification-only")
         notify(cfg, f"{detail} for {sig['symbol']} — not armed, no order placed.{cost} "
                     f"Warnings: {result.get('warnings') or 'none'}")
+    # Record the copied trade to the ledger + open a paper position (no orders placed).
+    if cfg.track_pnl and result["status"] in ("dry-run-only", "notification-only", "submitted"):
+        ts = datetime.now(timezone.utc).isoformat()
+        positions = ledger.load_positions(cfg.positions_file)
+        rec = ledger.record_open(sig, multiplier, result, ts)
+        positions[rec["id"]] = rec
+        ledger.save_positions(cfg.positions_file, positions)
+        ledger.append_jsonl(cfg.ledger_file, dict(rec, event="open"))
     return result["status"]
 
 
@@ -98,6 +108,7 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
 
     broker = TastytradeBroker(cfg)
     source = make_source(cfg)
+    close_source = make_close_source(cfg) if cfg.track_pnl else None
     state = load_state(cfg.state_file)
 
     # Non-blocking approval model: cards are sent, then a SINGLE getUpdates poller
@@ -150,6 +161,29 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
             finalize_card(cfg, p["sig"], p["multiplier"], p["message_id"], label)
             print(f"signal {tap['sig_id']}: {status}")
 
+        # 2.5) realize P&L: when a followed trader CLOSES a position we copied,
+        # match it and book realized P&L into the scorecard (no orders placed).
+        if close_source is not None:
+            try:
+                closes = close_source.poll()
+            except Exception:
+                closes = []
+            positions = ledger.load_positions(cfg.positions_file)
+            dirty = bool(ledger.mark_expired(positions, datetime.now(timezone.utc).strftime("%y%m%d")))
+            for csig in closes:
+                closed = ledger.match_and_close(positions, csig, datetime.now(timezone.utc).isoformat())
+                if not closed:
+                    continue
+                dirty = True
+                ledger.append_jsonl(cfg.ledger_file, dict(closed, event="close"))
+                tot = ledger.scorecard(positions)["per_trader"].get(closed["trader"], {}).get("realized_pnl", 0.0)
+                notify(cfg, f"💵 {closed['trader']}'s {closed['symbol']} closed: "
+                            f"{ledger._money(closed['realized_pnl'])} "
+                            f"(running {ledger._money(tot)} on {closed['trader']})")
+                print(f"closed {closed['id']} ({closed['trader']} {closed['symbol']}): {closed['realized_pnl']}")
+            if dirty:
+                ledger.save_positions(cfg.positions_file, positions)
+
         # 3) expire stale pending cards
         for sid in [s for s, pv in pending.items() if now >= pv["expiry"]]:
             p = pending.pop(sid)
@@ -166,7 +200,13 @@ def main() -> int:
     parser.add_argument("--execute", action="store_true",
                         help="arm live execution (requires MODE=live; per-trade approval still applies)")
     parser.add_argument("--once", action="store_true", help="process pending signals then exit")
+    parser.add_argument("--scorecard", action="store_true",
+                        help="print the paper P&L scorecard (per-trader realized results) and exit")
     args = parser.parse_args()
+    if args.scorecard:
+        cfg = Config()
+        print(ledger.format_scorecard(ledger.scorecard(ledger.load_positions(cfg.positions_file))))
+        return 0
     return run(Config(), execute_flag=args.execute, once=args.once)
 
 
