@@ -46,6 +46,38 @@ def _call(token: str, method: str, params: dict, attempts: int = _MAX_ATTEMPTS) 
     raise last_exc  # pragma: no cover - loop always returns or raises above
 
 
+def _occ_strike(symbol: str) -> float:
+    """Strike price from an OCC option symbol (last 8 digits = strike x 1000)."""
+    s = symbol.replace(" ", "")
+    return int(s[-8:]) / 1000.0
+
+
+def _spread_economics(sig: dict, multiplier: int):
+    """For a 2-leg vertical spread, return (total_investment, max_profit, roi_pct).
+    total_investment = capital at risk (max loss). None if not a priceable 2-leg vertical."""
+    legs = sig.get("legs", [])
+    price = sig.get("price")
+    if price is None or len(legs) != 2:
+        return None
+    try:
+        p = float(price)
+        width = abs(_occ_strike(legs[0]["symbol"]) - _occ_strike(legs[1]["symbol"]))
+        if width <= 0:
+            return None
+        c = max(1, int(multiplier))
+        if (sig.get("price_effect") or "").lower() == "credit":
+            invest = (width - p) * 100 * c   # max loss on a credit spread
+            profit = p * 100 * c             # max profit = credit kept
+        else:                                 # debit spread
+            invest = p * 100 * c             # premium paid
+            profit = (width - p) * 100 * c   # max profit = width - debit
+        if invest <= 0:
+            return None
+        return invest, profit, (profit / invest * 100)
+    except (TypeError, ValueError, KeyError, IndexError):
+        return None
+
+
 def format_trade_card(sig: dict, multiplier: int, mode: str) -> str:
     lines = [
         f"📣 {sig['trader']} traded {sig['symbol']}",
@@ -69,6 +101,11 @@ def format_trade_card(sig: dict, multiplier: int, mode: str) -> str:
                 lines.append(f"  💰 Est. amount: ${total:,.0f}")
         except (TypeError, ValueError):
             pass
+        econ = _spread_economics(sig, multiplier)
+        if econ:
+            invest, profit, roi = econ
+            lines.append(f"  📊 Total investment: ${invest:,.0f}")
+            lines.append(f"  📈 Best case: +${profit:,.0f} ({roi:.0f}% ROI)")
     lines.append("")
     lines.append("🧪 PAPER account" if mode != "live" else "💵 LIVE account")
     return "\n".join(line for line in lines if line is not None)

@@ -521,3 +521,21 @@ class BrokerDegradationTest(_ut.TestCase):
     def test_armed_unreachable_raises(self):
         with self.assertRaises(_BE):                         # loud fail, places nothing
             self._broker().place(self._sig(),1,armed=True)
+
+
+# --- card economics: total investment + best-case ROI (overlord 2026-07-22) ---
+import unittest as _ut2, telegram_gate as _tg
+class SpreadEconomicsTest(_ut2.TestCase):
+    def _sig(self, price, eff, k1, k2):
+        return {"symbol":"SPY","price":price,"price_effect":eff,"legs":[
+            {"symbol":"SPY   260821P%08d"%(k1*1000),"action":"Sell to Open","quantity":1},
+            {"symbol":"SPY   260821P%08d"%(k2*1000),"action":"Buy to Open","quantity":1}]}
+    def test_credit_spread_roi(self):
+        inv,prof,roi=_tg._spread_economics(self._sig(0.60,"Credit",714,711),1)
+        self.assertEqual(round(inv),240); self.assertEqual(round(prof),60); self.assertEqual(round(roi),25)
+    def test_debit_spread_scales(self):
+        inv,prof,roi=_tg._spread_economics(self._sig(1.20,"Debit",500,505),2)
+        self.assertEqual(round(inv),240); self.assertEqual(round(prof),760)
+    def test_single_leg_returns_none(self):
+        s={"symbol":"SPY","price":1.0,"price_effect":"Credit","legs":[{"symbol":"SPY   260821P00700000","action":"Sell to Open","quantity":1}]}
+        self.assertIsNone(_tg._spread_economics(s,1))
