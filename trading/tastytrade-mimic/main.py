@@ -63,7 +63,9 @@ def execute_signal(cfg: Config, broker: TastytradeBroker, sig: dict, multiplier:
                     cost += f" Fees: ${float(result['fees']):,.2f}."
             except (TypeError, ValueError):
                 cost = ""
-        detail = "🧪 Dry-run OK" if result["status"] == "dry-run-only" else "📣 Notification-only"
+        detail = {"dry-run-only": "🧪 Dry-run OK",
+                  "notification-only": "📣 Notification-only",
+                  "rejected": "🚫 Order rejected"}.get(result["status"], "📣 Notification-only")
         notify(cfg, f"{detail} for {sig['symbol']} — not armed, no order placed.{cost} "
                     f"Warnings: {result.get('warnings') or 'none'}")
     return result["status"]
@@ -136,6 +138,7 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
             label = {"submitted": "📬 LIVE order submitted",
                      "dry-run-only": "✅ Approved — dry-run OK",
                      "notification-only": "✅ Approved — notification only",
+                     "rejected": "🚫 Rejected by broker",
                      "error": "⚠️ Order error"}.get(status, "✅ Approved")
             finalize_card(cfg, p["sig"], p["multiplier"], p["message_id"], label)
             print(f"signal {tap['sig_id']}: {status}")

@@ -520,6 +520,34 @@ class BrokerDegradationTest(_ut.TestCase):
             self._broker().place(self._sig(),1,armed=True)
 
 
+class BrokerRejectionTest(_ut.TestCase):
+    """A 4xx from the dry-run engine is an order REJECTION, not an outage."""
+    def _broker(self, code):
+        class _Cfg:
+            tt_client_secret="x"; tt_refresh_token="x"
+            api_base="https://api.cert.tastyworks.com"; max_contracts=1
+        b=_TB(_Cfg())
+        b.account_number=lambda: "6AC21859"                  # auth OK
+        def _boom(*a,**k): raise _BE("POST /orders/dry-run -> HTTP %d: bad symbol" % code, code=code)
+        b._request=_boom
+        return b
+    def _sig(self):
+        return {"symbol":"SPY","trader":"Tom","price":0.5,"price_effect":"Credit",
+                "legs":[{"instrument_type":"Equity Option","symbol":"SPY   260821P00700000",
+                         "quantity":1,"action":"Sell to Open"}]}
+    def test_422_rejection_surfaces_reason(self):
+        r=self._broker(422).place(self._sig(),1,armed=False)
+        self.assertEqual(r["status"],"rejected")
+        self.assertIn("order rejected", r["warnings"][0])
+    def test_5xx_degrades_to_notification_only(self):
+        self.assertEqual(self._broker(503).place(self._sig(),1,armed=False)["status"],"notification-only")
+    def test_auth_401_stays_notification_only(self):
+        self.assertEqual(self._broker(401).place(self._sig(),1,armed=False)["status"],"notification-only")
+    def test_broker_error_carries_code(self):
+        self.assertEqual(_BE("x",code=422).code,422)
+        self.assertIsNone(_BE("y").code)
+
+
 # --- card economics: total investment + best-case ROI (overlord 2026-07-22) ---
 import unittest as _ut2, telegram_gate as _tg
 class SpreadEconomicsTest(_ut2.TestCase):

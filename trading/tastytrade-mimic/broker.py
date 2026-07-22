@@ -55,7 +55,7 @@ class TastytradeBroker:
                         f"refresh token will fail against the cert/sandbox base")
             else:
                 hint = ""
-            raise BrokerError(f"OAuth token refresh -> HTTP {e.code}: {detail}{hint}") from e
+            raise BrokerError(f"OAuth token refresh -> HTTP {e.code}: {detail}{hint}", code=e.code) from e
         except (urllib.error.URLError, OSError) as e:
             raise BrokerError(f"OAuth token refresh -> network error reaching "
                               f"{self.cfg.api_base}: {e}") from e
@@ -79,7 +79,7 @@ class TastytradeBroker:
                 return json.loads(resp.read().decode())
         except urllib.error.HTTPError as e:
             detail = e.read().decode()[:500]
-            raise BrokerError(f"{method} {path} -> HTTP {e.code}: {detail}") from e
+            raise BrokerError(f"{method} {path} -> HTTP {e.code}: {detail}", code=e.code) from e
 
     # -- accounts -----------------------------------------------------------
     def account_number(self) -> str:
@@ -114,21 +114,28 @@ class TastytradeBroker:
         order = self.build_order(sig, multiplier)
         if not armed:
             # Disarmed/paper: the approval card IS the product and nothing is placed.
-            # Validate against the broker when reachable, but a broker/auth outage
-            # (e.g. a revoked cert grant) must NOT hard-fail the notification loop —
-            # degrade to notification-only instead of a loud error on every tap.
-            try:
-                acct = self.account_number()
-                dry = self._request("POST", f"/accounts/{acct}/orders/dry-run", order)
-                data = dry.get("data", {})
-                warnings = data.get("warnings", [])
-                return {"status": "dry-run-only", "warnings": warnings, "order": order,
-                        **_cost_fields(data)}
-            except BrokerError as e:
-                return {"status": "notification-only",
+            # An auth/connectivity OUTAGE (dead grant, 5xx, network) must NOT hard-fail
+            # the notification loop -> degrade to notification-only. But a 4xx from the
+            # dry-run engine is the broker REJECTING this specific order — real
+            # validation feedback, not an outage — so surface the reason instead.
+            def _outage(e):
+                return {"status": "notification-only", "order": order,
                         "warnings": [f"broker offline ({e}); no validation performed — "
-                                     "notification-only until the cert grant is restored"],
-                        "order": order}
+                                     "notification-only until the cert grant is restored"]}
+            try:
+                acct = self.account_number()          # auth happens here
+            except BrokerError as e:
+                return _outage(e)                     # can't even authenticate -> outage
+            try:
+                dry = self._request("POST", f"/accounts/{acct}/orders/dry-run", order)
+            except BrokerError as e:
+                if e.code is not None and 400 <= e.code < 500 and e.code not in (401, 403):
+                    return {"status": "rejected", "order": order,
+                            "warnings": [f"order rejected: {e}"]}
+                return _outage(e)                     # 5xx / auth / network -> outage
+            data = dry.get("data", {})
+            return {"status": "dry-run-only", "warnings": data.get("warnings", []),
+                    "order": order, **_cost_fields(data)}
         # Armed/live: any broker failure MUST propagate (never a fake OK, never a silent
         # skip). BrokerError raised here bubbles to the caller and places nothing.
         acct = self.account_number()
@@ -151,4 +158,7 @@ def _cost_fields(data: dict) -> dict:
 
 
 class BrokerError(Exception):
-    pass
+    def __init__(self, message, code=None):
+        super().__init__(message)
+        self.code = code  # HTTP status when known (None for network/other), used to
+        #                   tell an order REJECTION (4xx) from an outage (5xx/auth/net)
