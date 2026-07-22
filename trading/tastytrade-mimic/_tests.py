@@ -495,8 +495,6 @@ class NotifyDedupeTests(unittest.TestCase):
         self.assertEqual(call.call_count, 2)
 
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
 
 
 # --- reconciliation safety: armed vs disarmed on a dead broker (overlord 2026-07-22) ---
@@ -539,3 +537,7 @@ class SpreadEconomicsTest(_ut2.TestCase):
     def test_single_leg_returns_none(self):
         s={"symbol":"SPY","price":1.0,"price_effect":"Credit","legs":[{"symbol":"SPY   260821P00700000","action":"Sell to Open","quantity":1}]}
         self.assertIsNone(_tg._spread_economics(s,1))
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
