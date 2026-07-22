@@ -512,7 +512,7 @@ class BrokerDegradationTest(_ut.TestCase):
         b._request=_boom
         return b
     def _sig(self):
-        return {"symbol":"SPY","trader":"Tom","legs":[{"symbol":"SPY","quantity":1,"action":"Sell to Open"}]}
+        return {"symbol":"SPY","trader":"Tom","price":0.5,"price_effect":"Credit","legs":[{"instrument_type":"Equity Option","symbol":"SPY   260821P00700000","quantity":1,"action":"Sell to Open"}]}
     def test_disarmed_unreachable_degrades(self):
         r=self._broker().place(self._sig(),1,armed=False)
         self.assertEqual(r["status"],"notification-only")   # graceful, no crash
