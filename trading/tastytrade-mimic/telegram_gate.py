@@ -46,6 +46,22 @@ def _call(token: str, method: str, params: dict, attempts: int = _MAX_ATTEMPTS) 
     raise last_exc  # pragma: no cover - loop always returns or raises above
 
 
+def _occ_expiration(symbol: str):
+    """(expiration_date_str 'YYYY-MM-DD', dte_int) from an OCC symbol, or (None, None).
+    OCC: root + yymmdd + C/P + strike8. dte is days from today (server clock)."""
+    import datetime
+    s = symbol.replace(" ", "")
+    try:
+        # strike is last 8; C/P is char before that; yymmdd is the 6 before that
+        core = s[:-9]                      # strip C/P + 8-digit strike
+        ymd = core[-6:]
+        exp = datetime.date(2000 + int(ymd[:2]), int(ymd[2:4]), int(ymd[4:6]))
+        dte = (exp - datetime.date.today()).days
+        return "%s %d, %d" % (exp.strftime("%b"), exp.day, exp.year), dte
+    except (ValueError, IndexError):
+        return None, None
+
+
 def _occ_strike(symbol: str) -> float:
     """Strike price from an OCC option symbol (last 8 digits = strike x 1000)."""
     s = symbol.replace(" ", "")
@@ -106,6 +122,9 @@ def format_trade_card(sig: dict, multiplier: int, mode: str) -> str:
             invest, profit, roi = econ
             lines.append(f"  📊 Total investment: ${invest:,.0f}")
             lines.append(f"  📈 Best case: +${profit:,.0f} ({roi:.0f}% ROI)")
+        exp_str, dte = _occ_expiration(sig["legs"][0]["symbol"]) if sig.get("legs") else (None, None)
+        if dte is not None:
+            lines.append(f"  📅 Duration: {dte} days (exp {exp_str})")
     lines.append("")
     lines.append("🧪 PAPER account" if mode != "live" else "💵 LIVE account")
     return "\n".join(line for line in lines if line is not None)

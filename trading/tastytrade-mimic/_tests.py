@@ -670,3 +670,14 @@ class PaperExecuteSafetyTest(_ut3.TestCase):
         c = self._cfg(MODE="paper")
         self.assertFalse(c.paper_execute)                 # off unless explicitly set
         self.assertIn("cert", c.api_base)
+
+
+# --- card duration line (overlord 2026-07-22) ---
+import unittest as _ut4, telegram_gate as _tg4
+class DurationTest(_ut4.TestCase):
+    def test_expiration_parsed_from_occ(self):
+        exp, dte = _tg4._occ_expiration("SPY   260821P00714000")
+        self.assertEqual(exp, "Aug 21, 2026")     # date is stable; dte varies by run-day
+        self.assertIsInstance(dte, int)
+    def test_bad_symbol_returns_none(self):
+        self.assertEqual(_tg4._occ_expiration("garbage"), (None, None))
