@@ -15,7 +15,7 @@ import time
 from broker import BrokerError, TastytradeBroker
 from config import Config
 from signals import make_source
-from telegram_gate import notify, request_approval
+from telegram_gate import notify, request_approval, send_card, poll_callbacks, finalize_card
 
 
 def load_state(path: str) -> dict:
@@ -33,17 +33,17 @@ def save_state(path: str, state: dict) -> None:
         json.dump(state, f)
 
 
-def process_signal(cfg: Config, broker: TastytradeBroker, sig: dict, armed: bool) -> str:
+def _multiplier(cfg: Config, sig: dict) -> int:
     # Legs carry ratio-reduced quantities; MAX_CONTRACTS caps the largest leg.
     max_leg = max(int(leg.get("quantity", 1)) for leg in sig["legs"])
-    multiplier = max(1, cfg.max_contracts // max_leg)
-    approved = request_approval(cfg, sig, multiplier)
-    if not approved:
-        return "skipped"
+    return max(1, cfg.max_contracts // max_leg)
+
+
+def execute_signal(cfg: Config, broker: TastytradeBroker, sig: dict, multiplier: int, armed: bool) -> str:
+    """Place (dry-run unless armed) an ALREADY-APPROVED signal and notify the result."""
     try:
         result = broker.place(sig, multiplier, armed=armed)
     except BrokerError as e:
-        # de-dupe: a systemic failure (revoked token) hits every trade -> alert once
         notify(cfg, f"⚠️ Order failed for {sig['symbol']}: {e}",
                key="order-failed", cooldown_s=cfg.alert_cooldown_s)
         return "error"
@@ -63,9 +63,18 @@ def process_signal(cfg: Config, broker: TastytradeBroker, sig: dict, armed: bool
                     cost += f" Fees: ${float(result['fees']):,.2f}."
             except (TypeError, ValueError):
                 cost = ""
-        notify(cfg, f"🧪 Dry-run OK for {sig['symbol']} — not armed, no order placed.{cost} "
+        detail = "🧪 Dry-run OK" if result["status"] == "dry-run-only" else "📣 Notification-only"
+        notify(cfg, f"{detail} for {sig['symbol']} — not armed, no order placed.{cost} "
                     f"Warnings: {result.get('warnings') or 'none'}")
     return result["status"]
+
+
+def process_signal(cfg: Config, broker: TastytradeBroker, sig: dict, armed: bool) -> str:
+    """Blocking single-signal flow (kept for tests / --once compatibility)."""
+    multiplier = _multiplier(cfg, sig)
+    if not request_approval(cfg, sig, multiplier):
+        return "skipped"
+    return execute_signal(cfg, broker, sig, multiplier, armed)
 
 
 def run(cfg: Config, execute_flag: bool, once: bool) -> int:
@@ -82,23 +91,64 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
     source = make_source(cfg)
     state = load_state(cfg.state_file)
 
+    # Non-blocking approval model: cards are sent, then a SINGLE getUpdates poller
+    # services taps for ANY pending card. A tap works anytime before expiry; every
+    # tap is answered so the button never spins silently; multiple cards can be
+    # pending at once. Only this process polls getUpdates -> no callback theft.
+    pending = {}   # sig_id -> {"sig", "multiplier", "message_id", "expiry"}
+    offset = None
+    first_pass = True
+
     while True:
+        now = time.time()
         if cfg.kill_switch_engaged():
             print("KILL_SWITCH engaged — idling, no polling, no orders")
             if once:
                 return 0
             time.sleep(cfg.poll_interval_s)
             continue
-        for sig in source.poll():
-            if sig["id"] in state["seen"]:
+
+        # 1) fetch new signals -> send cards (non-blocking) and register as pending
+        if first_pass or not once:
+            for sig in source.poll():
+                if sig["id"] in state["seen"]:
+                    continue
+                state["seen"] = state["seen"][-500:] + [sig["id"]]
+                save_state(cfg.state_file, state)  # mark seen BEFORE acting: never double-fire
+                mult = _multiplier(cfg, sig)
+                mid = send_card(cfg, sig, mult)
+                pending[sig["id"]] = {"sig": sig, "multiplier": mult, "message_id": mid,
+                                      "expiry": now + cfg.approval_timeout_s}
+                print(f"card sent: {sig['id']} ({sig['trader']} {sig['symbol']})")
+        first_pass = False
+
+        # 2) service taps for ANY pending card
+        offset, taps = poll_callbacks(cfg, offset)
+        for tap in taps:
+            p = pending.pop(tap["sig_id"], None)
+            if p is None:
+                continue  # tap on an already-resolved/expired card — button already answered
+            if tap["decision"] == "skip":
+                finalize_card(cfg, p["sig"], p["multiplier"], p["message_id"], "❌ Skipped")
+                print(f"signal {tap['sig_id']}: skipped by tap")
                 continue
-            state["seen"] = state["seen"][-500:] + [sig["id"]]
-            save_state(cfg.state_file, state)  # mark seen BEFORE acting: never double-fire
-            outcome = process_signal(cfg, broker, sig, armed)
-            print(f"signal {sig['id']} ({sig['trader']} {sig['symbol']}): {outcome}")
-        if once:
+            status = execute_signal(cfg, broker, p["sig"], p["multiplier"], armed)
+            label = {"submitted": "📬 LIVE order submitted",
+                     "dry-run-only": "✅ Approved — dry-run OK",
+                     "notification-only": "✅ Approved — notification only",
+                     "error": "⚠️ Order error"}.get(status, "✅ Approved")
+            finalize_card(cfg, p["sig"], p["multiplier"], p["message_id"], label)
+            print(f"signal {tap['sig_id']}: {status}")
+
+        # 3) expire stale pending cards
+        for sid in [s for s, pv in pending.items() if now >= pv["expiry"]]:
+            p = pending.pop(sid)
+            finalize_card(cfg, p["sig"], p["multiplier"], p["message_id"], "⏰ Expired → skipped")
+            print(f"signal {sid}: expired")
+
+        if once and not pending:
             return 0
-        time.sleep(cfg.poll_interval_s)
+        time.sleep(2 if once else cfg.poll_interval_s)
 
 
 def main() -> int:

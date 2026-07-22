@@ -111,6 +111,74 @@ def format_trade_card(sig: dict, multiplier: int, mode: str) -> str:
     return "\n".join(line for line in lines if line is not None)
 
 
+def _keyboard(sig: dict) -> dict:
+    return {"inline_keyboard": [[
+        {"text": "✅ Copy this trade", "callback_data": f"approve:{sig['id']}"},
+        {"text": "❌ Skip", "callback_data": f"skip:{sig['id']}"},
+    ]]}
+
+
+def send_card(cfg, sig: dict, multiplier: int):
+    """Send a trade card with Approve/Skip buttons. NON-BLOCKING.
+    Returns the Telegram message_id, or None if it could not be sent."""
+    try:
+        sent = _call(cfg.telegram_bot_token, "sendMessage", {
+            "chat_id": cfg.telegram_chat_id,
+            "text": format_trade_card(sig, multiplier, cfg.mode),
+            "reply_markup": json.dumps(_keyboard(sig)),
+        })
+        return sent.get("result", {}).get("message_id")
+    except OSError:
+        return None
+
+
+def poll_callbacks(cfg, offset):
+    """Poll getUpdates ONCE for button taps. Returns (new_offset, taps) where
+    taps is a list of dicts {sig_id, decision('approve'|'skip'), callback_id}.
+    ALWAYS answers each callback so the button never spins silently."""
+    params = {"timeout": 0, "allowed_updates": '["callback_query"]'}
+    if offset is not None:
+        params["offset"] = offset
+    try:
+        updates = _call(cfg.telegram_bot_token, "getUpdates", params)
+    except OSError:
+        return offset, []
+    taps = []
+    for upd in updates.get("result", []):
+        offset = upd["update_id"] + 1
+        cq = upd.get("callback_query")
+        if not cq:
+            continue
+        # answer immediately: the button always gets feedback, even if unknown/expired
+        try:
+            _call(cfg.telegram_bot_token, "answerCallbackQuery", {"callback_query_id": cq["id"]})
+        except OSError:
+            pass
+        if str(cq.get("message", {}).get("chat", {}).get("id")) != str(cfg.telegram_chat_id):
+            continue  # only the owner's chat can answer
+        data = cq.get("data", "")
+        if ":" not in data:
+            continue
+        decision, _, sig_id = data.partition(":")
+        if decision in ("approve", "skip"):
+            taps.append({"sig_id": sig_id, "decision": decision})
+    return offset, taps
+
+
+def finalize_card(cfg, sig: dict, multiplier: int, message_id, status: str) -> None:
+    """Edit a card in place to show its final status (Approved/Skipped/Expired + result)."""
+    if not message_id:
+        return
+    try:
+        _call(cfg.telegram_bot_token, "editMessageText", {
+            "chat_id": cfg.telegram_chat_id,
+            "message_id": message_id,
+            "text": format_trade_card(sig, multiplier, cfg.mode) + "\n\n" + status,
+        })
+    except OSError:
+        pass
+
+
 def request_approval(cfg, sig: dict, multiplier: int) -> bool:
     """Send the trade card with Approve/Skip buttons; block until a tap or expiry.
 

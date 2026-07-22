@@ -187,24 +187,24 @@ class BrokerTests(unittest.TestCase):
 
 
 class ArmingTests(unittest.TestCase):
+    """run() uses the non-blocking approval model: send_card -> poll_callbacks ->
+    execute_signal on an Approve tap. These mock that seam and verify arming."""
     def _run(self, mode, execute_flag):
         captured = {}
-
-        def fake_process(cfg, broker, sig, armed):
+        def fake_execute(cfg, broker, sig, multiplier, armed):
             captured["armed"] = armed
-            return "skipped"
-
+            return "dry-run-only"
         env = {"MODE": mode, "TT_CLIENT_SECRET": "x", "TT_REFRESH_TOKEN": "x",
                "TELEGRAM_BOT_TOKEN": "x", "TELEGRAM_CHAT_ID": "1"}
         with tempfile.TemporaryDirectory() as d:
             sig_path = os.path.join(d, "signals.json")
             with open(sig_path, "w") as f:
                 json.dump([sample_signal()], f)
-            env.update({"SIGNAL_SOURCE": "file", "SIGNAL_FILE": sig_path, "STATE_FILE": os.path.join(d, "s.json"),
+            env.update({"SIGNAL_SOURCE": "file", "SIGNAL_FILE": sig_path,
+                        "STATE_FILE": os.path.join(d, "s.json"),
                         "KILL_SWITCH_FILE": os.path.join(d, "KILL_SWITCH")})
-            with mock.patch.dict(os.environ, env, clear=True), \
-                 mock.patch.object(main_mod, "process_signal", side_effect=fake_process), \
-                 mock.patch.object(main_mod, "notify"):
+            with mock.patch.dict(os.environ, env, clear=True),                  mock.patch.object(main_mod, "send_card", return_value=111),                  mock.patch.object(main_mod, "poll_callbacks",
+                                   return_value=(1, [{"sig_id": "t1", "decision": "approve"}])),                  mock.patch.object(main_mod, "execute_signal", side_effect=fake_execute),                  mock.patch.object(main_mod, "finalize_card"),                  mock.patch.object(main_mod, "notify"):
                 rc = main_mod.run(Config(), execute_flag=execute_flag, once=True)
         return rc, captured
 
@@ -232,14 +232,13 @@ class ArmingTests(unittest.TestCase):
             sig_path = os.path.join(d, "signals.json")
             with open(sig_path, "w") as f:
                 json.dump([sample_signal()], f)
-            env.update({"SIGNAL_SOURCE": "file", "SIGNAL_FILE": sig_path, "STATE_FILE": os.path.join(d, "s.json"),
-                        "KILL_SWITCH_FILE": kill})
-            with mock.patch.dict(os.environ, env, clear=True), \
-                 mock.patch.object(main_mod, "process_signal") as proc, \
-                 mock.patch.object(main_mod, "notify"):
+            env.update({"SIGNAL_SOURCE": "file", "SIGNAL_FILE": sig_path,
+                        "STATE_FILE": os.path.join(d, "s.json"), "KILL_SWITCH_FILE": kill})
+            with mock.patch.dict(os.environ, env, clear=True),                  mock.patch.object(main_mod, "send_card") as sc,                  mock.patch.object(main_mod, "execute_signal") as ex,                  mock.patch.object(main_mod, "poll_callbacks", return_value=(None, [])),                  mock.patch.object(main_mod, "notify"):
                 rc = main_mod.run(Config(), execute_flag=True, once=True)
         self.assertEqual(rc, 0)
-        proc.assert_not_called()
+        sc.assert_not_called()       # kill switch -> no card sent
+        ex.assert_not_called()       # kill switch -> nothing executed
 
     def test_signals_deduped_across_runs(self):
         env = {"MODE": "paper", "TT_CLIENT_SECRET": "x", "TT_REFRESH_TOKEN": "x",
@@ -248,14 +247,14 @@ class ArmingTests(unittest.TestCase):
             sig_path = os.path.join(d, "signals.json")
             with open(sig_path, "w") as f:
                 json.dump([sample_signal()], f)
-            env.update({"SIGNAL_SOURCE": "file", "SIGNAL_FILE": sig_path, "STATE_FILE": os.path.join(d, "s.json"),
+            env.update({"SIGNAL_SOURCE": "file", "SIGNAL_FILE": sig_path,
+                        "STATE_FILE": os.path.join(d, "s.json"),
                         "KILL_SWITCH_FILE": os.path.join(d, "KILL_SWITCH")})
-            with mock.patch.dict(os.environ, env, clear=True), \
-                 mock.patch.object(main_mod, "process_signal", return_value="skipped") as proc, \
-                 mock.patch.object(main_mod, "notify"):
+            with mock.patch.dict(os.environ, env, clear=True),                  mock.patch.object(main_mod, "send_card", return_value=111) as sc,                  mock.patch.object(main_mod, "poll_callbacks",
+                                   return_value=(1, [{"sig_id": "t1", "decision": "approve"}])),                  mock.patch.object(main_mod, "execute_signal", return_value="dry-run-only"),                  mock.patch.object(main_mod, "finalize_card"),                  mock.patch.object(main_mod, "notify"):
                 main_mod.run(Config(), execute_flag=False, once=True)
                 main_mod.run(Config(), execute_flag=False, once=True)
-            self.assertEqual(proc.call_count, 1)
+            self.assertEqual(sc.call_count, 1)   # card sent once across both runs
 
 
 class ApprovalGateTests(unittest.TestCase):
