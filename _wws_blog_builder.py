@@ -470,6 +470,12 @@ def build_index():
 {('<section class="max-w-7xl mx-auto px-6 sm:px-8 py-20">'+cta()+'</section>')}
 </main>
 """
+    import json as _json, html as _html
+    _guides = [(p[0], p[1]) for p in POSTS] + [(t[0], t[1]) for t in TOPICS] + [(x[0], x[1]) for x in EXTRA_GUIDES]
+    _items = [{"@type": "ListItem", "position": i + 1, "url": f"https://roofanchorcert.com/guides/{s}", "name": _html.unescape(t)} for i, (s, t) in enumerate(_guides)]
+    _bc = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "La Gala Construction", "item": "https://roofanchorcert.com/"}, {"@type": "ListItem", "position": 2, "name": "Compliance guides", "item": "https://roofanchorcert.com/guides"}]}
+    _cp = {"@context": "https://schema.org", "@type": "CollectionPage", "name": "OSHA Walking-Working Surfaces — Compliance Guides", "url": "https://roofanchorcert.com/guides", "description": "Plain-English guides to OSHA Walking-Working Surfaces (Subpart D) compliance, Florida roof-anchor certification, and condo/HOA milestone deadlines, from La Gala Construction.", "isPartOf": {"@type": "WebSite", "name": "La Gala Construction — Roof Anchor Certification", "url": "https://roofanchorcert.com/"}, "mainEntity": {"@type": "ItemList", "numberOfItems": len(_items), "itemListElement": _items}}
+    head = head.replace("</head>", '<script type="application/ld+json">' + _json.dumps(_bc) + '</script>\n<script type="application/ld+json">' + _json.dumps(_cp) + '</script>\n</head>')
     return head + body + FOOTER.replace("{credit}", "")
 
 def build_checklist():
