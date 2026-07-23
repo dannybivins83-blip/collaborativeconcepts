@@ -110,6 +110,35 @@ class TastytradeBroker:
             order["price-effect"] = sig.get("price_effect", "Credit")
         return order
 
+    def margin_preview(self, sig: dict, multiplier: int) -> dict:
+        """Read-only: dry-run the order to get tastytrade's REAL buying-power requirement.
+        Places NOTHING. Parses the margin from a success response OR a 422 preflight body
+        (a rejected order still returns the buying-power-effect). Returns:
+        {ok, required, current, affordable} or {ok: False}."""
+        import re as _re, json as _json
+        def _extract(text: str):
+            def grab(key):
+                m = _re.search(r'"%s":"?(-?[0-9.]+)' % key, text)
+                return float(m.group(1)) if m else None
+            req = grab("isolated-order-margin-requirement")
+            if req is None:
+                req = grab("change-in-margin-requirement")
+            return req, grab("current-buying-power")
+        try:
+            order = self.build_order(sig, multiplier)
+            acct = self.account_number()
+            dry = self._request("POST", f"/accounts/{acct}/orders/dry-run", order)
+            required, current = _extract(_json.dumps(dry))
+        except BrokerError as e:
+            required, current = _extract(str(e))   # 422 body carries the margin effect
+        except Exception:
+            return {"ok": False}
+        if required is None:
+            return {"ok": False}
+        affordable = current is not None and current >= required
+        return {"ok": True, "required": required, "current": current, "affordable": affordable}
+
+
     def place(self, sig: dict, multiplier: int, armed: bool) -> dict:
         order = self.build_order(sig, multiplier)
         if not armed:

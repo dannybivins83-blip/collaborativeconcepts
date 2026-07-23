@@ -136,7 +136,8 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
                 state["seen"] = state["seen"][-500:] + [sig["id"]]
                 save_state(cfg.state_file, state)  # mark seen BEFORE acting: never double-fire
                 mult = _multiplier(cfg, sig)
-                mid = send_card(cfg, sig, mult)
+                margin = broker.margin_preview(sig, mult)  # read-only: real buying-power req
+                mid = send_card(cfg, sig, mult, margin)
                 pending[sig["id"]] = {"sig": sig, "multiplier": mult, "message_id": mid,
                                       "expiry": now + cfg.approval_timeout_s}
                 print(f"card sent: {sig['id']} ({sig['trader']} {sig['symbol']})")

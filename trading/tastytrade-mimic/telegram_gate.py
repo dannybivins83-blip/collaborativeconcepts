@@ -113,7 +113,7 @@ def _spread_economics(sig: dict, multiplier: int):
     except (TypeError, ValueError, KeyError, IndexError):
         return None
 
-def format_trade_card(sig: dict, multiplier: int, mode: str) -> str:
+def format_trade_card(sig: dict, multiplier: int, mode: str, margin: dict = None) -> str:
     lines = [
         f"📣 {sig['trader']} traded {sig['symbol']}",
         sig.get("description", ""),
@@ -144,6 +144,12 @@ def format_trade_card(sig: dict, multiplier: int, mode: str) -> str:
         exp_str, dte = _occ_expiration(sig["legs"][0]["symbol"]) if sig.get("legs") else (None, None)
         if dte is not None:
             lines.append(f"  📅 Duration: {dte} days (exp {exp_str})")
+    if margin and margin.get("ok") and margin.get("required") is not None:
+        req = margin["required"]; cur = margin.get("current")
+        if margin.get("affordable"):
+            lines.append(f"  🏦 Buying power required: ${req:,.0f}" + (f" (you have ${cur:,.0f})" if cur is not None else ""))
+        else:
+            lines.append(f"  ⚠️ NEEDS ${req:,.0f} buying power" + (f" — you have ${cur:,.0f} (would be rejected)" if cur is not None else ""))
     lines.append("")
     lines.append("🧪 PAPER account" if mode != "live" else "💵 LIVE account")
     return "\n".join(line for line in lines if line is not None)
@@ -156,13 +162,13 @@ def _keyboard(sig: dict) -> dict:
     ]]}
 
 
-def send_card(cfg, sig: dict, multiplier: int):
+def send_card(cfg, sig: dict, multiplier: int, margin: dict = None):
     """Send a trade card with Approve/Skip buttons. NON-BLOCKING.
     Returns the Telegram message_id, or None if it could not be sent."""
     try:
         sent = _call(cfg.telegram_bot_token, "sendMessage", {
             "chat_id": cfg.telegram_chat_id,
-            "text": format_trade_card(sig, multiplier, cfg.mode),
+            "text": format_trade_card(sig, multiplier, cfg.mode, margin),
             "reply_markup": json.dumps(_keyboard(sig)),
         })
         return sent.get("result", {}).get("message_id")
