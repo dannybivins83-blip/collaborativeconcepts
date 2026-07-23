@@ -4,18 +4,29 @@
 Copy-trading moves real money, so going live is a deliberate, owner-only act.
 This document is a gate, not a suggestion.
 
-## The three arming gates (all required, every trade)
+## Real-trade model (owner decision 2026-07-23)
 
-A real-money order is placed only when **all three** hold:
+Real trades use the **same one-tap API flow as paper, extended to real money**
+(no external deep-link can pre-fill a tastytrade order — that path is dead). Tap
+Copy → the bot places the real order in Danny's account. Same mechanism as paper;
+the only difference is the environment + grant it points at.
+
+## The arming gates (ALL required, every trade)
+
+A real-money order is placed only when **all four** hold:
 
 1. **`MODE=live`** (environment) — points the broker at production (`api.tastytrade.com`).
-2. **`--execute`** (CLI flag) — arms live execution.
-3. **A per-trade Telegram Approve tap** — the human gate, one trade at a time.
+2. **A separate PRODUCTION grant** — the prod OAuth grant, in its **own env vars**,
+   distinct from the cert grant (see Credentials). The cert grant must be
+   structurally incapable of placing a real order.
+3. **`--execute`** (CLI flag) — arms live execution.
+4. **A per-trade Telegram Approve tap** — the human gate, one trade at a time.
 
 Miss any one → no real order. There is deliberately **no** auto-approve, no
 batch approve, no "trust this trader" bypass, and an unanswered card **expires to
-SKIP**. Fail-safe: any config ambiguity (missing/garbled `MODE`) resolves to
-**paper**, never live — `Config.api_base` returns cert whenever `MODE != "live"`.
+SKIP**. Fail-safe: any config ambiguity (missing/garbled `MODE`, or a cert grant
+sitting in the live slot) **refuses to place a real order, loudly** — and resolves
+to **paper**, never live. `Config.api_base` returns cert whenever `MODE != "live"`.
 
 > **You arm live. Not the bot, not the overlord, not any agent — only Danny,
 > deliberately, per trade.**
@@ -46,9 +57,15 @@ SKIP**. Fail-safe: any config ambiguity (missing/garbled `MODE`) resolves to
 
 ### Operational safety
 - [ ] **KILL_SWITCH verified:** `touch KILL_SWITCH` halts all trading; confirmed live.
-- [ ] **Credentials:** production (real-money) grant is a **SEPARATE** tastytrade
-      OAuth grant from the cert/sandbox grant. A paper grant must never reach prod.
-      Both set on the VM only, never in chat/commit/screenshot.
+- [ ] **Credentials — hard separation (owner directive):** the production grant
+      lives in its **own env vars** (e.g. `TT_LIVE_CLIENT_SECRET` /
+      `TT_LIVE_REFRESH_TOKEN` / `TT_LIVE_CLIENT_ID`), used **only** when `MODE=live`.
+      The cert grant (`TT_CLIENT_SECRET` etc.) is used **only** for paper and must
+      be structurally unable to place a real order. If `MODE=live` and the prod
+      grant is missing (or the cert grant is in the live slot), the bot **refuses
+      to place and says so** — it never silently falls back to the cert grant.
+      Both grants set on the VM only, never in chat/commit/screenshot.
+      *(Code enforcement of this separation is the next build item.)*
 - [ ] `TELEGRAM_CHAT_ID` locked to the owner's chat (only that chat can approve).
 - [ ] Alerting healthy (no ntfy shared-topic dependency; Telegram 429 backoff live).
 
