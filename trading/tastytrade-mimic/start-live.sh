@@ -14,4 +14,4 @@ export MODE=live                     # -> prod host + prod creds
 export PAPER_EXECUTE=0               # irrelevant in live, set explicit
 export LIVE_MAX_CONTRACTS="${LIVE_MAX_CONTRACTS:-1}"
 echo "ARMING LIVE: mode=live, real money, cap=$LIVE_MAX_CONTRACTS contract(s). Ctrl-C to abort."
-exec python3 "$DIR/main.py" --loop --execute
+exec python3 -u "$DIR/main.py" --execute
