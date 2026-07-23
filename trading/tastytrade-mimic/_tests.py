@@ -196,6 +196,7 @@ class ArmingTests(unittest.TestCase):
             captured["armed"] = armed
             return "dry-run-only"
         env = {"MODE": mode, "TT_CLIENT_SECRET": "x", "TT_REFRESH_TOKEN": "x",
+               "TT_PROD_CLIENT_SECRET": "prod_x", "TT_PROD_REFRESH_TOKEN": "prod_y",
                "TELEGRAM_BOT_TOKEN": "x", "TELEGRAM_CHAT_ID": "1"}
         with tempfile.TemporaryDirectory() as d:
             sig_path = os.path.join(d, "signals.json")
@@ -226,6 +227,7 @@ class ArmingTests(unittest.TestCase):
 
     def test_kill_switch_blocks_everything(self):
         env = {"MODE": "live", "TT_CLIENT_SECRET": "x", "TT_REFRESH_TOKEN": "x",
+               "TT_PROD_CLIENT_SECRET": "prod_x", "TT_PROD_REFRESH_TOKEN": "prod_y",
                "TELEGRAM_BOT_TOKEN": "x", "TELEGRAM_CHAT_ID": "1"}
         with tempfile.TemporaryDirectory() as d:
             kill = os.path.join(d, "KILL_SWITCH")
@@ -681,3 +683,52 @@ class DurationTest(_ut4.TestCase):
         self.assertIsInstance(dte, int)
     def test_bad_symbol_returns_none(self):
         self.assertEqual(_tg4._occ_expiration("garbage"), (None, None))
+
+
+# --- REAL-MONEY WALL: cert vs prod credential separation (overlord 2026-07-23) ---
+import unittest as _ut5, os as _os5
+from config import Config as _Cfg5
+class RealMoneyWallTest(_ut5.TestCase):
+    CERT = {"TT_CLIENT_SECRET":"cert_sec","TT_REFRESH_TOKEN":"cert_ref","TT_CLIENT_ID":"cert_id","TT_ACCOUNT":"CERT1",
+            "TELEGRAM_BOT_TOKEN":"b","TELEGRAM_CHAT_ID":"c"}
+    PROD = {"TT_PROD_CLIENT_SECRET":"prod_sec","TT_PROD_REFRESH_TOKEN":"prod_ref","TT_PROD_CLIENT_ID":"prod_id","TT_PROD_ACCOUNT":"PROD1"}
+    def _cfg(self, **extra):
+        old=dict(_os5.environ)
+        try:
+            for k in list(_os5.environ):
+                if k.startswith(("TT_","MODE","PAPER_EXECUTE","MAX_CONTRACTS","LIVE_MAX","TELEGRAM_")): _os5.environ.pop(k,None)
+            _os5.environ.update(self.CERT); _os5.environ.update(self.PROD); _os5.environ.update(extra)
+            return _Cfg5()
+        finally:
+            _os5.environ.clear(); _os5.environ.update(old)
+    def test_paper_uses_cert_never_prod(self):
+        c=self._cfg(MODE="paper")
+        self.assertEqual(c.tt_client_secret,"cert_sec")
+        self.assertEqual(c.tt_refresh_token,"cert_ref")
+        self.assertEqual(c.tt_account,"CERT1")
+        self.assertIn("cert",c.api_base)
+        self.assertNotIn("prod_sec",(c.tt_client_secret,c.tt_refresh_token))  # prod never surfaces in paper
+    def test_live_uses_prod_never_cert(self):
+        c=self._cfg(MODE="live")
+        self.assertEqual(c.tt_client_secret,"prod_sec")
+        self.assertEqual(c.tt_refresh_token,"prod_ref")
+        self.assertEqual(c.tt_account,"PROD1")
+        self.assertEqual(c.api_base,"https://api.tastytrade.com")
+    def test_live_hard_caps_contracts_at_one(self):
+        c=self._cfg(MODE="live",MAX_CONTRACTS="10")
+        self.assertEqual(c.max_contracts,1)          # live ignores a big MAX_CONTRACTS
+        p=self._cfg(MODE="paper",MAX_CONTRACTS="10")
+        self.assertEqual(p.max_contracts,10)          # paper is unrestricted
+    def test_live_refuses_when_prod_slot_empty(self):
+        old=dict(_os5.environ)
+        try:
+            for k in list(_os5.environ):
+                if k.startswith(("TT_","MODE","TELEGRAM_")): _os5.environ.pop(k,None)
+            _os5.environ.update(self.CERT); _os5.environ["MODE"]="live"   # no prod creds
+            probs=_Cfg5().validate()
+            self.assertTrue(any("PROD" in p or "sandbox" in p for p in probs))
+        finally:
+            _os5.environ.clear(); _os5.environ.update(old)
+    def test_live_refuses_prod_equals_cert(self):
+        c=self._cfg(MODE="live",TT_PROD_CLIENT_SECRET="cert_sec",TT_PROD_REFRESH_TOKEN="cert_ref")
+        self.assertTrue(any("identical" in p for p in c.validate()))
