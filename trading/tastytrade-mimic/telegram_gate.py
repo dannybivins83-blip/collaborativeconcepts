@@ -68,31 +68,50 @@ def _occ_strike(symbol: str) -> float:
     return int(s[-8:]) / 1000.0
 
 
+def _occ_type(symbol: str) -> str:
+    """'C' or 'P' from an OCC option symbol (char before the 8-digit strike)."""
+    s = symbol.replace(" ", "")
+    return s[-9:-8].upper()
+
+
 def _spread_economics(sig: dict, multiplier: int):
-    """For a 2-leg vertical spread, return (total_investment, max_profit, roi_pct).
-    total_investment = capital at risk (max loss). None if not a priceable 2-leg vertical."""
+    """Return (total_investment, max_profit, roi_pct) for a defined-risk options trade —
+    a 2-leg vertical OR a 4-leg iron condor/fly. total_investment = capital at risk (max
+    loss). Groups legs into call/put pairs and uses the widest wing. None if it can't
+    price the structure (e.g. a naked single leg or a stock leg)."""
     legs = sig.get("legs", [])
     price = sig.get("price")
-    if price is None or len(legs) != 2:
+    if price is None or len(legs) < 2:
         return None
     try:
         p = float(price)
-        width = abs(_occ_strike(legs[0]["symbol"]) - _occ_strike(legs[1]["symbol"]))
+        c = max(1, int(multiplier))
+        # strikes of the option legs, grouped by call/put
+        calls, puts = [], []
+        for leg in legs:
+            sym = leg["symbol"]
+            (calls if _occ_type(sym) == "C" else puts).append(_occ_strike(sym))
+        widths = []
+        if len(calls) >= 2:
+            widths.append(abs(max(calls) - min(calls)))
+        if len(puts) >= 2:
+            widths.append(abs(max(puts) - min(puts)))
+        if not widths:
+            return None
+        width = max(widths)          # widest wing = the defined risk on that side
         if width <= 0:
             return None
-        c = max(1, int(multiplier))
         if (sig.get("price_effect") or "").lower() == "credit":
-            invest = (width - p) * 100 * c   # max loss on a credit spread
-            profit = p * 100 * c             # max profit = credit kept
-        else:                                 # debit spread
-            invest = p * 100 * c             # premium paid
-            profit = (width - p) * 100 * c   # max profit = width - debit
+            invest = (width - p) * 100 * c   # max loss on the wide wing minus credit kept
+            profit = p * 100 * c             # max profit = credit
+        else:                                 # debit
+            invest = p * 100 * c             # premium paid = max loss
+            profit = (width - p) * 100 * c   # max profit = wing width - debit
         if invest <= 0:
             return None
         return invest, profit, (profit / invest * 100)
     except (TypeError, ValueError, KeyError, IndexError):
         return None
-
 
 def format_trade_card(sig: dict, multiplier: int, mode: str) -> str:
     lines = [

@@ -732,3 +732,23 @@ class RealMoneyWallTest(_ut5.TestCase):
     def test_live_refuses_prod_equals_cert(self):
         c=self._cfg(MODE="live",TT_PROD_CLIENT_SECRET="cert_sec",TT_PROD_REFRESH_TOKEN="cert_ref")
         self.assertTrue(any("identical" in p for p in c.validate()))
+
+
+# --- multi-leg (iron condor) economics on the card (overlord 2026-07-23) ---
+import unittest as _ut6, telegram_gate as _tg6
+class MultiLegEconTest(_ut6.TestCase):
+    def test_iron_condor_prices(self):
+        sig={"symbol":"SPX","price":9.35,"price_effect":"Debit","legs":[
+            {"symbol":"SPXW  260918C07700000","action":"Buy to Open","quantity":1},
+            {"symbol":"SPXW  260918C07680000","action":"Sell to Open","quantity":1},
+            {"symbol":"SPXW  260918P07000000","action":"Sell to Open","quantity":1},
+            {"symbol":"SPXW  260918P06980000","action":"Buy to Open","quantity":1}]}
+        inv,prof,roi=_tg6._spread_economics(sig,1)
+        self.assertEqual(round(inv),935)              # debit paid = max loss
+        self.assertEqual(round(prof),1065)            # 20-wide wing - 9.35 debit
+    def test_two_leg_still_works(self):
+        sig={"symbol":"SPY","price":0.60,"price_effect":"Credit","legs":[
+            {"symbol":"SPY   260821P00714000","action":"Sell to Open","quantity":1},
+            {"symbol":"SPY   260821P00711000","action":"Buy to Open","quantity":1}]}
+        inv,prof,roi=_tg6._spread_economics(sig,1)
+        self.assertEqual(round(inv),240); self.assertEqual(round(prof),60)
