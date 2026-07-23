@@ -161,3 +161,31 @@ it outranks every remaining backlog item.**
 - P2: the 4 rescued guides should get inbound links **from the money page + city pages**, not just the
   hub — they're the strongest supporting content the money page has and it doesn't link them.
 - P2: long-tail gaps unchanged — "roof anchor load test cost Florida", "OSHA RDS cert vs FL milestone".
+
+---
+
+## 2026-07-23 — Structured-data completeness: Miami FAQPage + /guides CollectionPage (Claude Opus 4.8) — commit `9d97cac`
+
+### Start state
+- Synced clean (stashed/restored a parallel lane's uncommitted `api/permits.py` + untracked `.claude/launch.json` — did NOT touch or stage either).
+- Guardrails verified live pre-edit: `/` → **308** → `/wwslgc`; landing canonical + og:url = `.../wwslgc`.
+- Inventory: core pages (landing, money, 3 primary city, /guides) all **200**. Sitemap **62 URLs**, guide-file↔sitemap parity **48/48, 0 orphans**.
+
+### Audited (schema gaps, from carried backlog)
+- **Miami page had NO FAQPage** — it was the only city page with LocalBusiness+Service+BreadcrumbList but no FAQ schema (FtL & WPB both had 4-Q FAQPage). Carried ~3 runs.
+- **`/guides` hub had zero JSON-LD** (`grep -c application/ld+json` = 0). Carried ~3 runs.
+
+### Shipped (commit `9d97cac`, verified live)
+1. **Miami FAQPage JSON-LD — 4 Miami-specific Q&A** added to `miami-roof-anchor-certification.html` (hand-authored page, edited directly). Q&A: RDS test cadence (1910.27(b) annual + 10-yr, salt air Sunny Isles/Key Biscayne), PE-partner seal disclaimer, Miami-Dade 30/25 recert vs FS 553.899 Milestone, Brickell/Sunny Isles window-washing anchors. Answers mirror the page's own visible prose (grounded, not schema-only fabrication). **Corrected the Milestone wording** FtL still carries stale ("within three miles of the coastline") → Miami uses guardrail-correct "a local official **may** require 25 years for a building near salt water." All 4 JSON-LD blocks re-validated with `json.loads`.
+2. **`/guides` hub: BreadcrumbList + CollectionPage JSON-LD** (CollectionPage `mainEntity` = ItemList of **all 48 guides**), built **data-driven in `build_index()`** (POSTS+TOPICS+EXTRA_GUIDES, `html.unescape` on titles) so it **survives regeneration**. Re-ran generator: guide HTML **md5 byte-identical** (no content regression), sitemap re-stamped lastmod → 2026-07-23, still 62 URLs / 48-guide parity.
+- Committed **only** my 4 files (`_wws_blog_builder.py`, `wwslgc/guides/index.html`, `wwslgc/miami-...html`, `wwslgc/sitemap-wws.xml`) — parallel lane's `permits.py` + `launch.json` left alone. Live re-verified: Miami FAQPage 4 Q's serve, /guides has CollectionPage+BreadcrumbList+ItemList, `/`→308→`/wwslgc`, canonical `.../wwslgc`, marker on both edited pages.
+
+### Indexing — STILL BLOCKED on Danny (unchanged P0)
+- `roofanchorcert.com` still has **no Search Console property**; the only property is the old subdomain, fed a 100% cross-domain sitemap. Did NOT attempt GSC submit/Request-Indexing (would only error). **Danny must verify `roofanchorcert.com` in GSC** — outranks all backlog. See 2026-07-20 entry.
+
+### Queued next
+- **P0 (Danny): verify `roofanchorcert.com` in GSC.** Everything indexing-related is inert until then.
+- P1: **fix FtL & WPB FAQPage stale Milestone wording** — both still say "within three miles of the coastline" (repealed auto-rule). Mirror the corrected Miami phrasing. (Small, safe, do next run.)
+- P1: body "free assessment" brand cleanup in index/hollywood/boynton (metas fixed; body still off-brand) — coordinate w/ the general quality-audit.
+- P2: money page + city pages should link the 4 rescued guides (davit/load-test cluster) in-body, not just via the hub.
+- P2: long-tail gaps unchanged — "roof anchor load test cost Florida", "OSHA RDS cert vs FL milestone inspection" (via generator TOPICS).
