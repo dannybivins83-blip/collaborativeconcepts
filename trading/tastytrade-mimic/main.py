@@ -230,10 +230,14 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
                     continue
                 dirty = True
                 ledger.append_jsonl(cfg.ledger_file, dict(closed, event="close"))
-                tot = ledger.scorecard(positions)["per_trader"].get(closed["trader"], {}).get("realized_pnl", 0.0)
-                notify(cfg, f"💵 {closed['trader']}'s {closed['symbol']} closed: "
+                sc = ledger.scorecard(positions)
+                real = ledger.is_real_fill(closed)
+                tag = "💵 REAL" if real else "🧪 WHAT-IF (you were not filled)"
+                book = sc["real"] if real else sc["whatif"]
+                notify(cfg, f"{tag}: {closed['trader']}'s {closed['symbol']} closed: "
                             f"{ledger._money(closed['realized_pnl'])} "
-                            f"(running {ledger._money(tot)} on {closed['trader']})")
+                            f"(running real {ledger._money(sc['real']['realized_pnl'])} | "
+                            f"what-if {ledger._money(sc['whatif']['realized_pnl'])})")
                 print(f"closed {closed['id']} ({closed['trader']} {closed['symbol']}): {closed['realized_pnl']}")
             if dirty:
                 ledger.save_positions(cfg.positions_file, positions)

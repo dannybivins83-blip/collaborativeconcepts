@@ -122,28 +122,35 @@ def mark_expired(positions, today_yymmdd):
     return changed
 
 
+def is_real_fill(pos):
+    """A position is REAL money only if it was a placed order (has an order_id)
+    that actually filled. Disarmed/paper positions have no order_id = notional what-if."""
+    return bool(pos.get("order_id"))
+
+
 def scorecard(positions):
-    """Per-trader + overall realized P&L, win rate, open/expired counts."""
+    """Splits P&L into REAL (actual fills) vs WHAT-IF (notional/paper), so a paper
+    what-if can never be read as real money. 'overall' = combined (back-compat)."""
     blank = lambda: {"realized_pnl": 0.0, "wins": 0, "losses": 0,
-                     "closed": 0, "open": 0, "expired": 0,
-                     "notional": 0, "unfilled": 0, "pending": 0}
-    per, overall = {}, blank()
+                     "closed": 0, "open": 0, "expired": 0, "unfilled": 0, "pending": 0}
+    per, overall, real, whatif = {}, blank(), blank(), blank()
     for pos in positions.values():
         d = per.setdefault(pos.get("trader", "?"), blank())
+        split = real if is_real_fill(pos) else whatif
         st = pos.get("status")
         if st == "closed":
             pnl = float(pos.get("realized_pnl", 0.0))
-            for agg in (d, overall):
+            for agg in (d, overall, split):
                 agg["realized_pnl"] = round(agg["realized_pnl"] + pnl, 2)
                 agg["closed"] += 1
                 agg["wins" if pnl >= 0 else "losses"] += 1
         elif st == "expired":
-            d["expired"] += 1; overall["expired"] += 1
-        elif st in ("notional", "unfilled", "pending"):
-            d[st] += 1; overall[st] += 1
+            for agg in (d, overall, split): agg["expired"] += 1
+        elif st in ("unfilled", "pending"):
+            for agg in (d, overall, split): agg[st] += 1
         else:
-            d["open"] += 1; overall["open"] += 1
-    return {"per_trader": per, "overall": overall}
+            for agg in (d, overall, split): agg["open"] += 1
+    return {"per_trader": per, "overall": overall, "real": real, "whatif": whatif}
 
 
 def _money(x):
@@ -151,11 +158,15 @@ def _money(x):
 
 
 def format_scorecard(sc):
+    r, w = sc.get("real", sc["overall"]), sc.get("whatif", {})
+    rwr = (r["wins"] / r["closed"] * 100) if r.get("closed") else 0.0
+    lines = ["📊 tt-mimic scorecard",
+             f"💵 REAL (filled): {_money(r['realized_pnl'])} | {r['closed']} closed, {rwr:.0f}% win "
+             f"| {r['open']} open"]
+    if w and (w.get("closed") or w.get("open")):
+        wwr = (w["wins"] / w["closed"] * 100) if w.get("closed") else 0.0
+        lines.append(f"🧪 WHAT-IF (paper/notional): {_money(w['realized_pnl'])} | {w['closed']} closed, {wwr:.0f}% win")
     o = sc["overall"]
-    wr = (o["wins"] / o["closed"] * 100) if o["closed"] else 0.0
-    lines = ["📊 tt-mimic paper scorecard (realized P&L, closed trades only)",
-             f"Overall: {_money(o['realized_pnl'])} | {o['closed']} closed, {wr:.0f}% win "
-             f"| {o['open']} open, {o['expired']} expired-unresolved"]
     for t, d in sorted(sc["per_trader"].items(), key=lambda kv: kv[1]["realized_pnl"], reverse=True):
         twr = (d["wins"] / d["closed"] * 100) if d["closed"] else 0.0
         lines.append(f"  • {t}: {_money(d['realized_pnl'])} "

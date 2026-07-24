@@ -812,3 +812,17 @@ class FillReconcileTest(_ut8.TestCase):
         closed=_lg8.match_and_close(pos, {"trader":"T434925","legs":[{"symbol":"MU260724P00750000"}],
                                           "price":24.1,"price_effect":"Credit"}, "now")
         self.assertIsNone(closed)                          # unfilled -> never books the +1936 phantom
+
+
+# --- scorecard REAL vs WHAT-IF split (overlord 2026-07-24) ---
+import unittest as _ut9, ledger as _lg9
+class ScorecardSplitTest(_ut9.TestCase):
+    def test_real_and_whatif_separated(self):
+        pos = {
+            "r": {"status":"closed","order_id":"123","trader":"T","realized_pnl":80.0},   # real fill
+            "w": {"status":"closed","trader":"T","realized_pnl":1936.0},                   # notional what-if (no order_id)
+        }
+        sc = _lg9.scorecard(pos)
+        self.assertEqual(sc["real"]["realized_pnl"], 80.0)      # only the filled trade
+        self.assertEqual(sc["whatif"]["realized_pnl"], 1936.0)  # the phantom stays in what-if
+        self.assertEqual(sc["overall"]["realized_pnl"], 2016.0) # combined, back-compat
