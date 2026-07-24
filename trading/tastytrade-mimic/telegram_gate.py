@@ -204,7 +204,7 @@ def poll_callbacks(cfg, offset):
         if ":" not in data:
             continue
         decision, _, sig_id = data.partition(":")
-        if decision in ("approve", "skip", "closeyes", "closeno"):
+        if decision in ("approve", "skip", "closeyes", "closeno", "closeleg"):
             taps.append({"sig_id": sig_id, "decision": decision})
     return offset, taps
 
@@ -291,29 +291,47 @@ def request_approval(cfg, sig: dict, multiplier: int) -> bool:
 _recent_alerts = {}  # dedupe key -> monotonic time last sent
 
 
-def _close_keyboard(pid) -> dict:
-    return {"inline_keyboard": [[
-        {"text": "✅ Close now", "callback_data": f"closeyes:{pid}"},
+def _leg_label(leg: dict) -> str:
+    """Short button label from an OCC leg: e.g. '714P S' (strike, put/call, Short/Long)."""
+    s = str(leg.get("symbol", "")).replace(" ", "")
+    strike = cp = ""
+    try:
+        strike = str(int(int(s[-8:]) / 1000))
+        cp = s[-9]  # 'P' or 'C'
+    except (ValueError, IndexError):
+        pass
+    side = "S" if str(leg.get("dir", "")).lower().startswith("short") else "L"
+    return f"{strike}{cp} {side}".strip()
+
+
+def _close_keyboard(pid, legs_live=None) -> dict:
+    rows = [[
+        {"text": "✅ Close ALL", "callback_data": f"closeyes:{pid}"},
         {"text": "Hold", "callback_data": f"closeno:{pid}"},
-    ]]}
+    ]]
+    # one button per leg for partial (per-leg) closes
+    for i, leg in enumerate(legs_live or []):
+        rows.append([{"text": f"Close leg {i+1}: {_leg_label(leg)}",
+                      "callback_data": f"closeleg:{pid}:{i}"}])
+    return {"inline_keyboard": rows}
 
 
-def send_close_card(cfg, position: dict, pct: float, pnl: float, cost_to_close: float):
-    """Profit-target CLOSE alert with Close/Hold buttons. NON-BLOCKING. Returns message_id."""
+def send_close_card(cfg, position: dict, pct: float, pnl: float, cost_to_close: float, legs_live=None):
+    """Profit-target CLOSE alert with Close-ALL / Hold / per-leg buttons. Returns message_id."""
     sym = position.get("symbol", "?"); tr = position.get("trader", "?")
     sign = "+" if (pnl or 0) >= 0 else ""
     acct = "🧪 PAPER" if cfg.mode != "live" else "💵 LIVE account"
     txt = "\n".join([
         f"🎯 CLOSE ALERT — {sym} ({tr})",
         f"Captured +{pct:.0f}% of the credit  ({sign}${pnl:,.0f})",
-        f"Close to buy it back for ~${cost_to_close:,.0f}?",
+        f"Close ALL to buy it back for ~${cost_to_close:,.0f}, or close a single leg.",
         "",
         acct,
     ])
     try:
         sent = _call(cfg.telegram_bot_token, "sendMessage", {
             "chat_id": cfg.telegram_chat_id, "text": txt,
-            "reply_markup": json.dumps(_close_keyboard(position["id"])),
+            "reply_markup": json.dumps(_close_keyboard(position["id"], legs_live)),
         })
         return sent.get("result", {}).get("message_id")
     except OSError:

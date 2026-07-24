@@ -149,15 +149,47 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
         offset, taps = poll_callbacks(cfg, offset)
         for tap in taps:
             # profit-target CLOSE decisions route to their own handler
-            if tap["decision"] in ("closeyes", "closeno"):
-                pc = pending_closes.pop(tap["sig_id"], None)
+            if tap["decision"] in ("closeyes", "closeno", "closeleg"):
+                raw = tap["sig_id"]
+                leg_idx = None
+                if tap["decision"] == "closeleg":
+                    pid, _, idxs = raw.partition(":")
+                    leg_idx = int(idxs) if idxs.isdigit() else -1
+                else:
+                    pid = raw
+                pc = pending_closes.get(pid)
                 if pc is None:
                     continue
                 if tap["decision"] == "closeno":
+                    pending_closes.pop(pid, None)
                     notify(cfg, f"⏸️ Holding {pc['symbol']} — not closing.")
                     continue
+                if tap["decision"] == "closeleg":
+                    done = pc.setdefault("closed_legs", set())
+                    legs = pc["legs_live"]
+                    if leg_idx is None or leg_idx < 0 or leg_idx >= len(legs) or leg_idx in done:
+                        continue
+                    leg = legs[leg_idx]
+                    is_short = str(leg.get("dir", "")).lower().startswith("short")
+                    eff = "Debit" if is_short else "Credit"  # buy-to-close=Debit, sell-to-close=Credit
+                    try:
+                        res = broker.close_from_legs([leg], leg.get("mark") or 0, eff)
+                        done.add(leg_idx)
+                        notify(cfg, f"📤 Closed leg {leg_idx+1} of {pc['symbol']} (id {res.get('order_id')})")
+                        print(f"leg close: {pc['symbol']} leg {leg_idx+1}")
+                    except Exception as e:
+                        notify(cfg, f"⚠️ Leg close failed for {pc['symbol']}: {type(e).__name__}: {e}")
+                    if len(done) >= len(legs):
+                        pending_closes.pop(pid, None)  # all legs closed
+                    continue
+                # closeyes = close ALL remaining legs
+                pc = pending_closes.pop(pid)
+                done = pc.get("closed_legs", set())
+                remaining = [l for i, l in enumerate(pc["legs_live"]) if i not in done]
+                if not remaining:
+                    continue
                 try:
-                    res = broker.close_from_legs(pc["legs_live"], pc["net_price"], pc["net_effect"])
+                    res = broker.close_from_legs(remaining, pc["net_price"], pc["net_effect"])
                     notify(cfg, f"📤 Close order submitted for {pc['symbol']} (id {res.get('order_id')})")
                     print(f"close submitted: {pc['symbol']} id {res.get('order_id')}")
                 except Exception as e:
@@ -230,7 +262,7 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
                         continue
                     cost = exit_manager._mark_value(legs_marks)
                     effect = "Debit" if float(pos.get("open_cashflow", 0)) > 0 else "Credit"
-                    mid = send_close_card(cfg, pos, pct, pnl, abs(cost or 0))
+                    mid = send_close_card(cfg, pos, pct, pnl, abs(cost or 0), legs_marks)
                     pending_closes[pos["id"]] = {"symbol": pos.get("symbol"), "legs_live": legs_marks,
                                                  "net_price": abs(cost or 0), "net_effect": effect,
                                                  "message_id": mid}

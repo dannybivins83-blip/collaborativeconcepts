@@ -776,3 +776,18 @@ class ExitManagerTest(_ut6.TestCase):
     def test_parse_targets(self):
         self.assertEqual(_em.parse_targets("20,30,50"), [20,30,50])
         self.assertEqual(_em.parse_targets(""), [50])
+
+
+# --- per-leg close buttons (overlord 2026-07-23) ---
+import unittest as _ut7, telegram_gate as _tg7
+class PerLegCloseTest(_ut7.TestCase):
+    def test_leg_label(self):
+        self.assertEqual(_tg7._leg_label({"symbol":"SPY   260821P00714000","dir":"Short"}), "714P S")
+        self.assertEqual(_tg7._leg_label({"symbol":"QQQ   260918C00500000","dir":"Long"}), "500C L")
+    def test_keyboard_has_all_hold_and_per_leg(self):
+        legs=[{"symbol":"SPY   260821P00714000","dir":"Short"},{"symbol":"SPY   260821P00711000","dir":"Long"}]
+        kb=_tg7._close_keyboard("pid", legs)["inline_keyboard"]
+        self.assertEqual(kb[0][0]["callback_data"],"closeyes:pid")   # Close ALL
+        self.assertEqual(kb[0][1]["callback_data"],"closeno:pid")    # Hold
+        self.assertEqual(kb[1][0]["callback_data"],"closeleg:pid:0") # leg 1
+        self.assertEqual(kb[2][0]["callback_data"],"closeleg:pid:1") # leg 2
