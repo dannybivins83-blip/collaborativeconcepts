@@ -58,7 +58,7 @@ def record_open(sig, multiplier, result, ts):
         "order_id": result.get("order_id"),
         # A submitted order is NOT a position until tastytrade confirms the FILL.
         # order_id present -> pending (must be reconciled); none -> notional what-if.
-        "status": "pending" if result.get("order_id") else "notional",
+        "status": "pending" if result.get("order_id") else "open",
         "dry_status": result.get("status"),
         "bp_change": result.get("bp_change"),
         "fees": result.get("fees"),
