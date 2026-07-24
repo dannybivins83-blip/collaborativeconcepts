@@ -14,10 +14,11 @@ import time
 from datetime import datetime, timezone
 
 import ledger
+import exit_manager
 from broker import BrokerError, TastytradeBroker
 from config import Config
 from signals import make_source, make_close_source
-from telegram_gate import notify, request_approval, send_card, poll_callbacks, finalize_card
+from telegram_gate import notify, request_approval, send_card, poll_callbacks, finalize_card, send_close_card
 
 
 def load_state(path: str) -> dict:
@@ -116,6 +117,7 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
     # tap is answered so the button never spins silently; multiple cards can be
     # pending at once. Only this process polls getUpdates -> no callback theft.
     pending = {}   # sig_id -> {"sig", "multiplier", "message_id", "expiry"}
+    pending_closes = {}  # position_id -> {"symbol","legs_live","net_price","net_effect","message_id"}
     offset = None
     first_pass = True
 
@@ -146,6 +148,22 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
         # 2) service taps for ANY pending card
         offset, taps = poll_callbacks(cfg, offset)
         for tap in taps:
+            # profit-target CLOSE decisions route to their own handler
+            if tap["decision"] in ("closeyes", "closeno"):
+                pc = pending_closes.pop(tap["sig_id"], None)
+                if pc is None:
+                    continue
+                if tap["decision"] == "closeno":
+                    notify(cfg, f"⏸️ Holding {pc['symbol']} — not closing.")
+                    continue
+                try:
+                    res = broker.close_from_legs(pc["legs_live"], pc["net_price"], pc["net_effect"])
+                    notify(cfg, f"📤 Close order submitted for {pc['symbol']} (id {res.get('order_id')})")
+                    print(f"close submitted: {pc['symbol']} id {res.get('order_id')}")
+                except Exception as e:
+                    notify(cfg, f"⚠️ Close failed for {pc['symbol']}: {type(e).__name__}: {e}")
+                    print(f"close failed: {pc['symbol']}: {e}")
+                continue
             p = pending.pop(tap["sig_id"], None)
             if p is None:
                 continue  # tap on an already-resolved/expired card — button already answered
@@ -184,6 +202,42 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
                 print(f"closed {closed['id']} ({closed['trader']} {closed['symbol']}): {closed['realized_pnl']}")
             if dirty:
                 ledger.save_positions(cfg.positions_file, positions)
+
+        # 2.6) PROFIT-TARGET EXIT monitor: alert (with a Close button) when an open
+        # position captures a target % of its credit. Closing still needs a tap.
+        if cfg.manage_positions:
+            try:
+                live = {p["symbol"].replace(" ", ""): p for p in broker.live_positions()}
+            except Exception:
+                live = {}
+            if live:
+                positions = ledger.load_positions(cfg.positions_file)
+                targets = exit_manager.parse_targets(cfg.profit_targets_raw)
+                changed = False
+                for pos in positions.values():
+                    if pos.get("status") != "open":
+                        continue
+                    legs = pos.get("legs", [])
+                    legs_marks = [live[s] for s in legs if s in live]
+                    if not legs or len(legs_marks) != len(legs):
+                        continue  # not all legs visible in the account yet
+                    if pos["id"] in pending_closes:
+                        continue  # a close card is already outstanding for this position
+                    pct, pnl = exit_manager.captured_pct(pos, legs_marks)
+                    alerted = pos.setdefault("exit_alerted", [])
+                    tgt = exit_manager.next_target_crossed(pct, targets, alerted)
+                    if tgt is None:
+                        continue
+                    cost = exit_manager._mark_value(legs_marks)
+                    effect = "Debit" if float(pos.get("open_cashflow", 0)) > 0 else "Credit"
+                    mid = send_close_card(cfg, pos, pct, pnl, abs(cost or 0))
+                    pending_closes[pos["id"]] = {"symbol": pos.get("symbol"), "legs_live": legs_marks,
+                                                 "net_price": abs(cost or 0), "net_effect": effect,
+                                                 "message_id": mid}
+                    alerted.append(tgt); changed = True
+                    print(f"close alert: {pos.get('symbol')} +{pct}% (target {tgt}%)")
+                if changed:
+                    ledger.save_positions(cfg.positions_file, positions)
 
         # 3) expire stale pending cards
         for sid in [s for s, pv in pending.items() if now >= pv["expiry"]]:

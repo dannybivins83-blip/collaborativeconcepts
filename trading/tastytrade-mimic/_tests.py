@@ -752,3 +752,27 @@ class MultiLegEconTest(_ut6.TestCase):
             {"symbol":"SPY   260821P00711000","action":"Buy to Open","quantity":1}]}
         inv,prof,roi=_tg6._spread_economics(sig,1)
         self.assertEqual(round(inv),240); self.assertEqual(round(prof),60)
+
+
+# --- profit-target exit manager (overlord 2026-07-23) ---
+import unittest as _ut6, exit_manager as _em
+class ExitManagerTest(_ut6.TestCase):
+    def _pos(self, cashflow):  # credit spread: open_cashflow +260 = $2.60 credit x1
+        return {"open_cashflow": cashflow, "symbol": "SPY", "trader": "Tom", "id": "x", "legs": ["a", "b"]}
+    def _marks(self, short_mark, long_mark):
+        return [{"mark": short_mark, "qty": 1, "dir": "Short", "multiplier": 100},
+                {"mark": long_mark, "qty": 1, "dir": "Long", "multiplier": 100}]
+    def test_credit_spread_50pct(self):
+        # opened for $2.60 credit; buy back for $1.30 net -> captured 50%
+        pct, pnl = _em.captured_pct(self._pos(260.0), self._marks(1.60, 0.30))  # cost_to_close = 130
+        self.assertEqual(pct, 50.0); self.assertEqual(pnl, 130.0)
+    def test_missing_mark_is_none(self):
+        pct, pnl = _em.captured_pct(self._pos(260.0), self._marks(None, 0.30))
+        self.assertIsNone(pct)
+    def test_target_crossing_dedupes(self):
+        self.assertEqual(_em.next_target_crossed(52.0, [20,30,50], []), 50)
+        self.assertEqual(_em.next_target_crossed(52.0, [20,30,50], [50]), 30)  # highest not-yet-alerted
+        self.assertIsNone(_em.next_target_crossed(52.0, [20,30,50], [20,30,50]))
+    def test_parse_targets(self):
+        self.assertEqual(_em.parse_targets("20,30,50"), [20,30,50])
+        self.assertEqual(_em.parse_targets(""), [50])

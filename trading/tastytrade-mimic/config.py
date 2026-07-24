@@ -51,6 +51,10 @@ class Config:
     positions_file: str = field(default_factory=lambda: os.environ.get("POSITIONS_FILE", "positions.json"))
     follow_feed_close_url: str = field(default_factory=lambda: os.environ.get("FOLLOW_FEED_CLOSE_URL", ""))
     track_pnl: bool = field(default_factory=lambda: os.environ.get("TRACK_PNL", "1") != "0")
+    # Profit-target EXIT alerts: send a CLOSE card when an open position captures these
+    # % of its credit. Comma list. manage_positions=1 turns the monitor on.
+    manage_positions: bool = field(default_factory=lambda: os.environ.get("MANAGE_POSITIONS", "1") != "0")
+    profit_targets_raw: str = field(default_factory=lambda: os.environ.get("PROFIT_TARGETS", "20,30,50"))
     # API hosts are env-overridable so the path stays turnkey if tastytrade ever
     # consolidates domains. Defaults are the current canonical hosts (both verified
     # reachable). NOTE — the prod/sandbox subdomain mismatch is INTENTIONAL, not a

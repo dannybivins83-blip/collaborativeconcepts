@@ -110,6 +110,45 @@ class TastytradeBroker:
             order["price-effect"] = sig.get("price_effect", "Credit")
         return order
 
+    def live_positions(self) -> list:
+        """Fetch OPEN positions with current marks. Read-only. Returns a list of
+        {symbol, qty, dir, mark, multiplier, instrument_type}. mark is None if the
+        broker isn't marking it (e.g. the cert sandbox returns 0)."""
+        acct = self.account_number()
+        items = self._request("GET", f"/accounts/{acct}/positions").get("data", {}).get("items", [])
+        out = []
+        for p in items:
+            mark = p.get("mark-price")
+            if mark in (None, "", "0", "0.0", "0.00"):
+                mark = p.get("close-price")
+            out.append({
+                "symbol": p.get("symbol"),
+                "qty": abs(float(p.get("quantity") or 0)),
+                "dir": p.get("quantity-direction"),
+                "mark": (float(mark) if mark not in (None, "") else None),
+                "multiplier": float(p.get("multiplier") or 100),
+                "instrument_type": p.get("instrument-type", "Equity Option"),
+            })
+        return out
+
+    def close_from_legs(self, legs_live: list, net_price: float, net_effect: str) -> dict:
+        """Place a CLOSING order built from live legs: Long -> Sell to Close, Short ->
+        Buy to Close. Validates via dry-run first, then submits. armed only."""
+        order_legs = [{
+            "instrument-type": l.get("instrument_type", "Equity Option"),
+            "symbol": l["symbol"],
+            "action": "Buy to Close" if str(l.get("dir", "")).lower().startswith("short") else "Sell to Close",
+            "quantity": int(abs(float(l.get("qty") or 1))),
+        } for l in legs_live]
+        order = {"order-type": "Limit", "time-in-force": "Day", "legs": order_legs,
+                 "price": str(abs(round(float(net_price), 2))),
+                 "price-effect": net_effect}
+        acct = self.account_number()
+        self._request("POST", f"/accounts/{acct}/orders/dry-run", order)  # validate first
+        placed = self._request("POST", f"/accounts/{acct}/orders", order)
+        return {"status": "submitted",
+                "order_id": placed.get("data", {}).get("order", {}).get("id")}
+
     def margin_preview(self, sig: dict, multiplier: int) -> dict:
         """Read-only: dry-run the order to get tastytrade's REAL buying-power requirement.
         Places NOTHING. Parses the margin from a success response OR a 422 preflight body
