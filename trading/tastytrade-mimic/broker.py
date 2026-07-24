@@ -149,6 +149,19 @@ class TastytradeBroker:
         return {"status": "submitted",
                 "order_id": placed.get("data", {}).get("order", {}).get("id")}
 
+    def order_status(self, order_id) -> str:
+        """Current status of an order (Filled/Expired/Cancelled/Rejected/Live/Received/...),
+        or None if unknown. Read-only."""
+        if not order_id:
+            return None
+        try:
+            acct = self.account_number()
+            data = self._request("GET", f"/accounts/{acct}/orders/{order_id}")
+            return (data.get("data", {}) or {}).get("status")
+        except Exception:
+            return None
+
+
     def margin_preview(self, sig: dict, multiplier: int) -> dict:
         """Read-only: dry-run the order to get tastytrade's REAL buying-power requirement.
         Places NOTHING. Parses the margin from a success response OR a 422 preflight body

@@ -55,11 +55,35 @@ def record_open(sig, multiplier, result, ts):
         "open_effect": sig.get("price_effect"),
         "open_cashflow": cashflow(sig.get("price"), sig.get("price_effect"), multiplier),
         "open_ts": ts,
-        "status": "open",
+        "order_id": result.get("order_id"),
+        # A submitted order is NOT a position until tastytrade confirms the FILL.
+        # order_id present -> pending (must be reconciled); none -> notional what-if.
+        "status": "pending" if result.get("order_id") else "notional",
         "dry_status": result.get("status"),
         "bp_change": result.get("bp_change"),
         "fees": result.get("fees"),
     }
+
+
+
+_TERMINAL_UNFILLED = {"Expired", "Cancelled", "Canceled", "Rejected", "Removed"}
+_FILLED = {"Filled"}
+
+
+def reconcile_fills(positions, broker):
+    """Confirm pending orders against the broker: Filled -> real 'open' position;
+    Expired/Cancelled/Rejected -> 'unfilled' (never counts for P&L). Returns changed list."""
+    changed = []
+    for pos in positions.values():
+        if pos.get("status") != "pending":
+            continue
+        st = broker.order_status(pos.get("order_id"))
+        if st in _FILLED:
+            pos["status"] = "open"; changed.append(pos)
+        elif st in _TERMINAL_UNFILLED:
+            pos["status"] = "unfilled"; changed.append(pos)
+        # else still working (Live/Received/Routed) -> leave pending
+    return changed
 
 
 def match_and_close(positions, close_sig, ts):
@@ -101,7 +125,8 @@ def mark_expired(positions, today_yymmdd):
 def scorecard(positions):
     """Per-trader + overall realized P&L, win rate, open/expired counts."""
     blank = lambda: {"realized_pnl": 0.0, "wins": 0, "losses": 0,
-                     "closed": 0, "open": 0, "expired": 0}
+                     "closed": 0, "open": 0, "expired": 0,
+                     "notional": 0, "unfilled": 0, "pending": 0}
     per, overall = {}, blank()
     for pos in positions.values():
         d = per.setdefault(pos.get("trader", "?"), blank())
@@ -114,6 +139,8 @@ def scorecard(positions):
                 agg["wins" if pnl >= 0 else "losses"] += 1
         elif st == "expired":
             d["expired"] += 1; overall["expired"] += 1
+        elif st in ("notional", "unfilled", "pending"):
+            d[st] += 1; overall[st] += 1
         else:
             d["open"] += 1; overall["open"] += 1
     return {"per_trader": per, "overall": overall}

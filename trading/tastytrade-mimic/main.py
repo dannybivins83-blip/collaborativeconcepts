@@ -220,7 +220,10 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
             except Exception:
                 closes = []
             positions = ledger.load_positions(cfg.positions_file)
-            dirty = bool(ledger.mark_expired(positions, datetime.now(timezone.utc).strftime("%y%m%d")))
+            # confirm real fills FIRST: a submitted order is not a position until it fills.
+            # unfilled/expired orders never book P&L (prevents phantom wins like the MU case).
+            dirty = bool(ledger.reconcile_fills(positions, broker))
+            dirty = bool(ledger.mark_expired(positions, datetime.now(timezone.utc).strftime("%y%m%d"))) or dirty
             for csig in closes:
                 closed = ledger.match_and_close(positions, csig, datetime.now(timezone.utc).isoformat())
                 if not closed:

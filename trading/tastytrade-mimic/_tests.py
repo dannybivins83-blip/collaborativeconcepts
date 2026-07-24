@@ -791,3 +791,24 @@ class PerLegCloseTest(_ut7.TestCase):
         self.assertEqual(kb[0][1]["callback_data"],"closeno:pid")    # Hold
         self.assertEqual(kb[1][0]["callback_data"],"closeleg:pid:0") # leg 1
         self.assertEqual(kb[2][0]["callback_data"],"closeleg:pid:1") # leg 2
+
+
+# --- fill confirmation: unfilled orders never book P&L (overlord 2026-07-24) ---
+import unittest as _ut8
+import ledger as _lg8
+class FillReconcileTest(_ut8.TestCase):
+    class _Brk:
+        def __init__(self, m): self.m = m
+        def order_status(self, oid): return self.m.get(oid)
+    def test_filled_becomes_open_unfilled_excluded(self):
+        pos = {"a": {"status":"pending","order_id":"1","trader":"T","open_cashflow":100.0},
+               "b": {"status":"pending","order_id":"2","trader":"T","open_cashflow":-474.0}}
+        _lg8.reconcile_fills(pos, self._Brk({"1":"Filled","2":"Expired"}))
+        self.assertEqual(pos["a"]["status"],"open")       # filled -> real position
+        self.assertEqual(pos["b"]["status"],"unfilled")   # expired -> not a position
+    def test_unfilled_cannot_close_or_book_pnl(self):
+        # an unfilled position must NOT match a trader close (no phantom P&L)
+        pos={"b":{"status":"unfilled","trader":"T434925","legs":["MU260724P00750000"],"open_cashflow":-474.0}}
+        closed=_lg8.match_and_close(pos, {"trader":"T434925","legs":[{"symbol":"MU260724P00750000"}],
+                                          "price":24.1,"price_effect":"Credit"}, "now")
+        self.assertIsNone(closed)                          # unfilled -> never books the +1936 phantom
