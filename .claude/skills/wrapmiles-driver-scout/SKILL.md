@@ -34,7 +34,31 @@ Leads arrive by email (FormSubmit → dannybivins83@gmail.com, subject
 | Routes | I-95, Florida Turnpike, US-1, dense commuter corridors |
 | Daytime parking | Visible public lot / street >> hidden garage |
 | Paper | Valid license, registration, insurance in own name, clean record |
-| Occupations that over-index | Rideshare/delivery drivers, outside sales reps, home-service techs, healthcare commuters, real-estate agents |
+| **Daytime miles** | Ask "what hours do your miles happen?" — 7am–6pm route miles are worth a premium to sponsors; late-night miles are worth less |
+
+**Occupation tiers** (score Tier 1 a full grade up):
+
+- **Tier 1 — high daytime miles, own car, zero policy conflict:** home health
+  aides / visiting nurses (5–15 stops/day, huge S. FL workforce), app delivery
+  (DoorDash, Uber Eats, Instacart, Shipt, Amazon Flex, Walmart Spark, GoPuff),
+  outside sales reps (pharma, liquor/beverage, title/mortgage), independent
+  home-service operators (pool, pest, lawn, mobile detail/mechanic — premium
+  truck canvas, and future sponsor leads too), construction subs from Danny's
+  own network.
+- **Tier 2 — good miles, caveats:** pizza/restaurant delivery employees
+  (evening-skewed miles; confirm the store's topper policy), realtors/property
+  managers (great visible parking; may want their own brand instead — flip to
+  sponsor lead), insurance adjusters & home inspectors, mobile notaries,
+  process servers, lab/pharmacy couriers.
+- **Tier 3 — opportunistic:** long-haul I-95 commuters, FAU/PBSC/FIU commuter
+  students, Turo hosts (one host = 3–5 cars in one conversation).
+
+**Rideshare policy note (Uber/Lyft):** their guidelines restrict exterior
+commercial branding; enforcement is rare and the industry openly recruits
+rideshare drivers anyway, but the risk is the driver's. Never market WrapMiles
+as "Uber-approved"; the Driver Agreement (§4, `wrapmiles/legal/`) puts platform
+risk on the driver — mention it honestly in outreach. Delivery drivers have no
+such restriction and are the cleaner version of the same lead.
 
 Disqualify politely: heavy body damage, <500 mi/month, no insurance, lease that
 explicitly bars wraps (rare — vinyl is non-permanent).
@@ -54,7 +78,10 @@ explicitly bars wraps (rare — vinyl is non-permanent).
    CRM/email lists. Cross-promote in outreach emails.
 5. **Local partnerships** — car washes, detail shops, tint shops, wrap shops
    (they meet car-proud owners daily; offer them the referral fee), college
-   campuses (FAU, PBSC commuters), apartment-complex bulletin boards.
+   campuses (FAU, PBSC commuters), apartment-complex bulletin boards,
+   **home-health agencies** (pitch WrapMiles as a no-cost income perk for their
+   visiting nurses/aides; agency gets the referral fee), **pool/pest/irrigation
+   supply houses**, and pizza shops (drivers use their own cars).
 6. **Paid (only when organic is saturated)** — Facebook/IG lead ads geo-fenced to
    I-95 corridor zips, interest-targeted to rideshare drivers. Cap CPL at $8.
 

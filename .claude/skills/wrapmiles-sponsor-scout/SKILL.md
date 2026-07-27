@@ -61,6 +61,37 @@ and proof conversation.
    counties. Franchise marketing funds often mandate local ad spend.
 6. **Inbound** — every driver's wrapped car carries "your brand here /
    WrapMiles" real estate on the rear window; the fleet is its own ad.
+7. **Public-sector district marketers** — Downtown Development Authorities and
+   CRAs (West Palm Beach DDA, Fort Lauderdale DDA, Miami DDA, Boca Raton CRA,
+   Delray Beach CRA) have real budgets for shop-local/event/district-brand
+   campaigns. Pitch a 3–5 car pilot priced **under their small-purchase
+   threshold** (no RFP needed); verified-mile reports fit a board packet; the
+   sponsor agreement already carries a Florida public-records (Ch. 119)
+   carve-out. One DDA logo makes every private pitch easier.
+8. **Brightline** — flagship pursuit, longer cycle via their media team. Hook:
+   their whole pitch is rescuing people from I-95 traffic, and our fleet IS the
+   cars in I-95 traffic; station-corridor targeting (WPB–Boca–FLL–Aventura–
+   Miami) plus event-day "swarms" around stations.
+
+## Objection answers (phone-ready)
+
+- **"Why not wrap my own van?"** Their van is parked at job sites; our fleet
+  moves 1,200–2,500 verified mi/car/month and we report proof. One signature
+  scales to 5 cars in 5 zip codes.
+- **"Why not go direct to a driver?"** Then *they* become fleet manager and
+  carry the liability. With WrapMiles they contract with the LLC — drivers are
+  independent contractors, driver insurance is primary, indemnities flow
+  through the contracts (`wrapmiles/legal/`), and churned drivers are replaced
+  within 21 days at our cost.
+- **"What if a car crashes?"** Liability follows control, not logos. Sponsor
+  never directs drivers (contract forbids it), driver's own insurance is
+  primary, driver indemnifies sponsor. Deliver calmly — this answer closes.
+- **"Why not Wrapify/Carvertise/Nickelytics?"** The nationals prove the
+  category but ignore sub-$50k local budgets. We're hand-matched, local,
+  faster, and the founder answers the phone.
+- **"How do I know it works?"** Verified miles + monthly photos + estimated
+  impressions (never guaranteed), plus a unique promo code/QR on every wrap so
+  redemptions are attributable.
 
 ## Outreach scripts (adapt, don't robot)
 
@@ -91,8 +122,10 @@ named competitors in writing, or cold-call numbers on the DNC registry.
    `date,company,contact,title,email,phone,category,corridor,est_budget,referred_by,score,status,notes`
 4. Statuses: `new → contacted → discovery → proposal_sent → negotiating →
    signed → live → renewed/churned`.
-5. On signing: notify the driver side (wrapmiles-driver-scout owns matching
-   N wrap-ready cars to the corridor) and schedule the referrer's
+5. On signing: use the sponsor agreement + insertion order drafts in
+   `wrapmiles/legal/wrapmiles-sponsor-agreement-DRAFT.md` (attorney-reviewed
+   version once available), notify the driver side (wrapmiles-driver-scout owns
+   matching N wrap-ready cars to the corridor) and schedule the referrer's
    launch/3/6/12-month commission checkpoints.
 
 ## Pricing guardrails (until Danny sets a rate card)
