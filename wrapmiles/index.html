@@ -138,6 +138,30 @@ if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.goo
   .pcard p{font-size:14px;color:var(--mut)}
   @media(max-width:820px){.protect-grid{grid-template-columns:1fr}}
 
+  /* ---------- referrals ---------- */
+  #referrals{background:linear-gradient(180deg,var(--ink),var(--ink-2))}
+  .ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:44px}
+  .ref-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px;display:flex;flex-direction:column}
+  .ref-card .tag{display:inline-flex;align-self:flex-start;padding:6px 12px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:rgba(212,244,98,.12);color:var(--lime);margin-bottom:16px}
+  .ref-card h3{font-size:21px;color:#fff;margin-bottom:8px}
+  .ref-card .rc-sub{font-size:14px;color:var(--mut);margin-bottom:22px}
+  .ref-table{width:100%;border-collapse:collapse;font-size:14.5px}
+  .ref-table th{text-align:left;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mut-2);padding:0 0 10px;border-bottom:1px solid var(--line)}
+  .ref-table th:last-child,.ref-table td:last-child{text-align:right}
+  .ref-table td{padding:13px 0;border-bottom:1px solid var(--line);color:var(--mut)}
+  .ref-table td b{color:var(--lime);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;white-space:nowrap}
+  .ref-table tr:last-child td{border-bottom:0}
+  .ref-total{margin-top:auto;padding-top:20px;border-top:2px solid rgba(212,244,98,.35);display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .ref-total span{font-size:13px;font-weight:600;color:var(--mut);letter-spacing:.04em;text-transform:uppercase}
+  .ref-total b{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;color:var(--lime)}
+  .ref-example{background:var(--ink-3);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:20px}
+  .ref-example .field{margin-bottom:12px}
+  .ref-example .field label{font-size:12px}
+  .ref-example p{font-size:13.5px;color:var(--mut)}
+  .ref-example p b{color:var(--lime)}
+  .ref-fine{font-size:12.5px;color:var(--mut-2);margin-top:26px;max-width:840px;line-height:1.6}
+  @media(max-width:920px){.ref-grid{grid-template-columns:1fr}}
+
   /* ---------- brands ---------- */
   #brands{background:var(--card);color:var(--on-card)}
   #brands .eyebrow{color:#5c7a1e}
@@ -207,6 +231,7 @@ if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.goo
       <a href="#how">How It Works</a>
       <a href="#calculator">Earnings Calculator</a>
       <a href="#protect">Wrap Benefits</a>
+      <a href="#referrals">Referrals</a>
       <a href="#brands">For Brands</a>
       <a href="#faq">FAQ</a>
     </div>
@@ -276,6 +301,7 @@ if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.goo
     <span>🅿️ Park where people walk by? That counts too</span>
     <span>🛡️ Vinyl wrap protects your factory paint</span>
     <span>💸 Monthly direct-deposit payouts</span>
+    <span>👥 Refer drivers &amp; sponsors — paid at sign-up, 3, 6 &amp; 12 months</span>
   </div>
 </div>
 
@@ -387,6 +413,59 @@ if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.goo
 
 <div class="roadline"></div>
 
+<!-- ================= REFERRAL PROGRAM ================= -->
+<section id="referrals">
+  <div class="wrap">
+    <p class="eyebrow">Referral Program</p>
+    <h2>Get paid for who you know, too</h2>
+    <p class="sub" style="margin-top:16px">Every driver and every sponsor you send us pays you — a flat fee at sign-up for drivers, a percentage of campaign spend for sponsors, with bonus payouts as long as they stay active at 3, 6, and 12 months.</p>
+    <div class="ref-grid">
+
+      <div class="ref-card">
+        <span class="tag">Refer a Driver · Flat Fees</span>
+        <h3>Up to $375 per driver</h3>
+        <p class="rc-sub">Know a commuter, gig driver, or sales rep with a clean car and big miles? Send them. You get paid when they get wrapped — and again at every milestone they stay active.</p>
+        <table class="ref-table">
+          <thead><tr><th>Milestone</th><th>You earn</th></tr></thead>
+          <tbody>
+            <tr><td>They sign up &amp; get wrapped (first campaign)</td><td><b>$50</b></td></tr>
+            <tr><td>3 months active</td><td><b>+$75</b></td></tr>
+            <tr><td>6 months active</td><td><b>+$100</b></td></tr>
+            <tr><td>12 months active</td><td><b>+$150</b></td></tr>
+          </tbody>
+        </table>
+        <div class="ref-total"><span>Total per driver</span><b>$375</b></div>
+      </div>
+
+      <div class="ref-card">
+        <span class="tag">Refer a Sponsor · % of Spend</span>
+        <h3>A cut of every campaign you bring in</h3>
+        <p class="rc-sub">Know a business that should be on cars? Introduce them. You earn a percentage of their verified monthly campaign spend at each milestone they're still running.</p>
+        <table class="ref-table">
+          <thead><tr><th>Milestone</th><th>You earn</th></tr></thead>
+          <tbody>
+            <tr><td>Campaign signed &amp; launched</td><td><b>10%</b> <span style="font-size:12px">of month 1</span></td></tr>
+            <tr><td>Still active at 3 months</td><td><b>5%</b> <span style="font-size:12px">of month 3</span></td></tr>
+            <tr><td>Still active at 6 months</td><td><b>5%</b> <span style="font-size:12px">of month 6</span></td></tr>
+            <tr><td>Still active at 12 months</td><td><b>10%</b> <span style="font-size:12px">of month 12</span></td></tr>
+          </tbody>
+        </table>
+        <div class="ref-example">
+          <div class="field">
+            <label for="ref-spend">Sponsor's monthly campaign budget</label>
+            <input type="number" id="ref-spend" min="0" step="500" value="5000" inputmode="numeric">
+          </div>
+          <p id="ref-out">A sponsor spending <b>$5,000/mo</b> pays you <b>$500</b> at launch, <b>$250</b> at 3 months, <b>$250</b> at 6 months, and <b>$500</b> at a year — <b>$1,500 total</b>.</p>
+        </div>
+      </div>
+
+    </div>
+    <p class="ref-fine">Referral fees are paid only on referrals that convert — a driver who completes a wrap install, or a sponsor whose campaign is signed and funded. Milestone bonuses require the referred driver/sponsor to still be active on that date. Sponsor percentages apply to verified net campaign spend in the milestone month. One referrer per sign-up (first named wins); self-referrals don't count. Just make sure they put your name, email, or referral code in the "Who referred you?" box when they apply.</p>
+  </div>
+</section>
+
+<div class="roadline"></div>
+
 <!-- ================= FOR BRANDS ================= -->
 <section id="brands">
   <div class="wrap">
@@ -435,6 +514,7 @@ if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.goo
             </div>
           </div>
           <div class="field"><label for="b-notes">Target market / corridors / goals</label><textarea id="b-notes" name="notes" rows="3" placeholder="e.g. I-95 between Boca and West Palm, weekday rush hours, brand awareness for our new location"></textarea></div>
+          <div class="field"><label for="b-ref">Who referred you? (optional — they get paid)</label><input id="b-ref" name="referred_by" placeholder="Name, email, or referral code"></div>
           <input type="hidden" name="_subject" value="WrapMiles — NEW BRAND CAMPAIGN INQUIRY">
           <input type="hidden" name="form_type" value="brand_inquiry">
           <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
@@ -492,6 +572,7 @@ if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.goo
             <label for="d-cover">Wrap coverage you'd accept</label>
             <select id="d-cover" name="wrap_coverage"><option>Full wrap (top pay)</option><option selected>Partial wrap</option><option>Decals only</option></select>
           </div>
+          <div class="field"><label for="d-ref">Who referred you? (optional — they get paid)</label><input id="d-ref" name="referred_by" placeholder="Name, email, or referral code"></div>
           <input type="hidden" name="_subject" value="WrapMiles — NEW DRIVER APPLICATION">
           <input type="hidden" name="form_type" value="driver_application">
           <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
@@ -537,6 +618,10 @@ if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.goo
       <details>
         <summary>Is the money taxable?</summary>
         <div class="a">Yes — sponsorship payouts are income (you'll receive a 1099 if you earn over the IRS threshold). Talk to your tax preparer; some drivers can also deduct a portion of vehicle expenses. We're not tax advisors, so get real advice for your situation.</div>
+      </details>
+      <details>
+        <summary>How do referral fees work?</summary>
+        <div class="a">Two tracks. <b>Refer a driver:</b> flat fees — $50 when they complete their first wrap, then $75 / $100 / $150 bonuses when they're still active at 3, 6, and 12 months (up to $375 per driver). <b>Refer a sponsor:</b> a percentage of their verified campaign spend — 10% of month one at launch, 5% at the 3-month mark, 5% at 6 months, and 10% at 12 months. Your referral just has to name you in the "Who referred you?" box when they sign up. Anyone can refer — you don't have to be a WrapMiles driver yourself.</div>
       </details>
       <details>
         <summary>What kinds of cars do brands want?</summary>
@@ -601,6 +686,22 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     $(id).addEventListener('input', calc);
   });
   calc();
+})();
+
+/* ---------------- referral example ---------------- */
+(function(){
+  const inp = document.getElementById('ref-spend');
+  const out = document.getElementById('ref-out');
+  const fmt$ = n => '$' + Math.round(n).toLocaleString('en-US');
+  function refCalc(){
+    const spend = +inp.value || 0;
+    const launch = spend * .10, m3 = spend * .05, m6 = spend * .05, m12 = spend * .10;
+    out.innerHTML = 'A sponsor spending <b>' + fmt$(spend) + '/mo</b> pays you <b>' + fmt$(launch) +
+      '</b> at launch, <b>' + fmt$(m3) + '</b> at 3 months, <b>' + fmt$(m6) + '</b> at 6 months, and <b>' +
+      fmt$(m12) + '</b> at a year — <b>' + fmt$(launch + m3 + m6 + m12) + ' total</b>.';
+  }
+  inp.addEventListener('input', refCalc);
+  refCalc();
 })();
 
 /* ---------------- forms (FormSubmit AJAX) ---------------- */
