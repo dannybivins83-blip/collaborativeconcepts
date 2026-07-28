@@ -601,6 +601,19 @@ function wireForm(formId, errId, successHTML){
   });
 }
 
+/* referral links: /wrapmiles?ref=CODE credits the referrer automatically.
+   Persisted so the credit survives if they browse first and apply later. */
+(function(){
+  try{
+    var ref = new URLSearchParams(location.search).get('ref');
+    if(ref && /^[A-Za-z0-9-]{3,16}$/.test(ref)) localStorage.setItem('wm_ref', ref.toUpperCase());
+    var saved = localStorage.getItem('wm_ref');
+    if(saved) document.querySelectorAll('input[name=referred_by]').forEach(function(inp){
+      if(!inp.value){ inp.value = saved; }
+    });
+  }catch(e){}
+})();
+
 wireForm('driver-form','driver-err',
   '<div class="success">' +
     '<span class="badge">APPLICATION RECEIVED</span>' +
