@@ -649,7 +649,7 @@ if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.goo
       </span>
       <span class="name">Wrap<em>Miles</em></span>
     </a>
-    <p>© <span id="yr"></span> Collaborative Concepts LLC · South Florida · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a><br>Earnings estimates are illustrative and not a guarantee. Campaign terms are set per sponsorship agreement.</p>
+    <p>© <span id="yr"></span> Collaborative Concepts LLC · South Florida · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a><br>Earnings estimates are illustrative and not a guarantee. Campaign terms are set per sponsorship agreement.<br><a href="/wrapmiles/driver">Driver portal</a> · <a href="/wrapmiles/sponsor">Sponsor dashboard</a></p>
   </div>
 </footer>
 
@@ -734,6 +734,14 @@ function wireForm(formId, msgId, okText){
         body: JSON.stringify(data)
       });
       if(!res.ok) throw new Error('send failed');
+      // also store in the WrapMiles portal database (best-effort; the email
+      // above is the source of truth until the DB is attached)
+      const portalPath = formId === 'driver-form' ? '/api/wrapmiles/apply' : '/api/wrapmiles/inquiry';
+      fetch(portalPath, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+      }).catch(function(){});
       msg.textContent = okText;
       msg.className = 'form-msg ok';
       form.reset();
