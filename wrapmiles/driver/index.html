@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
+<meta name="robots" content="noindex">
+<title>WrapMiles — Driver Portal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23d4f462'/%3E%3Cpath d='M3 16.5h18M5 16.5l1.6-4.2A2.5 2.5 0 0 1 8.9 10.7h6.2a2.5 2.5 0 0 1 2.3 1.6l1.6 4.2' stroke='%2310160a' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='7.5' cy='18.2' r='1.6' fill='%2310160a'/%3E%3Ccircle cx='16.5' cy='18.2' r='1.6' fill='%2310160a'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --ink:#0e1116; --ink-2:#151a22; --ink-3:#1c232e; --panel:#11161d;
+    --lime:#d4f462; --lime-2:#b8e03e;
+    --white:#f4f6f2; --mut:#aeb8ad; --mut-2:#8b968b; --line:rgba(244,246,242,.09);
+    --err:#e07a5f; --ok:#7bc47f; --warn:#e6c25a;
+    --grad-cta:linear-gradient(135deg,#d4f462,#9ee649);
+    --dash:repeating-linear-gradient(90deg,var(--lime) 0 34px,transparent 34px 58px);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--white);font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.6;font-size:16px;min-height:100vh}
+  a{color:var(--lime);text-decoration:none}
+  a:hover{color:var(--lime-2)}
+  h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:-.02em;margin:0;line-height:1.15}
+  p{margin:0}
+  input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+  .wrap{max-width:860px;margin:0 auto;padding:0 18px}
+  .roadline{height:4px;background:var(--dash);opacity:.5}
+
+  /* nav */
+  .nav{position:sticky;top:0;z-index:50;background:rgba(14,17,22,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:860px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{width:34px;height:34px;border-radius:9px;background:var(--grad-cta);display:flex;align-items:center;justify-content:center;flex:none}
+  .logo svg{width:20px;height:20px}
+  .brand .name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:#fff;letter-spacing:-.01em}
+  .brand .name em{font-style:normal;color:var(--lime)}
+  .nav-tag{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mut-2)}
+  .btn-out{display:none;background:transparent;border:1px solid rgba(244,246,242,.22);color:var(--mut);border-radius:9px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+  .btn-out:hover{border-color:var(--lime);color:var(--lime)}
+
+  main{padding:28px 0 70px}
+
+  /* cards / shared */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 20px;margin-bottom:16px}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--lime);margin-bottom:10px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--mut);margin-bottom:7px;letter-spacing:.02em}
+  .field input,.field select,.field textarea{width:100%;padding:13px 14px;border-radius:11px;border:1px solid rgba(244,246,242,.14);background:var(--ink-3);color:#fff;font-size:15px;font-family:'Inter',sans-serif}
+  .field input::placeholder,.field textarea::placeholder{color:var(--mut-2)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;border-radius:12px;font-weight:700;font-size:15px;border:0;cursor:pointer;font-family:'Inter',sans-serif;background:var(--grad-cta);color:#10160a;width:100%}
+  .btn:hover{filter:brightness(1.06)}
+  .btn[disabled]{opacity:.55;cursor:default;filter:none}
+  .msg{display:none;margin-top:14px;padding:12px 14px;border-radius:11px;font-size:14px;font-weight:500}
+  .msg.ok{display:block;background:rgba(123,196,127,.14);color:var(--ok);border:1px solid rgba(123,196,127,.35)}
+  .msg.err{display:block;background:rgba(224,122,95,.12);color:var(--err);border:1px solid rgba(224,122,95,.35)}
+  .hint{font-size:13px;color:var(--mut-2);line-height:1.55}
+  .pill{display:inline-block;padding:4px 11px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--ink-3);border:1px solid var(--line);color:var(--mut);white-space:nowrap}
+  .pill.good{background:rgba(123,196,127,.14);border-color:rgba(123,196,127,.35);color:var(--ok)}
+  .pill.lime{background:rgba(212,244,98,.13);border-color:rgba(212,244,98,.35);color:var(--lime)}
+  .pill.warn{background:rgba(230,194,90,.13);border-color:rgba(230,194,90,.35);color:var(--warn)}
+  .pill.bad{background:rgba(224,122,95,.12);border-color:rgba(224,122,95,.35);color:var(--err)}
+
+  /* views */
+  .view{display:none}
+  .view.on{display:block}
+  .login-box{max-width:440px;margin:36px auto 0}
+  .login-box h1{font-size:26px;color:#fff;margin-bottom:8px}
+  .login-box .sub{color:var(--mut);font-size:14.5px;margin-bottom:22px}
+  .loading{text-align:center;color:var(--mut-2);padding:60px 0;font-size:14px}
+  .offline{max-width:480px;margin:48px auto 0;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:38px 26px}
+  .offline .big{font-size:40px;margin-bottom:12px}
+  .offline h2{font-size:21px;color:#fff;margin-bottom:10px}
+  .offline p{color:var(--mut);font-size:14.5px}
+
+  /* greeting + stats */
+  .hello h1{font-size:clamp(24px,6vw,32px);color:#fff}
+  .hello h1 .hl{color:var(--lime)}
+  .hello .sub{color:var(--mut);font-size:14.5px;margin-top:6px}
+  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 24px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 16px}
+  .stat b{display:block;font-family:'Space Grotesk',sans-serif;font-size:24px;color:var(--lime);line-height:1.2}
+  .stat span{font-size:11px;color:var(--mut-2);letter-spacing:.07em;text-transform:uppercase}
+
+  /* stepper */
+  .stepper{display:flex;flex-wrap:wrap;gap:8px 6px;margin-top:14px}
+  .stepper .st{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--mut-2);background:var(--ink-3);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+  .stepper .st .dot{width:8px;height:8px;border-radius:50%;background:var(--mut-2);flex:none}
+  .stepper .st.done{color:var(--mut);border-color:rgba(212,244,98,.25)}
+  .stepper .st.done .dot{background:var(--lime-2);opacity:.6}
+  .stepper .st.now{color:#10160a;background:var(--grad-cta);border-color:transparent}
+  .stepper .st.now .dot{background:#10160a}
+
+  /* campaign cards */
+  .camp{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:14px}
+  .camp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+  .camp-top h3{font-size:17.5px;color:#fff}
+  .camp-rate{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;color:var(--lime);margin-bottom:12px}
+  .camp-rate small{font-size:12.5px;color:var(--mut-2);font-family:'Inter',sans-serif;font-weight:500}
+  .kv{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;font-size:13.5px}
+  .kv div span{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut-2)}
+  .kv div b{color:var(--white);font-weight:600}
+
+  /* referral banner */
+  .refband{background:linear-gradient(135deg,rgba(212,244,98,.14),rgba(158,230,73,.06));border:1px solid rgba(212,244,98,.3);border-radius:16px;padding:18px 20px;margin:22px 0;display:flex;gap:14px;align-items:flex-start}
+  .refband .ico{width:38px;height:38px;border-radius:10px;background:var(--grad-cta);display:flex;align-items:center;justify-content:center;flex:none;font-size:18px}
+  .refband p{font-size:14px;color:var(--white)}
+  .refband p b{color:var(--lime)}
+
+  /* tables */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -20px;padding:0 20px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:480px}
+  th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--mut-2);padding:0 10px 9px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:11px 10px 11px 0;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:middle}
+  td b{color:var(--white);font-weight:600}
+  tr:last-child td{border-bottom:0}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+  @media(max-width:520px){.grid-2{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr 1fr}}
+  h2.sec{font-size:19px;color:#fff;margin:26px 0 12px}
+  .empty{color:var(--mut-2);font-size:14px;padding:6px 0}
+
+  footer{border-top:1px solid var(--line);padding:26px 0;margin-top:20px}
+  footer p{font-size:12.5px;color:var(--mut-2);text-align:center}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a class="brand" href="/wrapmiles" aria-label="WrapMiles home">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 16.5h18M5 16.5l1.6-4.2A2.5 2.5 0 0 1 8.9 10.7h6.2a2.5 2.5 0 0 1 2.3 1.6l1.6 4.2" stroke="#10160a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="18.2" r="1.6" fill="#10160a"/><circle cx="16.5" cy="18.2" r="1.6" fill="#10160a"/><path d="M4 7.5h5M6 5h5" stroke="#10160a" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </span>
+      <span class="name">Wrap<em>Miles</em> <span class="nav-tag">Driver Portal</span></span>
+    </a>
+    <button class="btn-out" id="btnLogout" type="button">Sign out</button>
+  </div>
+</nav>
+<div class="roadline"></div>
+
+<main class="wrap">
+
+  <!-- ============ LOGIN VIEW ============ -->
+  <section class="view" id="viewLogin">
+    <div class="login-box card">
+      <p class="eyebrow">Driver Portal</p>
+      <h1>Welcome back, driver.</h1>
+      <p class="sub">Sign in with your email and the access code Danny sent you. Don't have a code? Text or email Danny.</p>
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="liEmail">Email</label>
+          <input id="liEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="liCode">Access code</label>
+          <input id="liCode" type="text" autocomplete="one-time-code" placeholder="Code from Danny" required>
+        </div>
+        <button class="btn" id="liBtn" type="submit">Sign In</button>
+        <div class="msg" id="liMsg" role="alert"></div>
+      </form>
+      <p class="hint" style="margin-top:18px">Not a WrapMiles driver yet? <a href="/wrapmiles">Apply here — it's free.</a></p>
+    </div>
+  </section>
+
+  <!-- ============ OFFLINE / NOT CONFIGURED VIEW ============ -->
+  <section class="view" id="viewOffline">
+    <div class="offline">
+      <div class="big" aria-hidden="true">🚧</div>
+      <h2>Portal isn't switched on yet</h2>
+      <p>We're still wiring things up behind the scenes — check back soon. Questions in the meantime? Text or email Danny.</p>
+    </div>
+  </section>
+
+  <!-- ============ LOADING ============ -->
+  <section class="view" id="viewLoading"><div class="loading">Loading your dashboard…</div></section>
+
+  <!-- ============ DASHBOARD VIEW ============ -->
+  <section class="view" id="viewDash">
+
+    <div class="hello">
+      <h1>Hey, <span class="hl" id="dvName">driver</span> 👋</h1>
+      <p class="sub" id="dvSub"></p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><b id="dvEarned">$0.00</b><span>Total earned</span></div>
+      <div class="stat"><b id="dvMiles">0</b><span>Miles approved</span></div>
+    </div>
+
+    <div class="card">
+      <p class="eyebrow">Your application status</p>
+      <div class="stepper" id="dvStepper"></div>
+    </div>
+
+    <div class="refband">
+      <div class="ico" aria-hidden="true">🤝</div>
+      <p><b>Earn up to $375 per driver you refer</b> — have them put your name on the application.</p>
+    </div>
+
+    <h2 class="sec">Your campaigns</h2>
+    <div id="dvCampaigns"></div>
+
+    <div class="card" id="dvMileageCard" style="display:none">
+      <p class="eyebrow">Submit mileage</p>
+      <form id="mileForm" novalidate>
+        <div class="field">
+          <label for="mfMatch">Campaign</label>
+          <select id="mfMatch" required></select>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="mfPeriod">Month</label>
+            <input id="mfPeriod" type="month" required>
+          </div>
+          <div class="field">
+            <label for="mfMiles">Miles this month</label>
+            <input id="mfMiles" type="number" min="0" step="1" inputmode="numeric" placeholder="Auto from odometer" required>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="mfOdoStart">Odometer — start of month</label>
+            <input id="mfOdoStart" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 41200">
+          </div>
+          <div class="field">
+            <label for="mfOdoEnd">Odometer — end of month</label>
+            <input id="mfOdoEnd" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 42450">
+          </div>
+        </div>
+        <div class="field">
+          <label for="mfNote">Note (optional)</label>
+          <textarea id="mfNote" rows="2" placeholder="Anything we should know — road trips, car in the shop, etc."></textarea>
+        </div>
+        <button class="btn" id="mfBtn" type="submit">Submit Mileage</button>
+        <div class="msg" id="mfMsg" role="alert"></div>
+      </form>
+      <p class="hint" style="margin-top:14px">📸 Snap a photo of your odometer too — text it to Danny until photo upload lands.</p>
+    </div>
+
+    <h2 class="sec">Mileage history</h2>
+    <div class="card">
+      <div class="tbl-scroll">
+        <table id="dvMileTable" style="display:none">
+          <thead><tr><th>Month</th><th>Miles claimed</th><th>Status</th><th>Approved</th></tr></thead>
+          <tbody id="dvMileBody"></tbody>
+        </table>
+      </div>
+      <p class="empty" id="dvMileEmpty">No mileage submitted yet. Your first submission will show up here.</p>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  <div class="wrap"><p>WrapMiles — a Collaborative Concepts LLC venture · Questions? Text or email Danny · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a></p></div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var API = "/api/wrapmiles";
+var TOKEN_KEY = "wm_driver_token";
+var STEPS = ["new","contacted","qualified","docs_verified","wrap_ready","matched","active"];
+var STEP_LABELS = {new:"Applied",contacted:"Contacted",qualified:"Qualified",docs_verified:"Docs Verified",wrap_ready:"Wrap Ready",matched:"Matched",active:"Active"};
+
+/* ---------- helpers ---------- */
+function $(id){return document.getElementById(id)}
+function esc(s){
+  return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function money(cents){
+  var n = Number(cents);
+  if(!isFinite(n)) n = 0;
+  var neg = n < 0; n = Math.abs(n)/100;
+  return (neg?"-$":"$") + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtNum(n){
+  n = Number(n); if(!isFinite(n)) n = 0;
+  return n.toLocaleString("en-US");
+}
+function fmtDate(v){
+  if(v==null || v==="") return "—";
+  var d;
+  if(typeof v === "number" || /^\d+(\.\d+)?$/.test(String(v))){
+    var n = Number(v);
+    d = new Date(n > 1e12 ? n : n*1000);
+  } else {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v));
+    if(m) d = new Date(+m[1], +m[2]-1, +m[3]);
+    else d = new Date(v);
+  }
+  if(!d || isNaN(d.getTime())) return esc(v);
+  return d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
+}
+function firstName(name){
+  var s = String(name||"").trim();
+  return s ? s.split(/\s+/)[0] : "driver";
+}
+function pillClass(status){
+  var s = String(status||"").toLowerCase();
+  if(s==="active"||s==="approved"||s==="live"||s==="wrapped") return "good";
+  if(s==="rejected"||s==="ended"||s==="cancelled"||s==="canceled") return "bad";
+  if(s==="submitted"||s==="pending") return "warn";
+  return "lime";
+}
+function statusLabel(s){ return String(s==null?"":s).replace(/_/g," "); }
+
+function getToken(){ try{return localStorage.getItem(TOKEN_KEY)}catch(e){return null} }
+function setToken(t){ try{ t?localStorage.setItem(TOKEN_KEY,t):localStorage.removeItem(TOKEN_KEY) }catch(e){} }
+
+/* ---------- views ---------- */
+var VIEWS = ["viewLogin","viewOffline","viewLoading","viewDash"];
+function show(view){
+  VIEWS.forEach(function(v){ $(v).classList.toggle("on", v===view); });
+  $("btnLogout").style.display = (view==="viewDash") ? "inline-flex" : "none";
+}
+function showLogin(errMsg){
+  setToken(null);
+  show("viewLogin");
+  var m = $("liMsg");
+  if(errMsg){ m.className="msg err"; m.textContent = errMsg; }
+  else { m.className="msg"; m.textContent=""; }
+}
+
+/* ---------- api ---------- */
+function api(path, opts, cb){
+  opts = opts || {};
+  var headers = {"Content-Type":"application/json"};
+  var t = getToken();
+  if(t) headers["Authorization"] = "Bearer " + t;
+  fetch(API + path, {
+    method: opts.method || "GET",
+    headers: headers,
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  }).then(function(res){
+    return res.json().catch(function(){return {}}).then(function(data){
+      if(res.status === 401){ showLogin("Your session expired — please sign in again."); cb(new Error("unauthorized")); return; }
+      if(res.status === 503 && data && data.error === "db_not_configured"){ show("viewOffline"); cb(new Error("offline")); return; }
+      if(!res.ok){ cb(Object.assign(new Error(data && data.error ? data.error : "Request failed"), {data:data,status:res.status})); return; }
+      cb(null, data);
+    });
+  }).catch(function(){
+    cb(new Error("Network problem — check your connection and try again."));
+  });
+}
+
+/* ---------- login ---------- */
+$("loginForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  var email = $("liEmail").value.trim();
+  var code  = $("liCode").value.trim();
+  var m = $("liMsg");
+  if(!email || !code){ m.className="msg err"; m.textContent="Enter both your email and access code."; return; }
+  $("liBtn").disabled = true; m.className="msg"; m.textContent="";
+  api("/login", {method:"POST", body:{role:"driver", email:email, code:code}}, function(err, data){
+    $("liBtn").disabled = false;
+    if(err){
+      if(err.message !== "offline" && err.message !== "unauthorized"){
+        m.className="msg err"; m.textContent = err.message==="Request failed" ? "Sign-in failed — try again." : humanErr(err.message);
+      } else if(err.message === "unauthorized"){
+        m.className="msg err"; m.textContent = (err.data && err.data.error) ? humanErr(err.data.error) : "That email and code didn't match. Double-check the code Danny sent you.";
+        show("viewLogin");
+      }
+      return;
+    }
+    if(!data || !data.token){ m.className="msg err"; m.textContent="Sign-in failed — try again."; return; }
+    setToken(data.token);
+    loadDash();
+  });
+});
+function humanErr(code){
+  var map = {
+    invalid_credentials: "That email and code didn't match. Double-check the code Danny sent you.",
+    invalid_code: "That code isn't right. Double-check the code Danny sent you.",
+    not_found: "We couldn't find that account. Text or email Danny to get set up.",
+    missing_fields: "Enter both your email and access code."
+  };
+  return map[code] || statusLabel(code) || "Something went wrong — try again.";
+}
+
+$("btnLogout").addEventListener("click", function(){ showLogin(); });
+
+/* ---------- dashboard ---------- */
+var CURRENT = null;
+
+function loadDash(){
+  show("viewLoading");
+  api("/driver/me", {}, function(err, data){
+    if(err){
+      if(err.message==="unauthorized" || err.message==="offline") return; // views already switched
+      showLogin("Couldn't load your dashboard — sign in again.");
+      return;
+    }
+    CURRENT = data || {};
+    renderDash(CURRENT);
+    show("viewDash");
+  });
+}
+
+function renderDash(data){
+  var me = data.me || {};
+  var matches = Array.isArray(data.matches) ? data.matches : [];
+  var mileage = Array.isArray(data.mileage) ? data.mileage : [];
+
+  $("dvName").textContent = firstName(me.name);
+  var subBits = [];
+  if(me.vehicle) subBits.push(me.vehicle);
+  if(me.city_zip) subBits.push(me.city_zip);
+  $("dvSub").textContent = subBits.join(" · ");
+
+  $("dvEarned").textContent = money(data.earned_cents_total);
+  var milesApproved = mileage.reduce(function(sum,r){
+    var v = (r.miles_approved!=null && r.miles_approved!=="") ? Number(r.miles_approved)
+          : (String(r.status).toLowerCase()==="approved" ? Number(r.miles) : 0);
+    return sum + (isFinite(v)?v:0);
+  },0);
+  $("dvMiles").textContent = fmtNum(milesApproved);
+
+  /* stepper */
+  var stepEl = $("dvStepper");
+  stepEl.innerHTML = "";
+  var cur = STEPS.indexOf(String(me.status||"").toLowerCase());
+  STEPS.forEach(function(s,i){
+    var d = document.createElement("div");
+    d.className = "st" + (cur>=0 ? (i<cur?" done":(i===cur?" now":"")) : "");
+    var dot = document.createElement("span"); dot.className="dot";
+    d.appendChild(dot);
+    d.appendChild(document.createTextNode(STEP_LABELS[s]));
+    stepEl.appendChild(d);
+  });
+  if(cur < 0 && me.status){
+    var extra = document.createElement("div");
+    extra.className = "st now";
+    var dot2 = document.createElement("span"); dot2.className="dot";
+    extra.appendChild(dot2);
+    extra.appendChild(document.createTextNode(statusLabel(me.status)));
+    stepEl.appendChild(extra);
+  }
+
+  /* campaign cards */
+  var cwrap = $("dvCampaigns");
+  cwrap.innerHTML = "";
+  if(!matches.length){
+    cwrap.innerHTML = '<div class="card"><p class="empty">No campaign matched yet. Once a brand picks your car, it shows up here — hang tight, and keep your miles up.</p></div>';
+  } else {
+    matches.forEach(function(mt){
+      var rateHtml;
+      if(Number(mt.flat_cents_month) > 0){
+        rateHtml = esc(money(mt.flat_cents_month).replace(/\.00$/,"")) + ' <small>flat / month</small>';
+      } else {
+        var perMile = Number(mt.rate_cents_per_mile);
+        rateHtml = "$" + esc(((isFinite(perMile)?perMile:0)/100).toFixed(2)) + ' <small>per mile</small>';
+      }
+      var card = document.createElement("div");
+      card.className = "camp";
+      card.innerHTML =
+        '<div class="camp-top"><h3>' + esc(mt.campaign_name || "Campaign") + '</h3>' +
+        '<span class="pill ' + pillClass(mt.status) + '">' + esc(statusLabel(mt.status)) + '</span></div>' +
+        '<div class="camp-rate">' + rateHtml + '</div>' +
+        '<div class="kv">' +
+          '<div><span>Zone</span><b>' + esc(mt.zone || "—") + '</b></div>' +
+          '<div><span>Coverage</span><b>' + esc(statusLabel(mt.coverage) || "—") + '</b></div>' +
+          '<div><span>Monthly cap</span><b>' + (mt.cap_miles ? esc(fmtNum(mt.cap_miles)) + " mi" : "No cap") + '</b></div>' +
+          '<div><span>Dates</span><b>' + fmtDate(mt.start_date) + ' → ' + fmtDate(mt.end_date) + '</b></div>' +
+          (mt.wrapped_at ? '<div><span>Wrapped</span><b>' + fmtDate(mt.wrapped_at) + '</b></div>' : '') +
+          (mt.campaign_status ? '<div><span>Campaign</span><b>' + esc(statusLabel(mt.campaign_status)) + '</b></div>' : '') +
+        '</div>';
+      cwrap.appendChild(card);
+    });
+  }
+
+  /* mileage form — only for wrapped/active matches */
+  var eligible = matches.filter(function(mt){
+    var s = String(mt.status||"").toLowerCase();
+    return s==="wrapped" || s==="active";
+  });
+  if(eligible.length){
+    $("dvMileageCard").style.display = "block";
+    var sel = $("mfMatch");
+    sel.innerHTML = "";
+    eligible.forEach(function(mt){
+      var opt = document.createElement("option");
+      opt.value = mt.id;
+      opt.textContent = (mt.campaign_name || "Campaign") + (mt.zone ? " — " + mt.zone : "");
+      sel.appendChild(opt);
+    });
+    if(!$("mfPeriod").value){
+      var now = new Date();
+      $("mfPeriod").value = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0");
+    }
+  } else {
+    $("dvMileageCard").style.display = "none";
+  }
+
+  /* mileage history */
+  var body = $("dvMileBody");
+  body.innerHTML = "";
+  if(mileage.length){
+    $("dvMileTable").style.display = "table";
+    $("dvMileEmpty").style.display = "none";
+    mileage.slice().sort(function(a,b){ return String(b.period||"").localeCompare(String(a.period||"")); })
+      .forEach(function(r){
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          '<td><b>' + esc(r.period || "—") + '</b>' + (r.note ? '<br><span style="font-size:12px;color:var(--mut-2)">' + esc(r.note) + '</span>' : '') + '</td>' +
+          '<td>' + esc(fmtNum(r.miles)) + ' mi</td>' +
+          '<td><span class="pill ' + pillClass(r.status) + '">' + esc(statusLabel(r.status) || "submitted") + '</span></td>' +
+          '<td>' + ((r.miles_approved!=null && r.miles_approved!=="") ? esc(fmtNum(r.miles_approved)) + " mi" : "—") + '</td>';
+        body.appendChild(tr);
+      });
+  } else {
+    $("dvMileTable").style.display = "none";
+    $("dvMileEmpty").style.display = "block";
+  }
+}
+
+/* ---------- odometer auto-compute ---------- */
+function recompute(){
+  var s = parseFloat($("mfOdoStart").value);
+  var e = parseFloat($("mfOdoEnd").value);
+  if(isFinite(s) && isFinite(e) && e >= s){
+    $("mfMiles").value = Math.round(e - s);
+  }
+}
+$("mfOdoStart").addEventListener("input", recompute);
+$("mfOdoEnd").addEventListener("input", recompute);
+
+/* ---------- mileage submit ---------- */
+$("mileForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  var m = $("mfMsg");
+  var matchId = $("mfMatch").value;
+  var period = $("mfPeriod").value.trim();
+  var miles = parseFloat($("mfMiles").value);
+  var odoS = $("mfOdoStart").value === "" ? null : parseFloat($("mfOdoStart").value);
+  var odoE = $("mfOdoEnd").value === "" ? null : parseFloat($("mfOdoEnd").value);
+  if(!matchId){ m.className="msg err"; m.textContent="Pick a campaign."; return; }
+  if(!/^\d{4}-\d{2}$/.test(period)){ m.className="msg err"; m.textContent="Pick the month (e.g. " + new Date().getFullYear() + "-06)."; return; }
+  if(!isFinite(miles) || miles < 0){ m.className="msg err"; m.textContent="Enter your miles for the month (or fill in both odometer readings)."; return; }
+  if(odoS!=null && odoE!=null && odoE < odoS){ m.className="msg err"; m.textContent="Odometer end can't be lower than start."; return; }
+  $("mfBtn").disabled = true; m.className="msg"; m.textContent="";
+  api("/driver/mileage", {method:"POST", body:{
+    match_id: matchId, period: period,
+    odo_start: odoS, odo_end: odoE,
+    miles: miles, note: $("mfNote").value.trim()
+  }}, function(err, data){
+    $("mfBtn").disabled = false;
+    if(err){
+      if(err.message==="unauthorized" || err.message==="offline") return;
+      m.className="msg err";
+      m.textContent = humanErr(err.message);
+      return;
+    }
+    m.className="msg ok";
+    m.textContent = "Mileage submitted for " + period + " — Danny will review and approve it. Don't forget to text your odometer photo!";
+    $("mfOdoStart").value = ""; $("mfOdoEnd").value = ""; $("mfMiles").value = ""; $("mfNote").value = "";
+    loadDash();
+  });
+});
+
+/* ---------- boot ---------- */
+if(getToken()) loadDash();
+else show("viewLogin");
+})();
+</script>
+</body>
+</html>
