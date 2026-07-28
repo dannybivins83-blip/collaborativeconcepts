@@ -116,6 +116,26 @@ The startup hook will pick it up automatically on the next session.
   network mocked. **Known broken (pre-existing):** `broward_uninc` 404s on a
   moved ArcGIS Hub dataset and `martin` parses no rows — both return 0.
 
+- **WrapMiles** at `/wrapmiles/` — car-wrap sponsorship marketplace (pay-per-mile
+  mobile OOH). Landing page + three portals: `/wrapmiles/admin/` (matchmaking
+  desk), `/wrapmiles/driver/`, `/wrapmiles/sponsor/`. API in `api/wrapmiles.py`
+  (`/api/wrapmiles/*`), registered from `api/index.py` like permits. Storage is
+  Postgres via `WRAPMILES_DB_URL`/`POSTGRES_URL`/`DATABASE_URL` (Neon through
+  Vercel Storage); until attached, the API returns `db_not_configured` and the
+  portals show a setup screen — nothing crashes. Admin auth =
+  `WRAPMILES_ADMIN_KEY` env var; drivers/sponsors log in with email + an access
+  code generated in the admin panel (no email infra needed). Money = integer
+  cents; payouts = approved in-cap miles × rate + flat monthly (non-car assets
+  like golf carts are flat-rate). Impressions are always labeled estimates
+  (50/verified mile). Landing forms dual-write: FormSubmit email + best-effort
+  POST to the API. **Referral links:** every driver auto-gets a shareable
+  `ref_code` (NAME-XXXX); `/wrapmiles?ref=CODE` persists to localStorage and
+  prefills `referred_by` on both forms; driver portal has a share card
+  (copy/native share/WhatsApp/SMS/QR via `/api/wrapmiles/qr?ref=`) with live
+  signup counts. Offline tests: `python3 _wrapmiles_tests.py` (61, sqlite).
+  Contracts (attorney-review drafts) in `wrapmiles/legal/`; outreach copy in
+  `wrapmiles/outreach/`; scout skills in `.claude/skills/wrapmiles-*`.
+
 ## Local tooling
 
 - Python: 3.11+, deps in `requirements.txt`
@@ -131,6 +151,22 @@ The startup hook will pick it up automatically on the next session.
 - Tests / linters: none currently wired
 
 <!-- OVERLORD-BUS v1 -->
+## Standing rule: keys, secrets & infra provisioning go to OVERLORD
+
+Owner directive (2026-07-28): **any task involving credentials, API keys, env
+vars, database provisioning, or dashboard-level infrastructure changes is
+routed to the `overlord` agent via the bus — do not walk Danny through it and
+do not handle secret values yourself.** Draft the bus message (task, project,
+verification steps, where to reply), never include secret VALUES in it, and
+let OVERLORD provision + store the secret and deliver it to Danny directly.
+
+**Cloud sessions (Claude Code web/remote) cannot reach the bus** — it lives on
+the owner's local machine. From a cloud session, queue the message as a file in
+`.claude/bus-outbox/` (frontmatter: status/to/from/date/subject) and commit it.
+**Local sessions: on session start, check `.claude/bus-outbox/` — move any
+`status: new` files into the bus inbox of the addressee** (per the bus section
+below), then update the file's status to `delivered` in the repo.
+
 ## Collaborative Concepts — cross-project comms (OVERLORD bus)
 You are one agent in Collaborative Concepts LLC (owner: Danny Bivins). Coordinate with other projects through the shared message bus — do NOT route through the owner:
 `C:\Users\kjburnz\acculynx roofr reprot\_OVERLORD\bus\` (read `bus\PROTOCOL.md`).
