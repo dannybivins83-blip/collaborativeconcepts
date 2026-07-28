@@ -6,126 +6,126 @@
 <meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
 <meta name="robots" content="noindex">
 <title>WrapMiles — Sponsor Dashboard</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23d4f462'/%3E%3Cpath d='M3 16.5h18M5 16.5l1.6-4.2A2.5 2.5 0 0 1 8.9 10.7h6.2a2.5 2.5 0 0 1 2.3 1.6l1.6 4.2' stroke='%2310160a' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='7.5' cy='18.2' r='1.6' fill='%2310160a'/%3E%3Ccircle cx='16.5' cy='18.2' r='1.6' fill='%2310160a'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23e11e7b'/%3E%3Cpath d='M3 16.5h18M5 16.5l1.6-4.2A2.5 2.5 0 0 1 8.9 10.7h6.2a2.5 2.5 0 0 1 2.3 1.6l1.6 4.2' stroke='%23ffffff' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='7.5' cy='18.2' r='1.6' fill='%23ffffff'/%3E%3Ccircle cx='16.5' cy='18.2' r='1.6' fill='%23ffffff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap">
 <style>
   :root{
-    --ink:#0e1116; --ink-2:#151a22; --ink-3:#1c232e; --panel:#11161d;
-    --lime:#d4f462; --lime-2:#b8e03e;
-    --white:#f4f6f2; --mut:#aeb8ad; --mut-2:#8b968b; --line:rgba(244,246,242,.09);
-    --err:#e07a5f; --ok:#7bc47f; --warn:#e6c25a;
-    --grad-cta:linear-gradient(135deg,#d4f462,#9ee649);
-    --dash:repeating-linear-gradient(90deg,var(--lime) 0 34px,transparent 34px 58px);
+    --pink:#e11e7b; --pink-deep:#a4145c; --pink-tint:#fdeef5;
+    --ink:#201830; --sub:#5f5968; --mut:#8d8696;
+    --fill:#f3f1f4; --bg:#f8f6f9; --line:#e9e5ec;
+    --green:#1c9e64; --green-tint:#e7f6ee;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--ink);color:var(--white);font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.6;font-size:16px;min-height:100vh}
-  a{color:var(--lime);text-decoration:none}
-  a:hover{color:var(--lime-2)}
-  h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:-.02em;margin:0;line-height:1.15}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.5;font-size:15px;min-height:100vh}
+  a{color:var(--pink);text-decoration:none}
+  a:hover{color:var(--pink-deep)}
+  h1,h2,h3{margin:0;line-height:1.15;letter-spacing:-.02em}
   p{margin:0}
-  input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
-  .wrap{max-width:960px;margin:0 auto;padding:0 18px}
-  .roadline{height:4px;background:var(--dash);opacity:.5}
+  input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 18px}
 
-  /* nav */
-  .nav{position:sticky;top:0;z-index:50;background:rgba(14,17,22,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-  .nav-in{max-width:960px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .brand{display:flex;align-items:center;gap:10px}
-  .logo{width:34px;height:34px;border-radius:9px;background:var(--grad-cta);display:flex;align-items:center;justify-content:center;flex:none}
-  .logo svg{width:20px;height:20px}
-  .brand .name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:#fff;letter-spacing:-.01em}
-  .brand .name em{font-style:normal;color:var(--lime)}
-  .nav-tag{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mut-2)}
-  .btn-out{display:none;background:transparent;border:1px solid rgba(244,246,242,.22);color:var(--mut);border-radius:9px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
-  .btn-out:hover{border-color:var(--lime);color:var(--lime)}
+  /* topbar */
+  .nav{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1180px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .wordmark{font-weight:800;font-size:22px;letter-spacing:-.03em;color:var(--pink)}
+  .chip{background:var(--fill);color:var(--ink);font-weight:700;font-size:12px;padding:5px 12px;border-radius:999px;white-space:nowrap}
+  .nav-user{display:flex;align-items:center;gap:14px}
+  .who{display:none;align-items:center;gap:9px}
+  .who.on{display:flex}
+  .tile{width:32px;height:32px;border-radius:10px;background:var(--pink-tint);color:var(--pink);font-weight:800;font-size:12px;display:grid;place-items:center;flex:none}
+  .who b{font-weight:700;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+  .btn-out{display:none;background:none;border:0;padding:4px 2px;color:var(--mut);font:500 14px 'DM Sans',sans-serif;cursor:pointer}
+  .btn-out:hover{color:var(--ink)}
+  @media(max-width:560px){.chip{display:none}.who b{display:none}}
 
-  main{padding:28px 0 70px}
+  main{padding:26px 0 60px}
+  @media(min-width:760px){main{padding:32px 0 70px}}
 
-  /* shared */
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 20px;margin-bottom:16px}
-  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--lime);margin-bottom:10px}
-  .field{margin-bottom:16px}
-  .field label{display:block;font-size:13px;font-weight:600;color:var(--mut);margin-bottom:7px;letter-spacing:.02em}
-  .field input{width:100%;padding:13px 14px;border-radius:11px;border:1px solid rgba(244,246,242,.14);background:var(--ink-3);color:#fff;font-size:15px;font-family:'Inter',sans-serif}
-  .field input::placeholder{color:var(--mut-2)}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;border-radius:12px;font-weight:700;font-size:15px;border:0;cursor:pointer;font-family:'Inter',sans-serif;background:var(--grad-cta);color:#10160a;width:100%}
-  .btn:hover{filter:brightness(1.06)}
-  .btn[disabled]{opacity:.55;cursor:default;filter:none}
-  .msg{display:none;margin-top:14px;padding:12px 14px;border-radius:11px;font-size:14px;font-weight:500}
-  .msg.err{display:block;background:rgba(224,122,95,.12);color:var(--err);border:1px solid rgba(224,122,95,.35)}
-  .hint{font-size:13px;color:var(--mut-2);line-height:1.55}
-  .pill{display:inline-block;padding:4px 11px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--ink-3);border:1px solid var(--line);color:var(--mut);white-space:nowrap}
-  .pill.good{background:rgba(123,196,127,.14);border-color:rgba(123,196,127,.35);color:var(--ok)}
-  .pill.lime{background:rgba(212,244,98,.13);border-color:rgba(212,244,98,.35);color:var(--lime)}
-  .pill.warn{background:rgba(230,194,90,.13);border-color:rgba(230,194,90,.35);color:var(--warn)}
-  .pill.bad{background:rgba(224,122,95,.12);border-color:rgba(224,122,95,.35);color:var(--err)}
+  /* cards + shared */
+  .card{background:#fff;border-radius:18px;padding:22px 20px;margin-bottom:14px}
+  @media(min-width:760px){.card{padding:24px}}
+  .card-h{font-weight:800;font-size:17px;color:var(--ink)}
+  .card-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--pink);margin-bottom:10px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--sub);margin-bottom:6px}
+  .field input{width:100%;padding:13px 14px;border-radius:12px;border:none;background:var(--fill);color:var(--ink);font-size:14px;font-family:'DM Sans',sans-serif}
+  .field input::placeholder{color:var(--mut)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;border-radius:999px;font-weight:700;font-size:15px;border:0;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--pink);color:#fff;width:100%}
+  .btn:hover{background:var(--pink-deep)}
+  .btn[disabled]{opacity:.55;cursor:default}
+  .btn-ink{display:inline-flex;align-items:center;justify-content:center;background:var(--ink);color:#fff;font-weight:700;font-size:13px;padding:11px 20px;border-radius:999px;border:0;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+  .btn-ink:hover{opacity:.88}
+  .msg{display:none;margin-top:12px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:500}
+  .msg.err{display:block;background:var(--pink-tint);color:var(--pink-deep)}
+  .hint{font-size:12px;color:var(--mut);line-height:1.5}
+  .badge{display:inline-block;padding:4px 11px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap;background:var(--fill);color:var(--sub)}
+  .badge.b-green{background:var(--green-tint);color:var(--green)}
+  .badge.b-pink{background:var(--pink-tint);color:var(--pink-deep)}
+  .badge.b-gray{background:var(--fill);color:var(--sub)}
+  .est{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-left:5px}
 
   /* views */
   .view{display:none}
   .view.on{display:block}
   .login-box{max-width:440px;margin:36px auto 0}
-  .login-box h1{font-size:26px;color:#fff;margin-bottom:8px}
-  .login-box .sub{color:var(--mut);font-size:14.5px;margin-bottom:22px}
-  .loading{text-align:center;color:var(--mut-2);padding:60px 0;font-size:14px}
-  .offline{max-width:480px;margin:48px auto 0;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:38px 26px}
-  .offline .big{font-size:40px;margin-bottom:12px}
-  .offline h2{font-size:21px;color:#fff;margin-bottom:10px}
-  .offline p{color:var(--mut);font-size:14.5px}
+  .login-box h1{font-weight:800;font-size:26px;color:var(--ink);margin-bottom:8px}
+  .login-box .sub{color:var(--sub);font-size:14.5px;margin-bottom:22px}
+  .loading{text-align:center;color:var(--mut);padding:60px 0;font-size:14px}
+  .offline{max-width:460px;margin:56px auto 0;text-align:center;color:var(--sub);font-size:14.5px}
 
-  /* header + totals */
-  .cohead h1{font-size:clamp(24px,6vw,32px);color:#fff}
-  .cohead h1 .hl{color:var(--lime)}
-  .cohead .sub{color:var(--mut);font-size:14.5px;margin-top:6px}
-  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 8px}
-  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
-  .stat b{display:block;font-family:'Space Grotesk',sans-serif;font-size:24px;color:var(--lime);line-height:1.2}
-  .stat span{font-size:11px;color:var(--mut-2);letter-spacing:.07em;text-transform:uppercase}
-  @media(min-width:640px){.stat-row{grid-template-columns:1fr 1fr}}
+  /* header + stats */
+  .cohead{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
+  .cohead h1{font-weight:800;font-size:clamp(26px,5vw,34px);color:var(--ink)}
+  .cohead .sub{color:var(--sub);font-size:14.5px;margin-top:4px}
+  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 14px}
+  @media(min-width:820px){.stat-row{grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}}
+  .stat{background:#fff;border-radius:18px;padding:18px 20px}
+  @media(min-width:760px){.stat{padding:20px 22px}}
+  .stat .lbl{font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--mut);text-transform:uppercase}
+  .stat b{display:block;font-weight:800;font-size:clamp(22px,4vw,30px);letter-spacing:-.02em;color:var(--ink);margin-top:6px;line-height:1.2}
+  .stat b.pink{color:var(--pink)}
+  .stat .note{font-size:12.5px;color:var(--sub);margin-top:2px}
+  .stat .note.good{color:var(--green)}
+  .stat .note.down{color:var(--pink-deep)}
 
-  .imp-note{background:rgba(212,244,98,.07);border:1px solid rgba(212,244,98,.22);border-radius:12px;padding:12px 15px;font-size:13px;color:var(--mut);margin:10px 0 22px}
+  /* two-column zone */
+  .cols{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+  @media(min-width:880px){.cols{grid-template-columns:.9fr 1.4fr}}
+  .cols .card{margin-bottom:0}
+  .colstack{display:grid;gap:14px}
 
-  /* campaign section */
-  .camp{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 20px;margin-bottom:18px}
-  .camp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:8px}
-  .camp-top h2{font-size:20px;color:#fff}
-  .camp-meta{font-size:13.5px;color:var(--mut);margin-bottom:16px}
-  .camp-meta b{color:var(--white);font-weight:600}
-  h3.sub-h{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut-2);margin:20px 0 10px;font-family:'Inter',sans-serif;font-weight:700}
+  /* bars */
+  .bars{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+  .bar-row .bar-top{display:flex;justify-content:space-between;font-size:13px;font-weight:500;color:var(--ink)}
+  .bar-row .bar-top span:last-child{color:var(--mut)}
+  .bar-row .track{height:10px;background:var(--fill);border-radius:99px;margin-top:5px;overflow:hidden}
+  .bar-row .fillbar{height:100%;background:var(--pink);border-radius:99px}
+  .notebox{background:var(--bg);border-radius:14px;padding:14px 16px;margin-top:20px;font-size:13px;line-height:1.55;color:var(--sub)}
+  .notebox strong{color:var(--ink)}
+
+  /* campaign meta */
+  .camp-meta{font-size:13.5px;color:var(--sub);margin-top:8px}
+  .camp-meta b{color:var(--ink);font-weight:700}
+  h3.sub-h{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:20px 0 4px;font-weight:700}
 
   /* tables */
   .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -20px;padding:0 20px}
   table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
-  th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--mut-2);padding:0 10px 9px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{text-align:left;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding:0 10px 10px 0;border-bottom:1px solid var(--fill);white-space:nowrap}
   th.num,td.num{text-align:right;padding-right:0}
-  td{padding:11px 10px 11px 0;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:middle}
-  td b{color:var(--white);font-weight:600}
+  td{padding:12px 10px 12px 0;border-bottom:1px solid var(--bg);color:var(--ink);vertical-align:middle}
+  td b{font-weight:700;color:var(--ink)}
   tr:last-child td{border-bottom:0}
-  tr.total td{border-top:2px solid rgba(212,244,98,.35);border-bottom:0;color:var(--white);font-weight:600}
-  tr.total td b{color:var(--lime);font-family:'Space Grotesk',sans-serif}
-  .est{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--mut-2);margin-left:5px}
+  tr.total td{border-top:2px solid var(--pink-tint);border-bottom:0;font-weight:700}
+  tr.total td b{color:var(--pink)}
+  .empty{color:var(--mut);font-size:14px;padding:6px 0}
 
-  /* pure-CSS bar chart */
-  .chart{margin-top:6px;display:grid;gap:9px}
-  .chart-row{display:grid;grid-template-columns:72px 1fr 74px;align-items:center;gap:10px;font-size:12.5px}
-  .chart-row .lbl{color:var(--mut-2);white-space:nowrap}
-  .chart-row .track{background:var(--ink-3);border-radius:999px;height:16px;overflow:hidden}
-  .chart-row .bar{height:100%;background:linear-gradient(90deg,#9ee649,#d4f462);border-radius:999px;min-width:3px}
-  .chart-row .val{color:var(--white);font-weight:600;text-align:right;white-space:nowrap}
-  .empty{color:var(--mut-2);font-size:14px;padding:6px 0}
-
-  /* empty state / contact */
-  .setup{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px 24px;text-align:center}
-  .setup .big{font-size:36px;margin-bottom:10px}
-  .setup h2{font-size:20px;color:#fff;margin-bottom:8px}
-  .setup p{color:var(--mut);font-size:14.5px}
-  .contact{background:linear-gradient(135deg,rgba(212,244,98,.12),rgba(158,230,73,.05));border:1px solid rgba(212,244,98,.3);border-radius:16px;padding:18px 20px;margin-top:22px;display:flex;gap:14px;align-items:flex-start}
-  .contact .ico{width:38px;height:38px;border-radius:10px;background:var(--grad-cta);display:flex;align-items:center;justify-content:center;flex:none;font-size:17px}
-  .contact p{font-size:14px;color:var(--white)}
-
-  footer{border-top:1px solid var(--line);padding:26px 0;margin-top:20px}
-  footer p{font-size:12.5px;color:var(--mut-2);text-align:center}
+  footer{padding:8px 0 34px}
+  footer p{font-size:12.5px;color:var(--mut);text-align:center}
 </style>
 </head>
 <body>
@@ -133,15 +133,15 @@
 <nav class="nav">
   <div class="nav-in">
     <a class="brand" href="/wrapmiles" aria-label="WrapMiles home">
-      <span class="logo" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M3 16.5h18M5 16.5l1.6-4.2A2.5 2.5 0 0 1 8.9 10.7h6.2a2.5 2.5 0 0 1 2.3 1.6l1.6 4.2" stroke="#10160a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="18.2" r="1.6" fill="#10160a"/><circle cx="16.5" cy="18.2" r="1.6" fill="#10160a"/><path d="M4 7.5h5M6 5h5" stroke="#10160a" stroke-width="1.6" stroke-linecap="round"/></svg>
-      </span>
-      <span class="name">Wrap<em>Miles</em> <span class="nav-tag">Sponsor Dashboard</span></span>
+      <span class="wordmark">wrapmiles</span>
+      <span class="chip">Sponsor dashboard</span>
     </a>
-    <button class="btn-out" id="btnLogout" type="button">Sign out</button>
+    <div class="nav-user">
+      <div class="who" id="navWho"><span class="tile" id="navTile" aria-hidden="true">–</span><b id="spCompany"></b></div>
+      <button class="btn-out" id="btnLogout" type="button">Sign out</button>
+    </div>
   </div>
 </nav>
-<div class="roadline"></div>
 
 <main class="wrap">
 
@@ -163,17 +163,13 @@
         <button class="btn" id="liBtn" type="submit">Sign In</button>
         <div class="msg" id="liMsg" role="alert"></div>
       </form>
-      <p class="hint" style="margin-top:18px">Interested in sponsoring a fleet? <a href="/wrapmiles#brands">Start here.</a></p>
+      <p class="hint" style="margin-top:18px;font-size:13px">Interested in sponsoring a fleet? <a href="/wrapmiles#brands">Start here.</a></p>
     </div>
   </section>
 
   <!-- ============ OFFLINE / NOT CONFIGURED VIEW ============ -->
   <section class="view" id="viewOffline">
-    <div class="offline">
-      <div class="big" aria-hidden="true">🚧</div>
-      <h2>Portal isn't switched on yet</h2>
-      <p>We're still wiring things up behind the scenes — check back soon. Questions in the meantime? Email <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a>.</p>
-    </div>
+    <p class="offline">The dashboard isn't switched on yet — check back soon. Questions in the meantime? Email <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a>.</p>
   </section>
 
   <!-- ============ LOADING ============ -->
@@ -183,22 +179,31 @@
   <section class="view" id="viewDash">
 
     <div class="cohead">
-      <h1><span class="hl" id="spCompany">Your company</span></h1>
-      <p class="sub" id="spSub"></p>
+      <div>
+        <h1>Your fleet, your numbers</h1>
+        <p class="sub" id="spSub"></p>
+      </div>
+      <button class="btn-ink" id="spDlBtn" type="button">Download report</button>
     </div>
 
     <div class="stat-row">
-      <div class="stat"><b id="spTotMiles">0</b><span>Total verified miles</span></div>
-      <div class="stat"><b id="spTotImp">0</b><span>Total est. impressions</span></div>
+      <div class="stat"><div class="lbl">Verified miles</div><b id="spTotMiles">0</b><div class="note" id="spMilesDelta">verified to date</div></div>
+      <div class="stat"><div class="lbl">Est. impressions</div><b class="pink" id="spTotImp">0</b><div class="note" id="spImpSub">estimate — see note below</div></div>
+      <div class="stat"><div class="lbl">Active cars</div><b id="spActiveCars">0</b><div class="note" id="spCarsSub">active or wrapped</div></div>
+      <div class="stat"><div class="lbl">Month spend</div><b>—</b><div class="note">see invoice</div></div>
     </div>
 
-    <div class="imp-note" id="spImpNote" style="display:none"></div>
-
-    <div id="spCampaigns"></div>
-
-    <div class="contact">
-      <div class="ico" aria-hidden="true">✉️</div>
-      <p><b>Questions about your campaign?</b><br>Email Danny at <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a> — reports, creative changes, adding cars, anything.</p>
+    <div class="cols">
+      <div class="colstack">
+        <div class="card">
+          <span class="card-h">Miles by month</span>
+          <div class="bars" id="spBars"></div>
+          <p class="empty" id="spBarsEmpty" style="display:none">No verified miles reported yet — bars appear after your first full month on the road.</p>
+          <div class="notebox" id="spImpNote" style="display:none"></div>
+          <div class="notebox"><strong>Questions about your campaign?</strong> Reports, creative changes, adding cars — email Danny anytime at <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a>.</div>
+        </div>
+      </div>
+      <div class="colstack" id="spCampaigns"></div>
     </div>
 
   </section>
@@ -249,12 +254,18 @@ function firstName(name){
   var s = String(name||"").trim();
   return s ? s.split(/\s+/)[0] : "—";
 }
-function pillClass(status){
+function monogram(name){
+  var parts = String(name||"").trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return "WM";
+  var out = parts[0].charAt(0) + (parts.length > 1 ? parts[1].charAt(0) : "");
+  return out.toUpperCase();
+}
+function badgeClass(status){
   var s = String(status||"").toLowerCase();
-  if(s==="active"||s==="live"||s==="wrapped"||s==="approved") return "good";
-  if(s==="ended"||s==="cancelled"||s==="canceled"||s==="paused") return "bad";
-  if(s==="pending"||s==="setup"||s==="draft"||s==="matched") return "warn";
-  return "lime";
+  if(s==="active"||s==="live"||s==="wrapped"||s==="approved") return "b-green";
+  if(s==="ended"||s==="cancelled"||s==="canceled"||s==="paused"||s==="rejected"||s==="declined") return "b-gray";
+  if(s==="pending"||s==="setup"||s==="draft"||s==="matched"||s==="wrapping"||s==="submitted") return "b-pink";
+  return "b-gray";
 }
 function statusLabel(s){ return String(s==null?"":s).replace(/_/g," "); }
 
@@ -266,6 +277,7 @@ var VIEWS = ["viewLogin","viewOffline","viewLoading","viewDash"];
 function show(view){
   VIEWS.forEach(function(v){ $(v).classList.toggle("on", v===view); });
   $("btnLogout").style.display = (view==="viewDash") ? "inline-flex" : "none";
+  $("navWho").classList.toggle("on", view==="viewDash");
 }
 function showLogin(errMsg){
   setToken(null);
@@ -335,6 +347,8 @@ $("loginForm").addEventListener("submit", function(e){
 $("btnLogout").addEventListener("click", function(){ showLogin(); });
 
 /* ---------- dashboard ---------- */
+var CURRENT = null;
+
 function loadDash(){
   show("viewLoading");
   api("/sponsor/me", {}, function(err, data){
@@ -343,7 +357,8 @@ function loadDash(){
       showLogin("Couldn't load your dashboard — sign in again.");
       return;
     }
-    renderDash(data || {});
+    CURRENT = data || {};
+    renderDash(CURRENT);
     show("viewDash");
   });
 }
@@ -354,34 +369,94 @@ function renderDash(data){
   var note = data.impressions_note || "";
 
   $("spCompany").textContent = me.company || "Your company";
-  var bits = [];
-  if(me.contact) bits.push(me.contact);
-  if(me.status) bits.push("Account: " + statusLabel(me.status));
-  $("spSub").textContent = bits.join(" · ");
+  $("navTile").textContent = monogram(me.company);
 
-  /* totals across all campaigns */
-  var totMiles = 0, totImp = 0;
-  campaigns.forEach(function(c){
-    (Array.isArray(c.periods)?c.periods:[]).forEach(function(p){
-      var mi = Number(p.miles); if(isFinite(mi)) totMiles += mi;
-      var im = Number(p.est_impressions); if(isFinite(im)) totImp += im;
+  /* totals + per-period aggregation across all campaigns */
+  var totMiles = 0, totImp = 0, activeCars = 0, totalCars = 0;
+  var byPeriod = {};
+  campaigns.forEach(function(entry){
+    (Array.isArray(entry.periods)?entry.periods:[]).forEach(function(p){
+      var mi = Number(p.miles); if(!isFinite(mi)) mi = 0;
+      var im = Number(p.est_impressions); if(!isFinite(im)) im = 0;
+      totMiles += mi; totImp += im;
+      var k = String(p.period||"");
+      if(k) byPeriod[k] = (byPeriod[k]||0) + mi;
+    });
+    (Array.isArray(entry.vehicles)?entry.vehicles:[]).forEach(function(v){
+      totalCars++;
+      var s = String(v.status||"").toLowerCase();
+      if(s==="active"||s==="wrapped") activeCars++;
     });
   });
   $("spTotMiles").textContent = fmtNum(totMiles);
   $("spTotImp").textContent = fmtNum(totImp);
+  $("spActiveCars").textContent = fmtNum(activeCars);
+  $("spCarsSub").textContent = totalCars > activeCars ? fmtNum(totalCars - activeCars) + " more onboarding" : "active or wrapped";
+
+  /* header sub: current month + real fleet size */
+  var nowD = new Date();
+  var monthLabel = nowD.toLocaleDateString(undefined,{year:"numeric",month:"long"});
+  var subBits = [monthLabel];
+  subBits.push(activeCars > 0 ? fmtNum(activeCars) + " active car" + (activeCars===1?"":"s") : "no active cars yet");
+  if(me.contact) subBits.push(me.contact);
+  $("spSub").textContent = subBits.join(" · ");
+  $("spDlBtn").textContent = "Download " + nowD.toLocaleDateString(undefined,{month:"long"}) + " report";
+
+  /* miles delta vs prior period (only when >= 2 periods exist) */
+  var perKeys = Object.keys(byPeriod).sort();
+  var deltaEl = $("spMilesDelta");
+  if(perKeys.length >= 2){
+    var last = byPeriod[perKeys[perKeys.length-1]];
+    var prev = byPeriod[perKeys[perKeys.length-2]];
+    if(prev > 0){
+      var pct = Math.round((last - prev) / prev * 100);
+      deltaEl.textContent = (pct >= 0 ? "+" : "") + pct + "% vs " + fmtPeriod(perKeys[perKeys.length-2]);
+      deltaEl.className = "note " + (pct >= 0 ? "good" : "down");
+    } else {
+      deltaEl.textContent = "verified to date";
+      deltaEl.className = "note";
+    }
+  } else {
+    deltaEl.textContent = "verified to date";
+    deltaEl.className = "note";
+  }
 
   /* impressions note — always shown verbatim near impressions numbers */
   var noteEl = $("spImpNote");
-  if(note){ noteEl.style.display = "block"; noteEl.textContent = note; }
-  else { noteEl.style.display = "none"; }
+  if(note){ noteEl.style.display = "block"; noteEl.textContent = note; $("spImpSub").textContent = "estimate — see note below"; }
+  else { noteEl.style.display = "none"; $("spImpSub").textContent = "estimated, not measured"; }
 
+  /* miles-by-month bars (latest 4 periods, newest first, pink at decreasing opacity) */
+  var bars = $("spBars");
+  bars.innerHTML = "";
+  var recent = perKeys.slice(-4).reverse();
+  if(recent.length){
+    $("spBarsEmpty").style.display = "none";
+    var maxMi = 0;
+    recent.forEach(function(k){ if(byPeriod[k] > maxMi) maxMi = byPeriod[k]; });
+    var opacities = [1, .75, .5, .3];
+    recent.forEach(function(k, i){
+      var mi = byPeriod[k];
+      var pct = maxMi > 0 ? Math.max(2, Math.round(mi / maxMi * 100)) : 2;
+      var row = document.createElement("div");
+      row.className = "bar-row";
+      row.innerHTML =
+        '<div class="bar-top"><span>' + fmtPeriod(k) + '</span><span>' + esc(fmtNum(mi)) + ' mi</span></div>' +
+        '<div class="track"><div class="fillbar" style="width:' + pct + '%;opacity:' + opacities[Math.min(i, opacities.length-1)] + '"></div></div>';
+      bars.appendChild(row);
+    });
+  } else {
+    $("spBarsEmpty").style.display = "block";
+  }
+
+  /* campaign cards */
   var host = $("spCampaigns");
   host.innerHTML = "";
 
   if(!campaigns.length){
     var s = document.createElement("div");
-    s.className = "setup";
-    s.innerHTML = '<div class="big" aria-hidden="true">🛠️</div><h2>Your campaign is being set up</h2><p>Your campaign is being set up — reports appear here the first month it\'s live.</p>';
+    s.className = "card";
+    s.innerHTML = '<span class="card-h">Your campaign is being set up</span><p class="empty" style="margin-top:10px">Reports appear here the first month it\'s live.</p>';
     host.appendChild(s);
     return;
   }
@@ -391,11 +466,11 @@ function renderDash(data){
     var vehicles = Array.isArray(entry.vehicles) ? entry.vehicles : [];
     var periods = Array.isArray(entry.periods) ? entry.periods : [];
     var sec = document.createElement("div");
-    sec.className = "camp";
+    sec.className = "card";
 
     var html = "";
-    html += '<div class="camp-top"><h2>' + esc(c.name || "Campaign") + '</h2>' +
-            '<span class="pill ' + pillClass(c.status) + '">' + esc(statusLabel(c.status) || "—") + '</span></div>';
+    html += '<div class="card-top"><span class="card-h">' + esc(c.name || "Campaign") + '</span>' +
+            '<span class="badge ' + badgeClass(c.status) + '">' + esc(statusLabel(c.status) || "—") + '</span></div>';
     var metaBits = [];
     if(c.zone) metaBits.push('Zone: <b>' + esc(c.zone) + '</b>');
     metaBits.push('Dates: <b>' + fmtDate(c.start_date) + ' → ' + fmtDate(c.end_date) + '</b>');
@@ -406,13 +481,13 @@ function renderDash(data){
     /* fleet table */
     html += '<h3 class="sub-h">Your fleet</h3>';
     if(vehicles.length){
-      html += '<div class="tbl-scroll"><table><thead><tr><th>Vehicle</th><th>Driver</th><th>City</th><th>Status</th><th>Wrapped</th></tr></thead><tbody>';
+      html += '<div class="tbl-scroll"><table><thead><tr><th>Vehicle</th><th>Driver</th><th>Home area</th><th>Status</th><th>Wrapped</th></tr></thead><tbody>';
       vehicles.forEach(function(v){
         html += '<tr>' +
           '<td><b>' + esc(v.vehicle || "—") + '</b></td>' +
           '<td>' + esc(firstName(v.driver)) + '</td>' +
           '<td>' + esc(v.city_zip || "—") + '</td>' +
-          '<td><span class="pill ' + pillClass(v.status) + '">' + esc(statusLabel(v.status) || "—") + '</span></td>' +
+          '<td><span class="badge ' + badgeClass(v.status) + '">' + esc(statusLabel(v.status) || "—") + '</span></td>' +
           '<td>' + (v.wrapped_at ? fmtDate(v.wrapped_at) : "—") + '</td>' +
         '</tr>';
       });
@@ -439,21 +514,6 @@ function renderDash(data){
               '<td class="num"><b>' + esc(fmtNum(cImp)) + '</b><span class="est">est.</span></td></tr>';
       html += '</tbody></table></div>';
       if(note) html += '<p class="hint" style="margin-top:10px">' + esc(note) + '</p>';
-
-      /* pure-CSS bar chart: miles by period */
-      var maxMi = 0;
-      sorted.forEach(function(p){ var mi = Number(p.miles); if(isFinite(mi) && mi > maxMi) maxMi = mi; });
-      html += '<h3 class="sub-h">Verified miles by month</h3><div class="chart">';
-      sorted.forEach(function(p){
-        var mi = Number(p.miles); if(!isFinite(mi)) mi = 0;
-        var pct = maxMi > 0 ? Math.max(2, Math.round(mi / maxMi * 100)) : 2;
-        html += '<div class="chart-row">' +
-          '<span class="lbl">' + fmtPeriod(p.period) + '</span>' +
-          '<span class="track"><span class="bar" style="width:' + pct + '%"></span></span>' +
-          '<span class="val">' + esc(fmtNum(mi)) + ' mi</span>' +
-        '</div>';
-      });
-      html += '</div>';
     } else {
       html += '<p class="empty">No verified miles reported yet — your first monthly report lands after the first full month on the road.</p>';
     }
@@ -462,6 +522,38 @@ function renderDash(data){
     host.appendChild(sec);
   });
 }
+
+/* ---------- CSV report download (client-side, from real payload data) ---------- */
+function csvCell(v){
+  var s = String(v==null?"":v);
+  return '"' + s.replace(/"/g,'""') + '"';
+}
+$("spDlBtn").addEventListener("click", function(){
+  var data = CURRENT || {};
+  var campaigns = Array.isArray(data.campaigns) ? data.campaigns : [];
+  var rows = [["Campaign","Month","Verified miles","Est. impressions"]];
+  campaigns.forEach(function(entry){
+    var name = (entry.campaign && entry.campaign.name) || "Campaign";
+    (Array.isArray(entry.periods)?entry.periods:[]).slice()
+      .sort(function(a,b){ return String(a.period||"").localeCompare(String(b.period||"")); })
+      .forEach(function(p){
+        rows.push([name, p.period, Math.round(Number(p.miles)||0), Math.round(Number(p.est_impressions)||0)]);
+      });
+  });
+  if(data.impressions_note) rows.push(["Note", data.impressions_note, "", ""]);
+  var csv = rows.map(function(r){ return r.map(csvCell).join(","); }).join("\r\n");
+  var nowD = new Date();
+  var ym = nowD.getFullYear() + "-" + String(nowD.getMonth()+1).padStart(2,"0");
+  var blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "wrapmiles-report-" + ym + ".csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+});
 
 /* ---------- boot ---------- */
 if(getToken()) loadDash();
