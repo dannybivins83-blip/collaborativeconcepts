@@ -237,5 +237,62 @@ check("qr endpoint", r.status_code == 200 and r.data[:4] == b"\x89PNG", r.status
 r = client.get("/api/wrapmiles/qr?ref=<script>")
 check("qr rejects junk", r.status_code == 400)
 
+print("== docs checklist ==")
+r = client.patch(f"/api/wrapmiles/admin/drivers/{did}", headers=auth(admin),
+                 json={"docs": {"license_ok": True, "insurance_ok": True,
+                                "mvr_consent": True, "bogus_key": True}})
+check("docs saved", r.status_code == 200)
+r = client.get("/api/wrapmiles/admin/drivers", headers=auth(admin))
+docs = json.loads({d["id"]: d for d in j(r)["drivers"]}[did]["docs"])
+check("docs round-trip", docs["license_ok"] is True and docs["insurance_ok"] is True)
+check("unknown keys dropped", "bogus_key" not in docs)
+check("mvr_pulled defaults false", docs["mvr_pulled"] is False)
+check("doc_keys served", "mvr_consent" in j(r)["doc_keys"])
+
+print("== photos ==")
+import base64 as b64
+tiny_png = b64.b64encode(bytes.fromhex(
+    "89504e470d0a1a0a0000000d494844520000000100000001080600000"
+    "01f15c4890000000d49444154789c62f8cfc0f01f00050001ff5ccc2a"
+    "590000000049454e44ae426082")).decode()
+data_url = "data:image/png;base64," + tiny_png
+r = client.post("/api/wrapmiles/driver/photos", headers=auth(dtok),
+                json={"kind": "odometer", "period": "2026-07", "image": data_url})
+check("photo uploaded", r.status_code == 200, r.data)
+r = client.post("/api/wrapmiles/driver/photos", headers=auth(dtok),
+                json={"kind": "selfie", "image": data_url})
+check("bad kind rejected", r.status_code == 400)
+r = client.post("/api/wrapmiles/driver/photos", headers=auth(dtok),
+                json={"kind": "vehicle", "image": "data:text/html;base64,PGI+"})
+check("non-image rejected", r.status_code == 400)
+r = client.get("/api/wrapmiles/driver/me", headers=auth(dtok))
+photos = j(r)["photos"]
+check("photo listed in driver/me", len(photos) == 1 and photos[0]["kind"] == "odometer")
+pid = photos[0]["id"]
+r = client.get(f"/api/wrapmiles/photos/{pid}", headers=auth(dtok))
+check("owner fetches photo", r.status_code == 200 and r.data[:4] == b"\x89PNG")
+r = client.get(f"/api/wrapmiles/photos/{pid}?t={admin}")
+check("admin fetches via ?t=", r.status_code == 200)
+r = client.get(f"/api/wrapmiles/photos/{pid}")
+check("anon photo denied", r.status_code == 401)
+r = client.post("/api/wrapmiles/login", json={"role": "driver",
+                                              "email": "rita@example.com", "code": "X"})
+r = client.get("/api/wrapmiles/admin/photos?driver_id=" + str(did), headers=auth(admin))
+check("admin photo list", len(j(r)["photos"]) == 1)
+
+print("== gps per-car toggle ==")
+r = client.patch(f"/api/wrapmiles/admin/matches/{mid}", headers=auth(admin),
+                 json={"gps_enabled": True})
+check("gps toggled on", r.status_code == 200, r.data)
+r = client.get("/api/wrapmiles/driver/me", headers=auth(dtok))
+check("driver sees gps flag", j(r)["matches"][0]["gps_enabled"] in (1, True))
+r = client.get("/api/wrapmiles/sponsor/me", headers=auth(stok))
+check("sponsor sees gps flag",
+      j(r)["campaigns"][0]["vehicles"][0]["gps_enabled"] in (1, True))
+r = client.patch(f"/api/wrapmiles/admin/matches/{mid}", headers=auth(admin),
+                 json={"gps_enabled": False})
+r = client.get("/api/wrapmiles/driver/me", headers=auth(dtok))
+check("gps toggled off", j(r)["matches"][0]["gps_enabled"] in (0, False))
+
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)
