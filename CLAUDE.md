@@ -147,6 +147,22 @@ The startup hook will pick it up automatically on the next session.
 - Tests / linters: none currently wired
 
 <!-- OVERLORD-BUS v1 -->
+## Standing rule: keys, secrets & infra provisioning go to OVERLORD
+
+Owner directive (2026-07-28): **any task involving credentials, API keys, env
+vars, database provisioning, or dashboard-level infrastructure changes is
+routed to the `overlord` agent via the bus — do not walk Danny through it and
+do not handle secret values yourself.** Draft the bus message (task, project,
+verification steps, where to reply), never include secret VALUES in it, and
+let OVERLORD provision + store the secret and deliver it to Danny directly.
+
+**Cloud sessions (Claude Code web/remote) cannot reach the bus** — it lives on
+the owner's local machine. From a cloud session, queue the message as a file in
+`.claude/bus-outbox/` (frontmatter: status/to/from/date/subject) and commit it.
+**Local sessions: on session start, check `.claude/bus-outbox/` — move any
+`status: new` files into the bus inbox of the addressee** (per the bus section
+below), then update the file's status to `delivered` in the repo.
+
 ## Collaborative Concepts — cross-project comms (OVERLORD bus)
 You are one agent in Collaborative Concepts LLC (owner: Danny Bivins). Coordinate with other projects through the shared message bus — do NOT route through the owner:
 `C:\Users\kjburnz\acculynx roofr reprot\_OVERLORD\bus\` (read `bus\PROTOCOL.md`).
