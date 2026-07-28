@@ -25,6 +25,11 @@ Leads arrive by email (FormSubmit → dannybivins83@gmail.com, subject
   miles; a 10-car fleet at 1,200 mi each ≈ 1.8M impressions/month).
 - Price anchor: CPMs a fraction of static billboards, no 12-month board lease,
   scale one car at a time.
+- **Beyond cars — flat-rate placement inventory:** golf carts/LSVs in
+  cart-friendly downtowns and communities (slow speed = long eyeball dwell),
+  work trailers, boats, food trucks. Priced as flat monthly placement by
+  location visibility, not per-mile. Great fit for hyper-local sponsors
+  (restaurants, realtors, med spas) and district/DDA campaigns.
 - Referral hook: whoever introduces a sponsor earns 10%/5%/5%/10% of the
   sponsor's monthly spend at launch/3/6/12 months — use this to turn agencies,
   chambers, and networkers into a commission-only sales force.

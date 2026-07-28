@@ -538,6 +538,7 @@ if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.goo
         <div class="check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#d4f462" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b style="color:var(--white)">Valid license, registration &amp; insurance</b> in your name</span></div>
         <div class="check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#d4f462" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b style="color:var(--white)">Clean driving record</b> — you're representing a brand out there</span></div>
         <div class="check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#d4f462" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b style="color:var(--white)">~800+ miles per month</b> — commuters, gig drivers, and sales reps do great</span></div>
+        <div class="check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#d4f462" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b style="color:var(--white)">Not just cars</b> — golf carts, work trailers, boats &amp; food trucks earn a flat monthly placement fee instead of per-mile</span></div>
       </div>
       <div class="form-dark">
         <h3>Apply in 2 minutes — free</h3>
@@ -551,11 +552,15 @@ if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.goo
             <div class="field"><label for="d-email">Email</label><input id="d-email" name="email" type="email" required autocomplete="email"></div>
             <div class="field"><label for="d-zip">City / ZIP</label><input id="d-zip" name="city_zip" required placeholder="e.g. West Palm Beach 33401"></div>
           </div>
+          <div class="field">
+            <label for="d-asset">What are you wrapping?</label>
+            <select id="d-asset" name="asset_type"><option selected>Car / SUV / Truck / Van (paid per mile)</option><option>Golf cart / LSV (flat monthly)</option><option>Box or work trailer (flat monthly)</option><option>Boat (flat monthly)</option><option>Food truck / other (flat monthly)</option></select>
+          </div>
           <div class="grid-2">
             <div class="field"><label for="d-vehicle">Vehicle (year, make, model)</label><input id="d-vehicle" name="vehicle" required placeholder="e.g. 2021 Toyota Camry, white"></div>
             <div class="field">
               <label for="d-miles">Monthly miles</label>
-              <select id="d-miles" name="monthly_miles"><option>Under 800</option><option selected>800–1,500</option><option>1,500–2,500</option><option>2,500+</option></select>
+              <select id="d-miles" name="monthly_miles"><option>Under 800</option><option selected>800–1,500</option><option>1,500–2,500</option><option>2,500+</option><option>N/A — golf cart / trailer / boat</option></select>
             </div>
           </div>
           <div class="grid-2">
@@ -626,6 +631,10 @@ if(CONFIG.GA_ID){var gs=document.createElement('script');gs.src='https://www.goo
       <details>
         <summary>What kinds of cars do brands want?</summary>
         <div class="a">Clean vehicles 2010 or newer, any make. High-mileage commuters on major corridors are gold. Light colors wrap best but any color works. Trucks, SUVs, and vans earn premium rates because of the larger canvas.</div>
+      </details>
+      <details>
+        <summary>Can I wrap something that isn't a car — golf cart, trailer, boat?</summary>
+        <div class="a">Yes. Golf carts and LSVs in cart-friendly downtowns and communities, box/work trailers, boats, and food trucks all take wraps beautifully — they just get paid differently. Since they don't rack up highway miles, sponsors pay a <b>flat monthly placement fee</b> based on where the asset lives and how many people see it (a golf cart cruising a busy downtown or a trailer parked on a visible corner can out-earn a low-mileage car). Pick your asset type on the application and we'll quote it that way.</div>
       </details>
     </div>
   </div>
