@@ -127,6 +127,16 @@
   tr:last-child td{border-bottom:0}
   .empty{color:var(--mut);font-size:14px;padding:6px 0}
 
+  /* photos card */
+  .photo-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .pbtn{border:0;cursor:pointer;font:700 13px 'DM Sans',sans-serif;background:var(--fill);color:var(--ink);padding:10px 15px;border-radius:999px}
+  .pbtn:hover{background:var(--pink-tint);color:var(--pink-deep)}
+  .pbtn[disabled]{opacity:.55;cursor:default}
+  .photo-strip{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:14px;padding-bottom:4px}
+  .photo-strip a{flex:none;width:96px;text-decoration:none}
+  .photo-strip img{width:96px;height:80px;object-fit:cover;border-radius:10px;background:var(--fill);display:block}
+  .photo-strip .cap{display:block;font-size:11px;color:var(--mut);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
   footer{padding:8px 0 34px}
   footer p{font-size:12.5px;color:var(--mut);text-align:center}
 </style>
@@ -258,7 +268,20 @@
             <button class="btn" id="mfBtn" type="submit">Submit mileage</button>
             <div class="msg" id="mfMsg" role="alert"></div>
           </form>
-          <p class="hint" style="margin-top:12px">Snap a photo of your odometer too — text it to Danny until photo upload lands.</p>
+          <p class="hint" style="margin-top:12px">Upload your odometer photo below — no more texting it.</p>
+        </div>
+        <div class="card" id="dvPhotoCard">
+          <span class="card-h">Photos</span>
+          <p class="hint" style="margin-top:8px">Vehicle, odometer and wrap-check photos — snapped right from your phone.</p>
+          <div class="photo-btns">
+            <button type="button" class="pbtn" data-kind="vehicle">Vehicle photo</button>
+            <button type="button" class="pbtn" data-kind="odometer">Odometer photo</button>
+            <button type="button" class="pbtn" data-kind="wrap_condition">Wrap check photo</button>
+          </div>
+          <input type="file" id="phFile" accept="image/*" capture="environment" style="display:none" aria-hidden="true">
+          <div class="msg" id="phMsg" role="alert"></div>
+          <div class="photo-strip" id="phStrip" style="display:none"></div>
+          <p class="empty" id="phEmpty" style="margin-top:12px">No photos yet — start with your odometer.</p>
         </div>
       </div>
     </div>
@@ -548,6 +571,7 @@ function renderDash(data){
       '<div class="refband"><strong>Earn up to $375 per driver you refer</strong> — have them put your name on the application.</div></div>';
   } else {
     matches.forEach(function(mt, idx){
+      var gps = Number(mt.gps_enabled) === 1 || mt.gps_enabled === true;
       var rateHtml;
       if(Number(mt.flat_cents_month) > 0){
         rateHtml = esc(money(mt.flat_cents_month).replace(/\.00$/,"")) + ' flat / month';
@@ -564,6 +588,7 @@ function renderDash(data){
         '<div class="camp-id"><span class="monogram">' + esc(initials(mt.campaign_name)) + '</span>' +
         '<div><div class="nm">' + esc(mt.campaign_name || "Campaign") + '</div>' +
         '<div class="cv">' + esc(statusLabel(mt.coverage) || "—") + (mt.zone ? ' · ' + esc(mt.zone) : '') + '</div></div></div>' +
+        '<div style="margin-top:10px"><span class="badge ' + (gps ? 'b-green' : 'b-gray') + '">' + (gps ? 'GPS-verified miles' : 'Odometer-verified') + '</span></div>' +
         '<div class="kv">' +
           '<span>Rate</span><b>' + rateHtml + '</b>' +
           '<span>Monthly cap</span><b>' + (mt.cap_miles ? esc(fmtNum(mt.cap_miles)) + " mi / mo" : "No cap") + '</b>' +
@@ -621,7 +646,108 @@ function renderDash(data){
     $("dvMileTable").style.display = "none";
     $("dvMileEmpty").style.display = "block";
   }
+
+  /* photos */
+  renderPhotos(Array.isArray(data.photos) ? data.photos : []);
 }
+
+/* ---------- photos ---------- */
+var PHOTO_KIND_LABELS = {vehicle:"Vehicle", odometer:"Odometer", wrap_condition:"Wrap check"};
+function renderPhotos(photos){
+  var strip = $("phStrip");
+  strip.innerHTML = "";
+  if(!photos.length){
+    strip.style.display = "none";
+    $("phEmpty").style.display = "block";
+    return;
+  }
+  strip.style.display = "flex";
+  $("phEmpty").style.display = "none";
+  var t = getToken() || "";
+  photos.forEach(function(p){
+    var url = API + "/photos/" + encodeURIComponent(p.id) + "?t=" + encodeURIComponent(t);
+    var cap = (PHOTO_KIND_LABELS[p.kind] || statusLabel(p.kind)) + (p.period ? " · " + p.period : "");
+    var a = document.createElement("a");
+    a.href = url; a.target = "_blank"; a.rel = "noopener";
+    if(p.note) a.title = p.note;
+    var img = document.createElement("img");
+    img.src = url; img.loading = "lazy"; img.alt = cap;
+    var capEl = document.createElement("span");
+    capEl.className = "cap";
+    capEl.textContent = cap;
+    a.appendChild(img); a.appendChild(capEl);
+    strip.appendChild(a);
+  });
+}
+var photoKind = null;
+function photoBtns(){ return document.querySelectorAll("#dvPhotoCard .pbtn"); }
+Array.prototype.forEach.call(photoBtns(), function(btn){
+  btn.addEventListener("click", function(){
+    photoKind = btn.getAttribute("data-kind");
+    $("phFile").value = "";
+    $("phFile").click();
+  });
+});
+function setPhotoBusy(b){
+  Array.prototype.forEach.call(photoBtns(), function(x){ x.disabled = b; });
+}
+function downscalePhoto(file, cb){
+  var url = URL.createObjectURL(file);
+  var img = new Image();
+  img.onload = function(){
+    try{
+      var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+      var scale = Math.min(1, 1600 / Math.max(w, h, 1));
+      var cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
+      var canvas = document.createElement("canvas");
+      canvas.width = cw; canvas.height = ch;
+      canvas.getContext("2d").drawImage(img, 0, 0, cw, ch);
+      URL.revokeObjectURL(url);
+      cb(null, canvas.toDataURL("image/jpeg", 0.8));
+    }catch(e){
+      URL.revokeObjectURL(url);
+      cb(new Error("Couldn't process that image — try another photo."));
+    }
+  };
+  img.onerror = function(){
+    URL.revokeObjectURL(url);
+    cb(new Error("Couldn't read that image — try another photo."));
+  };
+  img.src = url;
+}
+$("phFile").addEventListener("change", function(){
+  var file = $("phFile").files && $("phFile").files[0];
+  var kind = photoKind;
+  if(!file || !kind) return;
+  var m = $("phMsg");
+  m.className = "msg"; m.textContent = "";
+  setPhotoBusy(true);
+  downscalePhoto(file, function(err, dataUrl){
+    if(err){ setPhotoBusy(false); m.className = "msg err"; m.textContent = err.message; return; }
+    var period = null;
+    if(kind === "odometer" || kind === "wrap_condition"){
+      var n = new Date();
+      period = n.getFullYear() + "-" + String(n.getMonth() + 1).padStart(2, "0");
+    }
+    api("/driver/photos", {method:"POST", body:{kind:kind, period:period, image:dataUrl}}, function(err2){
+      setPhotoBusy(false);
+      if(err2){
+        if(err2.message === "unauthorized" || err2.message === "offline") return;
+        m.className = "msg err";
+        m.textContent = humanErr(err2.message);
+        return;
+      }
+      m.className = "msg ok";
+      m.textContent = "Photo uploaded" + (period ? " for " + period : "") + " — thanks!";
+      api("/driver/me", {}, function(e3, d3){
+        if(!e3 && d3){
+          CURRENT = d3;
+          renderPhotos(Array.isArray(d3.photos) ? d3.photos : []);
+        }
+      });
+    });
+  });
+});
 
 /* ---------- odometer auto-compute ---------- */
 function recompute(){
@@ -672,7 +798,7 @@ $("mileForm").addEventListener("submit", function(e){
     var body = $("dvMileBody");
     body.insertBefore(tr, body.firstChild);
     m.className="msg ok";
-    m.textContent = "Mileage submitted for " + period + " — it'll show as \"Pending review\" below until Danny approves it. Don't forget to text your odometer photo!";
+    m.textContent = "Mileage submitted for " + period + " — it'll show as \"Pending review\" below until Danny approves it. Don't forget to upload your odometer photo below!";
     $("mfOdoStart").value = ""; $("mfOdoEnd").value = ""; $("mfMiles").value = ""; $("mfNote").value = "";
     loadDash();
   });

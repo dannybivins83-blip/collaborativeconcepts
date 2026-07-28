@@ -150,6 +150,12 @@ CREATE TABLE IF NOT EXISTS wm_mileage (
   miles_approved INTEGER NOT NULL DEFAULT 0, reviewed_at BIGINT NOT NULL DEFAULT 0,
   UNIQUE (match_id, period)
 );
+CREATE TABLE IF NOT EXISTS wm_photos (
+  id SERIAL PRIMARY KEY, created_at BIGINT NOT NULL,
+  driver_id INTEGER NOT NULL, kind TEXT NOT NULL DEFAULT 'vehicle',
+  period TEXT NOT NULL DEFAULT '', content_type TEXT NOT NULL DEFAULT 'image/jpeg',
+  note TEXT NOT NULL DEFAULT '', data BYTEA NOT NULL
+);
 """
 
 
@@ -157,6 +163,7 @@ def _schema_sql(sqlite):
     sql = _SCHEMA_PG
     if sqlite:
         sql = sql.replace("SERIAL PRIMARY KEY", "INTEGER PRIMARY KEY AUTOINCREMENT")
+        sql = sql.replace("BYTEA", "BLOB")
     return [s.strip() for s in sql.split(";") if s.strip()]
 
 
@@ -165,7 +172,16 @@ _schema_ready = set()
 # columns added after first release: (table, column, ddl-type-with-default)
 _MIGRATIONS = [
     ("wm_drivers", "ref_code", "TEXT NOT NULL DEFAULT ''"),
+    ("wm_drivers", "docs", "TEXT NOT NULL DEFAULT ''"),  # JSON verification checklist
+    # per-car GPS verification opt-in: flipped on only for cars Danny equips
+    # with a tracker (paid per device) — everything else stays odometer-verified
+    ("wm_matches", "gps_enabled", "INTEGER NOT NULL DEFAULT 0"),
 ]
+
+# admin-set verification checklist keys (docs column). mvr_pulled is the paid
+# step — wired but intentionally left unchecked until Danny opts to pay per pull.
+DOC_KEYS = ["license_ok", "insurance_ok", "vehicle_photos", "odometer_proof",
+            "agreement_signed", "mvr_consent", "mvr_pulled"]
 
 
 def get_db():
@@ -470,7 +486,7 @@ def register_wrapmiles_routes(app):
             return _no_db()
         rows = db.q("SELECT * FROM wm_drivers ORDER BY created_at DESC")
         db.close()
-        return jsonify({"drivers": rows, "statuses": DRIVER_STATUSES})
+        return jsonify({"drivers": rows, "statuses": DRIVER_STATUSES, "doc_keys": DOC_KEYS})
 
     @app.route(P + "/admin/drivers/<int:did>", methods=["PATCH"])
     def wm_admin_driver_patch(did):
@@ -490,6 +506,10 @@ def register_wrapmiles_routes(app):
                     return jsonify({"error": "bad status"}), 400
                 sets.append(f"{field}=%s")
                 vals.append(val)
+        if isinstance(d.get("docs"), dict):
+            docs = {k: bool(d["docs"].get(k)) for k in DOC_KEYS}
+            sets.append("docs=%s")
+            vals.append(json.dumps(docs))
         code = None
         if d.get("reset_code"):
             code = new_code()
@@ -664,12 +684,21 @@ def register_wrapmiles_routes(app):
         if not db:
             return _no_db()
         d = request.get_json(silent=True) or {}
+        if "gps_enabled" in d and "status" not in d:
+            db.q("UPDATE wm_matches SET gps_enabled=%s WHERE id=%s",
+                 [1 if d["gps_enabled"] else 0, mid])
+            db.commit()
+            db.close()
+            return jsonify({"ok": True})
         status = d.get("status")
         if status not in MATCH_STATUSES:
             db.close()
             return jsonify({"error": "bad status"}), 400
         db.q("UPDATE wm_matches SET status=%s, wrapped_at=%s WHERE id=%s",
              [status, _clean(d.get("wrapped_at"), 20), mid])
+        if "gps_enabled" in d:
+            db.q("UPDATE wm_matches SET gps_enabled=%s WHERE id=%s",
+                 [1 if d["gps_enabled"] else 0, mid])
         if status == "active":
             db.q("""UPDATE wm_drivers SET status='active' WHERE id=
                     (SELECT driver_id FROM wm_matches WHERE id=%s)""", [mid])
@@ -780,13 +809,16 @@ def register_wrapmiles_routes(app):
                     "qr_url": f"/api/wrapmiles/qr?ref={code}",
                     "driver_signups": applied, "drivers_active": active,
                     "sponsor_signups": int((ref_sponsors or [{"n": 0}])[0]["n"])}
-        matches = db.q("""SELECT m.id, m.status, m.wrapped_at, c.name AS campaign_name,
+        matches = db.q("""SELECT m.id, m.status, m.wrapped_at, m.gps_enabled,
+                                 c.name AS campaign_name,
                                  c.zone, c.coverage, c.rate_cents_per_mile, c.flat_cents_month,
                                  c.cap_miles, c.start_date, c.end_date, c.status AS campaign_status
                           FROM wm_matches m JOIN wm_campaigns c ON c.id=m.campaign_id
                           WHERE m.driver_id=%s ORDER BY m.created_at DESC""", [t["i"]])
         mileage = db.q("""SELECT g.* FROM wm_mileage g JOIN wm_matches m ON m.id=g.match_id
                           WHERE m.driver_id=%s ORDER BY g.period DESC""", [t["i"]])
+        photos = db.q("""SELECT id, created_at, kind, period, note FROM wm_photos
+                         WHERE driver_id=%s ORDER BY created_at DESC""", [t["i"]])
         db.close()
         earned = 0
         camp_by_match = {m["id"]: m for m in matches}
@@ -794,6 +826,7 @@ def register_wrapmiles_routes(app):
             if g["status"] == "approved" and g["match_id"] in camp_by_match:
                 earned += driver_period_cents(camp_by_match[g["match_id"]], g)
         return jsonify({"me": me, "matches": matches, "mileage": mileage,
+                        "photos": photos,
                         "earned_cents_total": earned, "referral": referral})
 
     @app.route(P + "/driver/mileage", methods=["POST"])
@@ -838,6 +871,94 @@ def register_wrapmiles_routes(app):
         db.close()
         return jsonify({"ok": True})
 
+    # ---------------- photos ----------------
+    # Stored in Postgres (bytea) — no extra provisioning. Client compresses to
+    # ~1600px JPEG before upload; hard caps here keep the DB sane.
+
+    PHOTO_KINDS = ("vehicle", "odometer", "wrap_condition")
+    PHOTO_MAX_BYTES = 3_500_000
+    PHOTO_MAX_PER_DRIVER = 40
+
+    @app.route(P + "/driver/photos", methods=["POST"])
+    def wm_driver_photo_upload():
+        t = require("driver")
+        if not t:
+            return jsonify({"error": "unauthorized"}), 401
+        db = get_db()
+        if not db:
+            return _no_db()
+        d = request.get_json(silent=True) or {}
+        kind = d.get("kind")
+        if kind not in PHOTO_KINDS:
+            db.close()
+            return jsonify({"error": "kind must be one of " + ", ".join(PHOTO_KINDS)}), 400
+        period = _clean(d.get("period"), 7)
+        image = str(d.get("image") or "")
+        m = re.match(r"^data:(image/(?:jpeg|png|webp));base64,(.+)$", image, re.S)
+        if not m:
+            db.close()
+            return jsonify({"error": "image must be a jpeg/png/webp data URL"}), 400
+        try:
+            blob = base64.b64decode(m.group(2), validate=True)
+        except Exception:
+            db.close()
+            return jsonify({"error": "bad base64"}), 400
+        if not blob or len(blob) > PHOTO_MAX_BYTES:
+            db.close()
+            return jsonify({"error": f"image too large (max {PHOTO_MAX_BYTES // 1_000_000}MB after compression)"}), 400
+        n = db.q("SELECT COUNT(*) AS n FROM wm_photos WHERE driver_id=%s", [t["i"]])
+        if int(n[0]["n"]) >= PHOTO_MAX_PER_DRIVER:
+            db.close()
+            return jsonify({"error": "photo limit reached — ask Danny to clear old ones"}), 400
+        db.q("""INSERT INTO wm_photos (created_at,driver_id,kind,period,content_type,note,data)
+                VALUES (%s,%s,%s,%s,%s,%s,%s)""",
+             [now(), t["i"], kind, period, m.group(1), _clean(d.get("note"), 300), blob])
+        db.commit()
+        db.close()
+        return jsonify({"ok": True})
+
+    @app.route(P + "/photos/<int:pid>", methods=["GET"])
+    def wm_photo_get(pid):
+        # <img> tags can't send headers, so accept the token as ?t=
+        t = bearer() or read_token(request.args.get("t", ""))
+        if not t:
+            return jsonify({"error": "unauthorized"}), 401
+        db = get_db()
+        if not db:
+            return _no_db()
+        rows = db.q("SELECT driver_id, content_type, data FROM wm_photos WHERE id=%s", [pid])
+        db.close()
+        if not rows:
+            return jsonify({"error": "not found"}), 404
+        row = rows[0]
+        if t.get("r") != "admin" and not (t.get("r") == "driver" and t.get("i") == row["driver_id"]):
+            return jsonify({"error": "forbidden"}), 403
+        from flask import Response
+        data = row["data"]
+        if isinstance(data, memoryview):
+            data = bytes(data)
+        resp = Response(data, mimetype=row["content_type"])
+        resp.headers["Cache-Control"] = "private, max-age=3600"
+        return resp
+
+    @app.route(P + "/admin/photos", methods=["GET"])
+    def wm_admin_photos():
+        err = _admin_guard()
+        if err:
+            return err
+        db = get_db()
+        if not db:
+            return _no_db()
+        try:
+            did = int(request.args.get("driver_id"))
+        except (TypeError, ValueError):
+            db.close()
+            return jsonify({"error": "driver_id required"}), 400
+        rows = db.q("""SELECT id, created_at, kind, period, note FROM wm_photos
+                       WHERE driver_id=%s ORDER BY created_at DESC""", [did])
+        db.close()
+        return jsonify({"photos": rows})
+
     # ---------------- sponsor ----------------
 
     @app.route(P + "/sponsor/me", methods=["GET"])
@@ -855,7 +976,7 @@ def register_wrapmiles_routes(app):
         camps = db.q("SELECT * FROM wm_campaigns WHERE sponsor_id=%s ORDER BY created_at DESC", [t["i"]])
         out_camps = []
         for c in camps:
-            vehicles = db.q("""SELECT m.id AS match_id, m.status, m.wrapped_at,
+            vehicles = db.q("""SELECT m.id AS match_id, m.status, m.wrapped_at, m.gps_enabled,
                                       d.vehicle, d.city_zip, d.name
                                FROM wm_matches m JOIN wm_drivers d ON d.id=m.driver_id
                                WHERE m.campaign_id=%s""", [c["id"]])

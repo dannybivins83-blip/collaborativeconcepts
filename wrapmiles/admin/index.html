@@ -145,6 +145,14 @@
   .codebox .code{font-weight:800;font-size:26px;letter-spacing:.14em;color:var(--pink-deep);word-break:break-all}
   .codebox p{margin:6px 0 10px;font-size:12.5px;color:var(--mut)}
   .rowact{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .docrow{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13.5px;font-weight:500;color:var(--ink);letter-spacing:0;margin-bottom:0;cursor:pointer;border-bottom:1px solid var(--bg)}
+  .docrow:last-child{border-bottom:0}
+  .docrow input[type=checkbox]{width:16px;height:16px;padding:0;margin:0;flex:none;accent-color:var(--pink)}
+  .docsub{color:var(--mut-2);font-weight:400;font-size:12px}
+  .photogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+  .photocell{display:block;min-width:0}
+  .photocell img{width:100%;height:84px;object-fit:cover;border-radius:10px;background:var(--fill);display:block}
+  .photocell .pcap{display:block;font-size:11px;color:var(--mut-2);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
   /* ---------- campaigns ---------- */
   .camp-card{background:#fff;border-radius:18px;padding:20px;margin-bottom:14px}
@@ -157,6 +165,8 @@
   .matchrow .who{color:var(--ink);font-weight:700;min-width:140px}
   .matchrow .veh{color:var(--mut-2);font-size:12.5px}
   .matchrow select{width:auto;padding:6px 28px 6px 10px;font-size:12.5px}
+  .gpslbl{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--mut);margin:0;cursor:pointer;white-space:nowrap;letter-spacing:0}
+  .gpslbl input[type=checkbox]{width:14px;height:14px;padding:0;margin:0;flex:none;accent-color:var(--pink)}
   .inline-add{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
   .inline-add select{flex:1;min-width:200px;width:auto}
   .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px 14px}
@@ -287,7 +297,7 @@ const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 
 const S = {           // client state
   tab: "overview",
-  drivers: null, driverStatuses: [],
+  drivers: null, driverStatuses: [], docKeys: null,
   sponsors: null, sponsorStatuses: [],
   campaigns: null, campStatuses: [], matchStatuses: [],
   mileage: null,
@@ -492,6 +502,7 @@ async function loadOverview(){
 
   // cache for the other tabs
   S.drivers = dd.drivers || []; S.driverStatuses = dd.statuses || S.driverStatuses;
+  S.docKeys = dd.doc_keys || S.docKeys;
   S.mileage = mm.mileage || [];
   S.campaigns = cc.campaigns || []; S.campStatuses = cc.statuses || S.campStatuses;
   S.matchStatuses = cc.match_statuses || S.matchStatuses;
@@ -660,6 +671,7 @@ async function loadDrivers(){
   catch(e){ if(e.message!=="Unauthorized") setError("drivers", e, "loadDrivers"); return; }
   S.drivers = d.drivers || [];
   S.driverStatuses = d.statuses || [];
+  S.docKeys = d.doc_keys || S.docKeys;
   renderDrivers();
 }
 function renderDrivers(){
@@ -694,9 +706,55 @@ function keepSearchFocus(id){
   if(el){ el.focus(); const n = el.value.length; el.setSelectionRange(n,n); }
 }
 
+const DOC_KEYS_DEFAULT = ["license_ok","insurance_ok","vehicle_photos","odometer_proof","agreement_signed","mvr_consent","mvr_pulled"];
+const DOC_LABELS = {
+  license_ok: "License valid",
+  insurance_ok: "Insurance in own name",
+  vehicle_photos: "Vehicle photos received",
+  odometer_proof: "Odometer proof",
+  agreement_signed: "Driver agreement signed",
+  mvr_consent: "MVR consent signed",
+  mvr_pulled: "MVR pulled"
+};
+const PHOTO_KIND_LABELS = { vehicle:"Vehicle", odometer:"Odometer", wrap_condition:"Wrap check" };
+function parseDocs(raw, keys){
+  let obj = {};
+  if(raw && typeof raw === "object") obj = raw;
+  else if(raw){ try{ obj = JSON.parse(raw) || {}; }catch(e){ obj = {}; } }
+  const out = {};
+  keys.forEach(k => { out[k] = obj[k] === true; });
+  return out;
+}
+async function loadDriverPhotos(driverId, dw){
+  const box = $("#drPhotos", dw);
+  if(!box) return;
+  try{
+    const res = await api("/admin/photos?driver_id="+encodeURIComponent(driverId));
+    const photos = (res && res.photos) || [];
+    if(!box.isConnected) return;
+    if(!photos.length){
+      box.innerHTML = '<div class="empty" style="padding:8px 0;text-align:left">No photos yet — driver uploads from their portal.</div>';
+      return;
+    }
+    const token = localStorage.getItem(TOKEN_KEY) || "";
+    box.innerHTML = '<div class="photogrid">'+photos.map(p=>{
+      const url = API + "/photos/" + encodeURIComponent(p.id) + "?t=" + encodeURIComponent(token);
+      const cap = (PHOTO_KIND_LABELS[p.kind] || labelize(p.kind)) + (p.period ? " · " + p.period : "");
+      return '<a class="photocell" href="'+esc(url)+'" target="_blank" rel="noopener" title="'+esc(p.note || cap)+'">'+
+        '<img src="'+esc(url)+'" alt="'+esc(cap)+'" loading="lazy">'+
+        '<span class="pcap">'+esc(cap)+'</span></a>';
+    }).join("")+'</div>';
+  }catch(e){
+    if(e.message!=="Unauthorized" && box.isConnected)
+      box.innerHTML = '<div class="empty" style="padding:8px 0;text-align:left">'+esc(e.message)+'</div>';
+  }
+}
+
 function openDriver(id){
   const dr = (S.drivers||[]).find(x => String(x.id) === String(id));
   if(!dr) return;
+  const docKeys = (Array.isArray(S.docKeys) && S.docKeys.length) ? S.docKeys : DOC_KEYS_DEFAULT;
+  const docs = parseDocs(dr.docs, docKeys);
   const body =
     '<div class="drawer-head"><h3>'+esc(dr.name||"Driver")+'</h3><button class="drawer-close" data-close>&times;</button></div>'+
     '<div class="meta">Applied '+fmtDate(dr.created_at)+' · ID '+esc(dr.id)+'</div>'+
@@ -718,7 +776,18 @@ function openDriver(id){
       '<dt>Referred by</dt><dd>'+esc(dr.referred_by||"—")+'</dd>'+
       '<dt>Access code</dt><dd>'+esc(dr.access_code||"none yet")+'</dd>'+
     '</dl>'+
-    '<div class="field"><label>Status</label>'+
+    '<div class="sechead" style="margin-top:20px">Verification checklist</div>'+
+    '<div id="drDocs">'+
+      docKeys.map(k =>
+        '<label class="docrow"><input type="checkbox" class="docChk" data-key="'+esc(k)+'"'+(docs[k]?" checked":"")+'>'+
+        '<span>'+esc(DOC_LABELS[k]||labelize(k))+
+        (k==="mvr_pulled"?' <span class="docsub">(paid record pull — on hold for now)</span>':'')+
+        '</span></label>').join("")+
+    '</div>'+
+    '<div class="qcap" id="drDocsProg" style="margin-top:6px"></div>'+
+    '<div class="sechead">Photos</div>'+
+    '<div id="drPhotos"><div class="empty" style="padding:8px 0;text-align:left">Loading photos…</div></div>'+
+    '<div class="field" style="margin-top:20px"><label>Status</label>'+
       '<select id="drStatus">'+optionList(S.driverStatuses, dr.status)+'</select></div>'+
     '<div class="field"><label>Score</label>'+
       '<select id="drScore"><option value=""'+(!dr.score?" selected":"")+'>— unscored</option>'+
@@ -733,6 +802,28 @@ function openDriver(id){
     '<div id="drCodeOut"></div>';
   const dw = openDrawer(body);
   $("#drNotes", dw).value = dr.notes || "";
+  const updDocProg = ()=>{
+    const n = $$(".docChk", dw).filter(c=>c.checked).length;
+    $("#drDocsProg", dw).textContent = n + "/" + docKeys.length + " verified";
+  };
+  updDocProg();
+  $$(".docChk", dw).forEach(chk => chk.addEventListener("change", async ()=>{
+    const map = {};
+    $$(".docChk", dw).forEach(c => { map[c.dataset.key] = !!c.checked; });
+    const prev = !chk.checked;
+    chk.disabled = true;
+    try{
+      await api("/admin/drivers/"+encodeURIComponent(dr.id), { method:"PATCH", body:{ docs: map } });
+      dr.docs = JSON.stringify(map);
+      updDocProg();
+      toast("Checklist saved","ok");
+    }catch(e){
+      chk.checked = prev;
+      updDocProg();
+      if(e.message!=="Unauthorized") toast(e.message,"err");
+    }finally{ chk.disabled = false; }
+  }));
+  loadDriverPhotos(dr.id, dw);
   $("#drSave", dw).addEventListener("click", async (ev)=>{
     const btn = ev.target; btn.disabled = true;
     try{
@@ -938,7 +1029,9 @@ function campCard(c, driverOpts){
       '<div class="matchrow" data-mid="'+esc(m.id)+'">'+
         '<span class="who">'+esc(m.driver_name||"Driver #"+m.driver_id)+'</span>'+
         '<span class="veh">'+esc(m.driver_vehicle||"")+(m.wrapped_at?' · wrapped '+esc(m.wrapped_at):'')+'</span>'+
-        '<select class="matchStatus" style="margin-left:auto">'+optionList(S.matchStatuses, m.status)+'</select>'+
+        '<label class="gpslbl" style="margin-left:auto" title="GPS-verified miles — device installed in this car; unchecked = odometer-verified">'+
+          '<input type="checkbox" class="matchGps"'+(Number(m.gps_enabled)?" checked":"")+'>GPS</label>'+
+        '<select class="matchStatus">'+optionList(S.matchStatuses, m.status)+'</select>'+
       '</div>').join(""))+
     '<div class="inline-add">'+
       '<select class="matchDriverSel"><option value="">+ Match driver…</option>'+
@@ -968,6 +1061,21 @@ function wireCampaignEvents(root){
       await api("/admin/matches/"+encodeURIComponent(mid), { method:"PATCH", body });
       toast("Match updated","ok");
     }catch(e){ if(e.message!=="Unauthorized") toast(e.message,"err"); }
+  }));
+  $$(".matchGps", root).forEach(chk => chk.addEventListener("change", async ev=>{
+    const mid = ev.target.closest(".matchrow").dataset.mid;
+    const on = ev.target.checked;
+    ev.target.disabled = true;
+    try{
+      await api("/admin/matches/"+encodeURIComponent(mid), { method:"PATCH", body:{ gps_enabled: on } });
+      (S.campaigns||[]).forEach(c => (c.matches||[]).forEach(m => {
+        if(String(m.id) === String(mid)) m.gps_enabled = on ? 1 : 0;
+      }));
+      toast(on ? "GPS-verified miles on" : "Back to odometer-verified","ok");
+    }catch(e){
+      ev.target.checked = !on;
+      if(e.message!=="Unauthorized") toast(e.message,"err");
+    }finally{ ev.target.disabled = false; }
   }));
   $$(".matchAddBtn", root).forEach(btn => btn.addEventListener("click", async ev=>{
     const card = ev.target.closest(".camp-card");
