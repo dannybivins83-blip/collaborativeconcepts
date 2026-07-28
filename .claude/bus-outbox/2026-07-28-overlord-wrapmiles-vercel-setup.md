@@ -1,5 +1,5 @@
 ---
-status: new
+status: done (overlord 2026-07-28)
 to: overlord
 from: collaborativeconcepts
 date: 2026-07-28
