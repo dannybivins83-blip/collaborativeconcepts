@@ -190,7 +190,29 @@
       <div class="stat"><div class="lbl">Total earned</div><b id="dvEarned">$0.00</b><div class="note">approved payouts to date</div></div>
       <div class="stat"><div class="lbl">Miles approved</div><b id="dvMiles">0</b><div class="note">since campaign start</div></div>
       <div class="stat"><div class="lbl">This month (est.)</div><b class="pink" id="dvMonthEst">$0.00</b><div class="note" id="dvMonthEstSub">no miles submitted yet</div></div>
-      <div class="stat"><div class="lbl">Referral earnings</div><b>$0</b><div class="note">referrals tracked by Danny for now</div></div>
+      <div class="stat"><div class="lbl">Your referrals</div><b id="dvRefCount">0</b><div class="note" id="dvRefNote">share your link below</div></div>
+    </div>
+
+    <div class="card" id="dvRefCard" style="display:none;margin-bottom:22px;background:var(--tint,#fdeef5)">
+      <span class="card-h">Share your link — earn up to $375 per driver</span>
+      <p style="font:400 14px/1.5 'DM Sans',sans-serif;color:var(--mut);margin:8px 0 14px">
+        $50 when they get wrapped, then $75 / $100 / $150 as they stay active at 3, 6 &amp; 12 months.
+        Anyone who applies through your link is credited to you automatically. Sponsor referrals pay a % of their spend.
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <input id="refLink" readonly style="flex:1;min-width:220px;padding:13px 14px;border-radius:12px;border:1px solid var(--border,#e9e5ec);background:#fff;font:500 14px 'DM Sans',sans-serif;color:var(--ink)" value="">
+        <button class="btn" id="refCopy" type="button" style="width:auto;padding:13px 22px">Copy</button>
+        <button class="btn" id="refShare" type="button" style="width:auto;padding:13px 22px;background:var(--ink)">Share</button>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center">
+        <a id="refWa" target="_blank" rel="noopener" style="font:700 14px 'DM Sans',sans-serif;color:var(--pink);text-decoration:none">WhatsApp →</a>
+        <a id="refSms" style="font:700 14px 'DM Sans',sans-serif;color:var(--pink);text-decoration:none">Text it →</a>
+        <a id="refQrToggle" style="font:700 14px 'DM Sans',sans-serif;color:var(--pink);text-decoration:none;cursor:pointer">QR code →</a>
+      </div>
+      <div id="refQrBox" style="display:none;margin-top:14px">
+        <img id="refQrImg" alt="QR code for your referral link" width="180" height="180" style="border-radius:12px;background:#fff;padding:8px">
+        <p style="font:400 12.5px 'DM Sans',sans-serif;color:var(--mut);margin-top:6px">Screenshot it, print it, stick it on your window — every scan is credited to you.</p>
+      </div>
     </div>
 
     <div class="cols">
@@ -434,6 +456,35 @@ function renderDash(data){
   $("dvSub").textContent = subBits.join(" · ");
 
   $("dvEarned").textContent = money(data.earned_cents_total);
+
+  // referral share card
+  var ref = data.referral;
+  if(ref && ref.link){
+    $("dvRefCard").style.display = "";
+    $("refLink").value = ref.link;
+    var total = (ref.driver_signups||0) + (ref.sponsor_signups||0);
+    $("dvRefCount").textContent = fmtNum(total);
+    $("dvRefNote").textContent = (ref.drivers_active||0) + " active driver" + (ref.drivers_active===1?"":"s") +
+      (ref.sponsor_signups ? " · " + ref.sponsor_signups + " sponsor lead" + (ref.sponsor_signups===1?"":"s") : "");
+    var shareText = "Brands pay you per mile to carry a wrap on your car — free install, removable, protects your paint. I'm in. Apply with my link: " + ref.link;
+    $("refWa").href = "https://wa.me/?text=" + encodeURIComponent(shareText);
+    $("refSms").href = "sms:?&body=" + encodeURIComponent(shareText);
+    $("refCopy").onclick = function(){
+      navigator.clipboard.writeText(ref.link).then(function(){
+        $("refCopy").textContent = "Copied!";
+        setTimeout(function(){ $("refCopy").textContent = "Copy"; }, 1600);
+      });
+    };
+    $("refShare").onclick = function(){
+      if(navigator.share){ navigator.share({title:"WrapMiles", text:shareText, url:ref.link}).catch(function(){}); }
+      else { $("refCopy").onclick(); }
+    };
+    $("refQrToggle").onclick = function(){
+      var box = $("refQrBox");
+      if(box.style.display === "none"){ $("refQrImg").src = ref.qr_url; box.style.display = ""; }
+      else { box.style.display = "none"; }
+    };
+  }
   var milesApproved = mileage.reduce(function(sum,r){
     var v = (r.miles_approved!=null && r.miles_approved!=="") ? Number(r.miles_approved)
           : (String(r.status).toLowerCase()==="approved" ? Number(r.miles) : 0);

@@ -128,7 +128,11 @@ The startup hook will pick it up automatically on the next session.
   cents; payouts = approved in-cap miles × rate + flat monthly (non-car assets
   like golf carts are flat-rate). Impressions are always labeled estimates
   (50/verified mile). Landing forms dual-write: FormSubmit email + best-effort
-  POST to the API. Offline tests: `python3 _wrapmiles_tests.py` (47, sqlite).
+  POST to the API. **Referral links:** every driver auto-gets a shareable
+  `ref_code` (NAME-XXXX); `/wrapmiles?ref=CODE` persists to localStorage and
+  prefills `referred_by` on both forms; driver portal has a share card
+  (copy/native share/WhatsApp/SMS/QR via `/api/wrapmiles/qr?ref=`) with live
+  signup counts. Offline tests: `python3 _wrapmiles_tests.py` (61, sqlite).
   Contracts (attorney-review drafts) in `wrapmiles/legal/`; outreach copy in
   `wrapmiles/outreach/`; scout skills in `.claude/skills/wrapmiles-*`.
 

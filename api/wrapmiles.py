@@ -162,6 +162,11 @@ def _schema_sql(sqlite):
 
 _schema_ready = set()
 
+# columns added after first release: (table, column, ddl-type-with-default)
+_MIGRATIONS = [
+    ("wm_drivers", "ref_code", "TEXT NOT NULL DEFAULT ''"),
+]
+
 
 def get_db():
     """Open a DB for this request, creating the schema once per process."""
@@ -172,6 +177,14 @@ def get_db():
     if url not in _schema_ready:
         for stmt in _schema_sql(db.sqlite):
             db.q(stmt)
+        for table, col, ddl in _MIGRATIONS:
+            try:
+                if db.sqlite:
+                    db.q(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}")
+                else:
+                    db.q(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {col} {ddl}")
+            except Exception:
+                pass  # column already exists (sqlite has no IF NOT EXISTS)
         db.commit()
         _schema_ready.add(url)
     return db
@@ -238,6 +251,31 @@ def new_code():
     return "".join(secrets.choice(alphabet) for _ in range(8))
 
 
+SITE_BASE = os.environ.get("WRAPMILES_SITE_BASE", "https://collaborativeconceptsfl.com")
+
+
+def new_ref_code(name):
+    """Short, shareable, non-secret: first name + 4 chars (e.g. PETE-7K2M)."""
+    first = re.sub(r"[^A-Za-z]", "", (name or "").split(" ")[0]).upper()[:6] or "DRIVE"
+    alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+    return first + "-" + "".join(secrets.choice(alphabet) for _ in range(4))
+
+
+def ref_link(code):
+    return f"{SITE_BASE}/wrapmiles?ref={code}"
+
+
+def ensure_ref_code(db, driver_row):
+    """Backfill a ref_code for drivers created before the referral feature."""
+    if driver_row.get("ref_code"):
+        return driver_row["ref_code"]
+    code = new_ref_code(driver_row.get("name"))
+    db.q("UPDATE wm_drivers SET ref_code=%s WHERE id=%s", [code, driver_row["id"]])
+    db.commit()
+    driver_row["ref_code"] = code
+    return code
+
+
 def _clean(v, limit=500):
     return re.sub(r"\s+", " ", str(v or "")).strip()[:limit]
 
@@ -276,6 +314,26 @@ def register_wrapmiles_routes(app):
     def wm_status():
         return jsonify({"db": bool(_db_url()), "admin_key_set": bool(_admin_key())})
 
+    @app.route(P + "/qr", methods=["GET"])
+    def wm_qr():
+        """PNG QR of a referral link. Only encodes our own /wrapmiles?ref= URL."""
+        code = _clean(request.args.get("ref"), 16).upper()
+        if not re.match(r"^[A-Z0-9-]{3,16}$", code):
+            return jsonify({"error": "bad ref code"}), 400
+        try:
+            import io
+            import qrcode
+            img = qrcode.make(ref_link(code), box_size=8, border=2)
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            buf.seek(0)
+            from flask import send_file
+            resp = send_file(buf, mimetype="image/png")
+            resp.headers["Cache-Control"] = "public, max-age=86400"
+            return resp
+        except Exception:
+            return jsonify({"error": "qr unavailable"}), 500
+
     @app.route(P + "/apply", methods=["POST"])
     def wm_apply():
         db = get_db()
@@ -297,11 +355,12 @@ def register_wrapmiles_routes(app):
         try:
             db.q("""INSERT INTO wm_drivers
                     (created_at,name,phone,email,city_zip,asset_type,vehicle,monthly_miles,
-                     routes,parking,coverage,referred_by)
-                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                     routes,parking,coverage,referred_by,ref_code)
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
                  [row["created_at"], row["name"], row["phone"], row["email"], row["city_zip"],
                   row["asset_type"], row["vehicle"], row["monthly_miles"], row["routes"],
-                  row["parking"], row["coverage"], row["referred_by"]])
+                  row["parking"], row["coverage"], row["referred_by"],
+                  new_ref_code(row["name"])])
             db.commit()
         except Exception:
             # duplicate email → update the fresh details, keep pipeline status
@@ -709,6 +768,18 @@ def register_wrapmiles_routes(app):
         me = me[0]
         me.pop("access_code", None)
         me.pop("notes", None)
+        code = ensure_ref_code(db, me)
+        ref_rows = db.q("""SELECT status, COUNT(*) AS n FROM wm_drivers
+                           WHERE UPPER(referred_by)=UPPER(%s) AND id!=%s GROUP BY status""",
+                        [code, me["id"]])
+        ref_sponsors = db.q("SELECT COUNT(*) AS n FROM wm_sponsors WHERE UPPER(referred_by)=UPPER(%s)",
+                            [code])
+        applied = sum(int(r["n"]) for r in ref_rows)
+        active = sum(int(r["n"]) for r in ref_rows if r["status"] in ("wrapped", "matched", "active"))
+        referral = {"code": code, "link": ref_link(code),
+                    "qr_url": f"/api/wrapmiles/qr?ref={code}",
+                    "driver_signups": applied, "drivers_active": active,
+                    "sponsor_signups": int((ref_sponsors or [{"n": 0}])[0]["n"])}
         matches = db.q("""SELECT m.id, m.status, m.wrapped_at, c.name AS campaign_name,
                                  c.zone, c.coverage, c.rate_cents_per_mile, c.flat_cents_month,
                                  c.cap_miles, c.start_date, c.end_date, c.status AS campaign_status
@@ -723,7 +794,7 @@ def register_wrapmiles_routes(app):
             if g["status"] == "approved" and g["match_id"] in camp_by_match:
                 earned += driver_period_cents(camp_by_match[g["match_id"]], g)
         return jsonify({"me": me, "matches": matches, "mileage": mileage,
-                        "earned_cents_total": earned})
+                        "earned_cents_total": earned, "referral": referral})
 
     @app.route(P + "/driver/mileage", methods=["POST"])
     def wm_driver_mileage():

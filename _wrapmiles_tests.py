@@ -202,5 +202,40 @@ check("impressions labeled estimate", "ESTIMATE" in sp["impressions_note"].upper
 r = client.get("/api/wrapmiles/sponsor/me", headers=auth(dtok))
 check("driver token not sponsor 401", r.status_code == 401)
 
+print("== referral links ==")
+r = client.get("/api/wrapmiles/driver/me", headers=auth(dtok))
+ref = j(r).get("referral") or {}
+check("ref code generated", bool(ref.get("code")) and ref["code"].startswith("POOL"),
+      ref.get("code"))
+check("ref link built", ref.get("link", "").endswith("/wrapmiles?ref=" + ref.get("code", "")))
+check("qr url present", ref.get("qr_url", "").startswith("/api/wrapmiles/qr"))
+check("zero referrals initially", ref["driver_signups"] == 0 and ref["sponsor_signups"] == 0)
+
+r = client.post("/api/wrapmiles/apply", json={
+    "name": "Referred Rita", "email": "rita@example.com", "vehicle": "2021 Kia Soul",
+    "referred_by": ref["code"].lower()})   # case-insensitive credit
+check("referred driver applies", r.status_code == 200)
+r = client.post("/api/wrapmiles/inquiry", json={
+    "company": "Rita's Gym", "email": "gym@example.com", "referred_by": ref["code"]})
+check("referred sponsor applies", r.status_code == 200)
+
+r = client.get("/api/wrapmiles/driver/me", headers=auth(dtok))
+ref2 = j(r)["referral"]
+check("driver signup credited", ref2["driver_signups"] == 1, ref2)
+check("sponsor signup credited", ref2["sponsor_signups"] == 1, ref2)
+check("not active yet", ref2["drivers_active"] == 0)
+
+r = client.get("/api/wrapmiles/admin/drivers", headers=auth(admin))
+rows = {d["email"]: d for d in j(r)["drivers"]}
+check("admin sees ref codes", bool(rows["pete@example.com"]["ref_code"]))
+check("admin sees who referred rita",
+      rows["rita@example.com"]["referred_by"].upper() == ref["code"])
+check("new applicant gets own code", bool(rows["rita@example.com"]["ref_code"]))
+
+r = client.get("/api/wrapmiles/qr?ref=" + ref["code"])
+check("qr endpoint", r.status_code == 200 and r.data[:4] == b"\x89PNG", r.status_code)
+r = client.get("/api/wrapmiles/qr?ref=<script>")
+check("qr rejects junk", r.status_code == 400)
+
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)
