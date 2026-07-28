@@ -116,6 +116,22 @@ The startup hook will pick it up automatically on the next session.
   network mocked. **Known broken (pre-existing):** `broward_uninc` 404s on a
   moved ArcGIS Hub dataset and `martin` parses no rows — both return 0.
 
+- **WrapMiles** at `/wrapmiles/` — car-wrap sponsorship marketplace (pay-per-mile
+  mobile OOH). Landing page + three portals: `/wrapmiles/admin/` (matchmaking
+  desk), `/wrapmiles/driver/`, `/wrapmiles/sponsor/`. API in `api/wrapmiles.py`
+  (`/api/wrapmiles/*`), registered from `api/index.py` like permits. Storage is
+  Postgres via `WRAPMILES_DB_URL`/`POSTGRES_URL`/`DATABASE_URL` (Neon through
+  Vercel Storage); until attached, the API returns `db_not_configured` and the
+  portals show a setup screen — nothing crashes. Admin auth =
+  `WRAPMILES_ADMIN_KEY` env var; drivers/sponsors log in with email + an access
+  code generated in the admin panel (no email infra needed). Money = integer
+  cents; payouts = approved in-cap miles × rate + flat monthly (non-car assets
+  like golf carts are flat-rate). Impressions are always labeled estimates
+  (50/verified mile). Landing forms dual-write: FormSubmit email + best-effort
+  POST to the API. Offline tests: `python3 _wrapmiles_tests.py` (47, sqlite).
+  Contracts (attorney-review drafts) in `wrapmiles/legal/`; outreach copy in
+  `wrapmiles/outreach/`; scout skills in `.claude/skills/wrapmiles-*`.
+
 ## Local tooling
 
 - Python: 3.11+, deps in `requirements.txt`

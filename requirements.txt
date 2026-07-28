@@ -6,3 +6,4 @@ reportlab==4.4.10
 pillow==12.2.0
 qrcode[pil]==7.4.2
 openpyxl==3.1.5
+pg8000==1.31.2
