@@ -53,6 +53,15 @@ Leads arrive by email (FormSubmit → dannybivins83@gmail.com, subject
 - **Tier 3 — opportunistic:** long-haul I-95 commuters, FAU/PBSC/FIU commuter
   students, Turo hosts (one host = 3–5 cars in one conversation).
 
+**Non-car assets (flat monthly placement, not per-mile):** golf carts / LSVs
+(gold in cart-friendly downtowns — Delray's Atlantic Ave area, beach towns,
+55+ cart communities), box/work trailers, boats (Danny's wake-charter clients),
+food trucks. Value driver is *where the asset lives and dwells*, not miles —
+quote flat monthly by location visibility. Source at golf-cart dealers/rental
+shops, marinas, food-truck rallies. Note: some municipalities restrict parked
+advertising trailers — placement must be incidental to real use, not a parked
+billboard.
+
 **Rideshare policy note (Uber/Lyft):** their guidelines restrict exterior
 commercial branding; enforcement is rare and the industry openly recruits
 rideshare drivers anyway, but the risk is the driver's. Never market WrapMiles
