@@ -2295,6 +2295,40 @@ def register_permits_routes(app):
     def permits_search():
         return jsonify(run_search(request.args))
 
+    @app.route("/api/permits/match", methods=["POST"])
+    def permits_match():
+        """Cross-reference a pasted address list against tagged permits.
+        Body: {addresses:[{name,address,status}] OR text:"line\\nline", tag,
+        years, county}. Returns per-input match + a summary."""
+        try:
+            from match import match_list, parse_pasted
+        except ImportError:
+            from api.match import match_list, parse_pasted
+        body = request.get_json(force=True, silent=True) or {}
+        items = body.get("addresses")
+        if not items and body.get("text"):
+            items = parse_pasted(body.get("text"))
+        items = items or []
+        if not items:
+            return jsonify({"ok": False, "error": "no addresses provided"}), 400
+        tag = (body.get("tag") or "solar").strip()
+        years = str(body.get("years") or 5)
+        county = body.get("county") or ""   # blank = all four
+        # Pull the tagged permits from the live engine (wide window).
+        data = run_search({"tags": tag, "years": years, "limit": "5000",
+                           "county": county})
+        results = match_list(items, data.get("permits") or [])
+        matched = [r for r in results if r["matched"]]
+        return jsonify({
+            "ok": True,
+            "tag": tag, "window": data["params"].get("window"),
+            "demo": data.get("demo", False),
+            "permits_searched": len(data.get("permits") or []),
+            "counts": {"input": len(results), "matched": len(matched),
+                       "unmatched": len(results) - len(matched)},
+            "results": results,
+        })
+
     @app.route("/api/permits/tags", methods=["GET"])
     def permits_tags():
         return jsonify({"ok": True, "tags": [

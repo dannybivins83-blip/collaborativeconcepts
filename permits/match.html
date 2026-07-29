@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
+<title>Address Matcher — SoFlo Permit Leads</title>
+<style>
+  :root{--navy:#0B2340;--steel:#3E6B9E;--gold:#C8A24A;--ink:#13283f;--muted:#5b7088;
+        --line:#e2e8f0;--bg:#f4f6f9;--ok:#1d8a4e;--ok-bg:#e7f5ec;--bad:#c0392b;--bad-bg:#fdeceb}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+  header{background:linear-gradient(120deg,var(--navy),#143a63);color:#fff;padding:16px 28px;
+         border-bottom:3px solid var(--gold)}
+  header .mark{font-weight:800;font-size:21px}
+  header .mark span{color:var(--gold)}
+  header .tag{color:#c7d6ea;font-size:13px;margin-top:3px}
+  .wrap{max-width:1120px;margin:0 auto;padding:22px 28px 80px}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+  label{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
+  textarea{width:100%;min-height:180px;margin-top:8px;padding:11px;border:1px solid var(--line);
+           border-radius:8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;resize:vertical}
+  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:12px}
+  select,input{padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px}
+  button{padding:9px 18px;border:0;border-radius:8px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff}
+  button.gold{background:var(--gold);color:var(--navy)}
+  button:disabled{opacity:.55;cursor:wait}
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 16px;min-width:120px}
+  .stat .n{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
+  .stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .stat.hit .n{color:var(--ok)}
+  table{width:100%;border-collapse:collapse;background:#fff;font-size:13.5px}
+  th{position:sticky;top:0;background:var(--navy);color:#fff;text-align:left;padding:9px 11px;
+     font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  td{padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  .pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
+  .p-hit{background:var(--ok-bg);color:var(--ok)}
+  .p-no{background:#eef1f5;color:var(--muted)}
+  .p-flag{background:var(--bad-bg);color:var(--bad)}
+  .mini{font-size:12px;color:var(--muted)}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+  .banner{border-radius:10px;padding:11px 16px;margin-bottom:14px;font-size:13.5px;
+          background:#fff8e6;border:1px solid #f0dca0;color:#7a5b12;display:none}
+  .err{background:var(--bad-bg);border:1px solid #f2c4c0;color:#7c2d26}
+  a.permit{color:var(--steel);text-decoration:none;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <div class="mark">SoFlo <span>Permit Leads</span> · Address Matcher</div>
+  <div class="tag">Paste a list of addresses — see which ones have a permit on record (default: solar).</div>
+</header>
+
+<div class="wrap">
+  <div class="panel">
+    <label for="list">Addresses — one per line (optionally "Name | address")</label>
+    <textarea id="list" placeholder="Juan Vernal | 810 North A Street, Lake Worth Beach FL 33460
+5151 Brian Boulevard, Boynton Beach FL 33472
+..."></textarea>
+    <div class="row">
+      <span><label style="display:block">Tag</label>
+        <select id="tag">
+          <option value="solar">Solar</option>
+          <option value="roofing">Roofing</option>
+          <option value="reroof">Re-Roof</option>
+          <option value="pool_spa">Pool / Spa</option>
+          <option value="">Any permit</option>
+        </select></span>
+      <span><label style="display:block">Look back</label>
+        <select id="years"><option value="2">2 years</option><option value="3">3 years</option>
+          <option value="5" selected>5 years</option><option value="10">10 years</option></select></span>
+      <button id="run" class="gold">Match against permits</button>
+      <span id="status" class="mini"></span>
+    </div>
+  </div>
+
+  <div id="coverageBanner" class="banner">
+    <strong>Coverage note:</strong> matches only find permits in jurisdictions the tool ingests.
+    A "no permit" result can mean the city isn't wired yet (e.g. Boynton Beach), not that no permit exists.
+  </div>
+  <div id="errBanner" class="banner err"></div>
+
+  <div id="out" style="display:none">
+    <div class="stats">
+      <div class="stat"><div class="n" id="sIn">0</div><div class="k">Addresses</div></div>
+      <div class="stat hit"><div class="n" id="sHit">0</div><div class="k">Permit found</div></div>
+      <div class="stat"><div class="n" id="sNo">0</div><div class="k">No match</div></div>
+      <div class="stat"><div class="n" id="sSearched">0</div><div class="k">Permits searched</div></div>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Lead</th><th>Address</th><th>Result</th><th>Permit on record</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id)};
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+
+  $("run").onclick=function(){
+    var text=$("list").value.trim();
+    if(!text){ $("list").focus(); return; }
+    $("run").disabled=true; $("status").textContent="Searching permits… (can take ~30s)";
+    $("errBanner").style.display="none";
+    fetch("/api/permits/match",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({text:text,tag:$("tag").value,years:$("years").value})})
+      .then(function(r){ if(!r.ok) return r.json().then(function(j){throw new Error(j.error||("API "+r.status))}); return r.json(); })
+      .then(render)
+      .catch(function(e){ $("errBanner").textContent="Match failed: "+e.message;
+        $("errBanner").style.display="block"; })
+      .finally(function(){ $("run").disabled=false; $("status").textContent=""; });
+  };
+
+  function render(d){
+    $("out").style.display="block";
+    $("coverageBanner").style.display="block";
+    $("sIn").textContent=d.counts.input;
+    $("sHit").textContent=d.counts.matched;
+    $("sNo").textContent=d.counts.unmatched;
+    $("sSearched").textContent=(d.permits_searched||0).toLocaleString()+(d.demo?" (demo)":"");
+    var tb=$("rows"); tb.innerHTML="";
+    // matches first, then flag canceled-lead hits
+    d.results.slice().sort(function(a,b){return (b.matched?1:0)-(a.matched?1:0)}).forEach(function(r){
+      var inp=r.input||{};
+      var canceled=/cancel/i.test(inp.status||"");
+      var result= r.matched
+        ? '<span class="pill p-hit">✓ permit found</span>'+(canceled?' <span class="pill p-flag">canceled lead — went elsewhere?</span>':'')
+        : '<span class="pill p-no">no permit on record</span>';
+      var permits=(r.permits||[]).map(function(p){
+        return '<div>'+esc(p.permit_number||"—")+' · '+esc(p.issued_date||"")+' · '+esc((p.description||"").slice(0,60))+
+               ' <span class="mini">('+esc(p.city||p.county||"")+(p.contractor?" · "+esc(p.contractor):"")+')</span></div>';
+      }).join("")||'<span class="mini">—</span>';
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td><strong>'+esc(inp.name||"—")+'</strong>'+(inp.status?'<div class="mini">'+esc(inp.status)+'</div>':'')+'</td>'+
+        '<td>'+esc(inp.address||r.normalized||"")+'</td>'+
+        '<td>'+result+'</td>'+
+        '<td>'+permits+'</td>';
+      tb.appendChild(tr);
+    });
+  }
+})();
+</script>
+</body>
+</html>
