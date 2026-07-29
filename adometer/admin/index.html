@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
 <meta name="robots" content="noindex,nofollow">
-<title>WrapMiles — Admin</title>
+<title>Adometer — Admin</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23e11e7b'/%3E%3Cpath d='M3 16.5h18M5 16.5l1.6-4.2A2.5 2.5 0 0 1 8.9 10.7h6.2a2.5 2.5 0 0 1 2.3 1.6l1.6 4.2' stroke='%23ffffff' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='7.5' cy='18.2' r='1.6' fill='%23ffffff'/%3E%3Ccircle cx='16.5' cy='18.2' r='1.6' fill='%23ffffff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -222,7 +222,7 @@
 <div id="setupScreen" class="fullscreen hidden">
   <div class="authbox setupbox">
     <div class="brand">
-      <span class="name">wrapmiles</span>
+      <span class="name">adometer</span>
       <span class="admtag" style="background:var(--pink);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:5px 12px">Setup</span>
     </div>
     <h1>One-time setup needed</h1>
@@ -239,7 +239,7 @@
 <div id="loginScreen" class="fullscreen hidden">
   <div class="authbox">
     <div class="brand">
-      <span class="name">wrapmiles</span>
+      <span class="name">adometer</span>
       <span class="admtag" style="background:var(--pink);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:5px 12px">Admin</span>
     </div>
     <h1>Sign in</h1>
@@ -260,7 +260,7 @@
   <div class="topbar">
     <div class="topbar-in">
       <span class="brand">
-        <span class="name">wrapmiles</span>
+        <span class="name">adometer</span>
         <span class="admtag">Admin</span>
       </span>
       <nav class="tabs" id="tabs">
@@ -288,9 +288,9 @@
 <script>
 "use strict";
 /* ============================================================
-   WrapMiles Admin — vanilla JS, same-origin API /api/wrapmiles
+   Adometer Admin — vanilla JS, same-origin API /api/adometer
    ============================================================ */
-const API = "/api/wrapmiles";
+const API = "/api/adometer";
 const TOKEN_KEY = "wm_admin_token";
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
@@ -484,7 +484,7 @@ function setError(view, err, retry){
 }
 
 /* ============================================================
-   DASHBOARD (design 3c) — Today at WrapMiles
+   DASHBOARD (design 3c) — Today at Adometer
    ============================================================ */
 async function loadOverview(){
   setBusy("overview");
@@ -530,7 +530,7 @@ async function loadOverview(){
   };
 
   v.innerHTML =
-    '<div class="pagehead"><h1>Today at WrapMiles</h1><div class="sub">'+esc(new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}))+'</div></div>'+
+    '<div class="pagehead"><h1>Today at Adometer</h1><div class="sub">'+esc(new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}))+'</div></div>'+
 
     '<div class="tiles dash-tiles">'+
       '<div class="tile"><span>Applications pending</span><b class="pinknum" id="statApps">'+apps.length+'</b></div>'+

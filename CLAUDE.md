@@ -116,10 +116,10 @@ The startup hook will pick it up automatically on the next session.
   network mocked. **Known broken (pre-existing):** `broward_uninc` 404s on a
   moved ArcGIS Hub dataset and `martin` parses no rows — both return 0.
 
-- **WrapMiles** at `/wrapmiles/` — car-wrap sponsorship marketplace (pay-per-mile
-  mobile OOH). Landing page + three portals: `/wrapmiles/admin/` (matchmaking
-  desk), `/wrapmiles/driver/`, `/wrapmiles/sponsor/`. API in `api/wrapmiles.py`
-  (`/api/wrapmiles/*`), registered from `api/index.py` like permits. Storage is
+- **Adometer** at `/adometer/` — car-wrap sponsorship marketplace (pay-per-mile
+  mobile OOH). Landing page + three portals: `/adometer/admin/` (matchmaking
+  desk), `/adometer/driver/`, `/adometer/sponsor/`. API in `api/adometer.py`
+  (`/api/adometer/*`), registered from `api/index.py` like permits. Storage is
   Postgres via `WRAPMILES_DB_URL`/`POSTGRES_URL`/`DATABASE_URL` (Neon through
   Vercel Storage); until attached, the API returns `db_not_configured` and the
   portals show a setup screen — nothing crashes. Admin auth =
@@ -129,12 +129,12 @@ The startup hook will pick it up automatically on the next session.
   like golf carts are flat-rate). Impressions are always labeled estimates
   (50/verified mile). Landing forms dual-write: FormSubmit email + best-effort
   POST to the API. **Referral links:** every driver auto-gets a shareable
-  `ref_code` (NAME-XXXX); `/wrapmiles?ref=CODE` persists to localStorage and
+  `ref_code` (NAME-XXXX); `/adometer?ref=CODE` persists to localStorage and
   prefills `referred_by` on both forms; driver portal has a share card
-  (copy/native share/WhatsApp/SMS/QR via `/api/wrapmiles/qr?ref=`) with live
-  signup counts. Offline tests: `python3 _wrapmiles_tests.py` (61, sqlite).
-  Contracts (attorney-review drafts) in `wrapmiles/legal/`; outreach copy in
-  `wrapmiles/outreach/`; scout skills in `.claude/skills/wrapmiles-*`.
+  (copy/native share/WhatsApp/SMS/QR via `/api/adometer/qr?ref=`) with live
+  signup counts. Offline tests: `python3 _adometer_tests.py` (61, sqlite).
+  Contracts (attorney-review drafts) in `adometer/legal/`; outreach copy in
+  `adometer/outreach/`; scout skills in `.claude/skills/adometer-*`.
 
 ## Local tooling
 

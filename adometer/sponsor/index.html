@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
 <meta name="robots" content="noindex">
-<title>WrapMiles — Sponsor Dashboard</title>
+<title>Adometer — Sponsor Dashboard</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23e11e7b'/%3E%3Cpath d='M3 16.5h18M5 16.5l1.6-4.2A2.5 2.5 0 0 1 8.9 10.7h6.2a2.5 2.5 0 0 1 2.3 1.6l1.6 4.2' stroke='%23ffffff' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='7.5' cy='18.2' r='1.6' fill='%23ffffff'/%3E%3Ccircle cx='16.5' cy='18.2' r='1.6' fill='%23ffffff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -132,8 +132,8 @@
 
 <nav class="nav">
   <div class="nav-in">
-    <a class="brand" href="/wrapmiles" aria-label="WrapMiles home">
-      <span class="wordmark">wrapmiles</span>
+    <a class="brand" href="/adometer" aria-label="Adometer home">
+      <span class="wordmark">adometer</span>
       <span class="chip">Sponsor dashboard</span>
     </a>
     <div class="nav-user">
@@ -163,7 +163,7 @@
         <button class="btn" id="liBtn" type="submit">Sign In</button>
         <div class="msg" id="liMsg" role="alert"></div>
       </form>
-      <p class="hint" style="margin-top:18px;font-size:13px">Interested in sponsoring a fleet? <a href="/wrapmiles#brands">Start here.</a></p>
+      <p class="hint" style="margin-top:18px;font-size:13px">Interested in sponsoring a fleet? <a href="/adometer#brands">Start here.</a></p>
     </div>
   </section>
 
@@ -210,13 +210,13 @@
 </main>
 
 <footer>
-  <div class="wrap"><p>WrapMiles — a Collaborative Concepts LLC venture · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a></p></div>
+  <div class="wrap"><p>Adometer — a Collaborative Concepts LLC venture · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a></p></div>
 </footer>
 
 <script>
 (function(){
 "use strict";
-var API = "/api/wrapmiles";
+var API = "/api/adometer";
 var TOKEN_KEY = "wm_sponsor_token";
 
 /* ---------- helpers ---------- */
@@ -548,7 +548,7 @@ $("spDlBtn").addEventListener("click", function(){
   var url = URL.createObjectURL(blob);
   var a = document.createElement("a");
   a.href = url;
-  a.download = "wrapmiles-report-" + ym + ".csv";
+  a.download = "adometer-report-" + ym + ".csv";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

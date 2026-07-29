@@ -64,6 +64,16 @@
       "permanent": true
     },
     {
+      "source": "/wrapmiles",
+      "destination": "/adometer",
+      "permanent": false
+    },
+    {
+      "source": "/wrapmiles/:path*",
+      "destination": "/adometer/:path*",
+      "permanent": false
+    },
+    {
       "source": "/",
       "has": [
         {
