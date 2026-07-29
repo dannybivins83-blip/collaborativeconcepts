@@ -128,8 +128,9 @@ def match_list(inputs, permits):
                     "tags": p.get("tags"),
                 })
         results.append({
-            "input": {k: item.get(k) for k in ("name", "address", "city",
-                                               "zip", "status") if item.get(k)},
+            "input": {k: item.get(k) for k in ("name", "address", "city", "zip",
+                                               "status", "phone", "email", "ltv")
+                      if item.get(k)},
             "normalized": key["num"] + " " + key["street"] + (" " + key["zip"] if key["zip"] else ""),
             "matched": bool(hits),
             "permits": hits,

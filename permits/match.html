@@ -56,7 +56,14 @@
 
 <div class="wrap">
   <div class="panel">
-    <label for="list">Addresses — one per line (optionally "Name | address")</label>
+    <label>Upload a contacts CSV (AccuLynx export or any file with an address column)</label>
+    <div class="row">
+      <input type="file" id="csv" accept=".csv,text/csv">
+      <span id="csvInfo" class="mini"></span>
+    </div>
+    <div id="csvMap" class="mini" style="margin-top:6px;display:none"></div>
+
+    <label for="list" style="display:block;margin-top:16px">…or paste addresses — one per line (optionally "Name | address")</label>
     <textarea id="list" placeholder="Juan Vernal | 810 North A Street, Lake Worth Beach FL 33460
 5151 Brian Boulevard, Boynton Beach FL 33472
 ..."></textarea>
@@ -73,6 +80,7 @@
         <select id="years"><option value="2">2 years</option><option value="3">3 years</option>
           <option value="5" selected>5 years</option><option value="10">10 years</option></select></span>
       <button id="run" class="gold">Match against permits</button>
+      <button id="exportBtn" style="display:none">Export matches CSV</button>
       <span id="status" class="mini"></span>
     </div>
   </div>
@@ -106,30 +114,151 @@
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
     return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 
-  $("run").onclick=function(){
-    var text=$("list").value.trim();
-    if(!text){ $("list").focus(); return; }
-    $("run").disabled=true; $("status").textContent="Searching permits… (can take ~30s)";
-    $("errBanner").style.display="none";
-    fetch("/api/permits/match",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({text:text,tag:$("tag").value,years:$("years").value})})
-      .then(function(r){ if(!r.ok) return r.json().then(function(j){throw new Error(j.error||("API "+r.status))}); return r.json(); })
-      .then(render)
-      .catch(function(e){ $("errBanner").textContent="Match failed: "+e.message;
-        $("errBanner").style.display="block"; })
-      .finally(function(){ $("run").disabled=false; $("status").textContent=""; });
+  var csvRows=[];        // parsed {name,address,status,phone,email,ltv} from uploaded CSV
+  var allResults=[];     // accumulated match results (for export + render)
+
+  // --- minimal RFC-4180 CSV parser (handles quoted fields w/ commas & escaped quotes) ---
+  function parseCSV(text){
+    var rows=[], row=[], field="", i=0, inq=false, c;
+    if(text.charCodeAt(0)===0xFEFF) text=text.slice(1); // strip BOM
+    for(;i<text.length;i++){
+      c=text[i];
+      if(inq){
+        if(c==='"'){ if(text[i+1]==='"'){field+='"';i++;} else inq=false; }
+        else field+=c;
+      }else{
+        if(c==='"') inq=true;
+        else if(c===","){ row.push(field); field=""; }
+        else if(c==="\n"){ row.push(field); rows.push(row); row=[]; field=""; }
+        else if(c==="\r"){ /* skip */ }
+        else field+=c;
+      }
+    }
+    if(field.length||row.length){ row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  function findCol(headers, needles){
+    for(var i=0;i<headers.length;i++){
+      var h=headers[i].toLowerCase().replace(/[^a-z]/g,"");
+      for(var j=0;j<needles.length;j++) if(h.indexOf(needles[j])>=0) return i;
+    }
+    return -1;
+  }
+
+  $("csv").onchange=function(e){
+    var f=e.target.files[0]; if(!f) return;
+    $("csvInfo").textContent="Reading "+f.name+"…";
+    var rd=new FileReader();
+    rd.onload=function(){
+      var rows=parseCSV(rd.result);
+      if(rows.length<2){ $("csvInfo").textContent="Empty or unreadable CSV."; return; }
+      var hdr=rows[0];
+      var ai=findCol(hdr,["mailingaddress","address"]);
+      var fi=findCol(hdr,["firstname"]);
+      var li=findCol(hdr,["lastname"]);
+      var ni=findCol(hdr,["fullname","contactname","name"]);
+      var si=findCol(hdr,["status","type"]);   // "Contact: Types" carries status-ish info
+      var pi=findCol(hdr,["phone"]);
+      var ei=findCol(hdr,["email"]);
+      var vi=findCol(hdr,["ltv","value"]);
+      if(ai<0){ $("csvInfo").textContent="No address column found. Expected a 'Mailing Address' or 'Address' header."; return; }
+      csvRows=[];
+      for(var r=1;r<rows.length;r++){
+        var row=rows[r]; if(!row||!row[ai]) continue;
+        var addr=String(row[ai]).replace(/\bUS\s*$/,"").trim().replace(/,\s*$/,"");
+        if(!/\d/.test(addr)) continue;
+        var name = ni>=0 ? row[ni] : ((fi>=0?row[fi]:"")+" "+(li>=0?row[li]:"")).trim();
+        csvRows.push({name:name, address:addr,
+          status: si>=0?row[si]:"", phone: pi>=0?row[pi]:"",
+          email: ei>=0?row[ei]:"", ltv: vi>=0?row[vi]:""});
+      }
+      $("csvInfo").innerHTML="<strong>"+csvRows.length.toLocaleString()+"</strong> addresses loaded from CSV. "+
+        "Pick a tag + look-back, then <strong>Match against permits</strong>.";
+      $("csvMap").style.display="block";
+      $("csvMap").innerHTML="Mapped columns → address: <em>"+esc(hdr[ai])+"</em>"+
+        (fi>=0||ni>=0?", name":"")+(si>=0?", status: <em>"+esc(hdr[si])+"</em>":"")+
+        ". Rows without a street number are skipped.";
+    };
+    rd.readAsText(f);
   };
 
-  function render(d){
+  function activeInputs(){
+    if(csvRows.length) return csvRows;
+    return null; // fall back to pasted text
+  }
+
+  $("run").onclick=function(){
+    var items=activeInputs();
+    var text=$("list").value.trim();
+    if(!items && !text){ $("list").focus(); return; }
+    $("run").disabled=true; $("errBanner").style.display="none";
+    $("exportBtn").style.display="none"; allResults=[];
+    var tag=$("tag").value, years=$("years").value;
+
+    if(items){
+      runBatched(items,tag,years);   // CSV path: chunk to avoid timeouts
+    }else{
+      $("status").textContent="Searching permits… (~30s)";
+      post({text:text,tag:tag,years:years})
+        .then(function(d){ allResults=d.results||[]; render(d,allResults); })
+        .catch(fail).finally(done);
+    }
+  };
+
+  function post(body){
+    return fetch("/api/permits/match",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(body)})
+      .then(function(r){ if(!r.ok) return r.json().then(function(j){throw new Error(j.error||("API "+r.status))}); return r.json(); });
+  }
+
+  // large lists: split into chunks of 750; the engine caches the permit pull
+  // (10-min TTL) so only the first chunk pays the search cost.
+  function runBatched(items,tag,years){
+    var CHUNK=750, chunks=[];
+    for(var i=0;i<items.length;i+=CHUNK) chunks.push(items.slice(i,i+CHUNK));
+    var searched=0, demo=false, matched=0, idx=0;
+    (function next(){
+      if(idx>=chunks.length){
+        renderAccum(items.length,matched,searched,demo);
+        done(); return;
+      }
+      $("status").textContent="Matching "+(idx*CHUNK+1).toLocaleString()+"–"+
+        Math.min((idx+1)*CHUNK,items.length).toLocaleString()+" of "+items.length.toLocaleString()+"…";
+      post({addresses:chunks[idx],tag:tag,years:years})
+        .then(function(d){
+          allResults=allResults.concat(d.results||[]);
+          searched=Math.max(searched,d.permits_searched||0);
+          demo=demo||!!d.demo;
+          matched+=(d.counts&&d.counts.matched)||0;
+          idx++; next();
+        })
+        .catch(function(e){ fail(e); done(); });
+    })();
+  }
+
+  function fail(e){ $("errBanner").textContent="Match failed: "+e.message;
+    $("errBanner").style.display="block"; }
+  function done(){ $("run").disabled=false; $("status").textContent="";
+    if(allResults.length) $("exportBtn").style.display="inline-block"; }
+
+  function renderAccum(input,matched,searched,demo){
+    render({counts:{input:input,matched:matched,unmatched:input-matched},
+      permits_searched:searched, demo:demo, results:allResults}, allResults);
+  }
+
+  function render(d,results){
     $("out").style.display="block";
     $("coverageBanner").style.display="block";
-    $("sIn").textContent=d.counts.input;
-    $("sHit").textContent=d.counts.matched;
-    $("sNo").textContent=d.counts.unmatched;
+    $("sIn").textContent=(d.counts.input||0).toLocaleString();
+    $("sHit").textContent=(d.counts.matched||0).toLocaleString();
+    $("sNo").textContent=(d.counts.unmatched||0).toLocaleString();
     $("sSearched").textContent=(d.permits_searched||0).toLocaleString()+(d.demo?" (demo)":"");
     var tb=$("rows"); tb.innerHTML="";
-    // matches first, then flag canceled-lead hits
-    d.results.slice().sort(function(a,b){return (b.matched?1:0)-(a.matched?1:0)}).forEach(function(r){
+    // matched first; cap DOM rows so an 8k list doesn't lock the browser
+    var sorted=results.slice().sort(function(a,b){return (b.matched?1:0)-(a.matched?1:0)});
+    var CAP=1000, shown=sorted.slice(0,CAP);
+    shown.forEach(function(r){
       var inp=r.input||{};
       var canceled=/cancel/i.test(inp.status||"");
       var result= r.matched
@@ -146,7 +275,33 @@
         '<td>'+permits+'</td>';
       tb.appendChild(tr);
     });
+    if(sorted.length>CAP){
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td colspan="4" class="mini" style="text-align:center;padding:14px">'+
+        'Showing first '+CAP.toLocaleString()+' of '+sorted.length.toLocaleString()+
+        ' rows. Use <strong>Export matches CSV</strong> for the full list.</td>';
+      tb.appendChild(tr);
+    }
   }
+
+  function csvCell(s){ s=String(s==null?"":s); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+  $("exportBtn").onclick=function(){
+    var hdr=["name","input_address","status","phone","email","ltv","matched",
+             "permit_number","permit_date","permit_description","permit_city","contractor"];
+    var lines=[hdr.join(",")];
+    allResults.forEach(function(r){
+      var inp=r.input||{}, ps=r.permits||[];
+      if(!ps.length) ps=[{}];
+      ps.forEach(function(p){
+        lines.push([inp.name,inp.address,inp.status,inp.phone,inp.email,inp.ltv,
+          r.matched?"YES":"no", p.permit_number,p.issued_date,p.description,
+          p.city||p.county,p.contractor].map(csvCell).join(","));
+      });
+    });
+    var blob=new Blob([lines.join("\n")],{type:"text/csv"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="permit-matches.csv"; a.click(); URL.revokeObjectURL(a.href);
+  };
 })();
 </script>
 </body>
