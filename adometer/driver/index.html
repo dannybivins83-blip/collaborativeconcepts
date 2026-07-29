@@ -6,15 +6,15 @@
 <meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
 <meta name="robots" content="noindex">
 <title>Adometer — Driver Portal</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23e11e7b'/%3E%3Cpath d='M3 16.5h18M5 16.5l1.6-4.2A2.5 2.5 0 0 1 8.9 10.7h6.2a2.5 2.5 0 0 1 2.3 1.6l1.6 4.2' stroke='%23ffffff' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='7.5' cy='18.2' r='1.6' fill='%23ffffff'/%3E%3Ccircle cx='16.5' cy='18.2' r='1.6' fill='%23ffffff'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="/adometer/assets/logo/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap">
 <style>
   :root{
-    --pink:#e11e7b; --pink-deep:#a4145c; --pink-tint:#fdeef5;
-    --ink:#201830; --sub:#5f5968; --mut:#8d8696;
-    --fill:#f3f1f4; --bg:#f8f6f9; --line:#e9e5ec;
+    --pink:#0fb5a6; --pink-deep:#0b8378; --pink-tint:#e6f7f5;
+    --ink:#0e2b32; --sub:#51666b; --mut:#7f9397;
+    --fill:#f0f4f4; --bg:#f4f8f8; --line:#e7edee;
     --green:#1c9e64; --green-tint:#e7f6ee;
   }
   *{box-sizing:border-box}
@@ -139,6 +139,7 @@
 
   footer{padding:8px 0 34px}
   footer p{font-size:12.5px;color:var(--mut);text-align:center}
+  .wm-ad{color:var(--pink,#0fb5a6)}.wm-rest{color:inherit}
 </style>
 </head>
 <body>
@@ -146,7 +147,7 @@
 <nav class="nav">
   <div class="nav-in">
     <a class="brand" href="/adometer" aria-label="Adometer home">
-      <span class="wordmark">adometer</span>
+      <span class="wordmark"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span>
       <span class="chip">Driver portal</span>
     </a>
     <div class="nav-user">
@@ -203,14 +204,14 @@
       <div class="stat"><div class="lbl">Your referrals</div><b id="dvRefCount">0</b><div class="note" id="dvRefNote">share your link below</div></div>
     </div>
 
-    <div class="card" id="dvRefCard" style="display:none;margin-bottom:22px;background:var(--tint,#fdeef5)">
+    <div class="card" id="dvRefCard" style="display:none;margin-bottom:22px;background:var(--tint,#e6f7f5)">
       <span class="card-h">Share your link — earn up to $375 per driver</span>
       <p style="font:400 14px/1.5 'DM Sans',sans-serif;color:var(--mut);margin:8px 0 14px">
         $50 when they get wrapped, then $75 / $100 / $150 as they stay active at 3, 6 &amp; 12 months.
         Anyone who applies through your link is credited to you automatically. Sponsor referrals pay a % of their spend.
       </p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-        <input id="refLink" readonly style="flex:1;min-width:220px;padding:13px 14px;border-radius:12px;border:1px solid var(--border,#e9e5ec);background:#fff;font:500 14px 'DM Sans',sans-serif;color:var(--ink)" value="">
+        <input id="refLink" readonly style="flex:1;min-width:220px;padding:13px 14px;border-radius:12px;border:1px solid var(--border,#e7edee);background:#fff;font:500 14px 'DM Sans',sans-serif;color:var(--ink)" value="">
         <button class="btn" id="refCopy" type="button" style="width:auto;padding:13px 22px">Copy</button>
         <button class="btn" id="refShare" type="button" style="width:auto;padding:13px 22px;background:var(--ink)">Share</button>
       </div>

@@ -10,7 +10,7 @@
 <meta property="og:title" content="Adometer — Your Commute Is a Billboard. Get Paid For It.">
 <meta property="og:description" content="Brands pay you per mile to wrap your car with their logo. The wrap protects your paint. The check helps pay off your car.">
 <meta property="og:url" content="https://collaborativeconceptsfl.com/adometer">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23e11e7b'/%3E%3Cpath d='M3 16.5h18M5 16.5l1.6-4.2A2.5 2.5 0 0 1 8.9 10.7h6.2a2.5 2.5 0 0 1 2.3 1.6l1.6 4.2' stroke='%23fff' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='7.5' cy='18.2' r='1.6' fill='%23fff'/%3E%3Ccircle cx='16.5' cy='18.2' r='1.6' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="/adometer/assets/logo/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap">
@@ -26,10 +26,10 @@ const CONFIG = {
 </script>
 <style>
   :root{
-    --bg:#fff; --sec:#f8f6f9; --fill:#f3f1f4; --ink:#201830; --mut:#5f5968;
-    --faint:#8d8696; --pink:#e11e7b; --tint:#fdeef5; --green:#1c9e64;
-    --border:#e9e5ec; --pink-deep:#a4145c; --dark-mut:#b6aec2; --dark-kick:#f27ab3;
-    --shadow:0 12px 34px rgba(32,24,48,.08);
+    --bg:#fff; --sec:#f4f8f8; --fill:#f0f4f4; --ink:#0e2b32; --mut:#51666b;
+    --faint:#7f9397; --pink:#0fb5a6; --tint:#e6f7f5; --green:#1c9e64;
+    --border:#e7edee; --pink-deep:#0b8378; --dark-mut:#a9c3c6; --dark-kick:#5fd0c3;
+    --shadow:0 12px 34px rgba(14,43,50,.08);
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -45,7 +45,8 @@ const CONFIG = {
   /* ---------- nav ---------- */
   .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0;gap:16px}
   .nav-left{display:flex;align-items:center;gap:34px}
-  .wordmark{font-weight:800;font-size:26px;letter-spacing:-.03em;color:var(--pink);text-decoration:none}
+  .wordmark{font-weight:800;font-size:26px;letter-spacing:-.03em;text-decoration:none}
+  .wm-ad{color:var(--pink)}.wm-rest{color:var(--ink)}
   .nav-links{display:flex;gap:24px;font-weight:500;font-size:15px}
   .nav-links a{color:var(--ink);text-decoration:none}
   .nav-links a:hover{color:var(--pink)}
@@ -74,7 +75,7 @@ const CONFIG = {
   .dot{width:7px;height:7px;background:var(--pink);border-radius:50%;flex:none}
   .hero-visual{position:relative}
   .hero-visual img{width:100%;height:420px;object-fit:cover;border-radius:28px}
-  .payout-card{position:absolute;left:26px;bottom:26px;background:#fff;border-radius:18px;padding:16px 20px;box-shadow:0 14px 40px rgba(32,24,48,.16)}
+  .payout-card{position:absolute;left:26px;bottom:26px;background:#fff;border-radius:18px;padding:16px 20px;box-shadow:0 14px 40px rgba(14,43,50,.16)}
   .payout-card .k{font-weight:700;font-size:12px;letter-spacing:.08em;color:var(--faint);text-transform:uppercase}
   .payout-card .row{display:flex;align-items:baseline;gap:10px}
   .payout-card .amt{font-weight:800;font-size:32px;letter-spacing:-.02em;color:var(--pink)}
@@ -193,7 +194,7 @@ const CONFIG = {
   .checks .ck{color:var(--pink);font-weight:800;flex:none}
   .checks strong{color:var(--ink)}
   .reassure{background:var(--tint);border-radius:16px;padding:16px 18px;margin-top:24px;font-weight:400;font-size:13.5px;line-height:1.6;color:var(--pink-deep)}
-  .dform-card{background:#fff;border:1px solid var(--border);border-radius:24px;padding:32px;box-shadow:0 12px 34px rgba(32,24,48,.06)}
+  .dform-card{background:#fff;border:1px solid var(--border);border-radius:24px;padding:32px;box-shadow:0 12px 34px rgba(14,43,50,.06)}
   .dform-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
   .dform-head .t{font-weight:800;font-size:22px;letter-spacing:-.01em;color:var(--ink)}
   .dform-head .nc{font-weight:700;font-size:12.5px;color:var(--green)}
@@ -229,7 +230,7 @@ const CONFIG = {
 <div class="wrap">
   <nav class="nav">
     <div class="nav-left">
-      <a class="wordmark" href="#top" aria-label="Adometer home">adometer</a>
+      <a class="wordmark" href="#top" aria-label="Adometer home"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></a>
       <div class="nav-links">
         <a href="#how">How it works</a>
         <a href="#calc">Earnings</a>
@@ -506,7 +507,7 @@ const CONFIG = {
 <!-- ================= 12. FOOTER ================= -->
 <footer>
   <div class="wrap foot">
-    <div class="left"><span class="wm">adometer</span><span>© <span id="yr">2026</span> Collaborative Concepts LLC · South Florida · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a></span></div>
+    <div class="left"><span class="wm"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span><span><b style="color:var(--ink)">Miles out. Money in.</b> · © <span id="yr">2026</span> Collaborative Concepts LLC · South Florida · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a></span></div>
     <div>Estimates illustrative, not a guarantee · <a href="/adometer/driver">Driver portal</a> · <a href="/adometer/sponsor">Sponsor dashboard</a></div>
   </div>
 </footer>

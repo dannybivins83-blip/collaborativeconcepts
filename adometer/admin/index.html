@@ -6,17 +6,17 @@
 <meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
 <meta name="robots" content="noindex,nofollow">
 <title>Adometer — Admin</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23e11e7b'/%3E%3Cpath d='M3 16.5h18M5 16.5l1.6-4.2A2.5 2.5 0 0 1 8.9 10.7h6.2a2.5 2.5 0 0 1 2.3 1.6l1.6 4.2' stroke='%23ffffff' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='7.5' cy='18.2' r='1.6' fill='%23ffffff'/%3E%3Ccircle cx='16.5' cy='18.2' r='1.6' fill='%23ffffff'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="/adometer/assets/logo/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap">
 <style>
   :root{
-    --pink:#e11e7b; --pink-deep:#a4145c; --pink-tint:#fdeef5;
-    --ink:#201830; --mut:#5f5968; --mut-2:#8d8696;
-    --bg:#f8f6f9; --fill:#f3f1f4; --line:#e9e5ec;
+    --pink:#0fb5a6; --pink-deep:#0b8378; --pink-tint:#e6f7f5;
+    --ink:#0e2b32; --mut:#51666b; --mut-2:#7f9397;
+    --bg:#f4f8f8; --fill:#f0f4f4; --line:#e7edee;
     --ok:#1c9e64; --ok-tint:#e7f6ee;
-    --err:#c0264b; --warn:#a4145c;
+    --err:#c0264b; --warn:#0b8378;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.5;font-size:14.5px;min-height:100vh}
@@ -53,11 +53,11 @@
   .brand .name em{font-style:normal;color:#fff}
   .brand .admtag{font-size:12px;font-weight:700;letter-spacing:.02em;color:#fff;background:var(--pink);border-radius:999px;padding:5px 12px}
   .tabs{display:flex;gap:4px;flex-wrap:wrap}
-  .tab{background:transparent;border:0;color:#b6aec2;font-weight:700;font-size:13.5px;padding:8px 14px;border-radius:999px}
+  .tab{background:transparent;border:0;color:#a9c3c6;font-weight:700;font-size:13.5px;padding:8px 14px;border-radius:999px}
   .tab:hover{color:#fff}
   .tab.on{background:#fff;color:var(--ink)}
   .tab .badge{display:inline-flex;min-width:18px;height:18px;padding:0 5px;align-items:center;justify-content:center;border-radius:999px;background:var(--pink);color:#fff;font-size:11px;font-weight:700;margin-left:6px;vertical-align:1px}
-  .signout{font-size:13px;font-weight:500;color:#b6aec2;background:none;border:0;padding:6px}
+  .signout{font-size:13px;font-weight:500;color:#a9c3c6;background:none;border:0;padding:6px}
   .signout:hover{color:#fff}
   @media(max-width:760px){.topbar-in{padding:10px 12px}.tabs{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}.tab{white-space:nowrap}}
 
@@ -130,8 +130,8 @@
   .siderows{margin-top:12px}
 
   /* ---------- drawer ---------- */
-  .drawer-veil{position:fixed;inset:0;background:rgba(32,24,48,.45);z-index:60}
-  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:#fff;z-index:61;overflow-y:auto;padding:22px 22px 44px;box-shadow:-24px 0 60px rgba(32,24,48,.22)}
+  .drawer-veil{position:fixed;inset:0;background:rgba(14,43,50,.45);z-index:60}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:#fff;z-index:61;overflow-y:auto;padding:22px 22px 44px;box-shadow:-24px 0 60px rgba(14,43,50,.22)}
   .drawer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
   .drawer-head h3{font-size:20px}
   .drawer-close{background:var(--fill);border:0;color:var(--mut);width:32px;height:32px;border-radius:999px;font-size:16px;flex:none}
@@ -188,7 +188,7 @@
   /* ---------- login / setup ---------- */
   .fullscreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:
     radial-gradient(800px 400px at 80% -10%,rgba(225,30,123,.08),transparent 60%),var(--bg)}
-  .authbox{width:100%;max-width:400px;background:#fff;border-radius:18px;padding:30px;box-shadow:0 20px 50px rgba(32,24,48,.10)}
+  .authbox{width:100%;max-width:400px;background:#fff;border-radius:18px;padding:30px;box-shadow:0 20px 50px rgba(14,43,50,.10)}
   .authbox .brand{margin-bottom:20px}
   .authbox .brand .name{color:var(--pink)}
   .authbox h1{font-size:21px;margin-bottom:6px}
@@ -202,7 +202,7 @@
   .setupbox code{background:var(--fill);border-radius:6px;padding:2px 7px;font-size:12.5px;color:var(--pink-deep)}
 
   /* ---------- toast ---------- */
-  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:13.5px;font-weight:700;box-shadow:0 16px 40px rgba(32,24,48,.35);max-width:calc(100vw - 32px)}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:13.5px;font-weight:700;box-shadow:0 16px 40px rgba(14,43,50,.35);max-width:calc(100vw - 32px)}
   .toast.ok{background:var(--ok)}
   .toast.err{background:var(--err)}
 
@@ -214,6 +214,7 @@
     main{padding:18px 0 70px}
     .pagehead h1{font-size:25px}
   }
+  .wm-ad{color:var(--pink,#0fb5a6)}.wm-rest{color:inherit}
 </style>
 </head>
 <body>
@@ -222,7 +223,7 @@
 <div id="setupScreen" class="fullscreen hidden">
   <div class="authbox setupbox">
     <div class="brand">
-      <span class="name">adometer</span>
+      <span class="name"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span>
       <span class="admtag" style="background:var(--pink);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:5px 12px">Setup</span>
     </div>
     <h1>One-time setup needed</h1>
@@ -239,7 +240,7 @@
 <div id="loginScreen" class="fullscreen hidden">
   <div class="authbox">
     <div class="brand">
-      <span class="name">adometer</span>
+      <span class="name"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span>
       <span class="admtag" style="background:var(--pink);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:5px 12px">Admin</span>
     </div>
     <h1>Sign in</h1>
@@ -260,7 +261,7 @@
   <div class="topbar">
     <div class="topbar-in">
       <span class="brand">
-        <span class="name">adometer</span>
+        <span class="name"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span>
         <span class="admtag">Admin</span>
       </span>
       <nav class="tabs" id="tabs">

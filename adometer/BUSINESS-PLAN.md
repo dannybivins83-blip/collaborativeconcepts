@@ -93,7 +93,7 @@ cost of underperformance is Danny's time, not capital.
 
 ## 8. Milestones & Kill Criteria
 
-- **Aug 2026:** "Adometer" d/b/a filed on Sunbiz ($50), GL endorsement confirmed with agent, contracts attorney-approved, demo truck wrapped,
+- **Aug 2026:** "Adometer" d/b/a filing DEFERRED (owner 2026-07-28; required before signing/invoicing under the name) · GL endorsement CONFIRMED ✓ (owner 2026-07-28) · contracts attorney-approved, demo truck wrapped,
   10 warm sponsor pitches delivered.
 - **Sep 2026:** first signed IO with production fee collected; 15 wrap-ready drivers.
 - **Oct 2026 (Day 90 kill-review):** if no signed sponsor → stop outbound spend, keep site live

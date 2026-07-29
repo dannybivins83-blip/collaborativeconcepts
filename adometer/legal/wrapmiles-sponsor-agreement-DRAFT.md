@@ -11,8 +11,8 @@
 _____________ (the "Effective Date") by and between:
 
 **Collaborative Concepts LLC**, a Florida limited liability company, doing business as
-**Adometer** [**counsel: confirm "Adometer" fictitious-name (d/b/a) registration on Sunbiz —
-owner decision 2026-07-28: operate under the existing LLC**], with a
+**Adometer** [**counsel: "Adometer" d/b/a NOT YET FILED (owner deferred 2026-07-28) — until filed,
+execute as Collaborative Concepts LLC with "Adometer" as a brand/product name only**], with a
 principal place of business at ______________________________ ("Adometer"), and
 
 **_____________________________**, a ______________________ with a principal place
