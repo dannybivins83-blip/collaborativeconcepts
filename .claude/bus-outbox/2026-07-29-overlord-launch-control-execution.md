@@ -1,10 +1,16 @@
 ---
-status: new
+status: HOLD — do not execute (owner paused 2026-07-29: "don't do everything yet")
 to: overlord
 from: collaborativeconcepts
 date: 2026-07-29
 subject: ACTION — Launch Control execution order (prep everything to one-click)
 ---
+
+> **OVERLORD: STOP. Owner paused this entire work order before you picked it
+> up. Do not act on ANY item below — including draft edits — until this file's
+> status returns to `new`. The three earlier task files (domain attach,
+> lead backfill, seed test data) remain individually valid unless their own
+> status says otherwise.**
 
 # Adometr Launch Control — agent-side work order
 
