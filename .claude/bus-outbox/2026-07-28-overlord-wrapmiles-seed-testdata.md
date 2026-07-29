@@ -3,18 +3,18 @@ status: new
 to: overlord
 from: collaborativeconcepts
 date: 2026-07-28
-subject: ACTION — seed Adometer test data (5 drivers / 5 sponsors / 5 campaigns)
+subject: ACTION — seed Adometr test data (5 drivers / 5 sponsors / 5 campaigns)
 ---
 
-# Run the Adometer test-data seed
+# Run the Adometr test-data seed
 
 Danny wants populated portals to click through. The script is committed at
-repo root: `_adometer_seed.py`. Cloud session can't reach the domain — run it
+repo root: `_adometr_seed.py`. Cloud session can't reach the domain — run it
 from your machine:
 
 ```bash
 cd <repo> && git pull
-WRAPMILES_ADMIN_KEY=<the key you provisioned> python3 _adometer_seed.py
+WRAPMILES_ADMIN_KEY=<the key you provisioned> python3 _adometr_seed.py
 ```
 
 - Creates 5 TEST-prefixed drivers, 5 TEST sponsors, 5 campaigns (incl. one

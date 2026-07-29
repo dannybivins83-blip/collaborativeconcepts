@@ -4929,12 +4929,12 @@ register_permits_routes(app)
 
 
 # ---------------------------------------------------------------------------
-# Adometer portals — admin desk, driver portal, sponsor reports.
-# Routes live in api/adometer.py (/api/adometer/*).
+# Adometr portals — admin desk, driver portal, sponsor reports.
+# Routes live in api/adometr.py (/api/adometr/*).
 # ---------------------------------------------------------------------------
 try:
-    from adometer import register_adometer_routes
+    from adometr import register_adometr_routes
 except ImportError:  # when imported as a package (local tests)
-    from api.adometer import register_adometer_routes
+    from api.adometr import register_adometr_routes
 
-register_adometer_routes(app)
+register_adometr_routes(app)

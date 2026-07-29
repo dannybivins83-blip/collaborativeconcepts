@@ -65,12 +65,12 @@
     },
     {
       "source": "/wrapmiles",
-      "destination": "/adometer",
+      "destination": "/adometr",
       "permanent": false
     },
     {
       "source": "/wrapmiles/:path*",
-      "destination": "/adometer/:path*",
+      "destination": "/adometr/:path*",
       "permanent": false
     },
     {
@@ -237,6 +237,38 @@
       ],
       "destination": "https://palmbeachwakeboats.com/:path*",
       "permanent": true
+    },
+    {
+      "source": "/adometer",
+      "destination": "/adometr",
+      "permanent": false
+    },
+    {
+      "source": "/adometer/:path*",
+      "destination": "/adometr/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.adometr.com"
+        }
+      ],
+      "destination": "https://adometr.com/",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.adometr.com"
+        }
+      ],
+      "destination": "https://adometr.com/:path*",
+      "permanent": true
     }
   ],
   "functions": {
@@ -282,6 +314,26 @@
         }
       ],
       "destination": "/wwslgc/:path*"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "adometr.com"
+        }
+      ],
+      "destination": "/adometr/index.html"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "adometr.com"
+        }
+      ],
+      "destination": "/adometr/:path*"
     }
   ],
   "headers": [

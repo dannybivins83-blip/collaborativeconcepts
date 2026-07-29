@@ -12,8 +12,8 @@
 _____________ (the "Effective Date") by and between:
 
 **Collaborative Concepts LLC**, a Florida limited liability company, doing business as
-**Adometer** [**counsel: "Adometer" d/b/a NOT YET FILED (owner deferred 2026-07-28) — until filed,
-execute as Collaborative Concepts LLC with "Adometer" as a brand/product name only**], with a
+**Adometr** [**counsel: "Adometr" d/b/a NOT YET FILED (owner deferred 2026-07-28) — until filed,
+execute as Collaborative Concepts LLC with "Adometr" as a brand/product name only**], with a
 principal place of business at ______________________________ (the "Company"), and
 
 **_____________________________** ("Driver"), an individual residing at
@@ -219,7 +219,7 @@ update prospectively.
 
 11.3 **Severability; waiver; assignment.** Invalid provisions are severed; the rest
 stands. No waiver is implied. Driver may not assign this Agreement. The Company may
-assign to a successor of the Adometer business.
+assign to a successor of the Adometr business.
 
 11.4 **Publicity.** Driver consents to the Company's and Sponsor's use of photographs
 of the wrapped Vehicle (with license plate obscured) for marketing and reporting.
@@ -229,7 +229,7 @@ signature page.
 
 ---
 
-**COMPANY:** Collaborative Concepts LLC d/b/a Adometer — By: _________________ Name/Title: _________________ Date: _______
+**COMPANY:** Collaborative Concepts LLC d/b/a Adometr — By: _________________ Name/Title: _________________ Date: _______
 
 **DRIVER:** _________________ Signature: _________________ Date: _______
 
