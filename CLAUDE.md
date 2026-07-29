@@ -136,6 +136,20 @@ The startup hook will pick it up automatically on the next session.
   Contracts (attorney-review drafts) in `adometr/legal/`; outreach copy in
   `adometr/outreach/`; scout skills in `.claude/skills/adometr-*`.
 
+- **Gatekeeper Fence Co.** at `/gatekeeper/` — client marketing site for a
+  Jupiter, FL fence contractor (Gatekeeper Fence, Inc., lic. #U-21206). 12
+  static pages: home, services hub, five fence-type pages, gates, repair,
+  service area, about, contact. **Generated** — run `python3
+  _gatekeeper_build.py`; edit the builder, not the `.html`. `gatekeeper/assets/`
+  (gk.css, gk.js, logo.svg) is hand-written and NOT generated. Fence
+  illustrations are inline SVG from the builder's `art_*` functions, so there
+  are no image assets. **NOT live yet** — no domain is pointed at it and the
+  FormSubmit lead address is still the repo default; see `gatekeeper/README.md`
+  for the two go-live steps. All copy is restricted to publicly verifiable
+  business facts — no invented reviews, job counts, or staff. Two CSS traps
+  documented in the README: no `backdrop-filter` on `.hdr` (breaks the mobile
+  nav drawer), and `--brass` vs `--brass-lite` for light vs dark backgrounds.
+
 ## Local tooling
 
 - Python: 3.11+, deps in `requirements.txt`
