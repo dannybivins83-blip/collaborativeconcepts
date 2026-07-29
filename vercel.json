@@ -253,17 +253,6 @@
       "has": [
         {
           "type": "host",
-          "value": "adometr.com"
-        }
-      ],
-      "destination": "/adometr",
-      "permanent": false
-    },
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
           "value": "www.adometr.com"
         }
       ],
@@ -280,6 +269,28 @@
       ],
       "destination": "https://adometr.com/:path*",
       "permanent": true
+    },
+    {
+      "source": "/adometr",
+      "has": [
+        {
+          "type": "host",
+          "value": "adometr.com"
+        }
+      ],
+      "destination": "https://adometr.com/",
+      "permanent": false
+    },
+    {
+      "source": "/adometr/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "adometr.com"
+        }
+      ],
+      "destination": "https://adometr.com/:path*",
+      "permanent": false
     }
   ],
   "functions": {
@@ -334,7 +345,7 @@
           "value": "adometr.com"
         }
       ],
-      "destination": "/adometr/index.html"
+      "destination": "/adometr"
     },
     {
       "source": "/:path*",
