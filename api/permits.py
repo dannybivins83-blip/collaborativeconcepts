@@ -187,6 +187,29 @@ DEFAULT_SOURCES = [
                  "stable direct URL on apps.ci.boca-raton.fl.us; the engine pulls the "
                  "recent months in the window. Covers Boca Raton — a slice of Palm Beach County."),
     },
+    {
+        # City of Boynton Beach runs Click2Gov Building Permit (CentralSquare),
+        # NOT EnerGov. Click2Gov has no date/type search — only per-address /
+        # per-permit / per-parcel lookup behind a session CSRF token — so it can
+        # NEVER be a bulk lead feed like the EnerGov cities. It is registered here
+        # as lookup_only: the bulk fan-out skips it (it would only error), and the
+        # address-matcher reaches it on demand via /api/permits/lookup, which does
+        # live per-address Click2Gov lookups (capped + wall-clock bounded). For
+        # full Boynton coverage, use the Chapter 119 permit-export request instead
+        # (see permits/PUBLIC_RECORDS_REQUESTS.md) — a returned CSV wires in bulk.
+        "id": "boynton",
+        "county": "Palm Beach",
+        "label": "Palm Beach — Boynton Beach Permits (Click2Gov, lookup-only)",
+        "kind": "click2gov",
+        "lookup_only": True,
+        "base_url": "https://byb2-egov.aspgov.com",
+        "path": "/Click2GovBP",
+        "city": "Boynton Beach",
+        "portal": "https://byb2-egov.aspgov.com/Click2GovBP/index.html",
+        "note": ("Click2Gov is lookup-only (no bulk/date search). Not in the "
+                 "dashboard fan-out; reachable per-address via /api/permits/lookup. "
+                 "For bulk Boynton data, file the Chapter 119 permit-export request."),
+    },
     # Tyler EnerGov "Civic Self Service" exposes a public JSON search API at
     # <base_url>/apps/selfservice/api/energov/search/search — no auth, no cookies.
     # Several Palm Beach cities run it, which is the only bulk permit data for
@@ -1410,6 +1433,14 @@ def fetch_source(source, record_count=2000, start_ms=None, end_ms=None, tags=Non
         return uniq, scanned
 
     try:
+        # Click2Gov jurisdictions are lookup-only (per-address, no bulk search).
+        # They never join the fan-out, but the health probe calls fetch_source
+        # directly — answer with a benign informational status, not an error.
+        if source.get("kind") == "click2gov":
+            info["status"] = "lookup_only"
+            info["note"] = "per-address lookup via /api/permits/lookup"
+            return [], info
+
         # Accela Citizen Access portals (no GIS feed) — scrape the ASP.NET
         # General Search. Handled entirely by the accela adapter.
         if source.get("kind") == "accela_aca":
@@ -2048,6 +2079,9 @@ def run_search(params):
         return cached
 
     sources = [s for s in load_sources() if s.get("county") in counties]
+    # Lookup-only jurisdictions (Click2Gov) have no bulk/date search — they never
+    # join the fan-out; they're reached per-address via /api/permits/lookup.
+    sources = [s for s in sources if not s.get("lookup_only")]
     if source_filter:
         sources = [s for s in sources if s.get("id") == source_filter]
     if category:
@@ -2327,6 +2361,77 @@ def register_permits_routes(app):
             "counts": {"input": len(results), "matched": len(matched),
                        "unmatched": len(results) - len(matched)},
             "results": results,
+        })
+
+    @app.route("/api/permits/lookup", methods=["POST"])
+    def permits_lookup():
+        """Live per-address lookup for lookup-only (Click2Gov) jurisdictions.
+        Body: {city|source_id, addresses:[{name,address,...}], tag?, max?}.
+        Returns matcher-shaped results. Capped + wall-clock bounded (serverless).
+        NOTE: this hits the city portal live, one request per address — meant for
+        SPOT-CHECKING a small set, not bulk. Use the records-request CSV for scale."""
+        try:
+            from click2gov import lookup_many
+        except ImportError:
+            from api.click2gov import lookup_many
+        body = request.get_json(force=True, silent=True) or {}
+        addresses = body.get("addresses") or []
+        if not addresses:
+            return jsonify({"ok": False, "error": "no addresses provided"}), 400
+        city = (body.get("city") or "").strip().lower()
+        source_id = (body.get("source_id") or "").strip().lower()
+        tag = (body.get("tag") or "").strip()
+        src = None
+        for s in load_sources():
+            if s.get("kind") != "click2gov":
+                continue
+            if (source_id and s.get("id", "").lower() == source_id) or \
+               (city and (s.get("city", "").lower() == city)):
+                src = s
+                break
+        if not src:
+            return jsonify({"ok": False,
+                            "error": "no Click2Gov source for that city/source_id"}), 400
+        # bound the batch: never exceed a serverless-safe count
+        try:
+            max_lookups = min(int(body.get("max") or 60), 120)
+        except (TypeError, ValueError):
+            max_lookups = 60
+        results, diag = lookup_many(
+            src["base_url"], addresses[:max_lookups], path=src.get("path", "/Click2GovBP"),
+            deadline=min(REQUEST_BUDGET - 5, 40), max_lookups=max_lookups)
+        county = src.get("county", "")
+        out = []
+        for r in results:
+            permits = []
+            for p in (r.get("permits") or []):
+                desc = p.get("description") or ""
+                ptype = p.get("type") or ""
+                tags = tag_permit("%s %s" % (desc, ptype))
+                if tag and tag not in tags:      # tag filter (solar/roofing/…)
+                    continue
+                permits.append({
+                    "permit_number": p.get("permit_number"),
+                    "issued_date": p.get("issued_date"),
+                    "description": desc, "type": ptype or None,
+                    "status": p.get("status"), "address": p.get("address"),
+                    "city": src.get("city"), "county": county,
+                    "contractor": p.get("contractor"), "tags": tags,
+                })
+            entry = {"input": r.get("input"), "matched": bool(permits),
+                     "permits": permits}
+            if r.get("error"):
+                entry["error"] = r["error"]
+            out.append(entry)
+        matched = [r for r in out if r["matched"]]
+        return jsonify({
+            "ok": True, "city": src.get("city"), "tag": tag or None,
+            "looked_up": diag.get("looked_up"), "requested": len(addresses),
+            "capped": len(addresses) > max_lookups,
+            "hit_deadline": diag.get("hit_deadline"),
+            "counts": {"input": len(out), "matched": len(matched),
+                       "unmatched": len(out) - len(matched)},
+            "results": out, "diag": diag,
         })
 
     @app.route("/api/permits/tags", methods=["GET"])

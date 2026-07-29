@@ -1263,6 +1263,8 @@ class EndpointTests(unittest.TestCase):
         self.assertEqual(set(ids),
                          {"mdc", "mdc_violations", "ftl", "boca", "broward_uninc",
                           "pbc", "martin",
+                          # Click2Gov lookup-only jurisdiction (no bulk feed)
+                          "boynton",
                           # Tyler EnerGov Civic Access cities — each is its own source
                           # because FL cities permit independently of their county.
                           "delray", "wpb", "pbg", "wellington", "palm_beach_town",
@@ -1275,6 +1277,49 @@ class EndpointTests(unittest.TestCase):
         # every county still represented by at least one source
         counties = {s["county"] for s in data["sources"]}
         self.assertEqual(counties, set(permits.COUNTIES))
+
+    def test_boynton_is_lookup_only(self):
+        # the Click2Gov source must never join the bulk fan-out and the health
+        # probe must report a benign status, not an error.
+        src = next(s for s in permits.load_sources() if s["id"] == "boynton")
+        self.assertTrue(src.get("lookup_only"))
+        _, info = permits.fetch_source(src, record_count=5)
+        self.assertEqual(info["status"], "lookup_only")
+
+    def test_lookup_endpoint_validates(self):
+        r = self.client.post("/api/permits/lookup", json={"city": "Boynton Beach"})
+        self.assertEqual(r.status_code, 400)  # no addresses
+        r = self.client.post("/api/permits/lookup",
+                             json={"city": "Nowhere", "addresses": [{"address": "1 Main St"}]})
+        self.assertEqual(r.status_code, 400)  # no Click2Gov source for that city
+
+    def test_lookup_endpoint_maps_results(self):
+        # mock the live batch so we exercise tagging/shaping without network
+        fake = ([
+            {"input": {"name": "A", "address": "810 N A St"}, "matched": True,
+             "permits": [{"permit_number": "S-1", "description": "SOLAR PV ROOF MOUNT",
+                          "type": "Solar", "issued_date": "2023-03-14",
+                          "address": "810 N A ST", "status": "Issued"}]},
+            {"input": {"name": "B", "address": "5 Pool Ln"}, "matched": True,
+             "permits": [{"permit_number": "P-9", "description": "POOL SCREEN",
+                          "type": "Pool", "issued_date": "2022-01-01",
+                          "address": "5 POOL LN", "status": "Issued"}]},
+        ], {"looked_up": 2, "hit_deadline": False})
+        try:
+            import click2gov as _c2g
+        except ImportError:
+            from api import click2gov as _c2g
+        with mock.patch.object(_c2g, "lookup_many", return_value=fake):
+            r = self.client.post("/api/permits/lookup", json={
+                "city": "Boynton Beach", "tag": "solar",
+                "addresses": [{"address": "810 N A St"}, {"address": "5 Pool Ln"}]})
+        data = r.get_json()
+        self.assertTrue(data["ok"])
+        # solar tag filter keeps the PV permit, drops the pool one
+        self.assertEqual(data["counts"]["matched"], 1)
+        hit = next(x for x in data["results"] if x["input"]["name"] == "A")
+        self.assertEqual(hit["permits"][0]["permit_number"], "S-1")
+        self.assertIn("solar", hit["permits"][0]["tags"])
 
     def test_csv_export(self):
         with self._patch_live():

@@ -85,9 +85,27 @@
     </div>
   </div>
 
+  <div class="panel" style="border-color:#d7c38a;background:#fffdf5">
+    <label>Boynton Beach live-check (Click2Gov) — spot-check only</label>
+    <div class="mini" style="margin:6px 0 10px">
+      Boynton runs Click2Gov, which has no bulk feed — so it's checked one address at a time,
+      <strong>live</strong>, and is slow. Capped to ~60 per run. For the whole Boynton list, use the
+      records-request CSV instead. (Full coverage request already drafted.)
+    </div>
+    <textarea id="boyList" style="min-height:110px" placeholder="Boynton addresses — one per line
+2542 SW 12th Street, Boynton Beach FL 33426
+..."></textarea>
+    <div class="row">
+      <button id="fillBoy">Fill from CSV (Boynton only)</button>
+      <button id="runBoy" class="gold">Live-check Boynton</button>
+      <span id="boyStatus" class="mini"></span>
+    </div>
+  </div>
+
   <div id="coverageBanner" class="banner">
     <strong>Coverage note:</strong> matches only find permits in jurisdictions the tool ingests.
-    A "no permit" result can mean the city isn't wired yet (e.g. Boynton Beach), not that no permit exists.
+    A "no permit" result in a wired city is a real signal; a "no permit" in a lookup-only city
+    (Boynton) just means it wasn't live-checked. Use the Boynton live-check above for that slice.
   </div>
   <div id="errBanner" class="banner err"></div>
 
@@ -283,6 +301,41 @@
       tb.appendChild(tr);
     }
   }
+
+  // --- Boynton Beach live-check (Click2Gov, per-address) ---
+  function isBoynton(s){ return /boynton\s*beach/i.test(s||""); }
+  $("fillBoy").onclick=function(){
+    if(!csvRows.length){ $("boyStatus").textContent="Load a CSV first."; return; }
+    var boy=csvRows.filter(function(r){return isBoynton(r.address)});
+    $("boyList").value=boy.slice(0,60).map(function(r){
+      return (r.name?r.name+" | ":"")+r.address; }).join("\n");
+    $("boyStatus").textContent=boy.length+" Boynton in CSV"+(boy.length>60?" — first 60 loaded (cap)":" loaded");
+  };
+  $("runBoy").onclick=function(){
+    var text=$("boyList").value.trim();
+    if(!text){ $("boyList").focus(); return; }
+    var addrs=text.split("\n").map(function(l){
+      l=l.trim(); if(!l) return null;
+      var name="", addr=l, pipe=l.indexOf("|");
+      if(pipe>=0){ name=l.slice(0,pipe).trim(); addr=l.slice(pipe+1).trim(); }
+      return {name:name,address:addr};
+    }).filter(Boolean);
+    $("runBoy").disabled=true; $("errBanner").style.display="none";
+    $("boyStatus").textContent="Live-checking "+addrs.length+" address(es)… (slow)";
+    fetch("/api/permits/lookup",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({city:"Boynton Beach",tag:$("tag").value,addresses:addrs})})
+      .then(function(r){ if(!r.ok) return r.json().then(function(j){throw new Error(j.error||("API "+r.status))}); return r.json(); })
+      .then(function(d){
+        allResults=d.results||[]; $("exportBtn").style.display=allResults.length?"inline-block":"none";
+        render({counts:d.counts,permits_searched:d.looked_up||0,demo:false,results:allResults},allResults);
+        var msg="Checked "+(d.looked_up||0)+"/"+d.requested+" live";
+        if(d.capped) msg+=" (capped)"; if(d.hit_deadline) msg+=" — stopped at time limit, run the rest in another batch";
+        $("boyStatus").textContent=msg;
+      })
+      .catch(function(e){ $("errBanner").textContent="Boynton live-check failed: "+e.message;
+        $("errBanner").style.display="block"; $("boyStatus").textContent=""; })
+      .finally(function(){ $("runBoy").disabled=false; });
+  };
 
   function csvCell(s){ s=String(s==null?"":s); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
   $("exportBtn").onclick=function(){

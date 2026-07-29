@@ -75,7 +75,7 @@ The startup hook will pick it up automatically on the next session.
 - **SoFlo Permit Leads** at `/permits/` — internal BatchData-style
   building-permit lead dashboard for Martin / Palm Beach / Broward /
   Miami-Dade. Engine in `api/permits.py` (routes `/api/permits/*`: search,
-  tags, sources, discover, CSV export). Pulls real permits per county:
+  tags, sources, discover, CSV export, match, lookup). Pulls real permits per county:
   Miami-Dade (official open-data, resolved via ArcGIS Hub v3 dataset API),
   Broward (Fort Lauderdale + unincorporated county ArcGIS layers), Martin
   (Accela portal scraper in `api/accela.py` + development-projects layer).
@@ -83,6 +83,15 @@ The startup hook will pick it up automatically on the next session.
   source** — 19 run Tyler EnerGov Civic Access (`kind: energov_css`) and Boca
   publishes monthly CSVs (`kind: csv_monthly`). Palm Beach therefore has 8
   sources, not zero (that earlier "no queryable feed" note was wrong).
+  **Boynton Beach runs Click2Gov (`kind: click2gov`, `lookup_only: True`), which
+  has NO bulk/date search — only per-address/permit/parcel lookup behind a
+  session CSRF token.** So it's excluded from the bulk fan-out and reached
+  on-demand via `POST /api/permits/lookup` (adapter in `api/click2gov.py`:
+  runtime form-discovery + generic results parse; capped + wall-clock bounded;
+  spot-check only, not for the full 2k+ Boynton list). For bulk Boynton coverage,
+  file the Chapter 119 permit-export request (drafted to cityclerk@bbfl.us) and
+  wire the returned CSV. The address-matcher UI (`permits/match.html`) has a CSV
+  upload + a Boynton live-check panel. Offline: `python3 _click2gov_tests.py` (11).
   EnerGov gotchas, all learned the hard way — don't re-litigate:
   the `tenantName` header is **ignored** (the server resolves the tenant from
   the Host; bogus/empty values return identical data), so a new city needs only
