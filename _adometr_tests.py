@@ -294,5 +294,42 @@ r = client.patch(f"/api/adometr/admin/matches/{mid}", headers=auth(admin),
 r = client.get("/api/adometr/driver/me", headers=auth(dtok))
 check("gps toggled off", j(r)["matches"][0]["gps_enabled"] in (0, False))
 
+print("== ambassadors ==")
+r = client.post("/api/adometr/admin/ambassadors", headers=auth(admin),
+                json={"name": "Chase Burns", "territory": "Melbourne / Space Coast",
+                      "phone": "321-555-0100"})
+check("ambassador created (no email needed)", r.status_code == 200, r.data)
+chase_code = j(r)["ref_code"]
+check("ambassador code from name", chase_code.startswith("CHASE"))
+check("ambassador link built", j(r)["link"].endswith("?ref=" + chase_code))
+r = client.post("/api/adometr/admin/ambassadors", headers=auth(admin),
+                json={"name": "Jonathan Simpson", "email": "jon@example.com",
+                      "territory": "Orlando"})
+check("second ambassador", r.status_code == 200)
+r = client.post("/api/adometr/admin/ambassadors", headers=auth(admin),
+                json={"name": "Dup Jon", "email": "jon@example.com"})
+check("duplicate ambassador email 409", r.status_code == 409)
+r = client.post("/api/adometr/admin/ambassadors", headers=auth(admin), json={"email": "x@y.co"})
+check("nameless ambassador 400", r.status_code == 400)
+
+client.post("/api/adometr/apply", json={"name": "Melbourne Mike",
+                                        "email": "mike-melb@example.com",
+                                        "vehicle": "2020 Tacoma",
+                                        "referred_by": chase_code.lower()})
+r = client.get("/api/adometr/admin/ambassadors", headers=auth(admin))
+ambs = {a["name"]: a for a in j(r)["ambassadors"]}
+check("ambassador signup credited", ambs["Chase Burns"]["driver_signups"] == 1,
+      ambs["Chase Burns"])
+check("ambassador qr url", ambs["Chase Burns"]["qr_url"].startswith("/api/adometr/qr"))
+aid = ambs["Jonathan Simpson"]["id"]
+r = client.patch(f"/api/adometr/admin/ambassadors/{aid}", headers=auth(admin),
+                 json={"status": "paused", "notes": "on vacation"})
+check("ambassador patched", r.status_code == 200)
+r = client.patch(f"/api/adometr/admin/ambassadors/{aid}", headers=auth(admin),
+                 json={"status": "not-real"})
+check("bad ambassador status 400", r.status_code == 400)
+r = client.get("/api/adometr/admin/ambassadors")
+check("ambassadors need admin auth", r.status_code == 401)
+
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

@@ -30,8 +30,10 @@ the sponsor relationship, matching, verification, reporting, and keeps the sprea
 Campaigns run 3–6 month terms; drivers submit mileage monthly; sponsors get monthly
 verified-mile reports; referral milestones pay at wrap/3/6/12 months.
 
-**WHERE.** The I-95 corridor, Jupiter → Miami (Palm Beach, Broward, Miami-Dade), plus the
-Turnpike and US-1. Highest-value micro-markets: dense commuter corridors, cart-legal
+**WHERE.** Home market: the I-95 corridor, Jupiter → Miami (Palm Beach, Broward,
+Miami-Dade), plus the Turnpike and US-1. Expansion territories via ambassadors:
+Orlando (I-4/408 commuter market) and Melbourne / Space Coast — with West Palm and
+Broward anchored by territory partners as well. Highest-value micro-markets: dense commuter corridors, cart-legal
 downtowns (Delray's Atlantic Ave), airport zones, event venues. Digital storefront:
 adometr.com (landing + calculator + both application forms + three portals).
 

@@ -159,6 +159,13 @@ CREATE TABLE IF NOT EXISTS wm_photos (
   period TEXT NOT NULL DEFAULT '', content_type TEXT NOT NULL DEFAULT 'image/jpeg',
   note TEXT NOT NULL DEFAULT '', data BYTEA NOT NULL
 );
+CREATE TABLE IF NOT EXISTS wm_ambassadors (
+  id SERIAL PRIMARY KEY, created_at BIGINT NOT NULL,
+  name TEXT NOT NULL DEFAULT '', email TEXT UNIQUE,
+  phone TEXT NOT NULL DEFAULT '', territory TEXT NOT NULL DEFAULT '',
+  ref_code TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'active',
+  notes TEXT NOT NULL DEFAULT ''
+);
 """
 
 
@@ -794,6 +801,86 @@ def register_adometr_routes(app):
                            "owed_cents": cents})
         return jsonify({"ledger": ledger,
                         "note": "owed = approved in-cap miles x rate + flat monthly, per period"})
+
+    # ---------------- ambassadors (territory referral partners) ----------------
+    # Ambassadors are not drivers: they get a ref code + link + QR and their
+    # territory's signups credit to them. No portal login in v1 — Danny reads
+    # their numbers off the admin panel and pays referral terms manually.
+
+    AMBASSADOR_STATUSES = ("active", "paused", "ended")
+
+    @app.route(P + "/admin/ambassadors", methods=["GET", "POST"])
+    def wm_admin_ambassadors():
+        err = _admin_guard()
+        if err:
+            return err
+        db = get_db()
+        if not db:
+            return _no_db()
+        if request.method == "POST":
+            d = request.get_json(silent=True) or {}
+            email = _email(d.get("email")) or None  # optional — phone-only partners exist
+            name = _clean(d.get("name"))
+            if not name:
+                db.close()
+                return jsonify({"error": "name required"}), 400
+            code = new_ref_code(name)
+            try:
+                db.q("""INSERT INTO wm_ambassadors (created_at,name,email,phone,territory,ref_code,notes)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s)""",
+                     [now(), name, email, _clean(d.get("phone"), 40),
+                      _clean(d.get("territory")), code, _clean(d.get("notes"), 2000)])
+                db.commit()
+            except Exception:
+                db.close()
+                return jsonify({"error": "email already exists"}), 409
+            db.close()
+            return jsonify({"ok": True, "ref_code": code, "link": ref_link(code)})
+        rows = db.q("SELECT * FROM wm_ambassadors ORDER BY created_at DESC")
+        for r in rows:
+            counts = db.q("""SELECT
+                (SELECT COUNT(*) FROM wm_drivers WHERE UPPER(referred_by)=UPPER(%s)) AS drivers,
+                (SELECT COUNT(*) FROM wm_drivers WHERE UPPER(referred_by)=UPPER(%s)
+                    AND status IN ('wrapped','matched','active')) AS drivers_active,
+                (SELECT COUNT(*) FROM wm_sponsors WHERE UPPER(referred_by)=UPPER(%s)) AS sponsors""",
+                          [r["ref_code"], r["ref_code"], r["ref_code"]])
+            c = counts[0] if counts else {}
+            r["driver_signups"] = int(c.get("drivers") or 0)
+            r["drivers_active"] = int(c.get("drivers_active") or 0)
+            r["sponsor_signups"] = int(c.get("sponsors") or 0)
+            r["link"] = ref_link(r["ref_code"])
+            r["qr_url"] = f"{P}/qr?ref={r['ref_code']}"
+        db.close()
+        return jsonify({"ambassadors": rows, "statuses": list(AMBASSADOR_STATUSES)})
+
+    @app.route(P + "/admin/ambassadors/<int:aid>", methods=["PATCH"])
+    def wm_admin_ambassador_patch(aid):
+        err = _admin_guard()
+        if err:
+            return err
+        db = get_db()
+        if not db:
+            return _no_db()
+        d = request.get_json(silent=True) or {}
+        sets, vals = [], []
+        for f in ("name", "phone", "territory", "notes"):
+            if f in d:
+                sets.append(f + "=%s")
+                vals.append(_clean(d[f], 2000))
+        if "status" in d:
+            if d["status"] not in AMBASSADOR_STATUSES:
+                db.close()
+                return jsonify({"error": "bad status"}), 400
+            sets.append("status=%s")
+            vals.append(d["status"])
+        if not sets:
+            db.close()
+            return jsonify({"error": "nothing to update"}), 400
+        vals.append(aid)
+        db.q(f"UPDATE wm_ambassadors SET {', '.join(sets)} WHERE id=%s", vals)
+        db.commit()
+        db.close()
+        return jsonify({"ok": True})
 
     # ---------------- driver ----------------
 
