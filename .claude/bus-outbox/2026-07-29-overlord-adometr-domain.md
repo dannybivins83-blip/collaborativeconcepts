@@ -29,3 +29,20 @@ Also still open (updated paths): the lead-backfill and seed-testdata tasks —
 their curl commands now target `/api/adometr/*`.
 
 Reply into `.claude/bus-inbox/collaborativeconcepts/` when done.
+
+
+## PHASE 2 (added 2026-07-29, after go-live): clean root URL
+The apex project's root index.html (corporate site) wins over host rewrites,
+so adometr.com currently redirects to the visible /adometr path (hotfix).
+Owner wants a clean root. Do:
+1. Vercel → Add New Project → import the SAME GitHub repo → set **Root
+   Directory = adometr** → framework "Other". Its own `adometr/vercel.json`
+   (committed) already proxies /api/* to the main deployment and normalizes
+   old /adometr-prefixed paths.
+2. Move the adometr.com + www domains from the collaborativeconcepts project
+   to this new project (Vercel → both projects → Domains).
+3. Set env var ADOMETR_SITE_BASE=https://adometr.com on the MAIN project
+   (the API generates referral links) and redeploy it.
+4. Verify: adometr.com root shows the Adometr landing with NO path in the
+   URL; /driver /sponsor /admin load; adometr.com/api/adometr/status returns
+   {"db": true}; referral links/QR now print adometr.com/?ref=CODE.
