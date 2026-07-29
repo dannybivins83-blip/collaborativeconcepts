@@ -8,17 +8,6 @@
       "has": [
         {
           "type": "host",
-          "value": "adometr.com"
-        }
-      ],
-      "destination": "/adometr",
-      "permanent": false
-    },
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
           "value": "www.collaborativeconceptsfl.com"
         }
       ],
@@ -280,17 +269,6 @@
       ],
       "destination": "https://adometr.com/:path*",
       "permanent": true
-    },
-    {
-      "source": "/adometr/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "adometr.com"
-        }
-      ],
-      "destination": "https://adometr.com/:path*",
-      "permanent": false
     }
   ],
   "functions": {
