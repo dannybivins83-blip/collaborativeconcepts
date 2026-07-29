@@ -64,7 +64,7 @@ const CONFIG = {
   @media(max-width:560px){.btn-ghost{display:none}}
 
   /* ---------- hero ---------- */
-  .hero{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;padding:56px 0 64px;align-items:center}
+  .hero{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;padding:56px 0 72px;align-items:center}
   .hero h1{font-weight:800;font-size:64px;line-height:1.02;letter-spacing:-.03em;color:var(--ink);text-wrap:pretty}
   .hero .lead{font-weight:400;font-size:19px;line-height:1.55;color:var(--mut);margin-top:20px;max-width:480px}
   .hero-ctas{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap}
@@ -89,19 +89,22 @@ const CONFIG = {
   }
 
   /* ---------- stats band ---------- */
-  .stats{display:flex;justify-content:center;gap:64px;padding:30px 24px;background:var(--sec);border-radius:24px;margin-bottom:64px;flex-wrap:wrap}
+  .stats{display:flex;justify-content:center;gap:64px;padding:30px 24px;background:var(--sec);border-radius:24px;margin-bottom:96px;flex-wrap:wrap}
   .stats>div{text-align:center;min-width:130px}
   .stats b{display:block;font-weight:800;font-size:30px;letter-spacing:-.02em;color:var(--ink)}
   .stats span{font-weight:400;font-size:13.5px;color:var(--mut);margin-top:2px;display:block}
-  @media(max-width:760px){.stats{gap:24px}}
+  @media(max-width:760px){.stats{gap:24px;margin-bottom:60px}}
 
-  /* ---------- section base ---------- */
-  section{padding-bottom:64px}
-  h2{font-weight:800;font-size:42px;letter-spacing:-.02em;color:var(--ink)}
-  @media(max-width:760px){h2{font-size:30px}}
+  /* ---------- section base : one vertical rhythm for the whole page ---------- */
+  section{padding-bottom:96px}
+  h2{font-weight:800;font-size:42px;letter-spacing:-.02em;color:var(--ink);margin:0 0 18px}
+  @media(max-width:760px){
+    section{padding-bottom:60px}
+    h2{font-size:30px}
+  }
 
   /* ---------- how it works ---------- */
-  .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:28px}
+  .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:10px}
   .step{background:var(--sec);border-radius:20px;padding:22px}
   .step.hi{background:var(--tint)}
   .step .num{width:34px;height:34px;border-radius:50%;background:var(--pink);color:#fff;font-weight:700;font-size:16px;display:grid;place-items:center}
@@ -114,7 +117,7 @@ const CONFIG = {
 
   /* ---------- calculator ---------- */
   .calc{background:var(--sec);border-radius:28px;padding:44px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px}
-  .calc .miles-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:28px}
+  .calc .miles-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px}
   .calc .lbl{font-weight:700;font-size:15px;color:var(--ink)}
   .calc .lbl .opt{color:var(--faint);font-weight:400}
   .calc .miles-val{font-weight:800;font-size:28px;letter-spacing:-.02em;color:var(--pink)}
@@ -153,7 +156,7 @@ const CONFIG = {
   @media(max-width:760px){.spots{grid-template-columns:1fr}}
 
   /* ---------- referrals ---------- */
-  .refs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+  .refs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
   .ref{border:1px solid var(--border);border-radius:20px;padding:28px}
   .ref .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
   .ref .head span:first-child{font-weight:700;font-size:18px;color:var(--ink)}
@@ -163,10 +166,25 @@ const CONFIG = {
   .ref-fine{font-weight:400;font-size:13.5px;line-height:1.6;color:var(--faint);margin-top:12px}
   @media(max-width:760px){.refs{grid-template-columns:1fr}}
 
+  /* ---------- launch corridor strip (static, CSS only) ---------- */
+  .corridor{background:var(--sec);border-radius:24px;padding:30px 34px;margin-bottom:16px}
+  .cor-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px 18px;flex-wrap:wrap;margin-bottom:30px}
+  .cor-kick{font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--pink)}
+  .cor-title{font-weight:700;font-size:16px;color:var(--ink)}
+  .cor-map{display:flex;justify-content:space-between;position:relative;padding:0 4px}
+  .cor-map::before{content:'';position:absolute;left:10px;right:10px;top:6px;height:4px;background:var(--pink);opacity:.3;border-radius:99px}
+  .cor-run{position:absolute;top:0;left:10px;width:16px;height:16px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 4px rgba(15,181,166,.18);animation:cor-run 10s ease-in-out infinite}
+  @keyframes cor-run{0%,100%{left:10px}50%{left:calc(100% - 26px)}}
+  @media(prefers-reduced-motion:reduce){.cor-run{animation:none;left:calc(50% - 8px)}}
+  .cor-stop{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .cor-dot{width:16px;height:16px;background:#fff;border:4px solid var(--pink);border-radius:50%}
+  .cor-name{font-weight:600;font-size:13px;color:var(--ink);text-align:center}
+  @media(max-width:560px){.corridor{padding:22px 18px}.cor-name{font-size:11px}}
+
   /* ---------- for brands ---------- */
   .brands{background:var(--ink);border-radius:28px;padding:44px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px}
   .brands .kick{font-weight:700;font-size:13px;letter-spacing:.08em;color:var(--dark-kick);text-transform:uppercase}
-  .brands h2{font-size:40px;line-height:1.05;margin-top:12px;color:#fff}
+  .brands h2{font-size:40px;line-height:1.05;margin:12px 0 0;color:#fff}
   .brands .sub{font-weight:400;font-size:15.5px;line-height:1.6;color:var(--dark-mut);margin-top:14px;max-width:440px}
   .bstats{display:flex;gap:36px;margin-top:28px;flex-wrap:wrap}
   .bstats b{display:block;font-weight:800;font-size:30px;letter-spacing:-.02em;color:#fff}
@@ -189,7 +207,7 @@ const CONFIG = {
   /* ---------- driver apply ---------- */
   .apply{display:grid;grid-template-columns:.85fr 1.15fr;gap:48px}
   .apply h2{font-size:42px;line-height:1.05}
-  .checks{display:flex;flex-direction:column;gap:12px;margin-top:24px;font-weight:400;font-size:15px;line-height:1.5;color:var(--mut)}
+  .checks{display:flex;flex-direction:column;gap:12px;margin-top:6px;font-weight:400;font-size:15px;line-height:1.5;color:var(--mut)}
   .checks span.row{display:flex;gap:10px}
   .checks .ck{color:var(--pink);font-weight:800;flex:none}
   .checks strong{color:var(--ink)}
@@ -235,12 +253,12 @@ const CONFIG = {
         <a href="#how">How it works</a>
         <a href="#calc">Earnings</a>
         <a href="#referrals">Referrals</a>
-        <a href="#corridors">For brands</a>
+        <a href="#brands">For brands</a>
         <a href="#faq">FAQ</a>
       </div>
     </div>
     <div class="nav-ctas">
-      <a class="btn btn-ghost" href="#corridors">For brands</a>
+      <a class="btn btn-ghost" href="#brands">For brands</a>
       <a class="btn btn-ink" href="#apply">Apply to drive</a>
     </div>
   </nav>
@@ -287,16 +305,6 @@ const CONFIG = {
 </div>
 
 <!-- ================= 4. HOW IT WORKS ================= -->
-<section id="video" style="padding:64px 0">
-  <div style="max-width:960px;margin:0 auto;padding:0 24px">
-    <video controls preload="metadata" playsinline
-      style="width:100%;border-radius:20px;box-shadow:0 14px 40px rgba(14,43,50,.16);display:block">
-      <source src="/adometr/assets/adometr-hero.mp4" type="video/mp4">
-      Your browser does not support video. <a href="/adometr/assets/adometr-hero.mp4">Download the clip</a>.
-    </video>
-  </div>
-</section>
-
 <section id="how" class="wrap">
   <h2>How it works</h2>
   <div class="steps">
@@ -405,132 +413,59 @@ const CONFIG = {
   <div class="ref-fine">A $5,000/mo sponsor pays you $1,500 across the first year. Paid on conversions only — your referral names you on their application. Anyone can refer.</div>
 </section>
 
-<!-- ================= 9. FOR BRANDS ================= -->
-<section id="corridors">
-<style>
-  #corridors{
-    --c-ink:var(--ink,#0e2b32); --c-accent:var(--pink,#0fb5a6); --c-mut:var(--mut,#5c7276);
-    --c-faint:var(--faint,#7d9094); --c-border:var(--border,#e7edee);
-    --c-tint:var(--tint,#e6f7f5); --c-fill:var(--sec,#f0f4f4);
-    display:flex; align-items:flex-start; background:#fff;
-  }
-  #corridors .map{width:50%; height:100vh; display:block; background:#fafcfc}
-  #corridors .info{width:50%; box-sizing:border-box; padding:96px 64px; min-height:240vh}
-  #corridors .cor-eyebrow{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--c-accent);margin:0 0 12px}
-  #corridors h2{font-family:'DM Sans',system-ui,sans-serif;font-weight:800;letter-spacing:-.03em;font-size:clamp(30px,3.4vw,44px);line-height:1.05;color:var(--c-ink);margin:0 0 14px}
-  #corridors .cor-sub{color:var(--c-mut);font-size:17px;line-height:1.6;max-width:46ch;margin:0 0 56px}
-  #corridors .beat{display:flex;gap:16px;align-items:flex-start;padding:26px 0;border-top:1px solid var(--c-border)}
-  #corridors .beat .dot-n{width:32px;height:32px;border-radius:999px;background:var(--c-accent);color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px}
-  #corridors .beat b{display:block;color:var(--c-ink);font-size:18px;margin-bottom:5px}
-  #corridors .beat p{margin:0;color:var(--c-mut);font-size:15px;line-height:1.55;max-width:44ch}
-  #corridors .beat .mono{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--c-faint);margin-top:10px;display:block}
-  #corridors .cor-stats{display:flex;gap:12px;margin:46px 0 0;flex-wrap:wrap}
-  #corridors .cor-stat{background:#fff;border:1px solid var(--c-border);border-radius:14px;padding:16px 20px;box-shadow:0 12px 34px rgba(14,43,50,.06)}
-  #corridors .cor-stat b{font-weight:800;font-size:21px;color:var(--c-ink);display:block}
-  #corridors .cor-stat span{font-size:12px;color:var(--c-mut)}
-  #corridors .cor-fine{margin-top:20px;font-size:12.5px;color:var(--c-faint)}
-  #corridors .expand-map{display:inline-flex;align-items:center;gap:9px;margin-top:44px;background:#fff;color:var(--c-ink);font:700 15px 'DM Sans',sans-serif;border:1.5px solid var(--c-border);border-radius:999px;padding:12.5px 26px;cursor:pointer}
-  #corridors .expand-map:hover{border-color:var(--c-accent);color:var(--c-accent)}
-  #corridors .expand-map svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
-  .close-map{position:fixed;top:22px;right:22px;z-index:60;visibility:hidden;opacity:0;background:var(--ink,#0e2b32);color:#fff;font:700 14px 'DM Sans',sans-serif;border:none;border-radius:999px;padding:11px 20px;cursor:pointer}
-  #corridors .map text{font-family:'DM Sans',system-ui,sans-serif}
-  @media(max-width:900px){
-    #corridors{flex-direction:column}
-    #corridors .map{width:100%;height:54vh}
-    #corridors .info{width:100%;min-height:0;padding:56px 20px}
-  }
-</style>
-
-<svg class="map" viewBox="0 0 1500 1500" preserveAspectRatio="xMidYMid slice" fill="none" aria-label="Stylized map of the South Florida I-95 corridor — the adometr pin travels Miami to West Palm Beach">
-  <g class="pov">
-    <g>
-      <!-- world: stylized South Florida -->
-      <rect x="-400" y="-400" width="2300" height="2300" fill="#fafcfc"/>
-      <path d="M980 -400 C 985 -100 960 250 930 500 C 905 750 950 1000 940 1250 C 935 1400 915 1700 920 1900 L2000 1900 L2000 -400 Z" fill="var(--tint,#e6f7f5)"/>
-      <path d="M980 -400 C 985 -100 960 250 930 500 C 905 750 950 1000 940 1250 C 935 1400 915 1700 920 1900" stroke="var(--border,#e7edee)" stroke-width="5"/>
-      <!-- turnpike (secondary, dashed) -->
-      <path d="M560 1420 C 600 1150 660 850 700 600 C 720 470 740 380 760 300" stroke="#d4dfe0" stroke-width="8" stroke-dasharray="22 18" stroke-linecap="round"/>
-      <text x="595" y="1000" transform="rotate(-76 595 1000)" font-weight="700" font-size="26" fill="#7d9094" letter-spacing="4">TURNPIKE</text>
-      <!-- I-95 route (DrawSVG reveal) -->
-      <path class="path" d="M700 1250 C 720 1150 760 1050 780 950 C 800 855 815 780 830 700 C 848 605 875 470 900 350" stroke="var(--pink,#0fb5a6)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-      <!-- cities -->
-      <g>
-        <circle cx="700" cy="1250" r="12" fill="#fff" stroke="var(--pink,#0fb5a6)" stroke-width="5"/>
-        <text x="520" y="1262" font-weight="700" font-size="34" fill="var(--ink,#0e2b32)">Miami</text>
-        <circle cx="780" cy="950" r="12" fill="#fff" stroke="var(--pink,#0fb5a6)" stroke-width="5"/>
-        <text x="490" y="962" font-weight="700" font-size="34" fill="var(--ink,#0e2b32)">Fort Lauderdale</text>
-        <circle cx="830" cy="700" r="12" fill="#fff" stroke="var(--pink,#0fb5a6)" stroke-width="5"/>
-        <text x="610" y="712" font-weight="700" font-size="34" fill="var(--ink,#0e2b32)">Boca Raton</text>
-        <circle cx="900" cy="350" r="12" fill="#fff" stroke="var(--pink,#0fb5a6)" stroke-width="5"/>
-        <text x="580" y="362" font-weight="700" font-size="34" fill="var(--ink,#0e2b32)">West Palm Beach</text>
-      </g>
-      <!-- I-95 shield -->
-      <g transform="translate(1030,120) scale(1.5)">
-        <path d="M26 0c8 5 17 7 26 7 0 26-4 44-26 55C4 51 0 33 0 7 9 7 18 5 26 0z" fill="#fff" stroke="var(--border,#e7edee)" stroke-width="2.5"/>
-        <text x="26" y="28" text-anchor="middle" font-weight="800" font-size="15" fill="var(--ink,#0e2b32)">I-95</text>
-        <text x="26" y="45" text-anchor="middle" font-weight="700" font-size="10" fill="#7d9094">SOUTH FL</text>
-      </g>
-      <!-- start marker (static, like the demo's dot-start) -->
-      <circle class="dot-start" cx="700" cy="1250" r="7" fill="var(--pink,#0fb5a6)"/>
-      <!-- traveling marker: the adometr $-pin + "your ad" chip (MotionPath) -->
-      <g class="dot">
-        <g transform="translate(-21,-36.4) scale(0.7)">
-          <path d="M30 6 C20 6 13 13 13 22 C13 34 30 52 30 52 C30 52 47 34 47 22 C47 13 40 6 30 6 Z" fill="var(--pink,#0fb5a6)" stroke="#fff" stroke-width="3"/>
-          <text x="30" y="30" text-anchor="middle" font-weight="800" font-size="21" fill="#fff">$</text>
-        </g>
-        <g transform="translate(16,-64)">
-          <rect x="0" y="0" rx="11" width="104" height="30" fill="var(--ink,#0e2b32)"/>
-          <text x="52" y="20" text-anchor="middle" font-weight="700" font-size="15" fill="#fff">your ad</text>
-        </g>
-      </g>
-    </g>
-  </g>
-</svg>
-
-<div class="info">
-  <p class="cor-eyebrow">For brands &amp; agencies</p>
-  <h2>Billboards that go find the traffic</h2>
-  <p class="cor-sub">Pick corridors and zones. Your ad rides where South Florida actually sits in traffic — and you pay only for GPS-verified miles inside your zone. Follow one wrapped car's morning run from Miami to West Palm as you scroll.</p>
-
-  <div class="beat">
-    <div class="dot-n">1</div>
-    <div><b>Choose your corridors</b>
-    <p>I-95 runs, Florida's Turnpike, toll roads, event venues — Miami to West Palm.</p>
-    <span class="mono">Departure · Miami</span></div>
+<!-- ================= 9. FOR BRANDS (launch corridor + campaign form) ================= -->
+<section class="wrap" id="brands">
+  <div class="corridor" id="corridors">
+    <div class="cor-head">
+      <span class="cor-kick">Launch corridor</span>
+      <span class="cor-title">Miami → West Palm Beach, down the I-95 spine</span>
+    </div>
+    <div class="cor-map" role="img" aria-label="The Adometr launch corridor runs along I-95 from Miami through Fort Lauderdale and Boca Raton to West Palm Beach">
+      <span class="cor-run" aria-hidden="true"></span>
+      <div class="cor-stop"><span class="cor-dot"></span><span class="cor-name">Miami</span></div>
+      <div class="cor-stop"><span class="cor-dot"></span><span class="cor-name">Fort Lauderdale</span></div>
+      <div class="cor-stop"><span class="cor-dot"></span><span class="cor-name">Boca Raton</span></div>
+      <div class="cor-stop"><span class="cor-dot"></span><span class="cor-name">West Palm Beach</span></div>
+    </div>
   </div>
-  <div class="beat">
-    <div class="dot-n">2</div>
-    <div><b>Wrapped cars run their normal routes</b>
-    <p>Real commuters and gig drivers. No detours, no staged loops — the traffic is already there.</p>
-    <span class="mono">Mile 28 · Fort Lauderdale</span></div>
+  <div class="brands">
+    <div>
+      <div class="kick">For brands &amp; agencies</div>
+      <h2>Billboards that go find the traffic</h2>
+      <p class="sub">Pick corridors and zones — I-95 runs, Florida's Turnpike, toll roads, event venues, Miami to West Palm. Your ad rides where South Florida actually sits in traffic, and you pay only for GPS-verified miles inside your zone: miles by corridor, dwell time, estimated impressions, reported monthly.</p>
+      <div class="bstats">
+        <div><b>~1.8M</b><span>impressions/mo per 10-car fleet</span></div>
+        <div><b>$1–4</b><span>typical CPM vs $8–14 static</span></div>
+        <div><b>24 h</b><span>to fleet availability &amp; CPMs</span></div>
+      </div>
+    </div>
+    <div class="bform-card" id="brand-card">
+      <form id="brand-form" class="stack">
+        <h3>Launch a wrapped-car campaign</h3>
+        <input class="fin" name="company" required placeholder="Company / brand" autocomplete="organization" aria-label="Company or brand">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <input class="fin" name="name" required placeholder="Your name" autocomplete="name" aria-label="Your name">
+          <input class="fin" name="phone" type="tel" placeholder="Phone" autocomplete="tel" aria-label="Phone">
+        </div>
+        <input class="fin" name="email" type="email" required placeholder="Work email" autocomplete="email" aria-label="Work email">
+        <select class="fin" name="budget" aria-label="Monthly budget">
+          <option>Monthly budget: under $2,500</option><option>$2,500–$10,000</option><option>$10,000–$50,000</option><option>$50,000+</option>
+        </select>
+        <select class="fin" name="fleet_size" aria-label="Cars wanted">
+          <option>Cars wanted: 1–5</option><option>5–15</option><option>15–50</option><option>50+</option>
+        </select>
+        <textarea class="fin" name="notes" rows="2" placeholder="Target market, corridors, goals"></textarea>
+        <input class="fin" name="referred_by" placeholder="Who referred you? (optional — they get paid)">
+        <input type="hidden" name="_subject" value="Adometr — NEW BRAND CAMPAIGN INQUIRY">
+        <input type="hidden" name="form_type" value="brand_inquiry">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+        <button class="btn btn-pink" type="submit" style="font-size:15px;padding:15px">Request fleet availability</button>
+        <div class="form-err" id="brand-err" role="alert"></div>
+        <div class="form-note">Availability + CPM estimates within one business day. Impressions are benchmarked estimates, not guarantees.</div>
+      </form>
+    </div>
   </div>
-  <div class="beat">
-    <div class="dot-n">3</div>
-    <div><b>Every paid mile is GPS-logged</b>
-    <p>Monthly proof: miles by corridor, dwell time, photos, estimated impressions.</p>
-    <span class="mono">Mile 45 · Boca Raton</span></div>
-  </div>
-  <div class="beat">
-    <div class="dot-n">4</div>
-    <div><b>Arrive at eye level</b>
-    <p>Effective CPMs a fraction of a static board — no 12-month lease, start with one car.</p>
-    <span class="mono">Arrival · West Palm Beach</span></div>
-  </div>
-
-  <div class="cor-stats">
-    <div class="cor-stat"><b>~1.8M</b><span>impressions/mo per 10-car fleet</span></div>
-    <div class="cor-stat"><b>$1–4</b><span>typical CPM vs $8–14 static</span></div>
-    <div class="cor-stat"><b>24 h</b><span>to fleet availability &amp; CPMs</span></div>
-  </div>
-  <p class="cor-fine">Impressions are benchmarked estimates, not guarantees.</p>
-
-  <button class="expand-map">
-    <svg viewBox="0 0 24 24"><path d="M3 9V3h6M21 15v6h-6M3 3l7 7M21 21l-7-7"/></svg>
-    <span>Expand Map</span>
-  </button>
-</div>
 </section>
-<button class="close-map">Close map ✕</button>
 
 <!-- ================= 10. DRIVER APPLICATION ================= -->
 <section id="apply" class="wrap">
@@ -723,78 +658,6 @@ wireForm('brand-form','brand-err',
     '<div class="t">Request received</div>' +
     '<div class="d">Fleet availability and CPM estimates within one business day.</div>' +
   '</div>');
-</script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/DrawSVGPlugin.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/MotionPathPlugin.min.js"></script>
-<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
-<script src="https://unpkg.com/gsap@3/dist/DrawSVGPlugin.min.js"></script>
-<script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
-<script src="https://unpkg.com/gsap@3/dist/MotionPathPlugin.min.js"></script>
-<script>
-// Adapted from Codrops "Scroll-Driven SVG Map Animation with GSAP" (Tom Miller).
-gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, MotionPathPlugin);
-
-const xTo = gsap.quickTo('.pov g', 'x', { duration: 1, ease: 'expo' });
-const yTo = gsap.quickTo('.pov g', 'y', { duration: 1, ease: 'expo' });
-
-const tl = gsap
-  .timeline({
-    scrollTrigger: {
-      trigger: '#corridors',
-      start: '0 0',
-      end: '100% 100%',
-      pin: '.map',
-      scrub: 1,
-    },
-    onUpdate: () => {
-      xTo(-gsap.getProperty('.dot', 'x'));
-      yTo(-gsap.getProperty('.dot', 'y'));
-    },
-  })
-  .to('.dot', { motionPath: '.path', immediateRender: true, ease: 'none' }, 0)
-  .from('.path', { drawSVG: '0 0', ease: 'none' }, 0)
-  .fromTo(
-    '.pov',
-    { x: 750, y: 750, scale: 2 },
-    { scale: 3.6, ease: 'sine.inOut', duration: 0.15, yoyo: true, repeat: 1, repeatDelay: 0.2 },
-    0,
-  );
-
-gsap.set('.pov g', {
-  x: -gsap.getProperty('.dot', 'x'),
-  y: -gsap.getProperty('.dot', 'y'),
-});
-
-// Map Expand + Collapse Behavior (as in the demo)
-const expandMapBtn = document.querySelector('.expand-map');
-const closeMapBtn = document.querySelector('.close-map');
-
-expandMapBtn.addEventListener('click', () => {
-  gsap
-    .timeline()
-    .set('body', { overflow: 'hidden' })
-    .to('.map', { width: '100%', maxWidth: '100%', ease: 'power3.inOut' })
-    .to(tl, { progress: 1, ease: 'power2.inOut' }, 0)
-    .to(closeMapBtn, { autoAlpha: 1 }, 0.3);
-});
-
-closeMapBtn.addEventListener('click', () => {
-  gsap
-    .timeline()
-    .to(closeMapBtn, { duration: 0.2, autoAlpha: 0 })
-    .to('.map', { width: '50%', maxWidth: '50%', ease: 'expo.inOut' }, 0)
-    .set('body', { overflow: 'scroll' });
-});
-
-window.addEventListener('resize', () => {
-  gsap.set(closeMapBtn, { autoAlpha: 0 });
-  gsap.set('body', { overflow: 'scroll' });
-  ScrollTrigger.refresh();
-});
-
-window.__mapTL = tl; // test hook — harmless in production
 </script>
 </body>
 </html>
