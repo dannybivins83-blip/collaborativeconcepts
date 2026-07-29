@@ -253,6 +253,17 @@
       "has": [
         {
           "type": "host",
+          "value": "adometr.com"
+        }
+      ],
+      "destination": "/adometr",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "www.adometr.com"
         }
       ],
