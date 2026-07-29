@@ -587,13 +587,14 @@ class LedgerTest(unittest.TestCase):
         b = ledger.leg_key([{"symbol": "SPY260821P00550000"}, {"symbol": "SPY260821P00545000"}])
         self.assertEqual(a, b)
 
-    def test_open_then_trader_close_realizes_pnl(self):
+    def test_open_then_trader_close_realizes_pnl_net_of_fees(self):
         pos = {}
         rec = ledger.record_open(self._open_sig(), 1, {"status": "dry-run-only"}, "t0")
         pos[rec["id"]] = rec
         closed = ledger.match_and_close(pos, self._close(price=0.40), "t1")
         self.assertIsNotNone(closed)
-        self.assertEqual(closed["realized_pnl"], 65.0)   # +105 credit, -40 to buy back
+        self.assertEqual(closed["closes"][0]["gross_pnl"], 65.0)  # +105 credit, -40 to close
+        self.assertEqual(closed["realized_pnl"], 62.40)           # net of $2.60 est round-trip fees
         self.assertEqual(pos["o1"]["status"], "closed")
 
     def test_close_wrong_trader_no_match(self):
@@ -607,20 +608,78 @@ class LedgerTest(unittest.TestCase):
         pos = {}
         rec = ledger.record_open(self._open_sig(), 1, {}, "t0")
         pos[rec["id"]] = rec
-        ledger.match_and_close(pos, self._close(price=0.40), "t1")   # +65 win
+        ledger.match_and_close(pos, self._close(price=0.40), "t1")   # +65 gross -> +62.40 net win
         sc = ledger.scorecard(pos)
-        self.assertEqual(sc["overall"]["realized_pnl"], 65.0)
+        self.assertEqual(sc["overall"]["realized_pnl"], 62.40)
         self.assertEqual(sc["overall"]["closed"], 1)
         self.assertEqual(sc["overall"]["wins"], 1)
-        self.assertEqual(sc["per_trader"]["Tom"]["realized_pnl"], 65.0)
+        self.assertEqual(sc["per_trader"]["Tom"]["realized_pnl"], 62.40)
 
     def test_losing_close_counts_as_loss(self):
         pos = {}
         rec = ledger.record_open(self._open_sig(), 1, {}, "t0")
         pos[rec["id"]] = rec
-        ledger.match_and_close(pos, self._close(price=2.00), "t1")   # +105 - 200 = -95
-        self.assertEqual(pos["o1"]["realized_pnl"], -95.0)
+        ledger.match_and_close(pos, self._close(price=2.00), "t1")   # +105 - 200 - 2.60 = -97.60
+        self.assertEqual(pos["o1"]["realized_pnl"], -97.60)
         self.assertEqual(ledger.scorecard(pos)["overall"]["losses"], 1)
+
+    # -- bug-fix coverage (from the 5-bug audit) --------------------------------
+    def test_bug3_scratch_is_not_a_win(self):
+        pos = {}
+        rec = ledger.record_open(self._open_sig(), 1, {}, "t0")
+        # close at exactly the open credit + fees so net P&L is $0 -> a SCRATCH
+        # open credit 1.05 (+$105); fees $2.60; close debit 1.024 -> -$102.40; net 0
+        pos[rec["id"]] = rec
+        ledger.match_and_close(pos, self._close(price=1.024), "t1")
+        self.assertEqual(pos["o1"]["realized_pnl"], 0.0)
+        sc = ledger.scorecard(pos)
+        self.assertEqual(sc["overall"]["scratches"], 1)
+        self.assertEqual(sc["overall"]["wins"], 0)          # $0 is NOT a win
+
+    def test_bug1_pending_close_queued_then_booked_on_fill(self):
+        # order placed (order_id) -> pending. Trader closes while pending -> queued,
+        # NOT booked. Only after the fill confirms does the P&L post.
+        pos = {}
+        rec = ledger.record_open(self._open_sig(), 1, {"order_id": "X1"}, "t0")
+        pos[rec["id"]] = rec
+        self.assertEqual(pos["o1"]["status"], "pending")
+        ledger.match_and_close(pos, self._close(price=0.40), "t1")
+        self.assertEqual(pos["o1"]["status"], "pending")            # queued, not booked
+        self.assertNotIn("realized_pnl", pos["o1"])
+        class _Bk:
+            def order_status(self, oid): return "Filled"
+        ledger.reconcile_fills(pos, _Bk())
+        self.assertEqual(pos["o1"]["status"], "closed")            # booked on fill
+        self.assertEqual(pos["o1"]["realized_pnl"], 62.40)
+
+    def test_bug1_unfilled_order_never_books_phantom_pnl(self):
+        pos = {}
+        rec = ledger.record_open(self._open_sig(), 1, {"order_id": "X2"}, "t0")
+        pos[rec["id"]] = rec
+        ledger.match_and_close(pos, self._close(price=0.40), "t1")  # queued
+        class _Bk:
+            def order_status(self, oid): return "Rejected"
+        ledger.reconcile_fills(pos, _Bk())
+        self.assertEqual(pos["o1"]["status"], "unfilled")
+        self.assertNotIn("realized_pnl", pos["o1"])                # no phantom P&L
+        self.assertEqual(ledger.scorecard(pos)["overall"]["realized_pnl"], 0.0)
+
+    def test_bug2_partial_close_of_condor_matches(self):
+        # 4-leg iron condor; trader closes just the CALL side (2 legs) -> must match
+        condor = {"id": "ic1", "trader": "Tom", "symbol": "SPX", "price": 2.00,
+                  "price_effect": "Credit",
+                  "legs": [{"symbol": "SPXW  260918P06980000"}, {"symbol": "SPXW  260918P07000000"},
+                           {"symbol": "SPXW  260918C07680000"}, {"symbol": "SPXW  260918C07700000"}]}
+        pos = {}
+        rec = ledger.record_open(condor, 1, {}, "t0")
+        pos[rec["id"]] = rec
+        call_close = {"trader": "Tom", "price": 0.50, "price_effect": "Debit",
+                      "legs": [{"symbol": "SPXW  260918C07680000"}, {"symbol": "SPXW  260918C07700000"}]}
+        out = ledger.match_and_close(pos, call_close, "t1")
+        self.assertIsNotNone(out)                                  # subset now matches (was lost)
+        self.assertEqual(pos["ic1"]["status"], "partial")         # remainder (put side) still open
+        self.assertEqual(len(pos["ic1"]["legs"]), 2)              # put legs remain
+        self.assertTrue(pos["ic1"]["realized_pnl_total"] != 0.0)  # partial P&L booked, not lost
 
     def test_mark_expired_excluded_from_realized(self):
         pos = {}
@@ -642,6 +701,26 @@ class LedgerTest(unittest.TestCase):
             ledger.append_jsonl(lj, {"event": "close", "id": "o1"})
             with open(lj) as f:
                 self.assertEqual(len(f.read().strip().splitlines()), 2)
+
+
+class FeedResilienceTest(unittest.TestCase):
+    """Bug 5: a feed/broker outage must NOT crash the poll loop (pm2 crash-loop)."""
+    def test_feed_poll_exception_does_not_crash_loop(self):
+        class _RaisingSource:
+            def poll(self):
+                raise ConnectionError("simulated HTTP 429 from the feed")
+        env = {"MODE": "paper", "TT_CLIENT_SECRET": "x", "TT_REFRESH_TOKEN": "x",
+               "TELEGRAM_BOT_TOKEN": "x", "TELEGRAM_CHAT_ID": "1",
+               "SIGNAL_SOURCE": "file", "TRACK_PNL": "0"}
+        with tempfile.TemporaryDirectory() as d:
+            env.update({"STATE_FILE": os.path.join(d, "s.json"),
+                        "KILL_SWITCH_FILE": os.path.join(d, "K")})
+            with mock.patch.dict(os.environ, env, clear=True), \
+                 mock.patch.object(main_mod, "make_source", return_value=_RaisingSource()), \
+                 mock.patch.object(main_mod, "poll_callbacks", return_value=(None, [])), \
+                 mock.patch.object(main_mod, "notify"):
+                rc = main_mod.run(Config(), execute_flag=False, once=True)
+        self.assertEqual(rc, 0)   # survived the feed 429 instead of crash-looping
 
 
 if __name__ == "__main__":

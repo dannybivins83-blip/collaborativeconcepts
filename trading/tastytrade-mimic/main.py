@@ -130,15 +130,26 @@ def run(cfg: Config, execute_flag: bool, once: bool) -> int:
             time.sleep(cfg.poll_interval_s)
             continue
 
-        # 1) fetch new signals -> send cards (non-blocking) and register as pending
+        # 1) fetch new signals -> send cards (non-blocking) and register as pending.
+        # A feed/broker hiccup must NOT crash the loop (that's the pm2 crash-loop
+        # pattern that killed other VM processes) -> guard the poll and the margin.
         if first_pass or not once:
-            for sig in source.poll():
+            try:
+                new_sigs = source.poll()
+            except Exception as e:
+                notify(cfg, f"⚠️ Feed poll failed: {type(e).__name__}: {e}",
+                       key="feed-poll", cooldown_s=cfg.alert_cooldown_s)
+                new_sigs = []
+            for sig in new_sigs:
                 if sig["id"] in state["seen"]:
                     continue
                 state["seen"] = state["seen"][-500:] + [sig["id"]]
                 save_state(cfg.state_file, state)  # mark seen BEFORE acting: never double-fire
                 mult = _multiplier(cfg, sig)
-                margin = broker.margin_preview(sig, mult)  # read-only: real buying-power req
+                try:
+                    margin = broker.margin_preview(sig, mult)  # read-only: real buying-power req
+                except Exception:
+                    margin = None                              # card still fires without it
                 mid = send_card(cfg, sig, mult, margin)
                 pending[sig["id"]] = {"sig": sig, "multiplier": mult, "message_id": mid,
                                       "expiry": now + cfg.approval_timeout_s}
