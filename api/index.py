@@ -4929,12 +4929,12 @@ register_permits_routes(app)
 
 
 # ---------------------------------------------------------------------------
-# WrapMiles portals — admin desk, driver portal, sponsor reports.
-# Routes live in api/wrapmiles.py (/api/wrapmiles/*).
+# Adometer portals — admin desk, driver portal, sponsor reports.
+# Routes live in api/adometer.py (/api/adometer/*).
 # ---------------------------------------------------------------------------
 try:
-    from wrapmiles import register_wrapmiles_routes
+    from adometer import register_adometer_routes
 except ImportError:  # when imported as a package (local tests)
-    from api.wrapmiles import register_wrapmiles_routes
+    from api.adometer import register_adometer_routes
 
-register_wrapmiles_routes(app)
+register_adometer_routes(app)

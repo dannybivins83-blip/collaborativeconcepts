@@ -11,8 +11,9 @@
 **This Vehicle Advertising Display Agreement** (the "Agreement") is entered into as of
 _____________ (the "Effective Date") by and between:
 
-**WrapMiles LLC**, a Florida limited liability company [**TO BE FORMED — do not execute
-under Collaborative Concepts LLC or La Gala Construction; see counsel**], with a
+**Collaborative Concepts LLC**, a Florida limited liability company, doing business as
+**Adometer** [**counsel: confirm "Adometer" fictitious-name (d/b/a) registration on Sunbiz
+before execution — owner decision 2026-07-28: operate under the existing LLC**], with a
 principal place of business at ______________________________ (the "Company"), and
 
 **_____________________________** ("Driver"), an individual residing at
@@ -218,7 +219,7 @@ update prospectively.
 
 11.3 **Severability; waiver; assignment.** Invalid provisions are severed; the rest
 stands. No waiver is implied. Driver may not assign this Agreement. The Company may
-assign to a successor of the WrapMiles business.
+assign to a successor of the Adometer business.
 
 11.4 **Publicity.** Driver consents to the Company's and Sponsor's use of photographs
 of the wrapped Vehicle (with license plate obscured) for marketing and reporting.
@@ -228,7 +229,7 @@ signature page.
 
 ---
 
-**COMPANY:** WrapMiles LLC — By: _________________ Name/Title: _________________ Date: _______
+**COMPANY:** Collaborative Concepts LLC d/b/a Adometer — By: _________________ Name/Title: _________________ Date: _______
 
 **DRIVER:** _________________ Signature: _________________ Date: _______
 

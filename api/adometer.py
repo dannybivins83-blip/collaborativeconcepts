@@ -1,8 +1,8 @@
 """
-WrapMiles portals API — admin matchmaking desk, driver portal, sponsor reports.
+Adometer portals API — admin matchmaking desk, driver portal, sponsor reports.
 
-Routes live under /api/wrapmiles/* and are registered onto the main Flask app
-via register_wrapmiles_routes(app) (same pattern as api/permits.py).
+Routes live under /api/adometer/* and are registered onto the main Flask app
+via register_adometer_routes(app) (same pattern as api/permits.py).
 
 Storage: Postgres (Neon / Vercel Postgres) via WRAPMILES_DB_URL, POSTGRES_URL,
 or DATABASE_URL. Until a database is attached the API answers with
@@ -50,7 +50,10 @@ MATCH_STATUSES = ["proposed", "accepted", "wrapped", "active", "ended"]
 # --------------------------------------------------------------------------
 
 def _db_url():
-    return (os.environ.get("WRAPMILES_DB_URL")
+    # ADOMETER_* preferred going forward; WRAPMILES_* kept because they're what
+    # is already provisioned in Vercel (rebrand 2026-07-28 — do not break prod)
+    return (os.environ.get("ADOMETER_DB_URL")
+            or os.environ.get("WRAPMILES_DB_URL")
             or os.environ.get("POSTGRES_URL")
             or os.environ.get("DATABASE_URL") or "").strip()
 
@@ -219,11 +222,12 @@ def _no_db():
 
 def _secret():
     s = os.environ.get("SESSION_SECRET") or os.environ.get("WRAPMILES_ADMIN_KEY") or ""
-    return hashlib.sha256(("wrapmiles|" + s).encode()).digest()
+    return hashlib.sha256(("adometer|" + s).encode()).digest()
 
 
 def _admin_key():
-    return (os.environ.get("WRAPMILES_ADMIN_KEY") or "").strip()
+    return (os.environ.get("ADOMETER_ADMIN_KEY")
+            or os.environ.get("WRAPMILES_ADMIN_KEY") or "").strip()
 
 
 def make_token(role, ident):
@@ -267,7 +271,9 @@ def new_code():
     return "".join(secrets.choice(alphabet) for _ in range(8))
 
 
-SITE_BASE = os.environ.get("WRAPMILES_SITE_BASE", "https://collaborativeconceptsfl.com")
+SITE_BASE = (os.environ.get("ADOMETER_SITE_BASE")
+             or os.environ.get("WRAPMILES_SITE_BASE")
+             or "https://collaborativeconceptsfl.com")
 
 
 def new_ref_code(name):
@@ -278,7 +284,7 @@ def new_ref_code(name):
 
 
 def ref_link(code):
-    return f"{SITE_BASE}/wrapmiles?ref={code}"
+    return f"{SITE_BASE}/adometer?ref={code}"
 
 
 def ensure_ref_code(db, driver_row):
@@ -320,9 +326,17 @@ def driver_period_cents(campaign, m_row):
 # route registration
 # --------------------------------------------------------------------------
 
-def register_wrapmiles_routes(app):
+def register_adometer_routes(app):
 
-    P = "/api/wrapmiles"
+    P = "/api/adometer"
+
+    # legacy alias: /api/wrapmiles/* → /api/adometer/* (rebrand 2026-07-28).
+    # 307 preserves method + body; browser fetch() follows automatically.
+    @app.route("/api/wrapmiles/<path:rest>", methods=["GET", "POST", "PATCH"])
+    def wm_legacy_alias(rest):
+        from flask import redirect
+        qs = request.query_string.decode()
+        return redirect(f"{P}/{rest}" + (f"?{qs}" if qs else ""), code=307)
 
     # ---------------- public ----------------
 
@@ -332,7 +346,7 @@ def register_wrapmiles_routes(app):
 
     @app.route(P + "/qr", methods=["GET"])
     def wm_qr():
-        """PNG QR of a referral link. Only encodes our own /wrapmiles?ref= URL."""
+        """PNG QR of a referral link. Only encodes our own /adometer?ref= URL."""
         code = _clean(request.args.get("ref"), 16).upper()
         if not re.match(r"^[A-Z0-9-]{3,16}$", code):
             return jsonify({"error": "bad ref code"}), 400
@@ -806,7 +820,7 @@ def register_wrapmiles_routes(app):
         applied = sum(int(r["n"]) for r in ref_rows)
         active = sum(int(r["n"]) for r in ref_rows if r["status"] in ("wrapped", "matched", "active"))
         referral = {"code": code, "link": ref_link(code),
-                    "qr_url": f"/api/wrapmiles/qr?ref={code}",
+                    "qr_url": f"/api/adometer/qr?ref={code}",
                     "driver_signups": applied, "drivers_active": active,
                     "sponsor_signups": int((ref_sponsors or [{"n": 0}])[0]["n"])}
         matches = db.q("""SELECT m.id, m.status, m.wrapped_at, m.gps_enabled,

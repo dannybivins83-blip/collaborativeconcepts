@@ -1,4 +1,4 @@
-"""Seed the LIVE WrapMiles database with clearly-marked TEST data.
+"""Seed the LIVE Adometer database with clearly-marked TEST data.
 
 Creates 5 test drivers, 5 test sponsors, 5 campaigns, matches, and mileage
 (submitted + approved) so every portal screen shows real rows. All names are
@@ -8,7 +8,7 @@ endpoint; retire test rows by setting status rejected/churned in the admin UI).
 
 Run from any machine that can reach the site (NOT the cloud sandbox):
 
-    WRAPMILES_ADMIN_KEY=<the key> python3 _wrapmiles_seed.py
+    WRAPMILES_ADMIN_KEY=<the key> python3 _adometer_seed.py
 
 Optional: WRAPMILES_BASE=https://collaborativeconceptsfl.com (default).
 Prints every access code at the end so Danny can log into the driver/sponsor
@@ -22,7 +22,7 @@ import urllib.request
 
 BASE = os.environ.get("WRAPMILES_BASE", "https://collaborativeconceptsfl.com").rstrip("/")
 KEY = os.environ.get("WRAPMILES_ADMIN_KEY", "")
-API = BASE + "/api/wrapmiles"
+API = BASE + "/api/adometer"
 
 if not KEY:
     sys.exit("Set WRAPMILES_ADMIN_KEY (never hardcode it).")
