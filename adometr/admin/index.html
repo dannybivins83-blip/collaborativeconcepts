@@ -268,6 +268,7 @@
         <button class="tab on" data-tab="overview">Dashboard</button>
         <button class="tab" data-tab="drivers">Drivers</button>
         <button class="tab" data-tab="sponsors">Sponsors</button>
+        <button class="tab" data-tab="ambassadors">Ambassadors</button>
         <button class="tab" data-tab="campaigns">Campaigns</button>
         <button class="tab" data-tab="mileage">Mileage<span class="badge hidden" id="mileBadge">0</span></button>
         <button class="tab" data-tab="ledger">Ledger</button>
@@ -280,6 +281,7 @@
     <section id="view-overview"><div class="loading">Loading…</div></section>
     <section id="view-drivers" class="hidden"></section>
     <section id="view-sponsors" class="hidden"></section>
+    <section id="view-ambassadors" class="hidden"></section>
     <section id="view-campaigns" class="hidden"></section>
     <section id="view-mileage" class="hidden"></section>
     <section id="view-ledger" class="hidden"></section>
@@ -300,6 +302,7 @@ const S = {           // client state
   tab: "overview",
   drivers: null, driverStatuses: [], docKeys: null,
   sponsors: null, sponsorStatuses: [],
+  ambassadors: null, ambStatuses: [],
   campaigns: null, campStatuses: [], matchStatuses: [],
   mileage: null,
   driverQ: "", sponsorQ: ""
@@ -465,7 +468,7 @@ function setTab(name, force){
   if(!force && name === S.tab) { loadTab(name); return; }
   S.tab = name;
   $$("#tabs .tab").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
-  ["overview","drivers","sponsors","campaigns","mileage","ledger"].forEach(t =>
+  ["overview","drivers","sponsors","ambassadors","campaigns","mileage","ledger"].forEach(t =>
     $("#view-"+t).classList.toggle("hidden", t !== name));
   loadTab(name);
 }
@@ -473,6 +476,7 @@ function loadTab(name){
   if(name==="overview") loadOverview();
   else if(name==="drivers") loadDrivers();
   else if(name==="sponsors") loadSponsors();
+  else if(name==="ambassadors") loadAmbassadors();
   else if(name==="campaigns") loadCampaigns();
   else if(name==="mileage") loadMileage();
   else if(name==="ledger") loadLedger();
@@ -489,14 +493,15 @@ function setError(view, err, retry){
    ============================================================ */
 async function loadOverview(){
   setBusy("overview");
-  let ov, dd, mm, ll, cc;
+  let ov, dd, mm, ll, cc, aa;
   try{
-    [ov, dd, mm, ll, cc] = await Promise.all([
+    [ov, dd, mm, ll, cc, aa] = await Promise.all([
       api("/admin/overview"),
       api("/admin/drivers"),
       api("/admin/mileage"),
       api("/admin/ledger"),
-      api("/admin/campaigns")
+      api("/admin/campaigns"),
+      api("/admin/ambassadors").catch(()=>null) // side card is best-effort
     ]);
   }
   catch(e){ if(e.message!=="Unauthorized") setError("overview", e, "loadOverview"); return; }
@@ -507,6 +512,7 @@ async function loadOverview(){
   S.mileage = mm.mileage || [];
   S.campaigns = cc.campaigns || []; S.campStatuses = cc.statuses || S.campStatuses;
   S.matchStatuses = cc.match_statuses || S.matchStatuses;
+  if(aa){ S.ambassadors = aa.ambassadors || []; S.ambStatuses = aa.statuses || S.ambStatuses; }
 
   const v = $("#view-overview");
   const apps = S.drivers.filter(d => String(d.status||"").toLowerCase() === "new");
@@ -517,6 +523,10 @@ async function loadOverview(){
   const badge = $("#mileBadge");
   badge.textContent = pendMi.length;
   badge.classList.toggle("hidden", pendMi.length === 0);
+
+  // active territory ambassadors for the side card (best-effort feed)
+  const activeAmbs = ((aa && aa.ambassadors) || []).filter(a =>
+    String(a.status||"").toLowerCase() === "active");
 
   // referral reminders: matched/active drivers who were referred by someone
   const refs = S.drivers.filter(d =>
@@ -594,6 +604,15 @@ async function loadOverview(){
             (c.matches||[]).length+'/'+esc(c.cars_needed||"?")+' cars</span>'+
             '<span class="amt">'+rateTxt(c)+'</span></div>'
           ).join("") : '<div class="empty">No campaigns yet.</div>')+
+          '</div>'+
+        '</div>'+
+        '<div class="card">'+
+          '<div class="qhead"><h3>Territory ambassadors</h3><button class="linkbtn" onclick="setTab(\'ambassadors\')">Manage &rarr;</button></div>'+
+          '<div class="siderows">'+
+          (activeAmbs.length ? activeAmbs.map(a =>
+            '<div class="siderow"><span class="qclip"><strong>'+esc(a.name||"—")+'</strong>'+(a.territory?' · '+esc(a.territory):'')+'</span>'+
+            '<span class="amt">'+(Number(a.driver_signups||0)+Number(a.sponsor_signups||0))+' signups</span></div>'
+          ).join("") : '<div class="empty">No active ambassadors.</div>')+
           '</div>'+
         '</div>'+
         '<div class="card">'+
@@ -966,6 +985,181 @@ function openSponsor(id){
   });
   $("#spCode", dw).addEventListener("click", (ev)=>
     generateCode(ev.target, "/admin/sponsors/"+encodeURIComponent(sp.id), $("#spCodeOut", dw), "sponsor contact", sp));
+}
+
+/* ============================================================
+   AMBASSADORS
+   ============================================================ */
+async function loadAmbassadors(){
+  setBusy("ambassadors");
+  let d;
+  try{ d = await api("/admin/ambassadors"); }
+  catch(e){ if(e.message!=="Unauthorized") setError("ambassadors", e, "loadAmbassadors"); return; }
+  S.ambassadors = d.ambassadors || [];
+  S.ambStatuses = (d.statuses && d.statuses.length) ? d.statuses : ["active","paused","ended"];
+  renderAmbassadors();
+}
+function renderAmbassadors(){
+  const v = $("#view-ambassadors");
+  const rows = S.ambassadors || [];
+  v.innerHTML =
+    '<div class="pagehead"><h2>Ambassadors</h2>'+
+    '<button class="btn btn-lime btn-sm" id="newAmbBtn">+ New ambassador</button></div>'+
+    '<div id="newAmbWrap" class="hidden"></div>'+
+    '<div id="newAmbOut"></div>'+
+    (rows.length ?
+      '<div class="tblwrap"><table><thead><tr>'+
+      '<th>Name</th><th>Territory</th><th>Status</th><th>Ref code</th><th>Drivers</th><th>Active</th><th>Sponsor leads</th><th>Link</th><th>QR</th>'+
+      '</tr></thead><tbody>'+
+      rows.map(a =>
+        '<tr class="rowlink" data-id="'+esc(a.id)+'">'+
+        '<td><span class="primary">'+esc(a.name||"—")+'</span></td>'+
+        '<td>'+esc(a.territory||"—")+'</td>'+
+        '<td><span style="display:inline-flex;align-items:center;gap:8px"><span class="ambPillWrap">'+pill(a.status)+'</span>'+
+          '<select class="ambStatus" style="width:auto;padding:6px 28px 6px 10px;font-size:12.5px">'+
+          optionList(S.ambStatuses, a.status)+'</select></span></td>'+
+        '<td><span class="pill lime">'+esc(a.ref_code||"—")+'</span></td>'+
+        '<td>'+esc(a.driver_signups!=null?a.driver_signups:0)+'</td>'+
+        '<td>'+esc(a.drivers_active!=null?a.drivers_active:0)+'</td>'+
+        '<td>'+esc(a.sponsor_signups!=null?a.sponsor_signups:0)+'</td>'+
+        '<td>'+(a.link?'<button class="linkbtn ambCopy" data-link="'+esc(a.link)+'">Copy link</button>':'—')+'</td>'+
+        '<td>'+(a.qr_url?'<a href="'+esc(a.qr_url)+'" target="_blank" rel="noopener">QR</a>':'—')+'</td>'+
+        '</tr>').join("")+
+      '</tbody></table></div>'
+      : '<div class="card"><div class="empty">No ambassadors yet — add your first territory partner.</div></div>');
+
+  $("#newAmbBtn").addEventListener("click", toggleNewAmbassador);
+  $$(".ambCopy", v).forEach(b => b.addEventListener("click", ()=>copyText(b.dataset.link)));
+  $$(".ambStatus", v).forEach(sel => sel.addEventListener("change", async ev=>{
+    const tr = ev.target.closest("tr");
+    const id = tr.dataset.id;
+    const a = (S.ambassadors||[]).find(x => String(x.id) === String(id));
+    const prev = a ? a.status : null;
+    ev.target.disabled = true;
+    try{
+      await api("/admin/ambassadors/"+encodeURIComponent(id), { method:"PATCH", body:{ status: ev.target.value } });
+      if(a) a.status = ev.target.value;
+      const pw = $(".ambPillWrap", tr);
+      if(pw) pw.innerHTML = pill(ev.target.value);
+      toast("Ambassador updated","ok");
+    }catch(e){
+      if(prev != null) ev.target.value = prev;
+      if(e.message!=="Unauthorized") toast(e.message,"err");
+    }finally{ ev.target.disabled = false; }
+  }));
+  $$("#view-ambassadors tbody tr.rowlink").forEach(tr =>
+    tr.addEventListener("click", ev=>{
+      if(ev.target.closest("select, button, a, input")) return; // don't hijack row controls
+      openAmbassador(tr.dataset.id);
+    }));
+}
+function toggleNewAmbassador(){
+  const w = $("#newAmbWrap");
+  if(!w.classList.contains("hidden")){ w.classList.add("hidden"); w.innerHTML=""; return; }
+  w.innerHTML =
+    '<div class="card" style="margin-bottom:16px"><h3 style="font-size:16px;margin-bottom:14px">New ambassador</h3>'+
+    '<form id="newAmbForm"><div class="form-grid">'+
+      '<div><label>Name</label><input name="name" required placeholder="e.g. Maria G."></div>'+
+      '<div><label>Territory</label><input name="territory" placeholder="e.g. Hialeah / Doral"></div>'+
+      '<div><label>Phone</label><input name="phone" type="tel" placeholder="(305) 555-0100"></div>'+
+      '<div><label>Email (optional)</label><input name="email" type="email" placeholder="name@example.com"></div>'+
+      '<div class="full"><label>Notes</label><textarea name="notes" rows="2" placeholder="How you met, deal terms…"></textarea></div>'+
+    '</div>'+
+    '<div class="rowact" style="margin-top:16px">'+
+      '<button class="btn btn-lime btn-sm" type="submit">Add ambassador</button>'+
+      '<button class="btn btn-ghost btn-sm" type="button" id="newAmbCancel">Cancel</button>'+
+    '</div></form></div>';
+  w.classList.remove("hidden");
+  $("#newAmbCancel").addEventListener("click", toggleNewAmbassador);
+  $("#newAmbForm").addEventListener("submit", async ev=>{
+    ev.preventDefault();
+    const f = ev.target;
+    const btn = f.querySelector('[type=submit]'); btn.disabled = true;
+    const val = n => f.elements[n].value.trim();
+    try{
+      const res = await api("/admin/ambassadors", { method:"POST", body:{
+        name: val("name"),
+        email: val("email"),
+        phone: val("phone"),
+        territory: val("territory"),
+        notes: val("notes")
+      }});
+      toast("Ambassador added","ok");
+      await loadAmbassadors(); // rerender closes the form
+      const out = $("#newAmbOut");
+      if(out && res){
+        out.innerHTML =
+          '<div class="codebox" style="margin-bottom:16px">'+
+          '<div class="code">'+esc(res.ref_code||"")+'</div>'+
+          '<p>Text this link to them — every driver or sponsor who signs up through it is credited to this ambassador.</p>'+
+          '<p style="margin:0 0 10px;font-size:13px;font-weight:700;color:var(--pink-deep);word-break:break-all">'+esc(res.link||"")+'</p>'+
+          '<button class="btn btn-ghost btn-sm" data-copy>Copy link</button></div>';
+        out.querySelector("[data-copy]").addEventListener("click", ()=>copyText(res.link||res.ref_code||""));
+      }
+    }catch(e){
+      if(e.message!=="Unauthorized") toast(e.message,"err");
+      btn.disabled = false;
+    }
+  });
+}
+function openAmbassador(id){
+  const a = (S.ambassadors||[]).find(x => String(x.id) === String(id));
+  if(!a) return;
+  const body =
+    '<div class="drawer-head"><h3>'+esc(a.name||"Ambassador")+'</h3><button class="drawer-close" data-close>&times;</button></div>'+
+    '<div class="meta">Added '+fmtDate(a.created_at)+' · ID '+esc(a.id)+'</div>'+
+    '<div class="rowact">'+
+      (a.email?'<a class="btn btn-ghost btn-sm" href="mailto:'+esc(a.email)+'">Email</a>':'')+
+      (a.phone?'<a class="btn btn-ghost btn-sm" href="tel:'+esc(a.phone)+'">Call</a>':'')+
+      (a.phone?'<a class="btn btn-ghost btn-sm" href="sms:'+esc(a.phone)+'">Text</a>':'')+
+    '</div>'+
+    '<dl class="kv">'+
+      '<dt>Ref code</dt><dd>'+esc(a.ref_code||"—")+'</dd>'+
+      '<dt>Link</dt><dd style="word-break:break-all">'+esc(a.link||"—")+'</dd>'+
+      '<dt>Email</dt><dd>'+esc(a.email||"—")+'</dd>'+
+      '<dt>Driver signups</dt><dd>'+esc(a.driver_signups!=null?a.driver_signups:0)+'</dd>'+
+      '<dt>Active drivers</dt><dd>'+esc(a.drivers_active!=null?a.drivers_active:0)+'</dd>'+
+      '<dt>Sponsor leads</dt><dd>'+esc(a.sponsor_signups!=null?a.sponsor_signups:0)+'</dd>'+
+    '</dl>'+
+    '<div class="rowact">'+
+      (a.link?'<button class="btn btn-ghost btn-sm" id="ambDwCopy">Copy link</button>':'')+
+      (a.qr_url?'<a class="btn btn-ghost btn-sm" href="'+esc(a.qr_url)+'" target="_blank" rel="noopener">Open QR</a>':'')+
+    '</div>'+
+    '<div class="field" style="margin-top:20px"><label>Name</label><input id="ambName"></div>'+
+    '<div class="field"><label>Territory</label><input id="ambTerr"></div>'+
+    '<div class="field"><label>Phone</label><input id="ambPhone"></div>'+
+    '<div class="field"><label>Status</label>'+
+      '<select id="ambStat">'+optionList(S.ambStatuses, a.status)+'</select></div>'+
+    '<div class="field"><label>Notes</label>'+
+      '<textarea id="ambNotes" rows="4" placeholder="Internal notes…"></textarea></div>'+
+    '<div class="rowact">'+
+      '<button class="btn btn-lime btn-sm" id="ambSave">Save changes</button>'+
+    '</div>';
+  const dw = openDrawer(body);
+  $("#ambName", dw).value = a.name || "";
+  $("#ambTerr", dw).value = a.territory || "";
+  $("#ambPhone", dw).value = a.phone || "";
+  $("#ambNotes", dw).value = a.notes || "";
+  const cp = $("#ambDwCopy", dw);
+  if(cp) cp.addEventListener("click", ()=>copyText(a.link));
+  $("#ambSave", dw).addEventListener("click", async (ev)=>{
+    const btn = ev.target; btn.disabled = true;
+    try{
+      const payload = {
+        name: $("#ambName", dw).value.trim(),
+        territory: $("#ambTerr", dw).value.trim(),
+        phone: $("#ambPhone", dw).value.trim(),
+        status: $("#ambStat", dw).value,
+        notes: $("#ambNotes", dw).value
+      };
+      if(!payload.name){ toast("Name is required","err"); return; }
+      await api("/admin/ambassadors/"+encodeURIComponent(a.id), { method:"PATCH", body: payload });
+      Object.assign(a, payload);
+      toast("Ambassador saved","ok");
+      renderAmbassadors();
+    }catch(e){ if(e.message!=="Unauthorized") toast(e.message,"err"); }
+    finally{ btn.disabled = false; }
+  });
 }
 
 /* ============================================================
