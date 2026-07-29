@@ -519,6 +519,33 @@ const CONFIG = {
 </section>
 
 <!-- ================= 11. FAQ ================= -->
+<!-- ================= WATCH (auto-hides until video files land in assets/videos/) ================= -->
+<section id="watch" style="display:none">
+  <div class="wrap">
+    <p class="eyebrow">Watch</p>
+    <h2>See it in 30 seconds</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:10px" class="watch-grid">
+      <figure style="margin:0"><video controls playsinline preload="none" poster="/adometr/assets/van-wrap.webp" src="/adometr/assets/videos/Adometr-Short-Overall.mp4" style="width:100%;border-radius:20px;background:#0e2b32;aspect-ratio:9/16;object-fit:cover"></video><figcaption style="font:500 13.5px 'DM Sans',sans-serif;color:var(--mut);margin-top:8px;text-align:center">How adometr works</figcaption></figure>
+      <figure style="margin:0"><video controls playsinline preload="none" poster="/adometr/assets/van-wrap.webp" src="/adometr/assets/videos/Adometr-Short-Drivers.mp4" style="width:100%;border-radius:20px;background:#0e2b32;aspect-ratio:9/16;object-fit:cover"></video><figcaption style="font:500 13.5px 'DM Sans',sans-serif;color:var(--mut);margin-top:8px;text-align:center">For drivers</figcaption></figure>
+      <figure style="margin:0"><video controls playsinline preload="none" poster="/adometr/assets/van-wrap.webp" src="/adometr/assets/videos/Adometr-Short-Sponsors.mp4" style="width:100%;border-radius:20px;background:#0e2b32;aspect-ratio:9/16;object-fit:cover"></video><figcaption style="font:500 13.5px 'DM Sans',sans-serif;color:var(--mut);margin-top:8px;text-align:center">For brands</figcaption></figure>
+    </div>
+    <p id="ytLinkRow" style="display:none;font:500 15px 'DM Sans',sans-serif;margin-top:18px;text-align:center"><a id="ytLink" href="" target="_blank" rel="noopener" style="color:var(--pink);font-weight:700">More on our YouTube channel &rarr;</a></p>
+  </div>
+</section>
+<style>@media(max-width:760px){.watch-grid{grid-template-columns:1fr !important}}</style>
+<script>
+(function(){
+  /* reveal the Watch section only when the video files actually exist */
+  fetch('/adometr/assets/videos/Adometr-Short-Overall.mp4', {method:'HEAD'}).then(function(r){
+    if(r.ok) document.getElementById('watch').style.display = '';
+  }).catch(function(){});
+  /* YT_CHANNEL_URL: set once the channel exists and the row appears */
+  var YT_CHANNEL_URL = '';
+  if(YT_CHANNEL_URL){ var a=document.getElementById('ytLink'); a.href=YT_CHANNEL_URL;
+    document.getElementById('ytLinkRow').style.display=''; }
+})();
+</script>
+
 <section id="faq" class="wrap">
   <div class="faq">
     <h2>Frequently asked questions</h2>
