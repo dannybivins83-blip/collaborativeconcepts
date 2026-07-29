@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
 <meta name="robots" content="noindex">
-<title>Adometer — Sponsor Dashboard</title>
-<link rel="icon" type="image/svg+xml" href="/adometer/assets/logo/favicon.svg">
+<title>Adometr — Sponsor Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="/adometr/assets/logo/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap">
@@ -133,7 +133,7 @@
 
 <nav class="nav">
   <div class="nav-in">
-    <a class="brand" href="/adometer" aria-label="Adometer home">
+    <a class="brand" href="/adometr" aria-label="Adometr home">
       <span class="wordmark"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span>
       <span class="chip">Sponsor dashboard</span>
     </a>
@@ -164,7 +164,7 @@
         <button class="btn" id="liBtn" type="submit">Sign In</button>
         <div class="msg" id="liMsg" role="alert"></div>
       </form>
-      <p class="hint" style="margin-top:18px;font-size:13px">Interested in sponsoring a fleet? <a href="/adometer#brands">Start here.</a></p>
+      <p class="hint" style="margin-top:18px;font-size:13px">Interested in sponsoring a fleet? <a href="/adometr#brands">Start here.</a></p>
     </div>
   </section>
 
@@ -211,13 +211,13 @@
 </main>
 
 <footer>
-  <div class="wrap"><p>Adometer — a Collaborative Concepts LLC venture · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a></p></div>
+  <div class="wrap"><p>Adometr — a Collaborative Concepts LLC venture · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a></p></div>
 </footer>
 
 <script>
 (function(){
 "use strict";
-var API = "/api/adometer";
+var API = "/api/adometr";
 var TOKEN_KEY = "wm_sponsor_token";
 
 /* ---------- helpers ---------- */
@@ -549,7 +549,7 @@ $("spDlBtn").addEventListener("click", function(){
   var url = URL.createObjectURL(blob);
   var a = document.createElement("a");
   a.href = url;
-  a.download = "adometer-report-" + ym + ".csv";
+  a.download = "adometr-report-" + ym + ".csv";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

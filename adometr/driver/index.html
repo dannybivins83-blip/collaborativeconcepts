@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
 <meta name="robots" content="noindex">
-<title>Adometer — Driver Portal</title>
-<link rel="icon" type="image/svg+xml" href="/adometer/assets/logo/favicon.svg">
+<title>Adometr — Driver Portal</title>
+<link rel="icon" type="image/svg+xml" href="/adometr/assets/logo/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap">
@@ -146,7 +146,7 @@
 
 <nav class="nav">
   <div class="nav-in">
-    <a class="brand" href="/adometer" aria-label="Adometer home">
+    <a class="brand" href="/adometr" aria-label="Adometr home">
       <span class="wordmark"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span>
       <span class="chip">Driver portal</span>
     </a>
@@ -177,7 +177,7 @@
         <button class="btn" id="liBtn" type="submit">Sign In</button>
         <div class="msg" id="liMsg" role="alert"></div>
       </form>
-      <p class="hint" style="margin-top:18px;font-size:13px">Not a Adometer driver yet? <a href="/adometer">Apply here — it's free.</a></p>
+      <p class="hint" style="margin-top:18px;font-size:13px">Not a Adometr driver yet? <a href="/adometr">Apply here — it's free.</a></p>
     </div>
   </section>
 
@@ -302,13 +302,13 @@
 </main>
 
 <footer>
-  <div class="wrap"><p>Adometer — a Collaborative Concepts LLC venture · Questions? Text or email Danny · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a></p></div>
+  <div class="wrap"><p>Adometr — a Collaborative Concepts LLC venture · Questions? Text or email Danny · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a></p></div>
 </footer>
 
 <script>
 (function(){
 "use strict";
-var API = "/api/adometer";
+var API = "/api/adometr";
 var TOKEN_KEY = "wm_driver_token";
 var STEPS = ["new","contacted","qualified","docs_verified","wrap_ready","matched","active"];
 var STEP_LABELS = {new:"Applied",contacted:"Contacted",qualified:"Qualified",docs_verified:"Docs Verified",wrap_ready:"Wrap Ready",matched:"Matched",active:"Active"};
@@ -500,7 +500,7 @@ function renderDash(data){
       });
     };
     $("refShare").onclick = function(){
-      if(navigator.share){ navigator.share({title:"Adometer", text:shareText, url:ref.link}).catch(function(){}); }
+      if(navigator.share){ navigator.share({title:"Adometr", text:shareText, url:ref.link}).catch(function(){}); }
       else { $("refCopy").onclick(); }
     };
     $("refQrToggle").onclick = function(){

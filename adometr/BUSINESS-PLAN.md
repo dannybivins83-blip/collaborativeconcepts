@@ -1,29 +1,29 @@
-# Adometer — Business Plan
-**Entity:** Collaborative Concepts LLC d/b/a Adometer (owner decision 2026-07-28 — existing accounts, Stripe, insurance; no new LLC) · **Owner:** Danny Bivins
+# Adometr — Business Plan
+**Entity:** Collaborative Concepts LLC d/b/a Adometr (owner decision 2026-07-28 — existing accounts, Stripe, insurance; no new LLC) · **Owner:** Danny Bivins
 **Prepared:** 2026-07-28 (roundtable-stress-tested, Full C-Suite preset) · **Year-1 cash budget: $5k–$15k**
 
 ---
 
 ## 1. The Business
 
-Adometer is a two-sided marketplace for **pay-per-mile mobile out-of-home advertising** in
+Adometr is a two-sided marketplace for **pay-per-mile mobile out-of-home advertising** in
 South Florida. Local brands pay to have their design professionally wrapped on everyday
 drivers' vehicles; drivers earn $0.12–$0.35 per verified mile (capped 2,000 paid mi/mo);
-Adometer keeps the spread and owns the sponsor relationship, verification, and reporting.
+Adometr keeps the spread and owns the sponsor relationship, verification, and reporting.
 Non-car assets (golf carts, trailers, boats, food trucks) rent at flat monthly placement rates.
 
 **Why now / why us:** the category is proven nationally (Wrapify 250k+ drivers, Carvertise,
 Nickelytics) but the nationals ignore sub-$50k local budgets. Danny's construction/roofing/HOA
 network IS the initial sponsor market, and the entire platform — marketing site, driver/sponsor/
 admin portals, referral engine, verification pipeline, contracts — is **already built and live**
-at collaborativeconceptsfl.com/adometer at ~zero marginal cost.
+at collaborativeconceptsfl.com/adometr at ~zero marginal cost.
 
 ## 2. Market
 
 - **Demand (advertisers):** South Florida SMBs already buying OOH/radio/PPC — home services,
   PI law, med spas, gyms, restaurants, franchises — plus public-sector district marketers
   (DDAs/CRAs) and a flagship pursuit (Brightline). Static I-95 billboards run $1,500–$3,000+/mo
-  at ~$10–30 CPM; Adometer lands at an estimated $1–4 effective CPM.
+  at ~$10–30 CPM; Adometr lands at an estimated $1–4 effective CPM.
 - **Supply (drivers):** gig drivers, home-health nurses, pool/pest/lawn route operators,
   outside sales reps, construction subs — high-daytime-mileage populations concentrated on the
   Jupiter→Miami I-95 corridor. Supply acquisition is referral-led ($375/driver ladder).
@@ -56,7 +56,7 @@ campaigns whose sponsors pay for corridor-level proof).
 
 ## 5. Financial Projection (base case, conservative)
 
-| Milestone | Cars live | Gross media/mo | Driver payouts/mo | Adometer gross/mo |
+| Milestone | Cars live | Gross media/mo | Driver payouts/mo | Adometr gross/mo |
 |---|---|---|---|---|
 | M3 (first pilot + 1) | 5 | ~$3.2k | ~$1.4k | ~$1.8k |
 | M6 (3 sponsors) | 12 | ~$7.8k | ~$3.4k | ~$4.4k |
@@ -81,7 +81,7 @@ cost of underperformance is Danny's time, not capital.
    driver bench per campaign keeps supply ahead of signed demand.
 2. **Attribution skepticism (biggest sales objection)** → promo codes/QR on every wrap, verified-
    mile reports, "estimates clearly labeled" honesty as brand position.
-3. **Owner bandwidth (biggest real risk — flagged by HR/CEO):** Adometer competes with La Gala's
+3. **Owner bandwidth (biggest real risk — flagged by HR/CEO):** Adometr competes with La Gala's
    pipeline for Danny's hours. Mitigation: hard cap ~5 hrs/wk until first sponsor cash clears;
    scout agent + portals do the administrative lifting; kill-review at Day 90 if no signed pilot.
 4. **Liability / driver incident** → runs under Collaborative Concepts LLC (owner accepted the shared-entity trade-off; spin out a dedicated LLC when MRR justifies it) — driver-primary insurance + indemnity,
@@ -93,7 +93,7 @@ cost of underperformance is Danny's time, not capital.
 
 ## 8. Milestones & Kill Criteria
 
-- **Aug 2026:** "Adometer" d/b/a filing DEFERRED (owner 2026-07-28; required before signing/invoicing under the name) · GL endorsement CONFIRMED ✓ (owner 2026-07-28) · contracts attorney-approved, demo truck wrapped,
+- **Aug 2026:** "Adometr" d/b/a filing DEFERRED (owner 2026-07-28; required before signing/invoicing under the name) · GL endorsement CONFIRMED ✓ (owner 2026-07-28) · contracts attorney-approved, demo truck wrapped,
   10 warm sponsor pitches delivered.
 - **Sep 2026:** first signed IO with production fee collected; 15 wrap-ready drivers.
 - **Oct 2026 (Day 90 kill-review):** if no signed sponsor → stop outbound spend, keep site live

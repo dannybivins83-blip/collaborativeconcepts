@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
 <meta name="robots" content="noindex,nofollow">
-<title>Adometer — Admin</title>
-<link rel="icon" type="image/svg+xml" href="/adometer/assets/logo/favicon.svg">
+<title>Adometr — Admin</title>
+<link rel="icon" type="image/svg+xml" href="/adometr/assets/logo/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap">
@@ -289,9 +289,9 @@
 <script>
 "use strict";
 /* ============================================================
-   Adometer Admin — vanilla JS, same-origin API /api/adometer
+   Adometr Admin — vanilla JS, same-origin API /api/adometr
    ============================================================ */
-const API = "/api/adometer";
+const API = "/api/adometr";
 const TOKEN_KEY = "wm_admin_token";
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
@@ -485,7 +485,7 @@ function setError(view, err, retry){
 }
 
 /* ============================================================
-   DASHBOARD (design 3c) — Today at Adometer
+   DASHBOARD (design 3c) — Today at Adometr
    ============================================================ */
 async function loadOverview(){
   setBusy("overview");
@@ -531,7 +531,7 @@ async function loadOverview(){
   };
 
   v.innerHTML =
-    '<div class="pagehead"><h1>Today at Adometer</h1><div class="sub">'+esc(new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}))+'</div></div>'+
+    '<div class="pagehead"><h1>Today at Adometr</h1><div class="sub">'+esc(new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}))+'</div></div>'+
 
     '<div class="tiles dash-tiles">'+
       '<div class="tile"><span>Applications pending</span><b class="pinknum" id="statApps">'+apps.length+'</b></div>'+

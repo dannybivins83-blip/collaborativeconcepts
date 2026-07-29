@@ -11,17 +11,17 @@
 _____________ (the "Effective Date") by and between:
 
 **Collaborative Concepts LLC**, a Florida limited liability company, doing business as
-**Adometer** [**counsel: "Adometer" d/b/a NOT YET FILED (owner deferred 2026-07-28) — until filed,
-execute as Collaborative Concepts LLC with "Adometer" as a brand/product name only**], with a
-principal place of business at ______________________________ ("Adometer"), and
+**Adometr** [**counsel: "Adometr" d/b/a NOT YET FILED (owner deferred 2026-07-28) — until filed,
+execute as Collaborative Concepts LLC with "Adometr" as a brand/product name only**], with a
+principal place of business at ______________________________ ("Adometr"), and
 
 **_____________________________**, a ______________________ with a principal place
 of business at ______________________________ ("Advertiser").
 
 ## 1. SERVICES
 
-1.1 Adometer operates a marketplace of independent vehicle owners ("Drivers") who
-display removable vinyl advertising ("Wraps") on their personal vehicles. Adometer
+1.1 Adometr operates a marketplace of independent vehicle owners ("Drivers") who
+display removable vinyl advertising ("Wraps") on their personal vehicles. Adometr
 will arrange production and professional installation of Advertiser's Wrap on the
 number of vehicles, in the coverage level, and within the campaign zone specified in
 the Campaign Insertion Order (**Exhibit A**, each an "IO").
@@ -34,27 +34,27 @@ transportation, delivery, or any other vehicle services.
 
 ## 2. DRIVERS ARE INDEPENDENT — NO CONTROL, NO AGENCY
 
-2.1 Drivers are independent contractors of Adometer. **Drivers are not employees,
-agents, or representatives of Advertiser or of Adometer.** No employment, agency,
+2.1 Drivers are independent contractors of Adometr. **Drivers are not employees,
+agents, or representatives of Advertiser or of Adometr.** No employment, agency,
 partnership, or joint-venture relationship is created between Advertiser and any
-Driver, or between Advertiser and Adometer, by this Agreement.
+Driver, or between Advertiser and Adometr, by this Agreement.
 
-2.2 **No control.** Neither Advertiser nor Adometer directs or controls when, where,
+2.2 **No control.** Neither Advertiser nor Adometr directs or controls when, where,
 how, or whether any Driver drives. Campaign zones function solely as conditions of
 Driver compensation. Advertiser shall not contact, direct, dispatch, or request any
 service of any Driver, and shall not use any Driver or wrapped vehicle for
 deliveries, transportation, promotion staffing, or any other task. Any such conduct
-is a material breach and voids Adometer' indemnification obligations as to the
+is a material breach and voids Adometr' indemnification obligations as to the
 resulting claims.
 
 2.3 **Driver insurance.** Each Driver is contractually required to maintain
 automobile insurance in the Driver's own name, which is primary as to any incident
-involving the Driver's vehicle. Adometer does not insure Drivers, vehicles, or
+involving the Driver's vehicle. Adometr does not insure Drivers, vehicles, or
 Advertiser, and nothing in this Agreement constitutes insurance.
 
 ## 3. CAMPAIGN CONTENT
 
-3.1 Advertiser shall supply print-ready artwork per Adometer' specifications, or
+3.1 Advertiser shall supply print-ready artwork per Adometr' specifications, or
 approve artwork prepared on its behalf, by the artwork deadline in the IO.
 
 3.2 **Advertiser warrants** that its artwork and any product/service advertised:
@@ -63,29 +63,29 @@ rights; (b) comply with all applicable laws and advertising regulations (includi
 any industry-specific rules applicable to Advertiser, e.g., legal, medical,
 financial, alcohol, or real-estate advertising rules); and (c) are not deceptive.
 
-3.3 Adometer may reject or require modification of any artwork that it reasonably
+3.3 Adometr may reject or require modification of any artwork that it reasonably
 believes is unlawful, deceptive, obscene, political, or reasonably likely to expose
-Drivers or Adometer to harm or liability.
+Drivers or Adometr to harm or liability.
 
-3.4 Advertiser retains ownership of its trademarks and artwork, and grants Adometer
+3.4 Advertiser retains ownership of its trademarks and artwork, and grants Adometr
 a limited license to reproduce them solely to produce, install, display, photograph,
 and market the campaign.
 
 ## 4. VERIFICATION, REPORTING, AND ESTIMATES
 
-4.1 **Verified miles.** Adometer will verify campaign mileage by the method stated
+4.1 **Verified miles.** Adometr will verify campaign mileage by the method stated
 in the IO (odometer photo submission, mileage-app screenshots, or GPS tracking) and
 will provide Advertiser a [monthly] report of verified in-zone miles per vehicle and
 [monthly] wrap-condition photographs.
 
 4.2 **Impressions are estimates.** Any impression figures are **estimates** derived
-from verified miles and third-party out-of-home industry factors. Adometer does not
+from verified miles and third-party out-of-home industry factors. Adometr does not
 and cannot guarantee impressions, foot traffic, calls, sales, or any business
 outcome. [Counsel: keep conspicuous.]
 
 4.3 **Replacement guarantee.** If a campaign vehicle becomes inactive (Driver
 termination, withdrawal, accident, or sustained failure to meet the IO's minimum
-in-zone miles), Adometer will, at its cost, re-wrap a replacement vehicle within
+in-zone miles), Adometr will, at its cost, re-wrap a replacement vehicle within
 [21] days or credit Advertiser a pro-rata portion of the media fee for the shortfall
 period. This is Advertiser's **exclusive remedy** for vehicle inactivity.
 
@@ -99,11 +99,11 @@ begins**, because it is spent with third-party printers and installers.
 installation is scheduled.
 
 5.3 Invoices are due net [15]. Late amounts bear interest at the lesser of 1.5% per
-month or the maximum lawful rate. Adometer may pause reporting and schedule wrap
+month or the maximum lawful rate. Adometr may pause reporting and schedule wrap
 removal for accounts more than [30] days past due.
 
 5.4 Taxes, if applicable, are Advertiser's responsibility (excluding taxes on
-Adometer' income).
+Adometr' income).
 
 ## 6. TERM; TERMINATION
 
@@ -119,24 +119,24 @@ installation fees are not refunded.
 6.3 Either party may terminate for material breach uncured [15] days after written
 notice, or immediately upon the other party's insolvency.
 
-6.4 On expiration or termination, Adometer will schedule professional removal of
+6.4 On expiration or termination, Adometr will schedule professional removal of
 all Wraps within [21] days.
 
 ## 7. INDEMNIFICATION
 
 7.1 **By Advertiser:** Advertiser shall defend, indemnify, and hold harmless
-Adometer and its members, managers, and Drivers from third-party claims arising out
+Adometr and its members, managers, and Drivers from third-party claims arising out
 of (a) Advertiser's artwork or advertised products/services (including IP
 infringement and regulatory claims); or (b) Advertiser's breach of Section 2.2.
 
-7.2 **By Adometer:** Adometer shall defend, indemnify, and hold harmless
-Advertiser from third-party claims arising out of (a) Adometer' gross negligence or
+7.2 **By Adometr:** Adometr shall defend, indemnify, and hold harmless
+Advertiser from third-party claims arising out of (a) Adometr' gross negligence or
 willful misconduct in performing this Agreement; or (b) a final adjudication that
-Adometer' own marketplace operations violated applicable law.
+Adometr' own marketplace operations violated applicable law.
 
 7.3 **Driver incidents.** As between the parties, claims arising out of a Driver's
 operation of a vehicle are the Driver's responsibility under the Driver's own
-insurance and the Driver Agreement's indemnity. Adometer' indemnity in 7.2 does not
+insurance and the Driver Agreement's indemnity. Adometr' indemnity in 7.2 does not
 extend to Driver driving conduct. [Counsel: coordinate with Driver Agreement §9 and
 GL policy.]
 
@@ -159,7 +159,7 @@ information confidential, except as required by law. [If Advertiser is a public
 agency (e.g., a downtown development authority), this Section is subject to
 Florida's public-records law, Ch. 119, Fla. Stat.]
 
-9.3 **Publicity.** Adometer may identify Advertiser and display campaign
+9.3 **Publicity.** Adometr may identify Advertiser and display campaign
 photographs in its portfolio and marketing unless the IO states otherwise.
 
 9.4 **Entire agreement; order of precedence.** This Agreement plus its IOs is the
