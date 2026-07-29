@@ -16,6 +16,7 @@ Vercel project is wasted work — the changes never go live.
 | `collaborativeconceptsfl.com` (apex) | this project (`collaborativeconcepts`) | `/` (root HTML files) | ✅ live |
 | `wwslgc.collaborativeconceptsfl.com` | this project | `/wwslgc/` | ✅ live |
 | `casadelmonte.collaborativeconceptsfl.com` | **separate** `casa-del-monte-portal` Vercel project | `/lagala/casadelmonte/` | ⚠️ **NOT live** |
+| `collaborativeconceptsfl.com/gatekeeper` | this project (apex subfolder, no host rewrite) | `/gatekeeper/` | ✅ live |
 
 When the subdomain column says "separate project," any edits in this repo's
 corresponding folder will **not** affect the live site. Either:
@@ -143,9 +144,11 @@ The startup hook will pick it up automatically on the next session.
   _gatekeeper_build.py`; edit the builder, not the `.html`. `gatekeeper/assets/`
   (gk.css, gk.js, logo.svg) is hand-written and NOT generated. Fence
   illustrations are inline SVG from the builder's `art_*` functions, so there
-  are no image assets. **NOT live yet** — no domain is pointed at it and the
-  FormSubmit lead address is still the repo default; see `gatekeeper/README.md`
-  for the two go-live steps. All copy is restricted to publicly verifiable
+  are no image assets. **Live at `collaborativeconceptsfl.com/gatekeeper`** —
+  an apex subfolder, no host rewrite needed (nothing in `vercel.json` intercepts
+  `/gatekeeper`); `robots.txt` lists `/gatekeeper/sitemap.xml`. Leads go to the
+  repo-default FormSubmit address, which must be confirmed once via FormSubmit's
+  emailed link or nothing is delivered. All copy is restricted to publicly verifiable
   business facts — no invented reviews, job counts, or staff. Two CSS traps
   documented in the README: no `backdrop-filter` on `.hdr` (breaks the mobile
   nav drawer), and `--brass` vs `--brass-lite` for light vs dark backgrounds.

@@ -1230,7 +1230,8 @@ def build():
     for u in urls:
         loc = BIZ["origin"] + ("" if u == "index" else "/" + u)
         pri = "1.0" if u == "index" else "0.8"
-        body += f"  <url><loc>{loc}</loc><priority>{pri}</priority></url>\n"
+        body += (f"  <url><loc>{loc}</loc><changefreq>monthly</changefreq>"
+                 f"<priority>{pri}</priority></url>\n")
     sm = ('<?xml version="1.0" encoding="UTF-8"?>\n'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + body + "</urlset>\n")
     with open(os.path.join(OUT, "sitemap.xml"), "w", encoding="utf-8") as fh:

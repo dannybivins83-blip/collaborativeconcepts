@@ -3,25 +3,35 @@
 Marketing site for Gatekeeper Fence, Inc. (Jupiter, FL). Static HTML, no
 runtime dependencies, no CDN JS.
 
-## ⚠️ Before it goes live — two things need a real value
+## Where it lives
 
-1. **Lead email.** Forms currently post to `dannybivins83@gmail.com` (the repo
-   default). Set the owner's real inbox in `_gatekeeper_build.py` → `LEAD_EMAIL`
-   and rebuild. FormSubmit requires the first submission from that address to be
-   confirmed by clicking a link it emails — until that happens, leads are not
-   delivered. **Send one test submission and confirm it before promoting the site.**
-2. **Domain.** `BIZ["origin"]` in the builder feeds the `<link rel=canonical>`,
-   OG tags, and `sitemap.xml`. It currently points at
-   `https://collaborativeconceptsfl.com/gatekeeper`. Change it when a real
-   domain is registered, then add a rewrite in the repo-root `vercel.json`:
+**https://collaborativeconceptsfl.com/gatekeeper** — served as a subfolder of the
+apex marketing site, which is this Vercel project. No `vercel.json` change was
+needed: nothing in the redirect or rewrite chain intercepts `/gatekeeper`, and
+`.vercelignore` doesn't exclude it, so the folder deploys as-is. `robots.txt`
+points crawlers at `/gatekeeper/sitemap.xml`.
 
-   ```jsonc
-   { "source": "/",       "has": [{"type":"host","value":"<domain>"}], "destination": "/gatekeeper" },
-   { "source": "/:path*", "has": [{"type":"host","value":"<domain>"}], "destination": "/gatekeeper/:path*" }
-   ```
+`BIZ["origin"]` in the builder feeds `<link rel=canonical>`, the OG tags, and
+`sitemap.xml`, and already matches that URL.
 
-   Every page already carries the `x-claude-source-repo` marker meta tag, so the
-   session-start deployment guardrail will pick the host up automatically.
+### One thing to confirm before sending the link to the client
+
+Forms post to `dannybivins83@gmail.com` via FormSubmit. **FormSubmit does not
+deliver anything from a new address until the first submission is confirmed by
+clicking a link it emails.** Submit the contact form once on the live site and
+click that link, or leads go nowhere silently.
+
+### If it ever gets its own domain
+
+Change `BIZ["origin"]`, rebuild, then add to the repo-root `vercel.json`:
+
+```jsonc
+{ "source": "/",       "has": [{"type":"host","value":"<domain>"}], "destination": "/gatekeeper" },
+{ "source": "/:path*", "has": [{"type":"host","value":"<domain>"}], "destination": "/gatekeeper/:path*" }
+```
+
+Every page already carries the `x-claude-source-repo` marker meta tag, so the
+session-start deployment guardrail will pick the new host up automatically.
 
 ## Build
 
@@ -69,9 +79,10 @@ photos, no project counts. The technical copy (Florida pool barrier
 requirements, post setting, coastal hardware, permitting) is general trade and
 code information, not claims about this company's specific history.
 
-Things worth adding once the owner supplies them: real job photos, a business
-email address, Google review embed, any additional license or association
-memberships, and confirmation of the service-area list in `AREAS`.
+Things worth adding once the owner supplies them: real job photos (the SVG
+illustrations are a deliberate placeholder, not a substitute), a business email
+address, Google review embed, any additional license or association memberships,
+and confirmation of the service-area list in `AREAS`.
 
 ## Notes for whoever touches the CSS next
 

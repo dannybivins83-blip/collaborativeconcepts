@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper</loc><priority>1.0</priority></url>
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/services</loc><priority>0.8</priority></url>
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/service-area</loc><priority>0.8</priority></url>
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/about</loc><priority>0.8</priority></url>
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/contact</loc><priority>0.8</priority></url>
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/wood-fence</loc><priority>0.8</priority></url>
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/vinyl-fence</loc><priority>0.8</priority></url>
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/aluminum-fence</loc><priority>0.8</priority></url>
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/chain-link-fence</loc><priority>0.8</priority></url>
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/pool-fence</loc><priority>0.8</priority></url>
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/gates</loc><priority>0.8</priority></url>
-  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/fence-repair</loc><priority>0.8</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/services</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/service-area</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/wood-fence</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/vinyl-fence</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/aluminum-fence</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/chain-link-fence</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/pool-fence</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/gates</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://collaborativeconceptsfl.com/gatekeeper/fence-repair</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
