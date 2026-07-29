@@ -1,4 +1,4 @@
-# WRAPMILES SPONSOR AGREEMENT
+# ADOMETR SPONSOR AGREEMENT
 ## Advertising Services Agreement + Campaign Insertion Order
 
 > **⚠️ ATTORNEY REVIEW DRAFT — NOT FOR SIGNATURE.** Working draft for review by a
@@ -172,7 +172,7 @@ on the signature page are effective.
 
 ---
 
-**COLLABORATIVE CONCEPTS LLC d/b/a WRAPMILES** — By: _________________ Name/Title: _________________ Date: _______
+**COLLABORATIVE CONCEPTS LLC d/b/a ADOMETR** — By: _________________ Name/Title: _________________ Date: _______
 
 **ADVERTISER** — By: _________________ Name/Title: _________________ Date: _______
 

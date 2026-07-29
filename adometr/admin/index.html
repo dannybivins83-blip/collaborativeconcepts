@@ -223,7 +223,7 @@
 <div id="setupScreen" class="fullscreen hidden">
   <div class="authbox setupbox">
     <div class="brand">
-      <span class="name"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span>
+      <span class="name"><span class="wm-ad">ad</span><span class="wm-rest">ometr</span></span>
       <span class="admtag" style="background:var(--pink);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:5px 12px">Setup</span>
     </div>
     <h1>One-time setup needed</h1>
@@ -240,7 +240,7 @@
 <div id="loginScreen" class="fullscreen hidden">
   <div class="authbox">
     <div class="brand">
-      <span class="name"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span>
+      <span class="name"><span class="wm-ad">ad</span><span class="wm-rest">ometr</span></span>
       <span class="admtag" style="background:var(--pink);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:5px 12px">Admin</span>
     </div>
     <h1>Sign in</h1>
@@ -261,7 +261,7 @@
   <div class="topbar">
     <div class="topbar-in">
       <span class="brand">
-        <span class="name"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span>
+        <span class="name"><span class="wm-ad">ad</span><span class="wm-rest">ometr</span></span>
         <span class="admtag">Admin</span>
       </span>
       <nav class="tabs" id="tabs">
@@ -397,7 +397,7 @@ function showSetup(needsKey, dbOk){
     html += "<li><b>Attach a Postgres database</b> in Vercel (Storage &rarr; Create Database &rarr; Neon/Postgres), then <b>redeploy</b>.</li>";
   }
   if(needsKey){
-    html += "<li>Set the <code>WRAPMILES_ADMIN_KEY</code> env var in Vercel project settings, redeploy, then sign in with that key.</li>";
+    html += "<li>Set the <code>ADOMETR_ADMIN_KEY</code> env var in Vercel project settings, redeploy, then sign in with that key.</li>";
   }
   steps.innerHTML = html || "<li>Redeploy the project, then re-check.</li>";
   show("setup");
