@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
+<meta name="robots" content="noindex">
+<title>Adometr — Driver Portal</title>
+<link rel="icon" type="image/svg+xml" href="/adometr/assets/logo/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap">
+<style>
+  :root{
+    --pink:#0fb5a6; --pink-deep:#0b8378; --pink-tint:#e6f7f5;
+    --ink:#0e2b32; --sub:#51666b; --mut:#7f9397;
+    --fill:#f0f4f4; --bg:#f4f8f8; --line:#e7edee;
+    --green:#1c9e64; --green-tint:#e7f6ee;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.5;font-size:15px;min-height:100vh}
+  a{color:var(--pink);text-decoration:none}
+  a:hover{color:var(--pink-deep)}
+  h1,h2,h3{margin:0;line-height:1.15;letter-spacing:-.02em}
+  p{margin:0}
+  input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+
+  /* topbar */
+  .nav{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1180px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .wordmark{font-weight:800;font-size:22px;letter-spacing:-.03em;color:var(--pink)}
+  .chip{background:var(--fill);color:var(--ink);font-weight:700;font-size:12px;padding:5px 12px;border-radius:999px;white-space:nowrap}
+  .nav-user{display:flex;align-items:center;gap:14px}
+  .who{display:none;align-items:center;gap:9px}
+  .who.on{display:flex}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--pink);color:#fff;font-weight:700;font-size:13px;display:grid;place-items:center;flex:none}
+  .who b{font-weight:700;font-size:14px;color:var(--ink)}
+  .btn-out{display:none;background:none;border:0;padding:4px 2px;color:var(--mut);font:500 14px 'DM Sans',sans-serif;cursor:pointer}
+  .btn-out:hover{color:var(--ink)}
+  @media(max-width:560px){.chip{display:none}.who b{display:none}}
+
+  main{padding:26px 0 60px}
+  @media(min-width:760px){main{padding:32px 0 70px}}
+
+  /* cards + shared */
+  .card{background:#fff;border-radius:18px;padding:22px 20px;margin-bottom:14px}
+  @media(min-width:760px){.card{padding:24px}}
+  .card-h{font-weight:800;font-size:17px;color:var(--ink)}
+  .card-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--pink);margin-bottom:10px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--sub);margin-bottom:6px}
+  .field input,.field select,.field textarea{width:100%;padding:13px 14px;border-radius:12px;border:none;background:var(--fill);color:var(--ink);font-size:14px;font-family:'DM Sans',sans-serif}
+  .field input::placeholder,.field textarea::placeholder{color:var(--mut)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 24px;border-radius:999px;font-weight:700;font-size:15px;border:0;cursor:pointer;font-family:'DM Sans',sans-serif;background:var(--pink);color:#fff;width:100%}
+  .btn:hover{background:var(--pink-deep)}
+  .btn[disabled]{opacity:.55;cursor:default}
+  .msg{display:none;margin-top:12px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:500}
+  .msg.ok{display:block;background:var(--green-tint);color:var(--green)}
+  .msg.err{display:block;background:var(--pink-tint);color:var(--pink-deep)}
+  .hint{font-size:12px;color:var(--mut);line-height:1.5}
+  .badge{display:inline-block;padding:4px 11px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap;background:var(--fill);color:var(--sub)}
+  .badge.b-green{background:var(--green-tint);color:var(--green)}
+  .badge.b-pink{background:var(--pink-tint);color:var(--pink-deep)}
+  .badge.b-gray{background:var(--fill);color:var(--sub)}
+
+  /* views */
+  .view{display:none}
+  .view.on{display:block}
+  .login-box{max-width:440px;margin:36px auto 0}
+  .login-box h1{font-weight:800;font-size:26px;color:var(--ink);margin-bottom:8px}
+  .login-box .sub{color:var(--sub);font-size:14.5px;margin-bottom:22px}
+  .loading{text-align:center;color:var(--mut);padding:60px 0;font-size:14px}
+  .offline{max-width:440px;margin:56px auto 0;text-align:center;color:var(--sub);font-size:14.5px}
+
+  /* greeting + stats */
+  .hello h1{font-weight:800;font-size:clamp(26px,5vw,34px);color:var(--ink)}
+  .hello .sub{color:var(--sub);font-size:14.5px;margin-top:4px}
+  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 14px}
+  @media(min-width:820px){.stat-row{grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}}
+  .stat{background:#fff;border-radius:18px;padding:18px 20px}
+  @media(min-width:760px){.stat{padding:20px 22px}}
+  .stat .lbl{font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--mut);text-transform:uppercase}
+  .stat b{display:block;font-weight:800;font-size:clamp(22px,4vw,30px);letter-spacing:-.02em;color:var(--ink);margin-top:6px;line-height:1.2}
+  .stat b.pink{color:var(--pink)}
+  .stat .note{font-size:12.5px;color:var(--sub);margin-top:2px}
+  .stat .note.good{color:var(--green)}
+
+  /* two-column zone */
+  .cols{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+  @media(min-width:880px){.cols{grid-template-columns:1fr 1.15fr}}
+  .cols .card{margin-bottom:0}
+  .colstack{display:grid;gap:14px}
+
+  /* campaign card bits */
+  .camp-id{display:flex;align-items:center;gap:14px;margin-top:16px}
+  .monogram{width:46px;height:46px;border-radius:12px;background:var(--pink-tint);color:var(--pink);font-weight:800;font-size:15px;display:grid;place-items:center;flex:none}
+  .camp-id .nm{font-weight:700;font-size:16px;color:var(--ink)}
+  .camp-id .cv{font-size:13px;color:var(--sub)}
+  .kv{display:grid;grid-template-columns:1fr auto;gap:9px 16px;margin-top:18px;font-size:13.5px;color:var(--sub);border-top:1px solid var(--fill);padding-top:14px}
+  .kv b{color:var(--ink);font-weight:700;text-align:right}
+  .refband{background:var(--pink-tint);border-radius:14px;padding:14px 16px;margin-top:18px;font-size:13px;line-height:1.55;color:var(--pink-deep)}
+  .refband strong{font-weight:700}
+
+  /* stepper */
+  .stepper{display:flex;flex-wrap:wrap;gap:7px 6px;margin-top:12px}
+  .stepper .st{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--mut);background:var(--fill);border-radius:999px;padding:5px 11px}
+  .stepper .st .dot{width:7px;height:7px;border-radius:50%;background:var(--mut);flex:none}
+  .stepper .st.done{color:var(--sub)}
+  .stepper .st.done .dot{background:var(--pink);opacity:.45}
+  .stepper .st.now{color:#fff;background:var(--pink)}
+  .stepper .st.now .dot{background:#fff}
+
+  /* forms grid */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+  @media(max-width:520px){.grid-2{grid-template-columns:1fr}}
+
+  /* tables */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -20px;padding:0 20px}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:480px}
+  th{text-align:left;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding:0 10px 10px 0;border-bottom:1px solid var(--fill);white-space:nowrap}
+  td{padding:12px 10px 12px 0;border-bottom:1px solid var(--bg);color:var(--ink);vertical-align:middle}
+  td b{font-weight:700;color:var(--ink)}
+  td .sm{font-size:12px;color:var(--mut)}
+  tr:last-child td{border-bottom:0}
+  .empty{color:var(--mut);font-size:14px;padding:6px 0}
+
+  /* photos card */
+  .photo-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .pbtn{border:0;cursor:pointer;font:700 13px 'DM Sans',sans-serif;background:var(--fill);color:var(--ink);padding:10px 15px;border-radius:999px}
+  .pbtn:hover{background:var(--pink-tint);color:var(--pink-deep)}
+  .pbtn[disabled]{opacity:.55;cursor:default}
+  .photo-strip{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:14px;padding-bottom:4px}
+  .photo-strip a{flex:none;width:96px;text-decoration:none}
+  .photo-strip img{width:96px;height:80px;object-fit:cover;border-radius:10px;background:var(--fill);display:block}
+  .photo-strip .cap{display:block;font-size:11px;color:var(--mut);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  footer{padding:8px 0 34px}
+  footer p{font-size:12.5px;color:var(--mut);text-align:center}
+  .wm-ad{color:var(--pink,#0fb5a6)}.wm-rest{color:inherit}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a class="brand" href="/adometr" aria-label="Adometr home">
+      <span class="wordmark"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span>
+      <span class="chip">Driver portal</span>
+    </a>
+    <div class="nav-user">
+      <div class="who" id="navWho"><span class="avatar" id="navAvatar" aria-hidden="true">–</span><b id="navName"></b></div>
+      <button class="btn-out" id="btnLogout" type="button">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ============ LOGIN VIEW ============ -->
+  <section class="view" id="viewLogin">
+    <div class="login-box card">
+      <p class="eyebrow">Driver Portal</p>
+      <h1>Welcome back, driver.</h1>
+      <p class="sub">Sign in with your email and the access code Danny sent you. Don't have a code? Text or email Danny.</p>
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="liEmail">Email</label>
+          <input id="liEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="liCode">Access code</label>
+          <input id="liCode" type="text" autocomplete="one-time-code" placeholder="Code from Danny" required>
+        </div>
+        <button class="btn" id="liBtn" type="submit">Sign In</button>
+        <div class="msg" id="liMsg" role="alert"></div>
+      </form>
+      <p class="hint" style="margin-top:18px;font-size:13px">Not a Adometr driver yet? <a href="/adometr">Apply here — it's free.</a></p>
+    </div>
+  </section>
+
+  <!-- ============ OFFLINE / NOT CONFIGURED VIEW ============ -->
+  <section class="view" id="viewOffline">
+    <p class="offline">The portal isn't switched on yet — check back soon. Questions in the meantime? Text or email Danny.</p>
+  </section>
+
+  <!-- ============ LOADING ============ -->
+  <section class="view" id="viewLoading"><div class="loading">Loading your dashboard…</div></section>
+
+  <!-- ============ DASHBOARD VIEW ============ -->
+  <section class="view" id="viewDash">
+
+    <div class="hello">
+      <h1>Welcome back, <span id="dvName">driver</span></h1>
+      <p class="sub" id="dvSub"></p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="lbl">Total earned</div><b id="dvEarned">$0.00</b><div class="note">approved payouts to date</div></div>
+      <div class="stat"><div class="lbl">Miles approved</div><b id="dvMiles">0</b><div class="note">since campaign start</div></div>
+      <div class="stat"><div class="lbl">This month (est.)</div><b class="pink" id="dvMonthEst">$0.00</b><div class="note" id="dvMonthEstSub">no miles submitted yet</div></div>
+      <div class="stat"><div class="lbl">Your referrals</div><b id="dvRefCount">0</b><div class="note" id="dvRefNote">share your link below</div></div>
+    </div>
+
+    <div class="card" id="dvRefCard" style="display:none;margin-bottom:22px;background:var(--tint,#e6f7f5)">
+      <span class="card-h">Share your link — earn up to $375 per driver</span>
+      <p style="font:400 14px/1.5 'DM Sans',sans-serif;color:var(--mut);margin:8px 0 14px">
+        $50 when they get wrapped, then $75 / $100 / $150 as they stay active at 3, 6 &amp; 12 months.
+        Anyone who applies through your link is credited to you automatically. Sponsor referrals pay a % of their spend.
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <input id="refLink" readonly style="flex:1;min-width:220px;padding:13px 14px;border-radius:12px;border:1px solid var(--border,#e7edee);background:#fff;font:500 14px 'DM Sans',sans-serif;color:var(--ink)" value="">
+        <button class="btn" id="refCopy" type="button" style="width:auto;padding:13px 22px">Copy</button>
+        <button class="btn" id="refShare" type="button" style="width:auto;padding:13px 22px;background:var(--ink)">Share</button>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center">
+        <a id="refWa" target="_blank" rel="noopener" style="font:700 14px 'DM Sans',sans-serif;color:var(--pink);text-decoration:none">WhatsApp →</a>
+        <a id="refSms" style="font:700 14px 'DM Sans',sans-serif;color:var(--pink);text-decoration:none">Text it →</a>
+        <a id="refQrToggle" style="font:700 14px 'DM Sans',sans-serif;color:var(--pink);text-decoration:none;cursor:pointer">QR code →</a>
+      </div>
+      <div id="refQrBox" style="display:none;margin-top:14px">
+        <img id="refQrImg" alt="QR code for your referral link" width="180" height="180" style="border-radius:12px;background:#fff;padding:8px">
+        <p style="font:400 12.5px 'DM Sans',sans-serif;color:var(--mut);margin-top:6px">Screenshot it, print it, stick it on your window — every scan is credited to you.</p>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="colstack">
+        <div id="dvCampaigns"></div>
+        <div class="card">
+          <span class="card-h">Application status</span>
+          <div class="stepper" id="dvStepper"></div>
+        </div>
+      </div>
+      <div class="colstack">
+        <div class="card" id="dvMileageCard" style="display:none">
+          <span class="card-h">Submit mileage</span>
+          <form id="mileForm" novalidate style="margin-top:14px">
+            <div class="field">
+              <label for="mfMatch">Campaign</label>
+              <select id="mfMatch" required></select>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="mfPeriod">Month</label>
+                <input id="mfPeriod" type="month" required>
+              </div>
+              <div class="field">
+                <label for="mfMiles">Miles this month</label>
+                <input id="mfMiles" type="number" min="0" step="1" inputmode="numeric" placeholder="Auto from odometer" required>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="mfOdoStart">Odometer — start of month</label>
+                <input id="mfOdoStart" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 41200">
+              </div>
+              <div class="field">
+                <label for="mfOdoEnd">Odometer — end of month</label>
+                <input id="mfOdoEnd" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 42450">
+              </div>
+            </div>
+            <div class="field">
+              <label for="mfNote">Note (optional)</label>
+              <textarea id="mfNote" rows="2" placeholder="Anything we should know — road trips, car in the shop, etc."></textarea>
+            </div>
+            <button class="btn" id="mfBtn" type="submit">Submit mileage</button>
+            <div class="msg" id="mfMsg" role="alert"></div>
+          </form>
+          <p class="hint" style="margin-top:12px">Upload your odometer photo below — no more texting it.</p>
+        </div>
+        <div class="card" id="dvPhotoCard">
+          <span class="card-h">Photos</span>
+          <p class="hint" style="margin-top:8px">Vehicle, odometer and wrap-check photos — snapped right from your phone.</p>
+          <div class="photo-btns">
+            <button type="button" class="pbtn" data-kind="vehicle">Vehicle photo</button>
+            <button type="button" class="pbtn" data-kind="odometer">Odometer photo</button>
+            <button type="button" class="pbtn" data-kind="wrap_condition">Wrap check photo</button>
+          </div>
+          <input type="file" id="phFile" accept="image/*" capture="environment" style="display:none" aria-hidden="true">
+          <div class="msg" id="phMsg" role="alert"></div>
+          <div class="photo-strip" id="phStrip" style="display:none"></div>
+          <p class="empty" id="phEmpty" style="margin-top:12px">No photos yet — start with your odometer.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <span class="card-h">Mileage history</span>
+      <div class="tbl-scroll" style="margin-top:6px">
+        <table id="dvMileTable" style="display:none">
+          <thead><tr><th>Month</th><th>Miles claimed</th><th>Status</th><th>Approved</th></tr></thead>
+          <tbody id="dvMileBody"></tbody>
+        </table>
+      </div>
+      <p class="empty" id="dvMileEmpty">No mileage submitted yet. Your first submission will show up here.</p>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  <div class="wrap"><p>Adometr — a Collaborative Concepts LLC venture · Questions? Text or email Danny · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a></p></div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var API = "/api/adometr";
+var TOKEN_KEY = "wm_driver_token";
+var STEPS = ["new","contacted","qualified","docs_verified","wrap_ready","matched","active"];
+var STEP_LABELS = {new:"Applied",contacted:"Contacted",qualified:"Qualified",docs_verified:"Docs Verified",wrap_ready:"Wrap Ready",matched:"Matched",active:"Active"};
+
+/* ---------- helpers ---------- */
+function $(id){return document.getElementById(id)}
+function esc(s){
+  return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function money(cents){
+  var n = Number(cents);
+  if(!isFinite(n)) n = 0;
+  var neg = n < 0; n = Math.abs(n)/100;
+  return (neg?"-$":"$") + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtNum(n){
+  n = Number(n); if(!isFinite(n)) n = 0;
+  return n.toLocaleString("en-US");
+}
+function fmtDate(v){
+  if(v==null || v==="") return "—";
+  var d;
+  if(typeof v === "number" || /^\d+(\.\d+)?$/.test(String(v))){
+    var n = Number(v);
+    d = new Date(n > 1e12 ? n : n*1000);
+  } else {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v));
+    if(m) d = new Date(+m[1], +m[2]-1, +m[3]);
+    else d = new Date(v);
+  }
+  if(!d || isNaN(d.getTime())) return esc(v);
+  return d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
+}
+function firstName(name){
+  var s = String(name||"").trim();
+  return s ? s.split(/\s+/)[0] : "driver";
+}
+function initials(name){
+  var parts = String(name||"").trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return "WM";
+  var out = parts[0].charAt(0) + (parts.length > 1 ? parts[1].charAt(0) : "");
+  return out.toUpperCase();
+}
+function badgeClass(status){
+  var s = String(status||"").toLowerCase();
+  if(s==="active"||s==="approved"||s==="live"||s==="wrapped") return "b-green";
+  if(s==="rejected"||s==="declined"||s==="ended"||s==="cancelled"||s==="canceled"||s==="paused") return "b-gray";
+  if(s==="submitted"||s==="pending"||s==="wrapping"||s==="matched") return "b-pink";
+  return "b-gray";
+}
+function statusLabel(s){ return String(s==null?"":s).replace(/_/g," "); }
+function statusDisplay(s){
+  var l = String(s==null?"":s).toLowerCase();
+  if(l==="submitted"||l==="pending") return "Pending review";
+  return statusLabel(s);
+}
+
+function getToken(){ try{return localStorage.getItem(TOKEN_KEY)}catch(e){return null} }
+function setToken(t){ try{ t?localStorage.setItem(TOKEN_KEY,t):localStorage.removeItem(TOKEN_KEY) }catch(e){} }
+
+/* ---------- views ---------- */
+var VIEWS = ["viewLogin","viewOffline","viewLoading","viewDash"];
+function show(view){
+  VIEWS.forEach(function(v){ $(v).classList.toggle("on", v===view); });
+  $("btnLogout").style.display = (view==="viewDash") ? "inline-flex" : "none";
+  $("navWho").classList.toggle("on", view==="viewDash");
+}
+function showLogin(errMsg){
+  setToken(null);
+  show("viewLogin");
+  var m = $("liMsg");
+  if(errMsg){ m.className="msg err"; m.textContent = errMsg; }
+  else { m.className="msg"; m.textContent=""; }
+}
+
+/* ---------- api ---------- */
+function api(path, opts, cb){
+  opts = opts || {};
+  var headers = {"Content-Type":"application/json"};
+  var t = getToken();
+  if(t) headers["Authorization"] = "Bearer " + t;
+  fetch(API + path, {
+    method: opts.method || "GET",
+    headers: headers,
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  }).then(function(res){
+    return res.json().catch(function(){return {}}).then(function(data){
+      if(res.status === 401){ showLogin("Your session expired — please sign in again."); cb(new Error("unauthorized")); return; }
+      if(res.status === 503 && data && data.error === "db_not_configured"){ show("viewOffline"); cb(new Error("offline")); return; }
+      if(!res.ok){ cb(Object.assign(new Error(data && data.error ? data.error : "Request failed"), {data:data,status:res.status})); return; }
+      cb(null, data);
+    });
+  }).catch(function(){
+    cb(new Error("Network problem — check your connection and try again."));
+  });
+}
+
+/* ---------- login ---------- */
+$("loginForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  var email = $("liEmail").value.trim();
+  var code  = $("liCode").value.trim();
+  var m = $("liMsg");
+  if(!email || !code){ m.className="msg err"; m.textContent="Enter both your email and access code."; return; }
+  $("liBtn").disabled = true; m.className="msg"; m.textContent="";
+  api("/login", {method:"POST", body:{role:"driver", email:email, code:code}}, function(err, data){
+    $("liBtn").disabled = false;
+    if(err){
+      if(err.message !== "offline" && err.message !== "unauthorized"){
+        m.className="msg err"; m.textContent = err.message==="Request failed" ? "Sign-in failed — try again." : humanErr(err.message);
+      } else if(err.message === "unauthorized"){
+        m.className="msg err"; m.textContent = (err.data && err.data.error) ? humanErr(err.data.error) : "That email and code didn't match. Double-check the code Danny sent you.";
+        show("viewLogin");
+      }
+      return;
+    }
+    if(!data || !data.token){ m.className="msg err"; m.textContent="Sign-in failed — try again."; return; }
+    setToken(data.token);
+    loadDash();
+  });
+});
+function humanErr(code){
+  var map = {
+    invalid_credentials: "That email and code didn't match. Double-check the code Danny sent you.",
+    invalid_code: "That code isn't right. Double-check the code Danny sent you.",
+    not_found: "We couldn't find that account. Text or email Danny to get set up.",
+    missing_fields: "Enter both your email and access code."
+  };
+  return map[code] || statusLabel(code) || "Something went wrong — try again.";
+}
+
+$("btnLogout").addEventListener("click", function(){ showLogin(); });
+
+/* ---------- dashboard ---------- */
+var CURRENT = null;
+
+function loadDash(){
+  show("viewLoading");
+  api("/driver/me", {}, function(err, data){
+    if(err){
+      if(err.message==="unauthorized" || err.message==="offline") return; // views already switched
+      showLogin("Couldn't load your dashboard — sign in again.");
+      return;
+    }
+    CURRENT = data || {};
+    renderDash(CURRENT);
+    show("viewDash");
+  });
+}
+
+function renderDash(data){
+  var me = data.me || {};
+  var matches = Array.isArray(data.matches) ? data.matches : [];
+  var mileage = Array.isArray(data.mileage) ? data.mileage : [];
+
+  $("dvName").textContent = firstName(me.name);
+  $("navName").textContent = firstName(me.name) + (String(me.name||"").trim().split(/\s+/)[1] ? " " + String(me.name).trim().split(/\s+/)[1].charAt(0).toUpperCase() + "." : "");
+  $("navAvatar").textContent = initials(me.name);
+
+  var subBits = [];
+  if(matches[0] && matches[0].campaign_name){
+    subBits.push(matches[0].campaign_name + " campaign");
+    if(matches[0].coverage) subBits.push(statusLabel(matches[0].coverage));
+  }
+  if(me.vehicle) subBits.push(me.vehicle);
+  if(me.city_zip) subBits.push(me.city_zip);
+  $("dvSub").textContent = subBits.join(" · ");
+
+  $("dvEarned").textContent = money(data.earned_cents_total);
+
+  // referral share card
+  var ref = data.referral;
+  if(ref && ref.link){
+    $("dvRefCard").style.display = "";
+    $("refLink").value = ref.link;
+    var total = (ref.driver_signups||0) + (ref.sponsor_signups||0);
+    $("dvRefCount").textContent = fmtNum(total);
+    $("dvRefNote").textContent = (ref.drivers_active||0) + " active driver" + (ref.drivers_active===1?"":"s") +
+      (ref.sponsor_signups ? " · " + ref.sponsor_signups + " sponsor lead" + (ref.sponsor_signups===1?"":"s") : "");
+    var shareText = "Brands pay you per mile to carry a wrap on your car — free install, removable, protects your paint. I'm in. Apply with my link: " + ref.link;
+    $("refWa").href = "https://wa.me/?text=" + encodeURIComponent(shareText);
+    $("refSms").href = "sms:?&body=" + encodeURIComponent(shareText);
+    $("refCopy").onclick = function(){
+      navigator.clipboard.writeText(ref.link).then(function(){
+        $("refCopy").textContent = "Copied!";
+        setTimeout(function(){ $("refCopy").textContent = "Copy"; }, 1600);
+      });
+    };
+    $("refShare").onclick = function(){
+      if(navigator.share){ navigator.share({title:"Adometr", text:shareText, url:ref.link}).catch(function(){}); }
+      else { $("refCopy").onclick(); }
+    };
+    $("refQrToggle").onclick = function(){
+      var box = $("refQrBox");
+      if(box.style.display === "none"){ $("refQrImg").src = ref.qr_url; box.style.display = ""; }
+      else { box.style.display = "none"; }
+    };
+  }
+  var milesApproved = mileage.reduce(function(sum,r){
+    var v = (r.miles_approved!=null && r.miles_approved!=="") ? Number(r.miles_approved)
+          : (String(r.status).toLowerCase()==="approved" ? Number(r.miles) : 0);
+    return sum + (isFinite(v)?v:0);
+  },0);
+  $("dvMiles").textContent = fmtNum(milesApproved);
+
+  /* this-month estimate: current-period approved+submitted miles × campaign rate */
+  var nowD = new Date();
+  var curPeriod = nowD.getFullYear() + "-" + String(nowD.getMonth()+1).padStart(2,"0");
+  var monthMiles = mileage.reduce(function(sum,r){
+    if(String(r.period||"") !== curPeriod) return sum;
+    var s = String(r.status||"").toLowerCase();
+    if(s!=="approved" && s!=="submitted" && s!=="pending") return sum;
+    var v = (s==="approved" && r.miles_approved!=null && r.miles_approved!=="") ? Number(r.miles_approved) : Number(r.miles);
+    return sum + (isFinite(v)?v:0);
+  },0);
+  var m0 = matches[0];
+  var estEl = $("dvMonthEst"), estSub = $("dvMonthEstSub");
+  if(!m0){
+    estEl.textContent = "$0.00"; estSub.textContent = "no active campaign yet";
+  } else if(Number(m0.flat_cents_month) > 0){
+    estEl.textContent = money(m0.flat_cents_month); estSub.textContent = "flat monthly · est.";
+  } else {
+    var rate = Number(m0.rate_cents_per_mile); if(!isFinite(rate)) rate = 0;
+    var cap = Number(m0.cap_miles);
+    var payMiles = (isFinite(cap) && cap > 0) ? Math.min(monthMiles, cap) : monthMiles;
+    estEl.textContent = money(Math.round(payMiles * rate));
+    estSub.textContent = monthMiles > 0
+      ? fmtNum(monthMiles) + " mi × $" + (rate/100).toFixed(2) + "/mi · est."
+      : "no miles submitted this month";
+  }
+
+  /* stepper */
+  var stepEl = $("dvStepper");
+  stepEl.innerHTML = "";
+  var cur = STEPS.indexOf(String(me.status||"").toLowerCase());
+  STEPS.forEach(function(s,i){
+    var d = document.createElement("div");
+    d.className = "st" + (cur>=0 ? (i<cur?" done":(i===cur?" now":"")) : "");
+    var dot = document.createElement("span"); dot.className="dot";
+    d.appendChild(dot);
+    d.appendChild(document.createTextNode(STEP_LABELS[s]));
+    stepEl.appendChild(d);
+  });
+  if(cur < 0 && me.status){
+    var extra = document.createElement("div");
+    extra.className = "st now";
+    var dot2 = document.createElement("span"); dot2.className="dot";
+    extra.appendChild(dot2);
+    extra.appendChild(document.createTextNode(statusLabel(me.status)));
+    stepEl.appendChild(extra);
+  }
+
+  /* campaign cards */
+  var cwrap = $("dvCampaigns");
+  cwrap.innerHTML = "";
+  if(!matches.length){
+    cwrap.innerHTML = '<div class="card"><div class="card-top"><span class="card-h">Your campaign</span></div>' +
+      '<p class="empty" style="margin-top:10px">No campaign matched yet. Once a brand picks your car, it shows up here — hang tight, and keep your miles up.</p>' +
+      '<div class="refband"><strong>Earn up to $375 per driver you refer</strong> — have them put your name on the application.</div></div>';
+  } else {
+    matches.forEach(function(mt, idx){
+      var gps = Number(mt.gps_enabled) === 1 || mt.gps_enabled === true;
+      var rateHtml;
+      if(Number(mt.flat_cents_month) > 0){
+        rateHtml = esc(money(mt.flat_cents_month).replace(/\.00$/,"")) + ' flat / month';
+      } else {
+        var perMile = Number(mt.rate_cents_per_mile);
+        rateHtml = "$" + esc(((isFinite(perMile)?perMile:0)/100).toFixed(2)) + ' / verified mi';
+      }
+      var card = document.createElement("div");
+      card.className = "card";
+      card.style.marginBottom = "14px";
+      card.innerHTML =
+        '<div class="card-top"><span class="card-h">' + (idx===0 ? 'Your campaign' : 'Also matched') + '</span>' +
+        '<span class="badge ' + badgeClass(mt.status) + '">' + esc(statusDisplay(mt.status).toUpperCase()) + '</span></div>' +
+        '<div class="camp-id"><span class="monogram">' + esc(initials(mt.campaign_name)) + '</span>' +
+        '<div><div class="nm">' + esc(mt.campaign_name || "Campaign") + '</div>' +
+        '<div class="cv">' + esc(statusLabel(mt.coverage) || "—") + (mt.zone ? ' · ' + esc(mt.zone) : '') + '</div></div></div>' +
+        '<div style="margin-top:10px"><span class="badge ' + (gps ? 'b-green' : 'b-gray') + '">' + (gps ? 'GPS-verified miles' : 'Odometer-verified') + '</span></div>' +
+        '<div class="kv">' +
+          '<span>Rate</span><b>' + rateHtml + '</b>' +
+          '<span>Monthly cap</span><b>' + (mt.cap_miles ? esc(fmtNum(mt.cap_miles)) + " mi / mo" : "No cap") + '</b>' +
+          '<span>Dates</span><b>' + fmtDate(mt.start_date) + ' → ' + fmtDate(mt.end_date) + '</b>' +
+          (mt.wrapped_at ? '<span>Wrapped</span><b>' + fmtDate(mt.wrapped_at) + '</b>' : '') +
+          (mt.campaign_status ? '<span>Campaign</span><b>' + esc(statusLabel(mt.campaign_status)) + '</b>' : '') +
+        '</div>' +
+        (idx===0 ? '<div class="refband"><strong>Earn up to $375 per driver you refer</strong> — have them put your name on the application.</div>' : '');
+      cwrap.appendChild(card);
+    });
+    var last = cwrap.lastElementChild;
+    if(last) last.style.marginBottom = "0";
+  }
+
+  /* mileage form — only for wrapped/active matches */
+  var eligible = matches.filter(function(mt){
+    var s = String(mt.status||"").toLowerCase();
+    return s==="wrapped" || s==="active";
+  });
+  if(eligible.length){
+    $("dvMileageCard").style.display = "block";
+    var sel = $("mfMatch");
+    sel.innerHTML = "";
+    eligible.forEach(function(mt){
+      var opt = document.createElement("option");
+      opt.value = mt.id;
+      opt.textContent = (mt.campaign_name || "Campaign") + (mt.zone ? " — " + mt.zone : "");
+      sel.appendChild(opt);
+    });
+    if(!$("mfPeriod").value){
+      var now = new Date();
+      $("mfPeriod").value = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0");
+    }
+  } else {
+    $("dvMileageCard").style.display = "none";
+  }
+
+  /* mileage history */
+  var body = $("dvMileBody");
+  body.innerHTML = "";
+  if(mileage.length){
+    $("dvMileTable").style.display = "table";
+    $("dvMileEmpty").style.display = "none";
+    mileage.slice().sort(function(a,b){ return String(b.period||"").localeCompare(String(a.period||"")); })
+      .forEach(function(r){
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          '<td><b>' + esc(r.period || "—") + '</b>' + (r.note ? '<br><span class="sm">' + esc(r.note) + '</span>' : '') + '</td>' +
+          '<td>' + esc(fmtNum(r.miles)) + ' mi</td>' +
+          '<td><span class="badge ' + badgeClass(r.status) + '">' + esc(statusDisplay(r.status) || "Pending review") + '</span></td>' +
+          '<td>' + ((r.miles_approved!=null && r.miles_approved!=="") ? esc(fmtNum(r.miles_approved)) + " mi" : "—") + '</td>';
+        body.appendChild(tr);
+      });
+  } else {
+    $("dvMileTable").style.display = "none";
+    $("dvMileEmpty").style.display = "block";
+  }
+
+  /* photos */
+  renderPhotos(Array.isArray(data.photos) ? data.photos : []);
+}
+
+/* ---------- photos ---------- */
+var PHOTO_KIND_LABELS = {vehicle:"Vehicle", odometer:"Odometer", wrap_condition:"Wrap check"};
+function renderPhotos(photos){
+  var strip = $("phStrip");
+  strip.innerHTML = "";
+  if(!photos.length){
+    strip.style.display = "none";
+    $("phEmpty").style.display = "block";
+    return;
+  }
+  strip.style.display = "flex";
+  $("phEmpty").style.display = "none";
+  var t = getToken() || "";
+  photos.forEach(function(p){
+    var url = API + "/photos/" + encodeURIComponent(p.id) + "?t=" + encodeURIComponent(t);
+    var cap = (PHOTO_KIND_LABELS[p.kind] || statusLabel(p.kind)) + (p.period ? " · " + p.period : "");
+    var a = document.createElement("a");
+    a.href = url; a.target = "_blank"; a.rel = "noopener";
+    if(p.note) a.title = p.note;
+    var img = document.createElement("img");
+    img.src = url; img.loading = "lazy"; img.alt = cap;
+    var capEl = document.createElement("span");
+    capEl.className = "cap";
+    capEl.textContent = cap;
+    a.appendChild(img); a.appendChild(capEl);
+    strip.appendChild(a);
+  });
+}
+var photoKind = null;
+function photoBtns(){ return document.querySelectorAll("#dvPhotoCard .pbtn"); }
+Array.prototype.forEach.call(photoBtns(), function(btn){
+  btn.addEventListener("click", function(){
+    photoKind = btn.getAttribute("data-kind");
+    $("phFile").value = "";
+    $("phFile").click();
+  });
+});
+function setPhotoBusy(b){
+  Array.prototype.forEach.call(photoBtns(), function(x){ x.disabled = b; });
+}
+function downscalePhoto(file, cb){
+  var url = URL.createObjectURL(file);
+  var img = new Image();
+  img.onload = function(){
+    try{
+      var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+      var scale = Math.min(1, 1600 / Math.max(w, h, 1));
+      var cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
+      var canvas = document.createElement("canvas");
+      canvas.width = cw; canvas.height = ch;
+      canvas.getContext("2d").drawImage(img, 0, 0, cw, ch);
+      URL.revokeObjectURL(url);
+      cb(null, canvas.toDataURL("image/jpeg", 0.8));
+    }catch(e){
+      URL.revokeObjectURL(url);
+      cb(new Error("Couldn't process that image — try another photo."));
+    }
+  };
+  img.onerror = function(){
+    URL.revokeObjectURL(url);
+    cb(new Error("Couldn't read that image — try another photo."));
+  };
+  img.src = url;
+}
+$("phFile").addEventListener("change", function(){
+  var file = $("phFile").files && $("phFile").files[0];
+  var kind = photoKind;
+  if(!file || !kind) return;
+  var m = $("phMsg");
+  m.className = "msg"; m.textContent = "";
+  setPhotoBusy(true);
+  downscalePhoto(file, function(err, dataUrl){
+    if(err){ setPhotoBusy(false); m.className = "msg err"; m.textContent = err.message; return; }
+    var period = null;
+    if(kind === "odometer" || kind === "wrap_condition"){
+      var n = new Date();
+      period = n.getFullYear() + "-" + String(n.getMonth() + 1).padStart(2, "0");
+    }
+    api("/driver/photos", {method:"POST", body:{kind:kind, period:period, image:dataUrl}}, function(err2){
+      setPhotoBusy(false);
+      if(err2){
+        if(err2.message === "unauthorized" || err2.message === "offline") return;
+        m.className = "msg err";
+        m.textContent = humanErr(err2.message);
+        return;
+      }
+      m.className = "msg ok";
+      m.textContent = "Photo uploaded" + (period ? " for " + period : "") + " — thanks!";
+      api("/driver/me", {}, function(e3, d3){
+        if(!e3 && d3){
+          CURRENT = d3;
+          renderPhotos(Array.isArray(d3.photos) ? d3.photos : []);
+        }
+      });
+    });
+  });
+});
+
+/* ---------- odometer auto-compute ---------- */
+function recompute(){
+  var s = parseFloat($("mfOdoStart").value);
+  var e = parseFloat($("mfOdoEnd").value);
+  if(isFinite(s) && isFinite(e) && e >= s){
+    $("mfMiles").value = Math.round(e - s);
+  }
+}
+$("mfOdoStart").addEventListener("input", recompute);
+$("mfOdoEnd").addEventListener("input", recompute);
+
+/* ---------- mileage submit ---------- */
+$("mileForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  var m = $("mfMsg");
+  var matchId = $("mfMatch").value;
+  var period = $("mfPeriod").value.trim();
+  var miles = parseFloat($("mfMiles").value);
+  var odoS = $("mfOdoStart").value === "" ? null : parseFloat($("mfOdoStart").value);
+  var odoE = $("mfOdoEnd").value === "" ? null : parseFloat($("mfOdoEnd").value);
+  if(!matchId){ m.className="msg err"; m.textContent="Pick a campaign."; return; }
+  if(!/^\d{4}-\d{2}$/.test(period)){ m.className="msg err"; m.textContent="Pick the month (e.g. " + new Date().getFullYear() + "-06)."; return; }
+  if(!isFinite(miles) || miles < 0){ m.className="msg err"; m.textContent="Enter your miles for the month (or fill in both odometer readings)."; return; }
+  if(odoS!=null && odoE!=null && odoE < odoS){ m.className="msg err"; m.textContent="Odometer end can't be lower than start."; return; }
+  $("mfBtn").disabled = true; m.className="msg"; m.textContent="";
+  api("/driver/mileage", {method:"POST", body:{
+    match_id: matchId, period: period,
+    odo_start: odoS, odo_end: odoE,
+    miles: miles, note: $("mfNote").value.trim()
+  }}, function(err, data){
+    $("mfBtn").disabled = false;
+    if(err){
+      if(err.message==="unauthorized" || err.message==="offline") return;
+      m.className="msg err";
+      m.textContent = humanErr(err.message);
+      return;
+    }
+    /* prepend a Pending review row right away (the reload below re-syncs with the server) */
+    $("dvMileTable").style.display = "table";
+    $("dvMileEmpty").style.display = "none";
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td><b>' + esc(period) + '</b></td>' +
+      '<td>' + esc(fmtNum(miles)) + ' mi</td>' +
+      '<td><span class="badge b-pink">Pending review</span></td>' +
+      '<td>—</td>';
+    var body = $("dvMileBody");
+    body.insertBefore(tr, body.firstChild);
+    m.className="msg ok";
+    m.textContent = "Mileage submitted for " + period + " — it'll show as \"Pending review\" below until Danny approves it. Don't forget to upload your odometer photo below!";
+    $("mfOdoStart").value = ""; $("mfOdoEnd").value = ""; $("mfMiles").value = ""; $("mfNote").value = "";
+    loadDash();
+  });
+});
+
+/* ---------- boot ---------- */
+if(getToken()) loadDash();
+else show("viewLogin");
+})();
+</script>
+</body>
+</html>

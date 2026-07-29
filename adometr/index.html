@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="x-claude-source-repo" content="dannybivins83-blip/collaborativeconcepts">
+<title>Adometr — Get Paid to Drive. Brand Sponsorships That Pay Your Car Payment.</title>
+<meta name="description" content="Adometr connects everyday drivers with brands that pay per mile. Get your car professionally wrapped, drive your normal routes on I-95 and Florida toll roads, and earn a monthly sponsorship check — enough to offset or cover your car payment.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Adometr — Your Commute Is a Billboard. Get Paid For It.">
+<meta property="og:description" content="Brands pay you per mile to wrap your car with their logo. The wrap protects your paint. The check helps pay off your car.">
+<meta property="og:url" content="https://collaborativeconceptsfl.com/adometr">
+<link rel="icon" type="image/svg+xml" href="/adometr/assets/logo/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap">
+<script>
+/* ============================================================
+   CONFIG — edit these lines, nothing else needs touching
+   ============================================================ */
+const CONFIG = {
+  FORM_ENDPOINT: "https://formsubmit.co/ajax/dannybivins83@gmail.com",
+  LEAD_EMAIL:    "dannybivins83@gmail.com",
+  COMPANY:       "Adometr — a Collaborative Concepts LLC venture"
+};
+</script>
+<style>
+  :root{
+    --bg:#fff; --sec:#f4f8f8; --fill:#f0f4f4; --ink:#0e2b32; --mut:#51666b;
+    --faint:#7f9397; --pink:#0fb5a6; --tint:#e6f7f5; --green:#1c9e64;
+    --border:#e7edee; --pink-deep:#0b8378; --dark-mut:#a9c3c6; --dark-kick:#5fd0c3;
+    --shadow:0 12px 34px rgba(14,43,50,.08);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.5}
+  img{max-width:100%;display:block}
+  h1,h2,h3{margin:0}
+  p{margin:0}
+  a{color:inherit}
+  input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 48px}
+  @media(max-width:760px){.wrap{padding:0 20px}}
+
+  /* ---------- nav ---------- */
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0;gap:16px}
+  .nav-left{display:flex;align-items:center;gap:34px}
+  .wordmark{font-weight:800;font-size:26px;letter-spacing:-.03em;text-decoration:none}
+  .wm-ad{color:var(--pink)}.wm-rest{color:var(--ink)}
+  .nav-links{display:flex;gap:24px;font-weight:500;font-size:15px}
+  .nav-links a{color:var(--ink);text-decoration:none}
+  .nav-links a:hover{color:var(--pink)}
+  .nav-ctas{display:flex;gap:10px;align-items:center}
+  .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;font-family:'DM Sans',sans-serif;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:all .15s;min-height:44px}
+  .btn-ghost{font-size:15px;color:var(--ink);padding:11px 18px;background:transparent}
+  .btn-ghost:hover{background:var(--fill)}
+  .btn-ink{background:var(--ink);color:#fff;font-size:15px;padding:12px 22px}
+  .btn-ink:hover{filter:brightness(1.25)}
+  .btn-pink{background:var(--pink);color:#fff}
+  .btn-pink:hover{filter:brightness(1.08)}
+  .btn-fill{background:var(--fill);color:var(--ink)}
+  .btn-fill:hover{background:var(--border)}
+  @media(max-width:920px){.nav-links{display:none}}
+  @media(max-width:560px){.btn-ghost{display:none}}
+
+  /* ---------- hero ---------- */
+  .hero{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;padding:56px 0 64px;align-items:center}
+  .hero h1{font-weight:800;font-size:64px;line-height:1.02;letter-spacing:-.03em;color:var(--ink);text-wrap:pretty}
+  .hero .lead{font-weight:400;font-size:19px;line-height:1.55;color:var(--mut);margin-top:20px;max-width:480px}
+  .hero-ctas{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap}
+  .hero-ctas .btn{font-size:17px;padding:16px 30px}
+  .hero-ctas .btn-fill{padding:16px 26px}
+  .proofs{display:flex;gap:20px;margin-top:28px;font-weight:500;font-size:14px;color:var(--mut);flex-wrap:wrap}
+  .proofs span{display:flex;align-items:center;gap:8px}
+  .dot{width:7px;height:7px;background:var(--pink);border-radius:50%;flex:none}
+  .hero-visual{position:relative}
+  .hero-visual img{width:100%;height:420px;object-fit:cover;border-radius:28px}
+  .payout-card{position:absolute;left:26px;bottom:26px;background:#fff;border-radius:18px;padding:16px 20px;box-shadow:0 14px 40px rgba(14,43,50,.16)}
+  .payout-card .k{font-weight:700;font-size:12px;letter-spacing:.08em;color:var(--faint);text-transform:uppercase}
+  .payout-card .row{display:flex;align-items:baseline;gap:10px}
+  .payout-card .amt{font-weight:800;font-size:32px;letter-spacing:-.02em;color:var(--pink)}
+  .payout-card .dep{font-weight:500;font-size:13px;color:var(--green)}
+  .payout-card .sub{font-weight:400;font-size:12.5px;color:var(--mut)}
+  .hero-fine{font-size:11.5px;color:var(--faint);margin-top:10px;text-align:right}
+  @media(max-width:980px){
+    .hero{grid-template-columns:1fr;padding:32px 0 48px}
+    .hero h1{font-size:40px}
+    .hero-visual img{height:300px}
+  }
+
+  /* ---------- stats band ---------- */
+  .stats{display:flex;justify-content:center;gap:64px;padding:30px 24px;background:var(--sec);border-radius:24px;margin-bottom:64px;flex-wrap:wrap}
+  .stats>div{text-align:center;min-width:130px}
+  .stats b{display:block;font-weight:800;font-size:30px;letter-spacing:-.02em;color:var(--ink)}
+  .stats span{font-weight:400;font-size:13.5px;color:var(--mut);margin-top:2px;display:block}
+  @media(max-width:760px){.stats{gap:24px}}
+
+  /* ---------- section base ---------- */
+  section{padding-bottom:64px}
+  h2{font-weight:800;font-size:42px;letter-spacing:-.02em;color:var(--ink)}
+  @media(max-width:760px){h2{font-size:30px}}
+
+  /* ---------- how it works ---------- */
+  .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:28px}
+  .step{background:var(--sec);border-radius:20px;padding:22px}
+  .step.hi{background:var(--tint)}
+  .step .num{width:34px;height:34px;border-radius:50%;background:var(--pink);color:#fff;font-weight:700;font-size:16px;display:grid;place-items:center}
+  .step.hi .num{background:var(--ink)}
+  .step h3{font-weight:700;font-size:17px;color:var(--ink);margin-top:14px}
+  .step.hi h3{color:var(--pink)}
+  .step p{font-weight:400;font-size:13.5px;line-height:1.5;color:var(--mut);margin-top:5px}
+  @media(max-width:1000px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.steps{grid-template-columns:1fr}}
+
+  /* ---------- calculator ---------- */
+  .calc{background:var(--sec);border-radius:28px;padding:44px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px}
+  .calc .miles-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:28px}
+  .calc .lbl{font-weight:700;font-size:15px;color:var(--ink)}
+  .calc .lbl .opt{color:var(--faint);font-weight:400}
+  .calc .miles-val{font-weight:800;font-size:28px;letter-spacing:-.02em;color:var(--pink)}
+  .calc input[type=range]{width:100%;accent-color:var(--pink);margin-top:8px;min-height:44px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .chip{padding:10px 18px;border-radius:999px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;transition:all .15s;border:none;background:var(--fill);color:#4a4553;min-height:44px}
+  .chip.on{background:var(--pink);color:#fff;font-weight:700}
+  .calc .pay-in{margin-top:10px;padding:14px 16px;background:#fff;border:none;border-radius:14px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:15px;width:210px;box-shadow:inset 0 0 0 1px var(--border)}
+  .calc-out{background:#fff;border-radius:22px;padding:32px;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+  .calc-out .k{font-weight:700;font-size:13px;letter-spacing:.06em;color:var(--faint);text-transform:uppercase}
+  .calc-out .big-row{display:flex;align-items:baseline;gap:10px;margin-top:8px}
+  .calc-out .big{font-weight:800;font-size:62px;line-height:1;letter-spacing:-.03em;color:var(--pink)}
+  .calc-out .permo{font-weight:700;font-size:18px;color:var(--faint)}
+  .cover-line{font-weight:500;font-size:14px;color:var(--ink);margin-top:18px}
+  .bar{height:10px;background:var(--fill);border-radius:99px;margin-top:8px;overflow:hidden}
+  .bar-fill{height:100%;width:0%;background:var(--pink);border-radius:99px;transition:width .25s}
+  .calc-rows{display:grid;grid-template-columns:1fr auto;gap:9px 16px;margin-top:22px;font-weight:400;font-size:14.5px;color:var(--mut)}
+  .calc-rows b{color:var(--ink);font-weight:700}
+  .calc-out .btn{margin-top:auto;font-size:16px;padding:16px;text-align:center;width:100%}
+  .calc-fine{font-weight:400;font-size:11.5px;line-height:1.5;color:var(--faint);margin-top:12px}
+  @media(max-width:980px){.calc{grid-template-columns:1fr;padding:28px 20px}.calc-out .btn{margin-top:22px}}
+
+  /* ---------- protection ---------- */
+  .protect{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .pcard{border:1px solid var(--border);border-radius:20px;padding:26px}
+  .pcard .sq{width:12px;height:12px;background:var(--pink);border-radius:4px}
+  .pcard h3{font-weight:700;font-size:18px;color:var(--ink);margin-top:14px}
+  .pcard p{font-weight:400;font-size:14px;line-height:1.55;color:var(--mut);margin-top:6px}
+  @media(max-width:860px){.protect{grid-template-columns:1fr}}
+
+  /* ---------- founding spots (testimonial slot) ---------- */
+  .spots{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .spot{background:var(--sec);border-radius:20px;padding:28px}
+  .spot .q{font-weight:500;font-size:18px;line-height:1.5;color:var(--ink)}
+  .spot .who{font-weight:700;font-size:13.5px;color:var(--pink);margin-top:14px}
+  @media(max-width:760px){.spots{grid-template-columns:1fr}}
+
+  /* ---------- referrals ---------- */
+  .refs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+  .ref{border:1px solid var(--border);border-radius:20px;padding:28px}
+  .ref .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .ref .head span:first-child{font-weight:700;font-size:18px;color:var(--ink)}
+  .ref .head span:last-child{font-weight:800;font-size:28px;letter-spacing:-.02em;color:var(--pink)}
+  .pills{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .pills span{background:var(--fill);font-weight:500;font-size:13px;color:var(--ink);padding:8px 14px;border-radius:999px}
+  .ref-fine{font-weight:400;font-size:13.5px;line-height:1.6;color:var(--faint);margin-top:12px}
+  @media(max-width:760px){.refs{grid-template-columns:1fr}}
+
+  /* ---------- for brands ---------- */
+  .brands{background:var(--ink);border-radius:28px;padding:44px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px}
+  .brands .kick{font-weight:700;font-size:13px;letter-spacing:.08em;color:var(--dark-kick);text-transform:uppercase}
+  .brands h2{font-size:40px;line-height:1.05;margin-top:12px;color:#fff}
+  .brands .sub{font-weight:400;font-size:15.5px;line-height:1.6;color:var(--dark-mut);margin-top:14px;max-width:440px}
+  .bstats{display:flex;gap:36px;margin-top:28px;flex-wrap:wrap}
+  .bstats b{display:block;font-weight:800;font-size:30px;letter-spacing:-.02em;color:#fff}
+  .bstats span{font-weight:400;font-size:12.5px;color:var(--dark-mut);margin-top:2px;display:block}
+  .bform-card{background:#fff;border-radius:22px;padding:30px}
+  .bform-card h3{font-weight:800;font-size:21px;letter-spacing:-.01em;color:var(--ink)}
+  form.stack{display:flex;flex-direction:column;gap:10px}
+  .fin{padding:14px 16px;background:var(--fill);border:none;border-radius:14px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:15px;width:100%;min-height:44px}
+  textarea.fin{resize:vertical;min-height:56px}
+  .form-note{font-weight:400;font-size:12px;color:var(--faint)}
+  .form-err{display:none;font-weight:500;font-size:13.5px;color:var(--pink-deep);background:var(--tint);border-radius:12px;padding:12px 14px}
+  .form-err.show{display:block}
+  .success{text-align:center;padding:48px 10px}
+  .success .badge{background:var(--tint);color:var(--pink);font-weight:700;font-size:12px;letter-spacing:.08em;padding:6px 14px;border-radius:999px;display:inline-block}
+  .success .t{font-weight:800;font-size:24px;color:var(--pink)}
+  .success .t.ink{font-size:28px;letter-spacing:-.01em;color:var(--ink);margin-top:16px}
+  .success .d{font-weight:400;font-size:14px;line-height:1.6;color:var(--mut);margin-top:8px;max-width:420px;margin-left:auto;margin-right:auto}
+  @media(max-width:980px){.brands{grid-template-columns:1fr;padding:28px 20px}.brands h2{font-size:30px}}
+
+  /* ---------- driver apply ---------- */
+  .apply{display:grid;grid-template-columns:.85fr 1.15fr;gap:48px}
+  .apply h2{font-size:42px;line-height:1.05}
+  .checks{display:flex;flex-direction:column;gap:12px;margin-top:24px;font-weight:400;font-size:15px;line-height:1.5;color:var(--mut)}
+  .checks span.row{display:flex;gap:10px}
+  .checks .ck{color:var(--pink);font-weight:800;flex:none}
+  .checks strong{color:var(--ink)}
+  .reassure{background:var(--tint);border-radius:16px;padding:16px 18px;margin-top:24px;font-weight:400;font-size:13.5px;line-height:1.6;color:var(--pink-deep)}
+  .dform-card{background:#fff;border:1px solid var(--border);border-radius:24px;padding:32px;box-shadow:0 12px 34px rgba(14,43,50,.06)}
+  .dform-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .dform-head .t{font-weight:800;font-size:22px;letter-spacing:-.01em;color:var(--ink)}
+  .dform-head .nc{font-weight:700;font-size:12.5px;color:var(--green)}
+  .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  .dgrid .full{grid-column:1/-1}
+  .dform-card .btn{margin-top:14px;font-size:16px;padding:16px;width:100%}
+  .dform-fine{font-weight:400;font-size:12px;line-height:1.6;color:var(--faint);margin-top:12px}
+  @media(max-width:980px){.apply{grid-template-columns:1fr}.apply h2{font-size:32px}}
+  @media(max-width:560px){.dgrid{grid-template-columns:1fr}.dform-card{padding:22px 18px}}
+
+  /* ---------- faq ---------- */
+  .faq{max-width:900px}
+  .faq h2{margin-bottom:20px}
+  .faq details{border-bottom:1px solid var(--border)}
+  .faq details:last-of-type{border-bottom:none}
+  .faq summary{padding:16px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:700;font-size:16px;color:var(--ink);list-style:none;min-height:44px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq .plus{color:var(--pink);font-family:monospace;font-weight:400;font-size:20px;transition:transform .15s;flex:none}
+  .faq details[open] .plus{transform:rotate(45deg)}
+  .faq .a{padding:0 0 16px;font-weight:400;font-size:14.5px;line-height:1.6;color:var(--mut);max-width:720px}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--border)}
+  .foot{display:flex;justify-content:space-between;align-items:center;padding:26px 0;font-weight:400;font-size:13px;color:var(--faint);gap:14px;flex-wrap:wrap}
+  .foot .left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .foot .wm{font-weight:800;font-size:18px;letter-spacing:-.03em;color:var(--pink)}
+  .foot a{color:var(--mut)}
+</style>
+</head>
+<body>
+
+<!-- ================= 1. NAV ================= -->
+<div class="wrap">
+  <nav class="nav">
+    <div class="nav-left">
+      <a class="wordmark" href="#top" aria-label="Adometr home"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#calc">Earnings</a>
+        <a href="#referrals">Referrals</a>
+        <a href="#corridors">For brands</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+    <div class="nav-ctas">
+      <a class="btn btn-ghost" href="#corridors">For brands</a>
+      <a class="btn btn-ink" href="#apply">Apply to drive</a>
+    </div>
+  </nav>
+</div>
+
+<!-- ================= 2. HERO ================= -->
+<header class="wrap" id="top">
+  <div class="hero">
+    <div>
+      <h1>Your car is about to start paying you back</h1>
+      <p class="lead">Brands pay $0.12–$0.35 for every mile your wrapped car drives. Free professional wrap, your normal routes, a deposit every month.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-pink" href="#apply">Apply to drive — it's free</a>
+        <a class="btn btn-fill" href="#calc">Estimate my earnings</a>
+      </div>
+      <div class="proofs">
+        <span><span class="dot"></span>$0 out of pocket</span>
+        <span><span class="dot"></span>Paint-safe &amp; removable</span>
+        <span><span class="dot"></span>Monthly direct deposit</span>
+      </div>
+    </div>
+    <div>
+      <div class="hero-visual">
+        <img src="/adometr/assets/van-wrap.webp" alt="Professionally wrapped contractor van" width="600" height="420">
+        <div class="payout-card" aria-hidden="true">
+          <div class="k">This month</div>
+          <div class="row"><span class="amt">+$412.50</span><span class="dep">deposited</span></div>
+          <div class="sub">1,376 verified miles · I-95 bonus</div>
+        </div>
+      </div>
+      <p class="hero-fine">Payout card is a product illustration — figures are examples, not a guarantee.</p>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 3. STATS BAND ================= -->
+<div class="wrap">
+  <div class="stats">
+    <div><b>$0.12–.35</b><span>per verified mile</span></div>
+    <div><b>$0</b><span>driver cost, ever</span></div>
+    <div><b>~46,000</b><span>impressions a month per car</span></div>
+    <div><b>1–2 days</b><span>to get wrapped</span></div>
+  </div>
+</div>
+
+<!-- ================= 4. HOW IT WORKS ================= -->
+<section id="video" style="padding:64px 0">
+  <div style="max-width:960px;margin:0 auto;padding:0 24px">
+    <video controls preload="metadata" playsinline
+      style="width:100%;border-radius:20px;box-shadow:0 14px 40px rgba(14,43,50,.16);display:block">
+      <source src="/adometr/assets/adometr-hero.mp4" type="video/mp4">
+      Your browser does not support video. <a href="/adometr/assets/adometr-hero.mp4">Download the clip</a>.
+    </video>
+  </div>
+</section>
+
+<section id="how" class="wrap">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step"><div class="num">1</div><h3>Apply free</h3><p>Your car, your miles, your routes. Two minutes.</p></div>
+    <div class="step"><div class="num">2</div><h3>Get matched</h3><p>Brands pick routes that fit. You approve everything first.</p></div>
+    <div class="step"><div class="num">3</div><h3>Get wrapped</h3><p>Certified installer, 3M vinyl, 1–2 days, $0 to you.</p></div>
+    <div class="step"><div class="num">4</div><h3>Drive normally</h3><p>GPS verifies your miles. No route changes.</p></div>
+    <div class="step hi"><div class="num">5</div><h3>Get paid</h3><p>Monthly deposit — many drivers put it at the car note.</p></div>
+  </div>
+</section>
+
+<!-- ================= 5. EARNINGS CALCULATOR ================= -->
+<section id="calc" class="wrap">
+  <div class="calc">
+    <div>
+      <h2 style="font-size:40px">What could your miles pay?</h2>
+      <div class="miles-row">
+        <span class="lbl">Miles per month</span>
+        <span class="miles-val"><span id="c-miles-val">1,200</span> mi</span>
+      </div>
+      <input type="range" id="c-miles" min="300" max="3000" step="50" value="1200" aria-label="Miles per month">
+      <div class="lbl" style="margin-top:24px">Where you mostly drive</div>
+      <div class="chips" id="c-route" role="group" aria-label="Route type">
+        <button type="button" class="chip on" data-v="hwy">I-95 / Turnpike</button>
+        <button type="button" class="chip" data-v="city">City streets</button>
+        <button type="button" class="chip" data-v="mixed">Mixed</button>
+        <button type="button" class="chip" data-v="rural">Rural</button>
+      </div>
+      <div class="lbl" style="margin-top:20px">Daytime parking</div>
+      <div class="chips" id="c-park" role="group" aria-label="Daytime parking">
+        <button type="button" class="chip" data-v="busy">Busy lot / street</button>
+        <button type="button" class="chip on" data-v="mixed">Mixed</button>
+        <button type="button" class="chip" data-v="hidden">Garage / hidden</button>
+      </div>
+      <div class="lbl" style="margin-top:20px">Wrap coverage you'd accept</div>
+      <div class="chips" id="c-cover" role="group" aria-label="Wrap coverage">
+        <button type="button" class="chip on" data-v="full">Full wrap</button>
+        <button type="button" class="chip" data-v="partial">Partial</button>
+        <button type="button" class="chip" data-v="lite">Decals only</button>
+      </div>
+      <div class="lbl" style="margin-top:20px">Monthly car payment <span class="opt">(optional)</span></div>
+      <input type="text" inputmode="numeric" id="c-payment" class="pay-in" placeholder="e.g. 475" aria-label="Monthly car payment in dollars">
+    </div>
+    <div class="calc-out">
+      <div class="k">Estimated sponsorship</div>
+      <div class="big-row"><span class="big" id="c-est">$0</span><span class="permo">/mo</span></div>
+      <div class="cover-line" id="c-coverline">Enter your car payment to see how much this covers</div>
+      <div class="bar" aria-hidden="true"><div class="bar-fill" id="c-bar"></div></div>
+      <div class="calc-rows">
+        <span>Paid miles counted (2,000 cap)</span><b><span id="c-paid">1,200</span> mi</b>
+        <span>Effective rate</span><b><span id="c-rate">$0.00</span>/mi</b>
+        <span>Estimated yearly</span><b id="c-year">$0</b>
+      </div>
+      <a class="btn btn-ink" href="#apply">Apply with these numbers</a>
+      <div class="calc-fine">Illustrative estimate, not an offer. Real rates are set per campaign by the sponsoring brand.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6. WRAP PROTECTION ================= -->
+<section class="wrap">
+  <div class="protect">
+    <div class="pcard"><div class="sq"></div><h3>It protects your paint</h3><p>Cast vinyl shields the clear coat from UV fade and road rash — paint stays showroom-fresh, which helps resale.</p></div>
+    <div class="pcard"><div class="sq"></div><h3>100% removable</h3><p>Campaign ends or you sell? A pro peels it off with zero paint damage — same tech dealerships use.</p></div>
+    <div class="pcard"><div class="sq"></div><h3>Installed &amp; insured by pros</h3><p>Vetted, certified wrap shops only — install, care, and removal are always on the sponsor.</p></div>
+  </div>
+</section>
+
+<!-- ================= 7. FOUNDING SPOTS ================= -->
+<section class="wrap">
+  <div class="spots">
+    <div class="spot">
+      <div class="q">Founding driver spots open on the I-95 corridor</div>
+      <div class="who">First campaigns are matching now — commuters &amp; gig drivers, Miami to West Palm</div>
+    </div>
+    <div class="spot">
+      <div class="q">Founding sponsor rates for the first 10 brands</div>
+      <div class="who">Lock launch pricing on geo-targeted wrapped-car campaigns across South Florida</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 8. REFERRAL PROGRAM ================= -->
+<section id="referrals" class="wrap">
+  <h2>Get paid for who you know, too</h2>
+  <div class="refs">
+    <div class="ref">
+      <div class="head"><span>Refer a driver</span><span>up to $375</span></div>
+      <div class="pills">
+        <span>wrapped → $50</span>
+        <span>3 mo → +$75</span>
+        <span>6 mo → +$100</span>
+        <span>12 mo → +$150</span>
+      </div>
+    </div>
+    <div class="ref">
+      <div class="head"><span>Refer a sponsor</span><span>% of spend</span></div>
+      <div class="pills">
+        <span>launch → 10% of mo. 1</span>
+        <span>3 mo → 5%</span>
+        <span>6 mo → 5%</span>
+        <span>12 mo → 10%</span>
+      </div>
+    </div>
+  </div>
+  <div class="ref-fine">A $5,000/mo sponsor pays you $1,500 across the first year. Paid on conversions only — your referral names you on their application. Anyone can refer.</div>
+</section>
+
+<!-- ================= 9. FOR BRANDS ================= -->
+<section id="corridors">
+<style>
+  #corridors{
+    --c-ink:var(--ink,#0e2b32); --c-accent:var(--pink,#0fb5a6); --c-mut:var(--mut,#5c7276);
+    --c-faint:var(--faint,#7d9094); --c-border:var(--border,#e7edee);
+    --c-tint:var(--tint,#e6f7f5); --c-fill:var(--sec,#f0f4f4);
+    display:flex; align-items:flex-start; background:#fff;
+  }
+  #corridors .map{width:50%; height:100vh; display:block; background:#fafcfc}
+  #corridors .info{width:50%; box-sizing:border-box; padding:96px 64px; min-height:240vh}
+  #corridors .cor-eyebrow{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--c-accent);margin:0 0 12px}
+  #corridors h2{font-family:'DM Sans',system-ui,sans-serif;font-weight:800;letter-spacing:-.03em;font-size:clamp(30px,3.4vw,44px);line-height:1.05;color:var(--c-ink);margin:0 0 14px}
+  #corridors .cor-sub{color:var(--c-mut);font-size:17px;line-height:1.6;max-width:46ch;margin:0 0 56px}
+  #corridors .beat{display:flex;gap:16px;align-items:flex-start;padding:26px 0;border-top:1px solid var(--c-border)}
+  #corridors .beat .dot-n{width:32px;height:32px;border-radius:999px;background:var(--c-accent);color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px}
+  #corridors .beat b{display:block;color:var(--c-ink);font-size:18px;margin-bottom:5px}
+  #corridors .beat p{margin:0;color:var(--c-mut);font-size:15px;line-height:1.55;max-width:44ch}
+  #corridors .beat .mono{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--c-faint);margin-top:10px;display:block}
+  #corridors .cor-stats{display:flex;gap:12px;margin:46px 0 0;flex-wrap:wrap}
+  #corridors .cor-stat{background:#fff;border:1px solid var(--c-border);border-radius:14px;padding:16px 20px;box-shadow:0 12px 34px rgba(14,43,50,.06)}
+  #corridors .cor-stat b{font-weight:800;font-size:21px;color:var(--c-ink);display:block}
+  #corridors .cor-stat span{font-size:12px;color:var(--c-mut)}
+  #corridors .cor-fine{margin-top:20px;font-size:12.5px;color:var(--c-faint)}
+  #corridors .expand-map{display:inline-flex;align-items:center;gap:9px;margin-top:44px;background:#fff;color:var(--c-ink);font:700 15px 'DM Sans',sans-serif;border:1.5px solid var(--c-border);border-radius:999px;padding:12.5px 26px;cursor:pointer}
+  #corridors .expand-map:hover{border-color:var(--c-accent);color:var(--c-accent)}
+  #corridors .expand-map svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .close-map{position:fixed;top:22px;right:22px;z-index:60;visibility:hidden;opacity:0;background:var(--ink,#0e2b32);color:#fff;font:700 14px 'DM Sans',sans-serif;border:none;border-radius:999px;padding:11px 20px;cursor:pointer}
+  #corridors .map text{font-family:'DM Sans',system-ui,sans-serif}
+  @media(max-width:900px){
+    #corridors{flex-direction:column}
+    #corridors .map{width:100%;height:54vh}
+    #corridors .info{width:100%;min-height:0;padding:56px 20px}
+  }
+</style>
+
+<svg class="map" viewBox="0 0 1500 1500" preserveAspectRatio="xMidYMid slice" fill="none" aria-label="Stylized map of the South Florida I-95 corridor — the adometr pin travels Miami to West Palm Beach">
+  <g class="pov">
+    <g>
+      <!-- world: stylized South Florida -->
+      <rect x="-400" y="-400" width="2300" height="2300" fill="#fafcfc"/>
+      <path d="M980 -400 C 985 -100 960 250 930 500 C 905 750 950 1000 940 1250 C 935 1400 915 1700 920 1900 L2000 1900 L2000 -400 Z" fill="var(--tint,#e6f7f5)"/>
+      <path d="M980 -400 C 985 -100 960 250 930 500 C 905 750 950 1000 940 1250 C 935 1400 915 1700 920 1900" stroke="var(--border,#e7edee)" stroke-width="5"/>
+      <!-- turnpike (secondary, dashed) -->
+      <path d="M560 1420 C 600 1150 660 850 700 600 C 720 470 740 380 760 300" stroke="#d4dfe0" stroke-width="8" stroke-dasharray="22 18" stroke-linecap="round"/>
+      <text x="595" y="1000" transform="rotate(-76 595 1000)" font-weight="700" font-size="26" fill="#7d9094" letter-spacing="4">TURNPIKE</text>
+      <!-- I-95 route (DrawSVG reveal) -->
+      <path class="path" d="M700 1250 C 720 1150 760 1050 780 950 C 800 855 815 780 830 700 C 848 605 875 470 900 350" stroke="var(--pink,#0fb5a6)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- cities -->
+      <g>
+        <circle cx="700" cy="1250" r="12" fill="#fff" stroke="var(--pink,#0fb5a6)" stroke-width="5"/>
+        <text x="520" y="1262" font-weight="700" font-size="34" fill="var(--ink,#0e2b32)">Miami</text>
+        <circle cx="780" cy="950" r="12" fill="#fff" stroke="var(--pink,#0fb5a6)" stroke-width="5"/>
+        <text x="490" y="962" font-weight="700" font-size="34" fill="var(--ink,#0e2b32)">Fort Lauderdale</text>
+        <circle cx="830" cy="700" r="12" fill="#fff" stroke="var(--pink,#0fb5a6)" stroke-width="5"/>
+        <text x="610" y="712" font-weight="700" font-size="34" fill="var(--ink,#0e2b32)">Boca Raton</text>
+        <circle cx="900" cy="350" r="12" fill="#fff" stroke="var(--pink,#0fb5a6)" stroke-width="5"/>
+        <text x="580" y="362" font-weight="700" font-size="34" fill="var(--ink,#0e2b32)">West Palm Beach</text>
+      </g>
+      <!-- I-95 shield -->
+      <g transform="translate(1030,120) scale(1.5)">
+        <path d="M26 0c8 5 17 7 26 7 0 26-4 44-26 55C4 51 0 33 0 7 9 7 18 5 26 0z" fill="#fff" stroke="var(--border,#e7edee)" stroke-width="2.5"/>
+        <text x="26" y="28" text-anchor="middle" font-weight="800" font-size="15" fill="var(--ink,#0e2b32)">I-95</text>
+        <text x="26" y="45" text-anchor="middle" font-weight="700" font-size="10" fill="#7d9094">SOUTH FL</text>
+      </g>
+      <!-- start marker (static, like the demo's dot-start) -->
+      <circle class="dot-start" cx="700" cy="1250" r="7" fill="var(--pink,#0fb5a6)"/>
+      <!-- traveling marker: the adometr $-pin + "your ad" chip (MotionPath) -->
+      <g class="dot">
+        <g transform="translate(-21,-36.4) scale(0.7)">
+          <path d="M30 6 C20 6 13 13 13 22 C13 34 30 52 30 52 C30 52 47 34 47 22 C47 13 40 6 30 6 Z" fill="var(--pink,#0fb5a6)" stroke="#fff" stroke-width="3"/>
+          <text x="30" y="30" text-anchor="middle" font-weight="800" font-size="21" fill="#fff">$</text>
+        </g>
+        <g transform="translate(16,-64)">
+          <rect x="0" y="0" rx="11" width="104" height="30" fill="var(--ink,#0e2b32)"/>
+          <text x="52" y="20" text-anchor="middle" font-weight="700" font-size="15" fill="#fff">your ad</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
+
+<div class="info">
+  <p class="cor-eyebrow">For brands &amp; agencies</p>
+  <h2>Billboards that go find the traffic</h2>
+  <p class="cor-sub">Pick corridors and zones. Your ad rides where South Florida actually sits in traffic — and you pay only for GPS-verified miles inside your zone. Follow one wrapped car's morning run from Miami to West Palm as you scroll.</p>
+
+  <div class="beat">
+    <div class="dot-n">1</div>
+    <div><b>Choose your corridors</b>
+    <p>I-95 runs, Florida's Turnpike, toll roads, event venues — Miami to West Palm.</p>
+    <span class="mono">Departure · Miami</span></div>
+  </div>
+  <div class="beat">
+    <div class="dot-n">2</div>
+    <div><b>Wrapped cars run their normal routes</b>
+    <p>Real commuters and gig drivers. No detours, no staged loops — the traffic is already there.</p>
+    <span class="mono">Mile 28 · Fort Lauderdale</span></div>
+  </div>
+  <div class="beat">
+    <div class="dot-n">3</div>
+    <div><b>Every paid mile is GPS-logged</b>
+    <p>Monthly proof: miles by corridor, dwell time, photos, estimated impressions.</p>
+    <span class="mono">Mile 45 · Boca Raton</span></div>
+  </div>
+  <div class="beat">
+    <div class="dot-n">4</div>
+    <div><b>Arrive at eye level</b>
+    <p>Effective CPMs a fraction of a static board — no 12-month lease, start with one car.</p>
+    <span class="mono">Arrival · West Palm Beach</span></div>
+  </div>
+
+  <div class="cor-stats">
+    <div class="cor-stat"><b>~1.8M</b><span>impressions/mo per 10-car fleet</span></div>
+    <div class="cor-stat"><b>$1–4</b><span>typical CPM vs $8–14 static</span></div>
+    <div class="cor-stat"><b>24 h</b><span>to fleet availability &amp; CPMs</span></div>
+  </div>
+  <p class="cor-fine">Impressions are benchmarked estimates, not guarantees.</p>
+
+  <button class="expand-map">
+    <svg viewBox="0 0 24 24"><path d="M3 9V3h6M21 15v6h-6M3 3l7 7M21 21l-7-7"/></svg>
+    <span>Expand Map</span>
+  </button>
+</div>
+</section>
+<button class="close-map">Close map ✕</button>
+
+<!-- ================= 10. DRIVER APPLICATION ================= -->
+<section id="apply" class="wrap">
+  <div class="apply">
+    <div>
+      <h2>Put your car on the payroll</h2>
+      <div class="checks">
+        <span class="row"><span class="ck">✓</span><span><strong>2010 or newer vehicle</strong> in clean condition</span></span>
+        <span class="row"><span class="ck">✓</span><span><strong>License, registration &amp; insurance</strong> in your name</span></span>
+        <span class="row"><span class="ck">✓</span><span><strong>Clean driving record</strong></span></span>
+        <span class="row"><span class="ck">✓</span><span><strong>~800+ miles a month</strong> — commuters &amp; gig drivers do great</span></span>
+        <span class="row"><span class="ck">✓</span><span><strong>Golf carts, trailers, boats &amp; food trucks</strong> earn a flat monthly fee</span></span>
+      </div>
+      <div class="reassure">Nothing goes on your car until you accept a specific campaign in writing — design, rate, and length first.</div>
+    </div>
+    <div class="dform-card" id="driver-card">
+      <form id="driver-form">
+        <div class="dform-head"><span class="t">Apply in 2 minutes — free</span><span class="nc">No commitment</span></div>
+        <div class="dgrid">
+          <input class="fin" name="name" required placeholder="Full name" autocomplete="name" aria-label="Full name">
+          <input class="fin" name="phone" type="tel" required placeholder="Phone" autocomplete="tel" aria-label="Phone">
+          <input class="fin" name="email" type="email" required placeholder="Email" autocomplete="email" aria-label="Email">
+          <input class="fin" name="city_zip" required placeholder="City / ZIP" aria-label="City or ZIP">
+          <input class="fin full" name="vehicle" required placeholder="Vehicle (year, make, model)" aria-label="Vehicle year make model">
+          <select class="fin" name="asset_type" aria-label="What are you wrapping?">
+            <option>Wrapping: car / SUV / truck (per mile)</option><option>Golf cart / LSV (flat monthly)</option><option>Box or work trailer (flat monthly)</option><option>Boat (flat monthly)</option><option>Food truck / other (flat monthly)</option>
+          </select>
+          <select class="fin" name="monthly_miles" aria-label="Monthly miles">
+            <option>Monthly miles: 800–1,500</option><option>Under 800</option><option>1,500–2,500</option><option>2,500+</option><option>N/A — cart / trailer / boat</option>
+          </select>
+          <select class="fin" name="main_routes" aria-label="Main routes">
+            <option>Main routes: mixed</option><option>I-95 / Turnpike / toll roads</option><option>City &amp; suburban streets</option><option>Mostly rural</option>
+          </select>
+          <select class="fin" name="daytime_parking" aria-label="Daytime parking">
+            <option>Daytime parking: mixed</option><option>Busy public lot / street</option><option>Private garage / hidden</option>
+          </select>
+          <select class="fin full" name="wrap_coverage" aria-label="Wrap coverage you'd accept">
+            <option>Wrap coverage: partial</option><option>Full wrap (top pay)</option><option>Decals only</option>
+          </select>
+          <input class="fin full" name="referred_by" placeholder="Who referred you? (optional — they get paid)">
+        </div>
+        <input type="hidden" name="_subject" value="Adometr — NEW DRIVER APPLICATION">
+        <input type="hidden" name="form_type" value="driver_application">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+        <button class="btn btn-pink" type="submit">Submit my application</button>
+        <div class="form-err" id="driver-err" role="alert" style="margin-top:12px"></div>
+        <p class="dform-fine">By applying you agree to be contacted about sponsorship offers. Nothing is installed on your car until you accept a specific campaign in writing.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 11. FAQ ================= -->
+<section id="faq" class="wrap">
+  <div class="faq">
+    <h2>Frequently asked questions</h2>
+    <details><summary>How much can I actually make?<span class="plus">+</span></summary><div class="a">More verified miles, busier corridors, visible parking, and bigger coverage all raise your rate. Metro full wraps typically run a few hundred dollars a month — the calculator gives a personalized estimate.</div></details>
+    <details><summary>Will the wrap damage my paint?<span class="plus">+</span></summary><div class="a">No — it protects it. Cast vinyl shields the clear coat; a certified installer removes it with zero paint damage.</div></details>
+    <details><summary>Who pays for the wrap and removal?<span class="plus">+</span></summary><div class="a">The sponsoring brand — design, install, and removal. Drivers never pay; early-exit terms are spelled out up front.</div></details>
+    <details><summary>How do you verify my mileage?<span class="plus">+</span></summary><div class="a">A lightweight GPS app or plug-in device logs paid miles — premium corridors earn more. Location data is used for campaign reporting only.</div></details>
+    <details><summary>Can I do this with a leased or financed car?<span class="plus">+</span></summary><div class="a">Financed — yes. Leased — usually; wraps aren't permanent modifications, but check your lease terms first.</div></details>
+    <details><summary>Do I approve the brand and design?<span class="plus">+</span></summary><div class="a">Always — exact brand, mock-up on your vehicle, rate, and campaign length before accepting. Declining never affects future offers.</div></details>
+    <details><summary>Is the money taxable?<span class="plus">+</span></summary><div class="a">Yes — sponsorship payouts are income (you'll receive a 1099 if you earn over the IRS threshold). Talk to your tax preparer; some drivers can also deduct a portion of vehicle expenses. We're not tax advisors, so get real advice for your situation.</div></details>
+    <details><summary>How do referral fees work?<span class="plus">+</span></summary><div class="a">Two tracks. <b>Refer a driver:</b> flat fees — $50 when they complete their first wrap, then $75 / $100 / $150 bonuses when they're still active at 3, 6, and 12 months (up to $375 per driver). <b>Refer a sponsor:</b> a percentage of their verified campaign spend — 10% of month one at launch, 5% at the 3-month mark, 5% at 6 months, and 10% at 12 months. Your referral just has to name you in the "Who referred you?" box when they sign up. Anyone can refer — you don't have to be a Adometr driver yourself.</div></details>
+    <details><summary>What kinds of cars do brands want?<span class="plus">+</span></summary><div class="a">Clean vehicles 2010 or newer, any make. High-mileage commuters on major corridors are gold. Light colors wrap best but any color works. Trucks, SUVs, and vans earn premium rates because of the larger canvas.</div></details>
+    <details><summary>Can I wrap something that isn't a car — golf cart, trailer, boat?<span class="plus">+</span></summary><div class="a">Yes. Golf carts and LSVs in cart-friendly downtowns and communities, box/work trailers, boats, and food trucks all take wraps beautifully — they just get paid differently. Since they don't rack up highway miles, sponsors pay a <b>flat monthly placement fee</b> based on where the asset lives and how many people see it (a golf cart cruising a busy downtown or a trailer parked on a visible corner can out-earn a low-mileage car). Pick your asset type on the application and we'll quote it that way.</div></details>
+  </div>
+</section>
+
+<!-- ================= 12. FOOTER ================= -->
+<footer>
+  <div class="wrap foot">
+    <div class="left"><span class="wm"><span class="wm-ad">ad</span><span class="wm-rest">ometer</span></span><span><b style="color:var(--ink)">Miles out. Money in.</b> · © <span id="yr">2026</span> Collaborative Concepts LLC · South Florida · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a></span></div>
+    <div>Estimates illustrative, not a guarantee · <a href="/adometr/driver">Driver portal</a> · <a href="/adometr/sponsor">Sponsor dashboard</a></div>
+  </div>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+/* ---------------- earnings calculator ---------------- */
+(function(){
+  const $ = id => document.getElementById(id);
+  const fmt$ = n => '$' + Math.round(n).toLocaleString('en-US');
+  const ROUTE = {hwy:1.3, city:1.15, mixed:1, rural:0.75};
+  const PARK  = {busy:1.15, mixed:1, hidden:0.88};
+  const BASE  = {full:0.28, partial:0.18, lite:0.10};
+  const CAP = 2000;
+  const state = {miles:1200, route:'hwy', park:'mixed', cover:'full', pay:''};
+
+  function calc(){
+    const base = BASE[state.cover];
+    const mult = ROUTE[state.route] * PARK[state.park];
+    const rate = Math.min(0.35, Math.max(0.12, base * mult));
+    const paid = Math.min(state.miles, CAP);
+    const est  = paid * rate;
+    const pay  = parseFloat(state.pay) || 0;
+    const pct  = pay > 0 ? Math.min(100, Math.round(est / pay * 100)) : 0;
+
+    $('c-miles-val').textContent = state.miles.toLocaleString('en-US');
+    $('c-est').textContent  = fmt$(est);
+    $('c-paid').textContent = paid.toLocaleString('en-US');
+    $('c-rate').textContent = '$' + rate.toFixed(2);
+    $('c-year').textContent = fmt$(est * 12);
+    $('c-bar').style.width  = (pay > 0 ? pct : 0) + '%';
+    $('c-coverline').textContent = pay > 0
+      ? (pct >= 100 ? 'Covers your entire ' + fmt$(pay) + ' car payment'
+                    : 'Covers ' + pct + '% of your ' + fmt$(pay) + ' car payment')
+      : 'Enter your car payment to see how much this covers';
+  }
+
+  function wireChips(groupId, key){
+    const group = $(groupId);
+    group.addEventListener('click', function(e){
+      const btn = e.target.closest('.chip');
+      if(!btn) return;
+      state[key] = btn.dataset.v;
+      group.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === btn));
+      calc();
+    });
+  }
+  wireChips('c-route','route');
+  wireChips('c-park','park');
+  wireChips('c-cover','cover');
+  $('c-miles').addEventListener('input', function(){ state.miles = +this.value; calc(); });
+  $('c-payment').addEventListener('input', function(){ state.pay = this.value; calc(); });
+  calc();
+})();
+
+/* ---------------- forms (FormSubmit AJAX + portal dual-write) ---------------- */
+function wireForm(formId, errId, successHTML){
+  const form = document.getElementById(formId);
+  const err  = document.getElementById(errId);
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    if(form.querySelector('[name="_honey"]').value) return; // bot
+    const btn = form.querySelector('button[type=submit]');
+    const orig = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Sending…';
+    err.classList.remove('show');
+    const data = Object.fromEntries(new FormData(form).entries());
+    delete data._honey;
+    data._template = 'table';
+    try{
+      const res = await fetch(CONFIG.FORM_ENDPOINT, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body: JSON.stringify(data)
+      });
+      if(!res.ok) throw new Error('send failed');
+      // also store in the Adometr portal database (best-effort; the email
+      // above is the source of truth until the DB is attached)
+      const portalPath = formId === 'driver-form' ? '/api/adometr/apply' : '/api/adometr/inquiry';
+      fetch(portalPath, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+      }).catch(function(){});
+      form.parentElement.innerHTML = successHTML;
+    }catch(_e){
+      err.innerHTML = 'Something went wrong — email us directly at <a href="mailto:' + CONFIG.LEAD_EMAIL + '">' + CONFIG.LEAD_EMAIL + '</a>.';
+      err.classList.add('show');
+      btn.disabled = false; btn.textContent = orig;
+    }
+  });
+}
+
+/* referral links: /adometr?ref=CODE credits the referrer automatically.
+   Persisted so the credit survives if they browse first and apply later. */
+(function(){
+  try{
+    var ref = new URLSearchParams(location.search).get('ref');
+    if(ref && /^[A-Za-z0-9-]{3,16}$/.test(ref)) localStorage.setItem('wm_ref', ref.toUpperCase());
+    var saved = localStorage.getItem('wm_ref');
+    if(saved) document.querySelectorAll('input[name=referred_by]').forEach(function(inp){
+      if(!inp.value){ inp.value = saved; }
+    });
+  }catch(e){}
+})();
+
+wireForm('driver-form','driver-err',
+  '<div class="success">' +
+    '<span class="badge">APPLICATION RECEIVED</span>' +
+    '<div class="t ink">You\'re in the driver pool</div>' +
+    '<div class="d">We\'ll reach out when a campaign matches your routes — exact design, rate, and length before you commit.</div>' +
+  '</div>');
+
+wireForm('brand-form','brand-err',
+  '<div class="success">' +
+    '<div class="t">Request received</div>' +
+    '<div class="d">Fleet availability and CPM estimates within one business day.</div>' +
+  '</div>');
+</script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/DrawSVGPlugin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/MotionPathPlugin.min.js"></script>
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+<script src="https://unpkg.com/gsap@3/dist/DrawSVGPlugin.min.js"></script>
+<script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/gsap@3/dist/MotionPathPlugin.min.js"></script>
+<script>
+// Adapted from Codrops "Scroll-Driven SVG Map Animation with GSAP" (Tom Miller).
+gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, MotionPathPlugin);
+
+const xTo = gsap.quickTo('.pov g', 'x', { duration: 1, ease: 'expo' });
+const yTo = gsap.quickTo('.pov g', 'y', { duration: 1, ease: 'expo' });
+
+const tl = gsap
+  .timeline({
+    scrollTrigger: {
+      trigger: '#corridors',
+      start: '0 0',
+      end: '100% 100%',
+      pin: '.map',
+      scrub: 1,
+    },
+    onUpdate: () => {
+      xTo(-gsap.getProperty('.dot', 'x'));
+      yTo(-gsap.getProperty('.dot', 'y'));
+    },
+  })
+  .to('.dot', { motionPath: '.path', immediateRender: true, ease: 'none' }, 0)
+  .from('.path', { drawSVG: '0 0', ease: 'none' }, 0)
+  .fromTo(
+    '.pov',
+    { x: 750, y: 750, scale: 2 },
+    { scale: 3.6, ease: 'sine.inOut', duration: 0.15, yoyo: true, repeat: 1, repeatDelay: 0.2 },
+    0,
+  );
+
+gsap.set('.pov g', {
+  x: -gsap.getProperty('.dot', 'x'),
+  y: -gsap.getProperty('.dot', 'y'),
+});
+
+// Map Expand + Collapse Behavior (as in the demo)
+const expandMapBtn = document.querySelector('.expand-map');
+const closeMapBtn = document.querySelector('.close-map');
+
+expandMapBtn.addEventListener('click', () => {
+  gsap
+    .timeline()
+    .set('body', { overflow: 'hidden' })
+    .to('.map', { width: '100%', maxWidth: '100%', ease: 'power3.inOut' })
+    .to(tl, { progress: 1, ease: 'power2.inOut' }, 0)
+    .to(closeMapBtn, { autoAlpha: 1 }, 0.3);
+});
+
+closeMapBtn.addEventListener('click', () => {
+  gsap
+    .timeline()
+    .to(closeMapBtn, { duration: 0.2, autoAlpha: 0 })
+    .to('.map', { width: '50%', maxWidth: '50%', ease: 'expo.inOut' }, 0)
+    .set('body', { overflow: 'scroll' });
+});
+
+window.addEventListener('resize', () => {
+  gsap.set(closeMapBtn, { autoAlpha: 0 });
+  gsap.set('body', { overflow: 'scroll' });
+  ScrollTrigger.refresh();
+});
+
+window.__mapTL = tl; // test hook — harmless in production
+</script>
+</body>
+</html>
