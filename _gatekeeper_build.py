@@ -87,6 +87,16 @@ PHOTOS = [
         "caption": "New pressure-treated posts and rails up on a lakefront run.",
         "alt": "Newly installed pressure-treated fence posts and rails running along a lakefront lawn",
     },
+    {
+        "file": "finished-gate-corner.jpg",
+        "caption": "Finished gate and post, with the site cleaned up after.",
+        "alt": "Completed pressure-treated wood fence gate at a house corner, with the yard cleared and raked",
+    },
+    {
+        "file": "finished-corner-run.jpg",
+        "caption": "The completed fence turning the corner of the house.",
+        "alt": "Completed pressure-treated wood fence running along a stucco house corner into an open lawn",
+    },
 ]
 
 

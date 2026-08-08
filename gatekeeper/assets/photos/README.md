@@ -18,6 +18,8 @@ The gallery appears on the home page between the services grid and the
 | `site-prep.jpg` | Root ball dug out, lumber staged on the grass by the sidewalk | "Old root ball dug out of the line so the new posts sit where they should." |
 | `setting-posts.jpg` | Two crew members setting a post beside the patio | "Setting posts and laying out rails." |
 | `new-rails-lakefront.jpg` | New pressure-treated posts and rails up along the lake | "New pressure-treated posts and rails up on a lakefront run." |
+| `finished-gate-corner.jpg` | Finished gate and post at a house corner, yard cleared and raked | "Finished gate and post, with the site cleaned up after." |
+| `finished-corner-run.jpg` | Completed fence turning the corner of the house into open lawn | "The completed fence turning the corner of the house." |
 
 The first entry in `PHOTOS` (currently `existing-fence-gate.jpg`) renders wide
 across the top of the gallery; the rest tile beneath it. Reorder the `PHOTOS`
