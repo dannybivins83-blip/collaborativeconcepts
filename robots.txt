@@ -6,4 +6,5 @@ Disallow: /send/
 Disallow: /design/
 
 Sitemap: https://collaborativeconceptsfl.com/sitemap.xml
+Sitemap: https://collaborativeconceptsfl.com/gatekeeper/sitemap.xml
 Sitemap: https://roofanchorcert.com/sitemap-wws.xml

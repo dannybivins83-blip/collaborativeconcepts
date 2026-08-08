@@ -16,6 +16,7 @@ Vercel project is wasted work — the changes never go live.
 | `collaborativeconceptsfl.com` (apex) | this project (`collaborativeconcepts`) | `/` (root HTML files) | ✅ live |
 | `wwslgc.collaborativeconceptsfl.com` | this project | `/wwslgc/` | ✅ live |
 | `casadelmonte.collaborativeconceptsfl.com` | **separate** `casa-del-monte-portal` Vercel project | `/lagala/casadelmonte/` | ⚠️ **NOT live** |
+| `collaborativeconceptsfl.com/gatekeeper` | this project (apex subfolder, no host rewrite) | `/gatekeeper/` | ✅ live |
 
 When the subdomain column says "separate project," any edits in this repo's
 corresponding folder will **not** affect the live site. Either:
@@ -135,6 +136,22 @@ The startup hook will pick it up automatically on the next session.
   signup counts. Offline tests: `python3 _adometr_tests.py` (61, sqlite).
   Contracts (attorney-review drafts) in `adometr/legal/`; outreach copy in
   `adometr/outreach/`; scout skills in `.claude/skills/adometr-*`.
+
+- **Gatekeeper Fence Co.** at `/gatekeeper/` — client marketing site for a
+  Jupiter, FL fence contractor (Gatekeeper Fence, Inc., lic. #U-21206). 12
+  static pages: home, services hub, five fence-type pages, gates, repair,
+  service area, about, contact. **Generated** — run `python3
+  _gatekeeper_build.py`; edit the builder, not the `.html`. `gatekeeper/assets/`
+  (gk.css, gk.js, logo.svg) is hand-written and NOT generated. Fence
+  illustrations are inline SVG from the builder's `art_*` functions, so there
+  are no image assets. **Live at `collaborativeconceptsfl.com/gatekeeper`** —
+  an apex subfolder, no host rewrite needed (nothing in `vercel.json` intercepts
+  `/gatekeeper`); `robots.txt` lists `/gatekeeper/sitemap.xml`. Leads go to the
+  repo-default FormSubmit address, which must be confirmed once via FormSubmit's
+  emailed link or nothing is delivered. All copy is restricted to publicly verifiable
+  business facts — no invented reviews, job counts, or staff. Two CSS traps
+  documented in the README: no `backdrop-filter` on `.hdr` (breaks the mobile
+  nav drawer), and `--brass` vs `--brass-lite` for light vs dark backgrounds.
 
 ## Local tooling
 
