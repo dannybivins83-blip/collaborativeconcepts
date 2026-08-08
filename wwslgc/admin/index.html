@@ -79,6 +79,7 @@
 <button data-tab="inv" title="Invoices" class="tabbtn flex-none whitespace-nowrap px-3 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Invoices <span id="cInv" class="text-mute font-normal"></span></button>
 <button data-tab="activity" title="Activity log" class="tabbtn flex-none whitespace-nowrap px-3 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Activity</button>
 <button data-tab="coi" title="COI requests" class="tabbtn flex-none whitespace-nowrap px-3 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">COI <span id="cCoi" class="text-mute font-normal"></span></button>
+<button data-tab="records" title="Public records requests — Ch.119 FOIA to cities/counties for unsafe-structures & recert-delinquent lists" class="tabbtn flex-none whitespace-nowrap px-3 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Records <span id="cRecords" class="text-mute font-normal"></span></button>
 <button data-tab="training" title="Training documents — certificates & rosters" class="tabbtn flex-none whitespace-nowrap px-3 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Training</button>
 <button data-tab="settings" title="Settings" class="tabbtn flex-none whitespace-nowrap px-3 py-2 text-sm font-semibold border-b-2 border-transparent text-mute hover:text-primary">Settings</button>
 </div>
@@ -193,6 +194,24 @@
 </table></div>
 <div id="coiEmpty" class="hidden p-10 text-center text-mute">No certificate-of-insurance requests yet.</div>
 </div>
+</section>
+
+<!-- public records requests — Ch.119 FOIA tracker -->
+<section id="tab-records" class="hidden">
+<div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+<div id="recStats" class="text-sm text-mute"></div>
+<button onclick="openAddRecordsReq()" class="bg-secondary text-white text-sm font-bold px-4 py-2 rounded-lg hover:bg-primaryc">+ Add request</button>
+</div>
+<div class="bg-white rounded-xl border border-line overflow-hidden">
+<div class="overflow-x-auto"><table class="w-full text-sm">
+<thead class="bg-surface text-mute text-left text-xs uppercase tracking-wide"><tr>
+<th class="px-3 py-2 font-semibold">Agency</th><th class="px-3 py-2 font-semibold hidden sm:table-cell">County</th><th class="px-3 py-2 font-semibold hidden md:table-cell">Ref #</th><th class="px-3 py-2 font-semibold hidden lg:table-cell">Submitted</th><th class="px-3 py-2 font-semibold">Status</th><th class="px-3 py-2 font-semibold hidden md:table-cell">Next action</th><th class="px-3 py-2 font-semibold"></th>
+</tr></thead>
+<tbody id="recRows"></tbody>
+</table></div>
+<div id="recEmpty" class="hidden p-10 text-center text-mute">No records requests tracked yet — <button onclick="seedRecordsReqs()" class="text-secondary font-semibold hover:underline">load the filed requests</button>.</div>
+</div>
+<p class="text-xs text-mute mt-2">Ch. 119 public-records requests filed with FL cities/counties for unsafe-structures &amp; recertification-delinquent building lists — the highest-intent WWS lead source. Edit status inline as agencies respond.</p>
 </section>
 
 <!-- settings — contractor credentials -->
@@ -409,6 +428,7 @@ function switchTab(t){
   document.getElementById('tab-inv').classList.toggle('hidden',t!=='inv');
   document.getElementById('tab-activity').classList.toggle('hidden',t!=='activity');
   document.getElementById('tab-coi').classList.toggle('hidden',t!=='coi');
+  document.getElementById('tab-records').classList.toggle('hidden',t!=='records');
   document.getElementById('tab-settings').classList.toggle('hidden',t!=='settings');
   if(t==='war') renderWarRoom();
   if(t==='research') renderResearch();
@@ -417,6 +437,7 @@ function switchTab(t){
   if(t==='inv') loadInvoices();
   if(t==='activity') loadActivity();
   if(t==='coi') loadCoiRequests();
+  if(t==='records') loadRecordsRequests();
   if(t==='settings') loadSettings();
 }
 
@@ -507,6 +528,64 @@ function loadCoiRequests(){
 function markCoiSent(id){
   api('/api/admin/coi-request/'+id+'/status',{method:'POST',body:JSON.stringify({status:'sent'})}).then(function(d){if(d.ok)loadCoiRequests();else alert(d.error||'Error');});
 }
+
+// ---- public records requests (Ch.119 FOIA tracker) ----
+var REC_STATUSES=['pending','responded','ready','delivered','delayed','closed'];
+var REC_BADGE={pending:'bg-amber-100 text-amber-800',responded:'bg-blue-100 text-blue-700',ready:'bg-green-100 text-green-700',delivered:'bg-emerald-100 text-emerald-700',delayed:'bg-red-100 text-red-700',closed:'bg-gray-200 text-gray-500'};
+function loadRecordsRequests(){
+  api('/api/admin/records-requests').then(function(d){
+    var rows=d.requests||[];
+    if(!rows.length){ // auto-seed the known filed requests on first open
+      api('/api/admin/records-requests/seed',{method:'POST',body:'{}'}).then(function(s){ renderRecordsReqs((s&&s.requests)||[]); });
+      return;
+    }
+    renderRecordsReqs(rows);
+  });
+}
+function seedRecordsReqs(){ api('/api/admin/records-requests/seed',{method:'POST',body:'{}'}).then(function(d){renderRecordsReqs(d.requests||[]);}); }
+function renderRecordsReqs(rows){
+  document.getElementById('cRecords').textContent='('+rows.length+')';
+  document.getElementById('recEmpty').classList.toggle('hidden',rows.length>0);
+  var ready=rows.filter(function(r){return r.status==='ready';}).length;
+  var done=rows.filter(function(r){return r.status==='delivered'||r.status==='responded';}).length;
+  var pend=rows.filter(function(r){return r.status==='pending'||r.status==='delayed';}).length;
+  document.getElementById('recStats').innerHTML='<b class="text-primary">'+rows.length+'</b> requests · <b class="text-green-700">'+ready+'</b> ready to pull · '+done+' responded · '+pend+' pending';
+  document.getElementById('recRows').innerHTML=rows.map(function(x){
+    var opts=REC_STATUSES.map(function(s){return '<option value="'+s+'"'+(s===x.status?' selected':'')+'>'+s.toUpperCase()+'</option>';}).join('');
+    return '<tr class="border-t border-line align-top">'+
+      '<td class="px-3 py-2"><div class="font-semibold text-primary text-xs">'+esc(x.agency)+'</div><div class="text-mute text-[11px]">'+esc(x.scope||'')+'</div><div class="text-mute text-[11px] mt-0.5">'+esc(x.contact||'')+'</div></td>'+
+      '<td class="px-3 py-2 hidden sm:table-cell text-mute text-xs">'+esc(x.county||'—')+'<div class="text-[11px]">'+esc(x.portal||'')+'</div></td>'+
+      '<td class="px-3 py-2 hidden md:table-cell text-mute text-xs whitespace-nowrap">'+esc(x.ref||'—')+'</td>'+
+      '<td class="px-3 py-2 hidden lg:table-cell text-mute text-xs whitespace-nowrap">'+esc(x.submitted||'—')+'</td>'+
+      '<td class="px-3 py-2"><select onchange="setRecStatus(\''+x.id+'\',this.value)" class="text-[11px] font-bold rounded-full px-2 py-1 border border-line '+(REC_BADGE[x.status]||'')+'">'+opts+'</select></td>'+
+      '<td class="px-3 py-2 hidden md:table-cell"><input value="'+esc(x.next_action||'')+'" onchange="setRecNext(\''+x.id+'\',this.value)" class="w-full text-xs rounded-lg border border-line px-2 py-1 focus:ring-2 focus:ring-secondary focus:outline-none" placeholder="next action…"/></td>'+
+      '<td class="px-3 py-2 whitespace-nowrap"><button onclick="delRecReq(\''+x.id+'\')" title="Remove" class="text-mute hover:text-red-600 text-xs">✕</button></td></tr>';
+  }).join('');
+}
+function setRecStatus(id,v){ api('/api/admin/records-request/'+id,{method:'POST',body:JSON.stringify({status:v})}).then(function(d){if(d.ok)loadRecordsRequests();else alert(d.error||'Error');}); }
+function setRecNext(id,v){ api('/api/admin/records-request/'+id,{method:'POST',body:JSON.stringify({next_action:v})}).then(function(d){if(!d.ok)alert(d.error||'Error');}); }
+function delRecReq(id){ if(!confirm('Remove this records request from the tracker?'))return; api('/api/admin/records-request/'+id+'/delete',{method:'POST',body:'{}'}).then(function(d){if(d.ok)loadRecordsRequests();}); }
+function openAddRecordsReq(){
+  document.getElementById('drawerBody').innerHTML=
+    '<div class="flex items-center justify-between mb-4"><h2 class="text-xl font-extrabold text-primary">Add records request</h2><button onclick="closeDrawer()" class="text-mute hover:text-primary"><span class="ms">close</span></button></div>'+
+    '<div class="space-y-3 text-sm">'+
+    fld('rq_agency','Agency *','City of X — Building Dept')+fld('rq_county','County','Broward')+fld('rq_portal','Portal / system','GovQA / JustFOIA / email')+
+    fld('rq_ref','Reference #','R00000-000000')+fld('rq_sub','Submitted (YYYY-MM-DD)','2026-08-08')+fld('rq_contact','Contact email','clerk@city.gov')+
+    fld('rq_scope','What was requested','Past-due recert + unsafe-structures list')+fld('rq_next','Next action','Awaiting response')+
+    '</div><button onclick="saveRecordsReq()" class="mt-5 w-full bg-secondary text-white py-3 rounded-xl font-bold hover:bg-primaryc">Add to tracker</button>';
+  document.getElementById('scrim').classList.remove('hidden');
+  document.getElementById('drawer').classList.remove('translate-x-full');
+}
+function fld(id,label,ph){ return '<div><label class="block text-xs uppercase tracking-wide text-mute mb-1">'+label+'</label><input id="'+id+'" type="text" placeholder="'+ph+'" class="w-full rounded-lg border border-line px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:outline-none"/></div>'; }
+function saveRecordsReq(){
+  var agency=(document.getElementById('rq_agency').value||'').trim();
+  if(!agency){alert('Agency is required.');return;}
+  var body={agency:agency,county:v('rq_county'),portal:v('rq_portal'),ref:v('rq_ref'),submitted:v('rq_sub'),contact:v('rq_contact'),scope:v('rq_scope'),next_action:v('rq_next'),status:'pending'};
+  api('/api/admin/records-request',{method:'POST',body:JSON.stringify(body)}).then(function(d){
+    if(d.ok){closeDrawer();loadRecordsRequests();switchTab('records');}else alert(d.error||'Could not add.');
+  });
+}
+function v(id){ return (document.getElementById(id).value||'').trim(); }
 function openCreateInvoice(){
   document.getElementById('drawerBody').innerHTML=
     '<div class="flex items-center justify-between mb-4"><h2 class="text-xl font-extrabold text-primary">Create invoice</h2><button onclick="closeDrawer()" class="text-mute hover:text-primary"><span class="ms">close</span></button></div>'+

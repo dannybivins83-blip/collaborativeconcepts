@@ -1654,6 +1654,171 @@ def admin_coi_request_status(cid):
     return jsonify({"ok": True, "request": rec})
 
 
+# ==========================================================================
+# Public-records-request tracker — the Ch. 119 FOIA requests filed with FL
+# cities/counties for unsafe-structures & recertification-delinquent lists
+# (the highest-intent WWS lead source). A living CRM tab: seeded once from the
+# known requests, then status/next-action edited in the admin as agencies
+# respond. KV-backed so it persists like leads/inspections.
+# ==========================================================================
+WWS_RECREQ_ALL_KEY = "wws:recreq:all"
+RECREQ_STATUSES = ("pending", "responded", "ready", "delivered", "delayed", "closed")
+
+
+def _recreq_key(rid): return "wws:recreq:" + rid
+
+
+def _recreq_get(rid):
+    raw = _kv_cmd(["GET", _recreq_key(rid)])
+    if not raw: return None
+    try: return json.loads(raw)
+    except Exception: return None
+
+
+def _recreq_save(rec):
+    _kv_cmd(["SET", _recreq_key(rec["id"]), json.dumps(rec)])
+    _kv_cmd(["LREM", WWS_RECREQ_ALL_KEY, 0, rec["id"]])
+    _kv_cmd(["RPUSH", WWS_RECREQ_ALL_KEY, rec["id"]])
+
+
+def _recreq_list():
+    ids = _kv_cmd(["LRANGE", WWS_RECREQ_ALL_KEY, 0, -1]) or []
+    out = []
+    for rid in ids:
+        x = _recreq_get(rid)
+        if x: out.append(x)
+    # ready first, then responded/delivered, pending, delayed, closed; then by submit date
+    rank = {"ready": 0, "responded": 1, "delivered": 1, "pending": 2, "delayed": 3, "closed": 4}
+    return sorted(out, key=lambda r: (rank.get(r.get("status"), 5), r.get("submitted", "")))
+
+
+# The requests filed so far (from the Gmail record, 2026-07). Seeded once.
+RECREQ_SEED = [
+    {"agency": "Broward County — Building Code Div.", "county": "Broward", "portal": "GovQA",
+     "ref": "R002248-071526", "submitted": "2026-07-15", "status": "ready",
+     "records": "Ready — no cost", "contact": "browardcounty@govqa.us (Francine Reid)",
+     "scope": "Unsafe Structures Board dockets 2025-26 + recert-delinquent roster",
+     "next_action": "Download from portal, or await emailed file (asked 8/7)"},
+    {"agency": "City of Miami Beach — City Clerk", "county": "Miami-Dade", "portal": "JustFOIA",
+     "ref": "PRR-2026-2321", "submitted": "2026-07-14", "status": "delivered",
+     "records": "Delivered", "contact": "miamibeachfl@request.justfoia.com",
+     "scope": "Open unsafe-structures & recertification cases",
+     "next_action": "Done — downloaded & merged into recert import"},
+    {"agency": "Miami-Dade County — RER", "county": "Miami-Dade", "portal": "GovQA",
+     "ref": "R052476-071426", "submitted": "2026-07-14", "status": "responded",
+     "records": "Links sent", "contact": "miamidadecounty@govqa.us",
+     "scope": "Open unsafe-structures & recert cases (unincorp. MDC)",
+     "next_action": "Self-service report links — already covered by ArcGIS harvest"},
+    {"agency": "City of Fort Lauderdale — City Clerk", "county": "Broward", "portal": "JustFOIA",
+     "ref": "CLK-1640-2026", "submitted": "2026-07-22", "status": "pending",
+     "records": "Not yet", "contact": "pwallen/kbecker/cabrown@fortlauderdale.gov",
+     "scope": "Past-due 40/25-yr BSIP non-compliant list + unsafe-structures cases",
+     "next_action": "CSV nudge sent — awaiting export"},
+    {"agency": "City of Hollywood — City Clerk", "county": "Broward", "portal": "MyCustHelp",
+     "ref": "W067743-071426", "submitted": "2026-07-14", "status": "pending",
+     "records": "Not yet", "contact": "hollywoodfl@mycusthelp.net (P. Cerny)",
+     "scope": "BSIP violation list + open enforcement cases",
+     "next_action": "Awaiting response"},
+    {"agency": "City of Miami — Public Records", "county": "Miami-Dade", "portal": "NextRequest",
+     "ref": "26-4545", "submitted": "2026-07-15", "status": "pending",
+     "records": "Not yet", "contact": "PublicRecords@miamigov.com",
+     "scope": "Open Unsafe Structures Panel cases",
+     "next_action": "Awaiting response"},
+    {"agency": "Palm Beach County — PZB", "county": "Palm Beach", "portal": "ePRR",
+     "ref": "(ePRR submitted)", "submitted": "2026-07-14", "status": "pending",
+     "records": "Not yet", "contact": "PZBpublicrecords@pbcgov.org",
+     "scope": "Recert / open unsafe-structures cases (electronic export)",
+     "next_action": "Awaiting response"},
+    {"agency": "FL DBPR — Public Records", "county": "Statewide", "portal": "MyCustHelp",
+     "ref": "W206979-071526", "submitted": "2026-07-15", "status": "pending",
+     "records": "Not yet", "contact": "legal.publicrecords@myfloridalicense.com",
+     "scope": "s.553.899(13) Milestone reporting — unsafe/uninhabitable lists 2024-25",
+     "next_action": "Awaiting response"},
+    {"agency": "City of Hallandale Beach — City Clerk", "county": "Broward", "portal": "JustFOIA",
+     "ref": "PRR2026-786", "submitted": "2026-07-14", "status": "pending",
+     "records": "Not yet", "contact": "HallandaleBeachFL@request.justfoia.com",
+     "scope": "Past-due recert + open unsafe-structures cases",
+     "next_action": "Awaiting response (dup #785 cancelled)"},
+    {"agency": "City of Pompano Beach — City Clerk", "county": "Broward", "portal": "Email",
+     "ref": "(assigned via GovQA)", "submitted": "2026-07-14", "status": "delayed",
+     "records": "Not yet", "contact": "Mary.Chick/Kervin.Alfred@copbfl.com",
+     "scope": "Past-due 40/25-yr recert + open unsafe-structures cases",
+     "next_action": "Delay notice — longer timeline"},
+]
+
+
+def _recreq_new(body, seeded=False):
+    return {
+        "id": _gen_id(), "created_ts": _now_ms(),
+        "agency": (body.get("agency") or "").strip()[:160],
+        "county": (body.get("county") or "").strip()[:40],
+        "portal": (body.get("portal") or "").strip()[:40],
+        "ref": (body.get("ref") or "").strip()[:60],
+        "submitted": (body.get("submitted") or "").strip()[:10],
+        "status": body.get("status") if body.get("status") in RECREQ_STATUSES else "pending",
+        "records": (body.get("records") or "").strip()[:60],
+        "contact": (body.get("contact") or "").strip()[:200],
+        "scope": (body.get("scope") or "").strip()[:400],
+        "next_action": (body.get("next_action") or "").strip()[:300],
+        "seeded": seeded,
+    }
+
+
+@app.get("/api/admin/records-requests")
+def admin_records_requests():
+    if not _is_admin(): return jsonify({"ok": False, "error": "auth required"}), 401
+    return jsonify({"ok": True, "requests": _recreq_list(), "statuses": list(RECREQ_STATUSES)})
+
+
+@app.post("/api/admin/records-requests/seed")
+def admin_records_requests_seed():
+    """Populate the tracker with the known filed requests — but only if empty,
+    so it's a safe idempotent bootstrap that never clobbers manual edits."""
+    if not _is_admin(): return jsonify({"ok": False, "error": "auth required"}), 401
+    existing = _kv_cmd(["LRANGE", WWS_RECREQ_ALL_KEY, 0, -1]) or []
+    if existing:
+        return jsonify({"ok": True, "seeded": 0, "requests": _recreq_list()})
+    for row in RECREQ_SEED:
+        _recreq_save(_recreq_new(row, seeded=True))
+    _log_activity("records_seed", "Seeded {} public-records requests".format(len(RECREQ_SEED)))
+    return jsonify({"ok": True, "seeded": len(RECREQ_SEED), "requests": _recreq_list()})
+
+
+@app.post("/api/admin/records-request")
+def admin_records_request_create():
+    if not _is_admin(): return jsonify({"ok": False, "error": "auth required"}), 401
+    body = request.get_json(force=True, silent=True) or {}
+    if not (body.get("agency") or "").strip():
+        return jsonify({"ok": False, "error": "agency is required"}), 400
+    rec = _recreq_new(body)
+    _recreq_save(rec)
+    _log_activity("records_create", "Records request added: {}".format(rec["agency"]))
+    return jsonify({"ok": True, "request": rec})
+
+
+@app.post("/api/admin/records-request/<rid>")
+def admin_records_request_update(rid):
+    if not _is_admin(): return jsonify({"ok": False, "error": "auth required"}), 401
+    rec = _recreq_get(rid)
+    if not rec: return jsonify({"ok": False, "error": "not found"}), 404
+    body = request.get_json(force=True, silent=True) or {}
+    for f in ("agency", "county", "portal", "ref", "submitted", "records", "contact", "scope", "next_action"):
+        if f in body: rec[f] = (str(body.get(f) or "")).strip()[:400]
+    if body.get("status") in RECREQ_STATUSES:
+        rec["status"] = body["status"]
+    rec["updated_ts"] = _now_ms()
+    _recreq_save(rec)
+    return jsonify({"ok": True, "request": rec})
+
+
+@app.post("/api/admin/records-request/<rid>/delete")
+def admin_records_request_delete(rid):
+    if not _is_admin(): return jsonify({"ok": False, "error": "auth required"}), 401
+    _kv_cmd(["LREM", WWS_RECREQ_ALL_KEY, 0, rid])
+    _kv_cmd(["DEL", _recreq_key(rid)])
+    return jsonify({"ok": True})
+
+
 def _effective_email(s):
     """The email whose data should be shown: the delegate's owner if this is
     a read-only delegate session, otherwise the signed-in user's own email.
