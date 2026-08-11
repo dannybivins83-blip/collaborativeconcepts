@@ -1,0 +1,9 @@
+# The CORE (collectors, pipelines, engines, dev server, tests) is stdlib-only
+# and needs NOTHING here — `make demo` and `make test` run on a bare Python 3.11+.
+#
+# These are for the production API target only (see docs/DECISIONS.md D-005),
+# and have NOT been installed or exercised in the build environment.
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+psycopg[binary]==3.2.3

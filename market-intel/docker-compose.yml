@@ -1,0 +1,33 @@
+# NOT YET VERIFIED — written, never run (no image pulls in the build sandbox).
+# See docs/BUILD_STATUS.md. The zero-infrastructure path is `make demo`.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: marketintel
+      POSTGRES_PASSWORD: marketintel
+      POSTGRES_DB: marketintel
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U marketintel"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  cache:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  api:
+    build: { context: ., dockerfile: infrastructure/docker/api.Dockerfile }
+    environment:
+      MI_DATABASE_URL: postgresql://marketintel:marketintel@db:5432/marketintel
+      MI_USER_AGENT: ${MI_USER_AGENT}
+    ports: ["8000:8000"]
+    depends_on:
+      db: { condition: service_healthy }
+    volumes: [".:/app"]
+
+volumes:
+  pgdata:

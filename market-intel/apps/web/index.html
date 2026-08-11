@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market Intelligence Terminal</title>
+<style>
+  :root{
+    --bg:#0b0e13; --panel:#12161f; --panel2:#171c27; --line:#232a38;
+    --fg:#e6eaf2; --dim:#8b96ab; --accent:#4da3ff; --good:#3fbf7f; --bad:#ef5f6b;
+    --warn:#e0a94a; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+       font:13px/1.45 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  a{color:var(--accent);text-decoration:none}
+  header{display:flex;align-items:center;gap:16px;padding:10px 16px;
+         border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
+  .brand{font-weight:700;letter-spacing:.03em}
+  .brand span{color:var(--accent)}
+  input[type=search]{background:var(--panel2);border:1px solid var(--line);color:var(--fg);
+        padding:6px 10px;border-radius:4px;font:inherit;width:220px}
+  .demo{background:#3a2c10;border:1px solid var(--warn);color:#ffd493;
+        padding:6px 12px;font-size:12px;border-radius:4px;margin:10px 16px}
+  main{padding:12px 16px;max-width:1400px}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .panel h2{margin:0;padding:8px 12px;font-size:12px;text-transform:uppercase;
+            letter-spacing:.08em;color:var(--dim);border-bottom:1px solid var(--line);
+            background:var(--panel2);display:flex;justify-content:space-between}
+  .panel .body{padding:10px 12px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+  th{text-align:left;color:var(--dim);font-weight:500;padding:4px 8px 4px 0;
+     border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:4px 8px 4px 0;border-bottom:1px solid #1a2029;white-space:nowrap}
+  td.wrap{white-space:normal;font-family:inherit}
+  .num{text-align:right}
+  .pos{color:var(--good)} .neg{color:var(--bad)} .dim{color:var(--dim)}
+  .hero{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+  .hero h1{margin:0;font-size:22px}
+  .tick{font-family:var(--mono);color:var(--accent);font-size:22px}
+  .score{font-family:var(--mono);font-size:30px;font-weight:700}
+  .pill{font-size:11px;padding:2px 7px;border:1px solid var(--line);border-radius:99px;
+        color:var(--dim);background:var(--panel2)}
+  .bar{height:5px;background:#1d2431;border-radius:3px;overflow:hidden;min-width:70px}
+  .bar>i{display:block;height:100%;background:var(--accent)}
+  .add{border-left:2px solid var(--good);padding-left:8px;margin:6px 0}
+  .rem{border-left:2px solid var(--bad);padding-left:8px;margin:6px 0;color:var(--dim)}
+  .mod{border-left:2px solid var(--warn);padding-left:8px;margin:6px 0}
+  .spark{vertical-align:middle}
+  footer{color:var(--dim);padding:16px;font-size:11px;border-top:1px solid var(--line);
+         margin-top:20px}
+  .err{color:var(--bad);padding:12px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">MARKET<span>INTEL</span></div>
+  <input type="search" id="q" placeholder="ticker or theme…" autocomplete="off">
+  <span class="dim" id="conn">connecting…</span>
+</header>
+<div id="demo" class="demo" hidden></div>
+<main id="app"><p class="dim">Loading…</p></main>
+<footer>
+  Evidence-first: every number below traces to a stored source record.
+  Composite score weights are a v1 prior and have <b>not</b> been backtested.
+</footer>
+
+<script>
+const API = '/api/v1';
+const $ = (s,r=document)=>r.querySelector(s);
+const fmtNum = v => v==null ? '—' :
+  Math.abs(v)>=1e9 ? (v/1e9).toFixed(2)+'B' :
+  Math.abs(v)>=1e6 ? (v/1e6).toFixed(1)+'M' :
+  Math.abs(v)>=1e3 ? (v/1e3).toFixed(1)+'K' : (+v).toFixed(2);
+const pct = v => v==null ? '—' : (v*100).toFixed(1)+'%';
+const cls = v => v==null ? 'dim' : v>0 ? 'pos' : v<0 ? 'neg' : '';
+const esc = s => String(s??'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+async function get(path){
+  const r = await fetch(API+path);
+  if(!r.ok) throw new Error((await r.json()).error || r.statusText);
+  return r.json();
+}
+
+function panel(title, right, inner){
+  return `<section class="panel"><h2><span>${title}</span><span class="dim">${right||''}</span></h2>
+          <div class="body">${inner}</div></section>`;
+}
+
+/* inline sparkline — no chart library, no build step */
+function spark(values, w=120, h=26){
+  const v = values.filter(x=>x!=null);
+  if(v.length<2) return '<span class="dim">—</span>';
+  const min=Math.min(...v), max=Math.max(...v), span=(max-min)||1;
+  const pts = v.map((y,i)=>`${(i/(v.length-1))*w},${h-((y-min)/span)*(h-4)-2}`).join(' ');
+  const rising = v[v.length-1] >= v[0];
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <polyline fill="none" stroke="${rising?'#3fbf7f':'#ef5f6b'}" stroke-width="1.5" points="${pts}"/>
+  </svg>`;
+}
+
+function barChart(points, w=520, h=150){
+  if(!points.length) return '<span class="dim">no data</span>';
+  const max = Math.max(...points.map(p=>p.v))||1;
+  const bw = w/points.length;
+  return `<svg width="100%" viewBox="0 0 ${w} ${h+22}" preserveAspectRatio="none">
+    ${points.map((p,i)=>{
+      const bh=(p.v/max)*h;
+      return `<rect x="${i*bw+3}" y="${h-bh}" width="${bw-6}" height="${bh}" fill="#4da3ff" opacity="${.45+.55*(i/points.length)}"><title>${p.label}: ${fmtNum(p.v)}</title></rect>
+              <text x="${i*bw+bw/2}" y="${h+14}" fill="#8b96ab" font-size="9" text-anchor="middle">${p.label.slice(2)}</text>`;
+    }).join('')}
+  </svg>`;
+}
+
+async function renderStock(ticker){
+  const app = $('#app');
+  app.innerHTML = '<p class="dim">Loading '+esc(ticker)+'…</p>';
+  let d, fin, tags, sigs, score, changes, filings;
+  try{
+    [d,fin,tags,sigs,score,changes,filings] = await Promise.all([
+      get(`/stocks/${ticker}`), get(`/stocks/${ticker}/financials`),
+      get(`/stocks/${ticker}/tags`), get(`/stocks/${ticker}/signals`),
+      get(`/stocks/${ticker}/score`), get(`/stocks/${ticker}/filing-changes`),
+      get(`/stocks/${ticker}/filings`)]);
+  }catch(e){ app.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+
+  if(d.data && d.data.contains_demo_data){
+    const b = $('#demo'); b.hidden=false;
+    b.textContent = `DEMO DATA — ${d.data.demo_records} of ${d.data.total_records} stored source records are labelled synthetic fixtures. Figures below are illustrative, not live market data.`;
+  }
+
+  const comp = score.computed || {};
+  const cats = comp.categories || {};
+  const revKey = fin.concepts.find(c=>/Revenue/i.test(c));
+  const revSeries = (fin.series[revKey]||[]).filter(r=>{
+    const d1=new Date(r.period_start), d2=new Date(r.period_end);
+    const days=(d2-d1)/864e5; return days>=60 && days<=110;   // quarterly only
+  });
+
+  app.innerHTML = `
+  <div class="hero">
+    <span class="tick">${esc(d.security?.ticker||ticker)}</span>
+    <h1>${esc(d.entity.name)}</h1>
+    <span class="pill">${esc(d.entity.type)}</span>
+    <span class="pill">CIK ${esc(d.identifiers.cik||'—')}</span>
+    <span class="pill">${esc(d.security?.exchange||'—')}</span>
+    <span style="margin-left:auto;text-align:right">
+      <div class="dim" style="font-size:11px">INTELLIGENCE SCORE</div>
+      <div class="score">${comp.composite ?? '—'}</div>
+      <div class="dim" style="font-size:11px">coverage ${pct(comp.coverage)}</div>
+    </span>
+  </div>
+  <div class="grid">
+    ${panel('Signals', `${sigs.count} active`, sigs.signals.length ? `<table>
+      <tr><th>Signal</th><th>Category</th><th class="num">Value</th><th class="num">Z</th><th class="num">Pct</th><th>As of</th></tr>
+      ${sigs.signals.map(s=>`<tr>
+        <td>${esc(s.name)}</td><td class="dim">${esc(s.category)}</td>
+        <td class="num ${cls(s.raw_value)}">${s.raw_value==null?'—':(+s.raw_value).toFixed(3)}</td>
+        <td class="num">${s.zscore==null?'—':(+s.zscore).toFixed(2)}</td>
+        <td class="num">${s.percentile==null?'—':pct(s.percentile)}</td>
+        <td class="dim">${esc(s.observed_at)}</td></tr>`).join('')}
+    </table>` : '<span class="dim">no signals computed</span>')}
+
+    ${panel('Score breakdown', `model ${comp.model_id} v${comp.model_version}`, `<table>
+      ${Object.entries(cats).map(([k,v])=>`<tr>
+        <td>${esc(k.replace(/_/g,' '))}</td>
+        <td style="width:100%"><div class="bar"><i style="width:${v==null?0:v}%"></i></div></td>
+        <td class="num">${v==null?'<span class="dim">no data</span>':v}</td></tr>`).join('')}
+    </table><p class="dim" style="margin:8px 0 0">${esc(score.disclaimer)}</p>`)}
+
+    ${panel('Revenue (quarterly, XBRL)', esc(revKey||''),
+      barChart(revSeries.map(r=>({label:r.period_end, v:r.value}))))}
+
+    ${panel('Tag graph', `${tags.count} tags`, tags.tags.length ? `<table>
+      <tr><th>Tag</th><th>Path</th><th class="num">Mentions</th><th class="num">Docs</th><th>Trend</th></tr>
+      ${tags.tags.slice(0,14).map(t=>`<tr>
+        <td>${esc(t.name)}</td>
+        <td class="dim">${esc((t.path||[]).slice(0,-1).join(' › '))}</td>
+        <td class="num">${t.mentions}</td><td class="num">${t.documents}</td>
+        <td>${spark((t.timeseries||[]).map(p=>p.mentions))}</td></tr>`).join('')}
+    </table>` : '<span class="dim">no tags observed</span>')}
+
+    ${panel('SEC filing changes', `${changes.total_changes} vs prior comparable`,
+      Object.keys(changes.sections).length ? Object.entries(changes.sections).map(([sec,g])=>`
+        <div style="margin-bottom:10px"><b>${esc(sec.replace(/_/g,' '))}</b>
+        ${g.added.slice(0,3).map(c=>`<div class="add">+ ${esc(c.excerpt.slice(0,240))}</div>`).join('')}
+        ${g.modified.slice(0,2).map(c=>`<div class="mod">~ ${esc(c.excerpt.slice(0,200))}</div>`).join('')}
+        ${g.removed.slice(0,2).map(c=>`<div class="rem">− ${esc(c.excerpt.slice(0,180))}</div>`).join('')}
+        </div>`).join('') : '<span class="dim">no prior comparable filing yet</span>')}
+
+    ${panel('Filings', `${filings.count}`, `<table>
+      <tr><th>Form</th><th>Filed</th><th>Period</th><th>Items</th><th></th></tr>
+      ${filings.filings.map(f=>`<tr><td>${esc(f.form)}</td><td>${esc(f.filed_at)}</td>
+        <td class="dim">${esc(f.period_end||'—')}</td><td class="dim">${esc(f.items||'')}</td>
+        <td>${f.doc_url?`<a href="${esc(f.doc_url)}" target="_blank" rel="noopener">doc</a>`:''}</td></tr>`).join('')}
+    </table>`)}
+  </div>`;
+}
+
+async function boot(){
+  try{
+    const h = await get('/health');
+    $('#conn').textContent = `${h.counts.entities} entities · ${h.counts.source_records} raw records · ${h.counts.entity_tags} tag obs`;
+  }catch(e){ $('#conn').textContent='api unreachable'; }
+  const t = new URLSearchParams(location.search).get('ticker') || 'NVDA';
+  $('#q').value = t;
+  renderStock(t);
+}
+$('#q').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    const v = e.target.value.trim().toUpperCase();
+    history.replaceState({}, '', `?ticker=${encodeURIComponent(v)}`);
+    renderStock(v);
+  }
+});
+boot();
+</script>
+</body>
+</html>

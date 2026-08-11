@@ -1,0 +1,37 @@
+{
+  "_demo": true,
+  "_note": "SYNTHETIC FIXTURE — mirrors the SHAPE of https://data.sec.gov/submissions/CIK0001045810.json. Accession numbers, dates and documents are illustrative placeholders, NOT real filings.",
+  "cik": "1045810",
+  "entityType": "operating",
+  "sic": "3674",
+  "sicDescription": "Semiconductors & Related Devices",
+  "name": "NVIDIA CORP",
+  "tickers": ["NVDA"],
+  "exchanges": ["Nasdaq"],
+  "formerNames": [
+    {"name": "NVIDIA CORP/CA", "from": "1998-01-01T00:00:00.000Z", "to": "2002-06-30T00:00:00.000Z"}
+  ],
+  "filings": {
+    "recent": {
+      "accessionNumber": [
+        "0001045810-26-000101",
+        "0001045810-26-000075",
+        "0001045810-26-000048",
+        "0001045810-26-000022",
+        "0001045810-25-000180"
+      ],
+      "filingDate": ["2026-05-28", "2026-02-26", "2026-02-21", "2026-01-15", "2025-11-20"],
+      "reportDate": ["2026-04-26", "2026-01-25", "2026-01-25", "", "2025-10-26"],
+      "form": ["10-Q", "10-K", "8-K", "8-K", "10-Q"],
+      "primaryDocument": [
+        "nvda-20260426.htm",
+        "nvda-20260125.htm",
+        "nvda-8k-20260221.htm",
+        "nvda-8k-20260115.htm",
+        "nvda-20251026.htm"
+      ],
+      "items": ["", "", "2.02,9.01", "8.01", ""],
+      "size": [1200000, 4800000, 90000, 60000, 1150000]
+    }
+  }
+}

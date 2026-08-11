@@ -1,0 +1,9 @@
+{
+  "_demo": true,
+  "_note": "SYNTHETIC FIXTURE — mirrors the SHAPE of https://www.sec.gov/files/company_tickers.json. CIK/ticker/name are real public identifiers; this file is a trimmed subset for offline pipeline proof, not a live download.",
+  "0": {"cik_str": 1045810, "ticker": "NVDA", "title": "NVIDIA CORP", "exchange": "Nasdaq"},
+  "1": {"cik_str": 320193, "ticker": "AAPL", "title": "Apple Inc.", "exchange": "Nasdaq"},
+  "2": {"cik_str": 789019, "ticker": "MSFT", "title": "MICROSOFT CORP", "exchange": "Nasdaq"},
+  "3": {"cik_str": 910521, "ticker": "DECK", "title": "DECKERS OUTDOOR CORP", "exchange": "NYSE"},
+  "4": {"cik_str": 1318605, "ticker": "TSLA", "title": "Tesla, Inc.", "exchange": "Nasdaq"}
+}
