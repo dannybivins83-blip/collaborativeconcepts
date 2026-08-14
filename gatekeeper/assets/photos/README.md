@@ -20,6 +20,9 @@ The gallery appears on the home page between the services grid and the
 | `new-rails-lakefront.jpg` | New pressure-treated posts and rails up along the lake | "New pressure-treated posts and rails up on a lakefront run." |
 | `finished-gate-corner.jpg` | Finished gate and post at a house corner, yard cleared and raked | "Finished gate and post, with the site cleaned up after." |
 | `finished-corner-run.jpg` | Completed fence turning the corner of the house into open lawn | "The completed fence turning the corner of the house." |
+| `aluminum-estate-gate.jpg` | Black aluminum driveway gate and picket fence along a paver drive | "Powder-coated aluminum driveway gate and matching perimeter fence." |
+| `aluminum-pool-fence.jpg` | Black aluminum pool fence and gate beside a paver pool deck | "Aluminum pool fence and gate, set beside the paver deck." |
+| `aluminum-gate-hardware.jpg` | Close-up of gate hinge and handle hardware on a stucco post | "Gate hardware on a powder-coated aluminum gate." |
 
 The first entry in `PHOTOS` (currently `existing-fence-gate.jpg`) renders wide
 across the top of the gallery; the rest tile beneath it. Reorder the `PHOTOS`

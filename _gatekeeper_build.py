@@ -97,6 +97,21 @@ PHOTOS = [
         "caption": "The completed fence turning the corner of the house.",
         "alt": "Completed pressure-treated wood fence running along a stucco house corner into an open lawn",
     },
+    {
+        "file": "aluminum-estate-gate.jpg",
+        "caption": "Powder-coated aluminum driveway gate and matching perimeter fence.",
+        "alt": "Black powder-coated aluminum driveway gate and picket fence along a paver driveway",
+    },
+    {
+        "file": "aluminum-pool-fence.jpg",
+        "caption": "Aluminum pool fence and gate, set beside the paver deck.",
+        "alt": "Black aluminum pool safety fence and self-closing gate beside a backyard pool deck",
+    },
+    {
+        "file": "aluminum-gate-hardware.jpg",
+        "caption": "Gate hardware on a powder-coated aluminum gate.",
+        "alt": "Close-up of black powder-coated aluminum gate hinge and handle hardware on a stucco post",
+    },
 ]
 
 
