@@ -50,7 +50,207 @@ AREAS = [
     "Loxahatchee", "Singer Island",
 ]
 
-PHONE_SVG = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
+# --------------------------------------------------------------------------
+# Job photos
+#
+# Drop the image files in gatekeeper/assets/photos/ using the `file` names
+# below and rebuild. Any photo whose file is missing is skipped, and if none
+# are present the whole gallery section is omitted -- so the site never ships
+# a broken image. See gatekeeper/assets/photos/README.md.
+#
+# Captions describe only what is visible in each frame. Do not add a city,
+# a footage count, or a customer name unless the owner confirms it.
+# --------------------------------------------------------------------------
+PHOTOS = [
+    {
+        "file": "existing-fence-gate.jpg",
+        "caption": "The existing fence and gate, before replacement.",
+        "alt": "Weathered stained wood privacy fence and gate alongside a townhouse unit",
+    },
+    {
+        "file": "clearing-fence-line.jpg",
+        "caption": "Clearing the fence line before any posts go in.",
+        "alt": "Gatekeeper Fence crew member clearing overgrowth along a fence line with a chainsaw",
+    },
+    {
+        "file": "site-prep.jpg",
+        "caption": "Old root ball dug out of the line so the new posts sit where they should.",
+        "alt": "Root ball excavated from a fence line with pressure-treated lumber staged on the grass",
+    },
+    {
+        "file": "setting-posts.jpg",
+        "caption": "Setting posts and laying out rails.",
+        "alt": "Two crew members setting a pressure-treated fence post beside a townhouse patio",
+    },
+    {
+        "file": "new-rails-lakefront.jpg",
+        "caption": "New pressure-treated posts and rails up on a lakefront run.",
+        "alt": "Newly installed pressure-treated fence posts and rails running along a lakefront lawn",
+    },
+    {
+        "file": "finished-gate-corner.jpg",
+        "caption": "Finished gate and post, with the site cleaned up after.",
+        "alt": "Completed pressure-treated wood fence gate at a house corner, with the yard cleared and raked",
+    },
+    {
+        "file": "finished-corner-run.jpg",
+        "caption": "The completed fence turning the corner of the house.",
+        "alt": "Completed pressure-treated wood fence running along a stucco house corner into an open lawn",
+    },
+    {
+        "file": "services-overview.jpg",
+        "caption": "Vinyl privacy, wood, and aluminum pool fencing on one property.",
+        "alt": "Backyard showing white vinyl privacy fence, horizontal wood fence, and black aluminum pool fence together",
+    },
+    {
+        "file": "craftsmanship-hardware.jpg",
+        "caption": "Gate hardware on a powder-coated aluminum gate.",
+        "alt": "Close-up of black powder-coated aluminum gate hinge and handle hardware on a stucco post",
+    },
+    {
+        "file": "vinyl-privacy-fence.jpg",
+        "caption": "White vinyl privacy fence along a backyard property line.",
+        "alt": "White vinyl privacy fence running along a landscaped backyard with palm trees",
+    },
+    {
+        "file": "commercial-sliding-gate.jpg",
+        "caption": "Commercial automatic sliding gate with keypad access.",
+        "alt": "Black commercial automatic sliding gate with keypad entry at a business driveway",
+    },
+]
+
+
+def available_photos():
+    """Only the photos whose files actually exist on disk."""
+    d = os.path.join(OUT, "assets", "photos")
+    return [p for p in PHOTOS if os.path.exists(os.path.join(d, p["file"]))]
+
+
+# --------------------------------------------------------------------------
+# Service icons — one consistent flat-line set, 8 topics, viewBox 0 0 48 48.
+# Colored via CSS `color` on the wrapping element (stroke="currentColor"),
+# same pattern as PHONE_SVG/ARROW_SVG below. Original line-art, not traced
+# from the reference concept board.
+# --------------------------------------------------------------------------
+_ICO_OPEN = ('<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" '
+             'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">')
+
+SERVICE_ICONS = {
+    "wood": _ICO_OPEN + (
+        '<path d="M10 20l4-6 4 6"/><path d="M14 14v26"/>'
+        '<path d="M22 17l4-6 4 6"/><path d="M26 11v29"/>'
+        '<path d="M34 20l4-6 4 6"/><path d="M38 14v26"/>'
+        '<path d="M8 24h32M8 33h32"/></svg>'
+    ),
+    "vinyl": _ICO_OPEN + (
+        '<rect x="9" y="16" width="14" height="24" rx="1"/>'
+        '<rect x="25" y="16" width="14" height="24" rx="1"/>'
+        '<path d="M9 22h14M25 22h14"/>'
+        '<path d="M13 10h4v6h-4zM31 10h4v6h-4z"/></svg>'
+    ),
+    "aluminum": _ICO_OPEN + (
+        '<path d="M10 40V14M10 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>'
+        '<path d="M19 40V17M19 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>'
+        '<path d="M29 40V17M29 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>'
+        '<path d="M38 40V14M38 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>'
+        '<path d="M10 22h28M10 32h28"/></svg>'
+    ),
+    "chainlink": _ICO_OPEN + (
+        '<path d="M9 12v28M39 12v28"/>'
+        '<path d="M9 12h30M9 40h30"/>'
+        '<path d="M9 14l30 24M39 14 9 38M9 22l30 12M39 22 9 34M9 30l14 8M39 30 25 38"/></svg>'
+    ),
+    "pool": _ICO_OPEN + (
+        '<path d="M11 40V16M11 16a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>'
+        '<path d="M37 40V16M37 16a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>'
+        '<path d="M11 22h26M11 30h26"/>'
+        '<path d="M6 44c2.5-2 5.5-2 8 0s5.5 2 8 0 5.5-2 8 0 5.5 2 8 0"/></svg>'
+    ),
+    "gates": _ICO_OPEN + (
+        '<path d="M6 40V15l6-5 6 5v25"/><path d="M6 22h12M6 30h12"/>'
+        '<path d="M42 40V15l-6-5-6 5v25"/><path d="M30 22h12M30 30h12"/>'
+        '<circle cx="21" cy="27" r="1.6" fill="currentColor" stroke="none"/>'
+        '<circle cx="27" cy="27" r="1.6" fill="currentColor" stroke="none"/></svg>'
+    ),
+    "repair": _ICO_OPEN + (
+        '<path d="M28 15a7 7 0 0 0-9.5 8.2L8 33.7V40h6.3L24.8 29.5A7 7 0 0 0 33 20l-5 5-4-4 5-5Z"/></svg>'
+    ),
+    "commercial": _ICO_OPEN + (
+        '<path d="M8 40V13l10-5 10 5v27"/><path d="M12 20h4M20 20h4M12 27h4M20 27h4M12 34h4M20 34h4"/>'
+        '<path d="M28 40V21h14v19"/><path d="M32 26h3M39 26h3M32 32h3M39 32h3"/>'
+        '<path d="M4 40h40"/></svg>'
+    ),
+}
+
+SERVICE_ICON_LABELS = [
+    ("wood", "wood-fence", "Wood"),
+    ("vinyl", "vinyl-fence", "Vinyl / PVC"),
+    ("aluminum", "aluminum-fence", "Aluminum"),
+    ("chainlink", "chain-link-fence", "Chain Link"),
+    ("pool", "pool-fence", "Pool Safety"),
+    ("gates", "gates", "Gates"),
+    ("repair", "fence-repair", "Repairs"),
+    ("commercial", "services#commercial", "Commercial"),
+]
+
+# --------------------------------------------------------------------------
+# Trust badges — verified facts only. No badge for anything unconfirmed
+# (no "materials warranty" badge here; that's covered elsewhere with the
+# actual warranty language). Same currentColor pattern as the icons above.
+# --------------------------------------------------------------------------
+_BADGE_OPEN = ('<svg viewBox="0 0 48 48" fill="none" aria-hidden="true">')
+
+TRUST_BADGES = [
+    {
+        "label": "Locally owned in Jupiter",
+        "svg": _BADGE_OPEN + (
+            '<circle cx="24" cy="24" r="22" fill="#0F4D2E"/>'
+            '<circle cx="24" cy="24" r="22" fill="none" stroke="#B88A3C" stroke-width="2"/>'
+            '<path d="M24 12c-5 0-9 4-9 9 0 7 9 15 9 15s9-8 9-15c0-5-4-9-9-9Z" fill="#FDF7E9"/>'
+            '<circle cx="24" cy="21" r="3.4" fill="#0F4D2E"/></svg>'
+        ),
+    },
+    {
+        "label": f"Established {BIZ['since']}",
+        "svg": _BADGE_OPEN + (
+            '<circle cx="24" cy="24" r="22" fill="#0F4D2E"/>'
+            '<circle cx="24" cy="24" r="22" fill="none" stroke="#B88A3C" stroke-width="2"/>'
+            f'<text x="24" y="26" text-anchor="middle" dominant-baseline="central" '
+            f'font-family="Archivo, sans-serif" font-weight="800" font-size="13" fill="#FDF7E9">{BIZ["since"]}</text>'
+            '<path d="M13 15h22M13 33h22" stroke="#e3c07a" stroke-width="2" stroke-linecap="round"/></svg>'
+        ),
+    },
+    {
+        "label": "Free on-site estimates",
+        "svg": _BADGE_OPEN + (
+            '<circle cx="24" cy="24" r="22" fill="#0F4D2E"/>'
+            '<circle cx="24" cy="24" r="22" fill="none" stroke="#B88A3C" stroke-width="2"/>'
+            '<rect x="15" y="12" width="18" height="24" rx="2" fill="#FDF7E9"/>'
+            '<path d="M19 18h10M19 23h10M19 28h6" stroke="#0F4D2E" stroke-width="2" stroke-linecap="round"/></svg>'
+        ),
+    },
+    {
+        "label": "Clean job sites",
+        "svg": _BADGE_OPEN + (
+            '<circle cx="24" cy="24" r="22" fill="#0F4D2E"/>'
+            '<circle cx="24" cy="24" r="22" fill="none" stroke="#B88A3C" stroke-width="2"/>'
+            '<path d="M22 12 24.6 19.4 32 22 24.6 24.6 22 32 19.4 24.6 12 22 19.4 19.4Z" fill="#FDF7E9"/>'
+            '<path d="M32 28 33.2 31.2 36.4 32.4 33.2 33.6 32 36.8 30.8 33.6 27.6 32.4 30.8 31.2Z" fill="#e3c07a"/></svg>'
+        ),
+    },
+    {
+        "label": "Residential & commercial",
+        "svg": _BADGE_OPEN + (
+            '<circle cx="24" cy="24" r="22" fill="#0F4D2E"/>'
+            '<circle cx="24" cy="24" r="22" fill="none" stroke="#B88A3C" stroke-width="2"/>'
+            '<path d="M11 34V19l7-4 7 4v15" fill="none" stroke="#FDF7E9" stroke-width="2" stroke-linejoin="round"/>'
+            '<path d="M26 34V22h11v12" fill="none" stroke="#e3c07a" stroke-width="2" stroke-linejoin="round"/></svg>'
+        ),
+    },
+]
+
+
+PHONE_SVG =('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
              'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 '
              '19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 '
              '1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>')
@@ -65,15 +265,15 @@ SHIELD_SVG = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 # --------------------------------------------------------------------------
 # Fence illustrations -- inline SVG, no image files to lose
 # --------------------------------------------------------------------------
-INK = "#3b4a54"
+INK = "#1e3a2c"
 LIGHT = "#ffffff"
-SHADE = "#d9d4cb"
-BRASS = "#b8791f"
-GROUND = "#c3bcb0"
+SHADE = "#d9d0ad"
+BRASS = "#B88A3C"
+GROUND = "#c9bd94"
 
 
 def _frame(uid, body, sky=True):
-    top = (f'<rect width="400" height="200" fill="#f0eeea"/>'
+    top = (f'<rect width="400" height="200" fill="#f3ead2"/>'
            f'<circle cx="336" cy="44" r="20" fill="#fff" opacity=".7"/>') if sky else ''
     return (f'<svg viewBox="0 0 400 200" role="img" xmlns="http://www.w3.org/2000/svg" '
             f'aria-label="{uid.replace("-", " ")} illustration">{top}{body}'
@@ -231,6 +431,7 @@ def art_hero_fence():
 SERVICES = [
     {
         "slug": "wood-fence",
+        "icon": "wood",
         "nav": "Wood Fence",
         "title": "Wood Fence Installation",
         "h1": "Wood fence installation in Jupiter &amp; northern Palm Beach County",
@@ -268,6 +469,12 @@ SERVICES = [
     },
     {
         "slug": "vinyl-fence",
+        "icon": "vinyl",
+        "photo": {
+            "file": "vinyl-privacy-fence.jpg",
+            "alt": "White vinyl privacy fence running along a landscaped backyard with palm trees",
+            "h": 720,
+        },
         "nav": "Vinyl / PVC Fence",
         "title": "Vinyl &amp; PVC Fence Installation",
         "h1": "Vinyl and PVC fencing built for the Florida coast",
@@ -305,6 +512,7 @@ SERVICES = [
     },
     {
         "slug": "aluminum-fence",
+        "icon": "aluminum",
         "nav": "Aluminum Fence",
         "title": "Aluminum Fence Installation",
         "h1": "Powder-coated aluminum fencing and railings",
@@ -341,6 +549,7 @@ SERVICES = [
     },
     {
         "slug": "chain-link-fence",
+        "icon": "chainlink",
         "nav": "Chain Link Fence",
         "title": "Chain Link Fence Installation",
         "h1": "Chain link fencing for homes, businesses and job sites",
@@ -377,6 +586,7 @@ SERVICES = [
     },
     {
         "slug": "pool-fence",
+        "icon": "pool",
         "nav": "Pool Safety Fence",
         "title": "Pool Safety Fence Installation",
         "h1": "Pool safety fencing that passes inspection",
@@ -417,6 +627,7 @@ SERVICES = [
     },
     {
         "slug": "gates",
+        "icon": "gates",
         "nav": "Gates",
         "title": "Gate Installation &amp; Repair",
         "h1": "Driveway gates, walk gates, and gate repair",
@@ -458,6 +669,7 @@ SERVICES = [
     },
     {
         "slug": "fence-repair",
+        "icon": "repair",
         "nav": "Fence Repair",
         "title": "Fence Repair &amp; Straightening",
         "h1": "Fence repair, straightening, and picket replacement",
@@ -527,7 +739,7 @@ def head(title, desc, slug, extra=""):
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:url" content="{canonical}">
-<meta name="theme-color" content="#131a1f">
+<meta name="theme-color" content="#0F4D2E">
 <link rel="icon" type="image/svg+xml" href="/gatekeeper/assets/logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -570,7 +782,7 @@ def header(active=""):
   <div class="hdr-cta">
     <a class="btn btn-brass btn-hide-sm" href="tel:{BIZ['phone_tel']}">{PHONE_SVG}{BIZ['phone_display']}</a>
     <button class="navtoggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#131a1f" stroke-width="2.4" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
     </button>
   </div>
 </div></header>
@@ -611,6 +823,39 @@ def quote_form(heading="Request a free estimate", sub="Tell us what you need. We
   <div class="formmsg" role="status" aria-live="polite"></div>
   <p class="form-note">Or just call — <a href="tel:{BIZ['phone_tel']}">{BIZ['phone_display']}</a>. {BIZ['hours']}.</p>
 </form>"""
+
+
+def gallery(heading="Recent work", lede=None, sand=True):
+    """Job-photo gallery. Returns '' when no photo files are present."""
+    photos = available_photos()
+    if not photos:
+        return ""
+    if lede is None:
+        lede = ("Real jobs, photographed as they were built — not stock images. "
+                "The unglamorous parts are the parts that decide whether a fence lasts.")
+    # first photo runs wide, the rest tile beneath it
+    lead, rest = photos[0], photos[1:]
+
+    def fig(p, wide=False):
+        return (f'<figure class="shot{" shot-wide" if wide else ""}">'
+                f'<img src="/gatekeeper/assets/photos/{p["file"]}" alt="{p["alt"]}" '
+                f'loading="lazy" decoding="async">'
+                f'<figcaption>{p["caption"]}</figcaption></figure>')
+
+    tiles = "".join(fig(p) for p in rest)
+    return f"""<section class="{'sec-sand' if sand else ''}">
+  <div class="wrap">
+    <div class="sec-head center">
+      <span class="kicker">Our work</span>
+      <h2 class="big">{heading}</h2>
+      <p class="lede">{lede}</p>
+    </div>
+    <div class="shots">
+      {fig(lead, wide=True)}
+      {tiles}
+    </div>
+  </div>
+</section>"""
 
 
 def cta_band():
@@ -762,11 +1007,22 @@ def page_index():
         cards += f"""<a class="scard" href="/gatekeeper/{s['slug']}">
   <div class="scard-art">{s['art'](s['slug'])}</div>
   <div class="scard-body">
+    <span class="scard-icon">{SERVICE_ICONS.get(s.get('icon', ''), '')}</span>
     <h3>{s['nav']}</h3>
     <p>{s['card']}</p>
     <span class="scard-more">Learn more {ARROW_SVG}</span>
   </div>
 </a>"""
+
+    svc_icons = "".join(
+        f'<a class="svc-item" href="/gatekeeper/{href}"><span class="svc-ico">{SERVICE_ICONS[key]}</span><span>{label}</span></a>'
+        for key, href, label in SERVICE_ICON_LABELS
+    )
+
+    badge_html = "".join(
+        f'<div class="trust-item"><span class="badge-ico">{b["svg"]}</span><span>{b["label"]}</span></div>'
+        for b in TRUST_BADGES
+    )
 
     area_pills = "".join(f'<span class="area-pill">{a}</span>' for a in AREAS)
 
@@ -779,7 +1035,17 @@ def page_index():
     html += header("gatekeeper")
     html += f"""
 <section class="hero">
-  {art_hero_fence()}
+  <div class="hero-media">
+    <picture>
+      <source type="image/webp" srcset="/gatekeeper/assets/photos/hero-driveway-gate-640.webp 640w, /gatekeeper/assets/photos/hero-driveway-gate-960.webp 960w, /gatekeeper/assets/photos/hero-driveway-gate-1280.webp 1280w, /gatekeeper/assets/photos/hero-driveway-gate-1920.webp 1672w" sizes="100vw">
+      <img src="/gatekeeper/assets/photos/hero-driveway-gate-1280.jpg"
+           srcset="/gatekeeper/assets/photos/hero-driveway-gate-640.jpg 640w, /gatekeeper/assets/photos/hero-driveway-gate-960.jpg 960w, /gatekeeper/assets/photos/hero-driveway-gate-1280.jpg 1280w, /gatekeeper/assets/photos/hero-driveway-gate-1920.jpg 1672w"
+           sizes="100vw" width="1672" height="941"
+           alt="Powder-coated aluminum driveway gate and picket fence at a home in Jupiter, Florida"
+           fetchpriority="high" loading="eager" decoding="async">
+    </picture>
+  </div>
+  <div class="hero-overlay"></div>
   <div class="wrap">
     <div>
       <span class="eyebrow">Jupiter, Florida · Since {BIZ['since']}</span>
@@ -803,11 +1069,8 @@ def page_index():
 </section>
 
 <section class="trust" style="padding:0">
-  <div class="wrap">
-    <div class="trust-item"><b>Since {BIZ['since']}</b><span>Locally owned in Jupiter</span></div>
-    <div class="trust-item"><b>#{BIZ['license']}</b><span>Licensed, bonded &amp; insured</span></div>
-    <div class="trust-item"><b>Lifetime</b><span>Limited warranty on PVC material</span></div>
-    <div class="trust-item"><b>Free</b><span>On-site measure &amp; written quote</span></div>
+  <div class="wrap" style="--trust-cols:5;--trust-cols-sm:2">
+    {badge_html}
   </div>
 </section>
 
@@ -815,6 +1078,19 @@ def page_index():
   <div class="wrap">
     <div class="sec-head center">
       <span class="kicker">What we build</span>
+      <h2 class="big">Eight ways we secure your property</h2>
+      <p class="lede">Tap a service to jump straight to it.</p>
+    </div>
+    <div class="svc-grid">{svc_icons}</div>
+  </div>
+</section>
+
+{gallery(sand=True)}
+
+<section>
+  <div class="wrap">
+    <div class="sec-head center">
+      <span class="kicker">A closer look</span>
       <h2 class="big">Every fence type, one contractor</h2>
       <p class="lede">Residential and commercial. New installs, replacements, and repairs — from a four-foot pool barrier to a commercial perimeter.</p>
     </div>
@@ -824,30 +1100,29 @@ def page_index():
 
 <section class="sec-ink">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="kicker">Why Gatekeeper</span>
-      <h2 class="big">The owner is on your job</h2>
-      <p class="lede">We're a small, family-owned outfit in Jupiter — not a call center that subs your fence out to whoever's available. You talk to the person responsible for the work.</p>
-    </div>
-    <div class="feats">
-      <div class="feat"><div class="feat-ico">{SHIELD_SVG}</div><div>
-        <h3>Built for salt air</h3>
-        <p>Hot-dip galvanized and stainless hardware, aluminum where steel would rust, and post depths sized for our sand. The details that decide whether a fence lasts five years or twenty.</p></div></div>
-      <div class="feat"><div class="feat-ico">{SHIELD_SVG}</div><div>
-        <h3>Permits and locates handled</h3>
-        <p>We pull the permit, call in the Sunshine 811 utility locates, and meet the inspector. You don't chase paperwork.</p></div></div>
-      <div class="feat"><div class="feat-ico">{SHIELD_SVG}</div><div>
-        <h3>One price, whole job</h3>
-        <p>Posts, concrete, hardware, gates, permit, and hauling off the old fence — all in the quote. Nothing appears halfway through the install.</p></div></div>
-      <div class="feat"><div class="feat-ico">{SHIELD_SVG}</div><div>
-        <h3>We'll talk you out of it</h3>
-        <p>If a repair beats a replacement, we say so. If the material you asked for is wrong for your lot, we say that too. It's why people call us back years later.</p></div></div>
-      <div class="feat"><div class="feat-ico">{SHIELD_SVG}</div><div>
-        <h3>HOA and code experience</h3>
-        <p>Height limits, setbacks, finished-side rules, architectural review packets, and Florida pool barrier requirements. We've been through all of it in these communities.</p></div></div>
-      <div class="feat"><div class="feat-ico">{SHIELD_SVG}</div><div>
-        <h3>Backed in writing</h3>
-        <p>One-year guarantee on our workmanship and a limited lifetime warranty on PVC material. Licensed #{BIZ['license']}, bonded, and insured.</p></div></div>
+    <div class="photo-split">
+      <div class="photo-frame">
+        <img src="/gatekeeper/assets/photos/craftsmanship-hardware.jpg" alt="Close-up of black powder-coated aluminum gate hardware on a stucco post" loading="lazy" decoding="async" width="1280" height="853">
+      </div>
+      <div>
+        <span class="kicker">Why Gatekeeper</span>
+        <h2 class="big">The owner is on your job</h2>
+        <p class="lede">We're a small, family-owned outfit in Jupiter — not a call center that subs your fence out to whoever's available. You talk to the person responsible for the work.</p>
+        <div class="feats feats-1col" style="margin-top:28px">
+          <div class="feat"><div class="feat-ico">{SHIELD_SVG}</div><div>
+            <h3>Built for salt air</h3>
+            <p>Hot-dip galvanized and stainless hardware, aluminum where steel would rust, and post depths sized for our sand.</p></div></div>
+          <div class="feat"><div class="feat-ico">{SHIELD_SVG}</div><div>
+            <h3>Permits and locates handled</h3>
+            <p>We pull the permit, call in the Sunshine 811 utility locates, and meet the inspector.</p></div></div>
+          <div class="feat"><div class="feat-ico">{SHIELD_SVG}</div><div>
+            <h3>One price, whole job</h3>
+            <p>Posts, concrete, hardware, gates, permit, and hauling off the old fence — all in the quote.</p></div></div>
+          <div class="feat"><div class="feat-ico">{SHIELD_SVG}</div><div>
+            <h3>We'll talk you out of it</h3>
+            <p>If a repair beats a replacement, we say so. It's why people call us back years later.</p></div></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -885,6 +1160,22 @@ def page_index():
   </div>
 </section>
 
+<section>
+  <div class="wrap">
+    <div class="photo-split reverse">
+      <div class="photo-frame">
+        <img src="/gatekeeper/assets/photos/commercial-sliding-gate.jpg" alt="Black commercial automatic sliding gate with keypad entry at a business driveway" loading="lazy" decoding="async" width="1280" height="720">
+      </div>
+      <div>
+        <span class="kicker">Residential &amp; commercial</span>
+        <h2 class="big">Homes, HOAs, and businesses</h2>
+        <p class="lede">Single-family fences and pool barriers are most of our work, but we also build and repair commercial perimeters, automatic sliding and swing gates, storage-yard enclosures, and HOA common-area fencing.</p>
+        <p style="margin-top:16px"><a class="btn btn-out" href="/gatekeeper/services#commercial">Commercial fencing &amp; gates {ARROW_SVG}</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="sec-sand">
   <div class="wrap">
     <div class="sec-head">
@@ -917,6 +1208,7 @@ def page_services():
         cards += f"""<a class="scard" href="/gatekeeper/{s['slug']}">
   <div class="scard-art">{s['art'](s['slug'])}</div>
   <div class="scard-body">
+    <span class="scard-icon">{SERVICE_ICONS.get(s.get('icon', ''), '')}</span>
     <h3>{s['nav']}</h3>
     <p>{s['card']}</p>
     <span class="scard-more">Learn more {ARROW_SVG}</span>
@@ -967,6 +1259,24 @@ def page_services():
     </div>
   </div>
 </section>
+
+<section id="commercial">
+  <div class="wrap">
+    <div class="photo-split">
+      <div class="photo-frame">
+        <img src="/gatekeeper/assets/photos/commercial-sliding-gate.jpg" alt="Black commercial automatic sliding gate with keypad entry at a business driveway" loading="lazy" decoding="async" width="1280" height="720">
+      </div>
+      <div>
+        <span class="kicker">Commercial fencing &amp; gates</span>
+        <h2 class="big">Businesses, HOAs, and storage yards</h2>
+        <div class="prose">
+          <p>Most of our work is residential, but we build and repair fencing for businesses too — commercial-grade chain link and aluminum perimeters, storage-yard and dumpster enclosures, HOA common-area fencing, and automatic driveway gates with keypad or clicker access.</p>
+          <p>Commercial jobs use heavier pipe and fabric than a residential run — a gate carrying daily vehicle and foot traffic needs posts and hardware sized for that load, not for a back-yard dog run. We size the job for what it actually has to hold up to. <a href="/gatekeeper/chain-link-fence">More on chain link →</a> · <a href="/gatekeeper/gates">More on gates &amp; automatic openers →</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 """
     html += footer()
     return html
@@ -978,7 +1288,7 @@ def page_service(s):
     for o in others:
         rel += f"""<a class="scard" href="/gatekeeper/{o['slug']}">
   <div class="scard-art">{o['art'](o['slug'])}</div>
-  <div class="scard-body"><h3>{o['nav']}</h3><p>{o['card']}</p>
+  <div class="scard-body"><span class="scard-icon">{SERVICE_ICONS.get(o.get('icon', ''), '')}</span><h3>{o['nav']}</h3><p>{o['card']}</p>
   <span class="scard-more">Learn more {ARROW_SVG}</span></div></a>"""
 
     plain_title = re.sub("<.*?>", "", s["title"]).replace("&amp;", "&")
@@ -1000,7 +1310,10 @@ def page_service(s):
   <div class="wrap">
     <div class="split">
       <div>
-        <div class="artband">{s['art'](s['slug'])}</div>
+        <div class="artband">{
+          f'<img src="/gatekeeper/assets/photos/{s["photo"]["file"]}" alt="{s["photo"]["alt"]}" loading="eager" decoding="async" width="1280" height="{s["photo"].get("h", 720)}">'
+          if s.get("photo") else s['art'](s['slug'])
+        }</div>
         <div class="prose">{s['body']}</div>
       </div>
       <div class="aside-card">
@@ -1174,7 +1487,7 @@ def page_contact():
         <div class="prose">
           <h3 style="margin-top:0">Call or text</h3>
           <p style="font-family:'Archivo',sans-serif;font-size:30px;font-weight:800;margin-bottom:6px">
-            <a href="tel:{BIZ['phone_tel']}" style="text-decoration:none;color:var(--brass)">{BIZ['phone_display']}</a>
+            <a href="tel:{BIZ['phone_tel']}" style="text-decoration:none;color:var(--brass-dk)">{BIZ['phone_display']}</a>
           </p>
           <p>{BIZ['hours']}</p>
 

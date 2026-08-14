@@ -73,25 +73,61 @@ of Corporations, contractor licensing, business directories):
 - Mon–Fri 8:00 AM – 5:00 PM
 - Limited lifetime warranty on PVC material, 1-year workmanship guarantee
 
-**Nothing beyond this list is asserted as fact anywhere on the site.** There are
-no invented testimonials, no review counts, no "500+ jobs completed," no staff
-photos, no project counts. The technical copy (Florida pool barrier
-requirements, post setting, coastal hardware, permitting) is general trade and
-code information, not claims about this company's specific history.
+A separate asset-handoff package (from a different source, not the sourcing
+above) proposed a phone number `(561) 575-6426` and a 2003 founding date —
+both explicitly marked "unverified" in that package itself. The owner
+confirmed the original values above are correct; the package's numbers were
+not used anywhere on the site.
 
-Things worth adding once the owner supplies them: real job photos (the SVG
-illustrations are a deliberate placeholder, not a substitute), a business email
-address, Google review embed, any additional license or association memberships,
-and confirmation of the service-area list in `AREAS`.
+**Nothing beyond the verified list above is asserted as fact anywhere on the
+site.** There are no invented testimonials, no review counts, no "500+ jobs
+completed," no staff photos, no fabricated project counts. The technical copy
+(Florida pool barrier requirements, post setting, coastal hardware,
+permitting) is general trade and code information, not claims about this
+company's specific history.
+
+Things worth adding once the owner supplies them: the remaining seven casual
+jobsite photos referenced in `assets/photos/README.md` (still pending — the
+five now live were supplied separately, see below), a business email address,
+a Google review embed, and confirmation of the service-area list in `AREAS`.
+
+## Brand
+
+Rebranded from the original ink/brass palette to forest green / brass gold /
+cream / charcoal, following an asset-handoff brief the owner supplied
+(logo concept, icon set, and 5 real job photos). The brief's concept-board
+PNGs (logo, 8 service icons, 6 trust badges) were **not** shipped as raster
+images — per the brief's own instruction, they were rebuilt as original inline
+SVG in `_gatekeeper_build.py` (`SERVICE_ICONS`, `TRUST_BADGES`) and
+`assets/logo.svg`. The reviews section in the brief's suggested page structure
+was skipped — no real reviews exist yet and none were fabricated.
+
+The 5 real job photos (hero driveway gate, services overview, gate-hardware
+craftsmanship shot, vinyl privacy fence, commercial sliding gate) were
+resized and compressed with Pillow into JPEG + WebP at `assets/photos/`;
+the multi-MB source PNGs are intentionally **not** committed to keep the repo
+lean — only the web-ready derivatives ship. Regenerate them from source with
+the same Pillow resize/quality-82-JPEG/quality-80-WebP settings if the
+originals ever need to be swapped.
 
 ## Notes for whoever touches the CSS next
 
 - `.hdr` deliberately has **no** `backdrop-filter`. It would make the header a
   containing block for its `position:fixed` descendants and break the mobile nav
   drawer.
-- `--brass` (`#a06715`) is tuned to clear WCAG AA 4.5:1 against white and is used
-  for text and button fills on light backgrounds. On dark backgrounds use
-  `--brass-lite` (`#f0c67c`) instead — see `.sec-ink .kicker` and
-  `.ftr .brand-sub`.
-- Fence illustrations are inline SVG generated in the builder (`art_*`
-  functions). There are no image files to lose or optimize.
+- **Contrast is tuned against the darker of the two light backgrounds
+  (`--cream-2`, used on alternating "sand" sections and `.pagehero`), not just
+  `--cream`.** A token that clears 4.5:1 on `--cream` can still fail on
+  `--cream-2` — that's a real bug this rebrand hit twice (`--brass-dk` and
+  `--faint` both had to be darkened again after the first pass). Verify any
+  new muted/brass text color against both.
+- `--brass` (`#B88A3C`) is the true brand hue — reserved for large text
+  (≥24px, or ≥18.66px bold), decorative fills, and icon strokes. It does
+  **not** clear AA on cream/white as body text or as a button fill with white
+  text — use `--brass-dk` (`#7d5d28`) for those. On dark (`--forest`)
+  sections use `--cream` / `--cream-mut` / `--brass-lite` for text, never raw
+  `--brass`.
+- Fence illustrations (`art_*` functions) are still inline SVG for the 5
+  services without a real photo. The vinyl service page swaps its `artband`
+  for the real photo via each service dict's optional `photo` key — see
+  `page_service()`.
