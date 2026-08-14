@@ -95,6 +95,48 @@ const CONFIG = {
   .stats span{font-weight:400;font-size:13.5px;color:var(--mut);margin-top:2px;display:block}
   @media(max-width:760px){.stats{gap:24px;margin-bottom:60px}}
 
+  /* ---------- sponsor concept carousel ---------- */
+  .concepts-disclaimer{display:inline-block;margin-top:2px;background:var(--tint);color:var(--pink-deep);font-weight:700;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;padding:7px 14px;border-radius:999px}
+  .concepts-carousel{background:var(--sec);border-radius:28px;padding:14px;margin-top:24px}
+  .concepts-track{display:grid}
+  .concept-slide{grid-column:1;grid-row:1;display:grid;grid-template-columns:1.1fr .9fr;border-radius:20px;overflow:hidden;background:#fff;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .5s ease}
+  .concept-slide.is-active{opacity:1;visibility:visible;pointer-events:auto}
+  .concept-media{position:relative;background:var(--fill)}
+  .concept-media img{width:100%;height:100%;aspect-ratio:1400/933;object-fit:cover;display:block}
+  .concept-fic{position:absolute;left:0;right:0;bottom:0;background:rgba(14,43,50,.72);color:#fff;font-weight:700;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:8px 12px;text-align:center}
+  .concept-copy{padding:32px 34px;display:flex;flex-direction:column;justify-content:center}
+  .concept-cat{font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--pink)}
+  .concept-name{font-weight:800;font-size:26px;letter-spacing:-.02em;color:var(--ink);margin-top:8px}
+  .concept-line{font-weight:400;font-size:15px;line-height:1.55;color:var(--mut);margin-top:10px}
+  .concept-dots{display:flex;justify-content:center;gap:10px;padding:16px 6px 6px}
+  .concept-dot{min-width:44px;min-height:44px;padding:0 6px;border-radius:999px;border:none;background:var(--fill);color:var(--mut);font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .15s}
+  .concept-dot:hover{background:var(--border)}
+  .concept-dot.is-active{background:var(--pink);color:#fff}
+  .concept-ticker{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin:20px 0 0;padding:16px 20px;background:var(--sec);border-radius:16px}
+  .concept-ticker li{font-weight:700;font-size:12px;letter-spacing:.07em;color:var(--mut);text-transform:uppercase}
+  .concept-ticker .tick-dot{color:var(--pink)}
+  @media(max-width:860px){
+    .concept-slide{grid-template-columns:1fr}
+    .concept-media img{aspect-ratio:16/10}
+    .concept-copy{padding:24px 22px}
+  }
+  @media(max-width:760px){.concepts-carousel{padding:10px}}
+
+  /* ---------- cost comparison (inside For Brands) ---------- */
+  .cost-compare{background:var(--sec);border-radius:28px;padding:44px;margin-top:16px}
+  .cost-compare h3{font-weight:800;font-size:28px;letter-spacing:-.02em;color:var(--ink);margin:0 0 22px;max-width:640px}
+  .cost-table-wrap{overflow-x:auto;border-radius:16px;background:#fff;box-shadow:var(--shadow)}
+  .cost-table{width:100%;border-collapse:collapse;min-width:720px;font-size:14px}
+  .cost-table th,.cost-table td{padding:16px 18px;text-align:left;border-bottom:1px solid var(--border);white-space:normal}
+  .cost-table thead th{font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);background:var(--fill)}
+  .cost-table tbody th{font-weight:700;color:var(--ink);white-space:nowrap}
+  .cost-table tbody td{font-weight:400;color:var(--mut)}
+  .cost-table tbody tr:last-child th,.cost-table tbody tr:last-child td{border-bottom:none}
+  .cost-row-hi th,.cost-row-hi td{background:var(--tint)}
+  .cost-row-hi th{color:var(--pink-deep)}
+  .cost-fine{font-weight:400;font-size:13px;line-height:1.6;color:var(--mut);margin-top:18px;max-width:760px}
+  @media(max-width:760px){.cost-compare{padding:26px 20px}.cost-compare h3{font-size:22px}}
+
   /* ---------- section base : one vertical rhythm for the whole page ---------- */
   section{padding-bottom:96px}
   h2{font-weight:800;font-size:42px;letter-spacing:-.02em;color:var(--ink);margin:0 0 18px}
@@ -304,6 +346,66 @@ const CONFIG = {
   </div>
 </div>
 
+<!-- ================= 3B. SPONSOR CONCEPT CAROUSEL ================= -->
+<section id="sponsor-concepts" class="wrap">
+  <span class="cor-kick">Potential campaigns</span>
+  <h2 style="margin-top:10px">Local brands. Moving through town.</h2>
+  <span class="concepts-disclaimer">Fictional campaign concepts · Not actual sponsors</span>
+
+  <div class="concepts-carousel" id="concepts-carousel" role="region" aria-roledescription="carousel" aria-label="Potential sponsor campaign concepts">
+    <div class="concepts-track" id="concepts-track">
+      <article class="concept-slide is-active" data-index="0">
+        <div class="concept-media">
+          <img src="/adometr/assets/concepts/adometr-sponsor-attorney.webp" alt="Concept mockup of a car wrapped for a local injury law firm" width="1400" height="933" loading="lazy">
+          <span class="concept-fic">Fictional concept — not an actual sponsor</span>
+        </div>
+        <div class="concept-copy">
+          <span class="concept-cat">Legal services</span>
+          <div class="concept-name">Injury Law</div>
+          <p class="concept-line">Own the commute before the next billboard does.</p>
+        </div>
+      </article>
+      <article class="concept-slide" data-index="1">
+        <div class="concept-media">
+          <img src="/adometr/assets/concepts/adometr-sponsor-hvac.webp" alt="Concept mockup of a car wrapped for a local HVAC company" width="1400" height="933" loading="lazy">
+          <span class="concept-fic">Fictional concept — not an actual sponsor</span>
+        </div>
+        <div class="concept-copy">
+          <span class="concept-cat">Home services</span>
+          <div class="concept-name">Cool Air</div>
+          <p class="concept-line">Stay visible in the neighborhoods you already serve.</p>
+        </div>
+      </article>
+      <article class="concept-slide" data-index="2">
+        <div class="concept-media">
+          <img src="/adometr/assets/concepts/adometr-sponsor-roofing.webp" alt="Concept mockup of a car wrapped for a local roofing company" width="1400" height="933" loading="lazy">
+          <span class="concept-fic">Fictional concept — not an actual sponsor</span>
+        </div>
+        <div class="concept-copy">
+          <span class="concept-cat">Construction</span>
+          <div class="concept-name">Roofing Pro</div>
+          <p class="concept-line">Turn local traffic into local brand recognition.</p>
+        </div>
+      </article>
+    </div>
+    <div class="concept-dots" id="concept-dots" role="tablist" aria-label="Choose a campaign concept">
+      <button type="button" class="concept-dot is-active" data-index="0" role="tab" aria-selected="true" aria-label="Show concept 1 of 3: Injury Law, legal services">01</button>
+      <button type="button" class="concept-dot" data-index="1" role="tab" aria-selected="false" aria-label="Show concept 2 of 3: Cool Air, home services">02</button>
+      <button type="button" class="concept-dot" data-index="2" role="tab" aria-selected="false" aria-label="Show concept 3 of 3: Roofing Pro, construction">03</button>
+    </div>
+  </div>
+
+  <ul class="concept-ticker" aria-label="Business categories Adometr welcomes">
+    <li>Attorneys</li><li class="tick-dot" aria-hidden="true">•</li>
+    <li>HVAC</li><li class="tick-dot" aria-hidden="true">•</li>
+    <li>Roofing</li><li class="tick-dot" aria-hidden="true">•</li>
+    <li>Restaurants</li><li class="tick-dot" aria-hidden="true">•</li>
+    <li>Real Estate</li><li class="tick-dot" aria-hidden="true">•</li>
+    <li>Healthcare</li><li class="tick-dot" aria-hidden="true">•</li>
+    <li>Home Services</li>
+  </ul>
+</section>
+
 <!-- ================= 4. HOW IT WORKS ================= -->
 <section id="how" class="wrap">
   <h2>How it works</h2>
@@ -465,6 +567,62 @@ const CONFIG = {
       </form>
     </div>
   </div>
+
+  <div class="cost-compare">
+    <h3>More neighborhood presence for every media dollar.</h3>
+    <div class="cost-table-wrap">
+      <table class="cost-table">
+        <caption class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Comparison of Adometr against other local advertising channels</caption>
+        <thead>
+          <tr>
+            <th scope="col">Channel</th>
+            <th scope="col">Typical planning cost</th>
+            <th scope="col">Local movement</th>
+            <th scope="col">Reporting</th>
+            <th scope="col">Best fit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="cost-row-hi">
+            <th scope="row">Adometr</th>
+            <td>$1–$4 CPM</td>
+            <td>Routes through target areas</td>
+            <td>Verified miles + campaign reports</td>
+            <td>Neighborhood visibility</td>
+          </tr>
+          <tr>
+            <th scope="row">Static billboard</th>
+            <td>$2–$16 CPM</td>
+            <td>One fixed location</td>
+            <td>Estimated circulation</td>
+            <td>Broad corridor awareness</td>
+          </tr>
+          <tr>
+            <th scope="row">Local radio</th>
+            <td>$9–$30 CPM</td>
+            <td>Broadcast market</td>
+            <td>Estimated listeners</td>
+            <td>Frequency + audio recall</td>
+          </tr>
+          <tr>
+            <th scope="row">Paid social</th>
+            <td>About $9–$10 CPM</td>
+            <td>Digital geo-targeting</td>
+            <td>Clicks + platform metrics</td>
+            <td>Fast offers + retargeting</td>
+          </tr>
+          <tr>
+            <th scope="row">Direct mail</th>
+            <td>$0.30–$3 per piece</td>
+            <td>Selected households</td>
+            <td>Delivery, response varies</td>
+            <td>Offers sent to homes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cost-fine">Illustrative U.S. planning benchmarks; actual media, production, market, season, audience, format, and measurement methods change pricing. Adometr CPM is a campaign estimate, not a guaranteed rate.</p>
+  </div>
 </section>
 
 <!-- ================= 10. DRIVER APPLICATION ================= -->
@@ -620,6 +778,56 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   $('c-miles').addEventListener('input', function(){ state.miles = +this.value; calc(); });
   $('c-payment').addEventListener('input', function(){ state.pay = this.value; calc(); });
   calc();
+})();
+
+/* ---------------- sponsor concept carousel ---------------- */
+(function(){
+  var region = document.getElementById('concepts-carousel');
+  var track  = document.getElementById('concepts-track');
+  var dotsWrap = document.getElementById('concept-dots');
+  if(!region || !track || !dotsWrap) return;
+
+  var slides = Array.prototype.slice.call(track.querySelectorAll('.concept-slide'));
+  var dots   = Array.prototype.slice.call(dotsWrap.querySelectorAll('.concept-dot'));
+  var idx = 0;
+  var timer = null;
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function show(i){
+    idx = (i + slides.length) % slides.length;
+    slides.forEach(function(s, n){ s.classList.toggle('is-active', n === idx); });
+    dots.forEach(function(d, n){
+      var on = n === idx;
+      d.classList.toggle('is-active', on);
+      d.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
+
+  function stop(){
+    if(timer){ clearInterval(timer); timer = null; }
+  }
+  function start(){
+    if(reduceMotion) return;
+    stop();
+    timer = setInterval(function(){ show(idx + 1); }, 4500);
+  }
+
+  dots.forEach(function(d, n){
+    d.addEventListener('click', function(){
+      stop();
+      show(n);
+    });
+  });
+
+  region.addEventListener('mouseenter', stop);
+  region.addEventListener('mouseleave', start);
+  region.addEventListener('focusin', stop);
+  region.addEventListener('focusout', function(e){
+    if(!region.contains(e.relatedTarget)) start();
+  });
+
+  show(0);
+  start();
 })();
 
 /* ---------------- forms (FormSubmit AJAX + portal dual-write) ---------------- */
