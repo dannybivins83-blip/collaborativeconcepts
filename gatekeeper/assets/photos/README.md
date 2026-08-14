@@ -1,15 +1,37 @@
-# Job photos
+# Photo assets
 
-Drop the photo files here using the **exact filenames** below, then rebuild:
+Two kinds of photo live in this folder: the **"Recent work" gallery** (a
+`PHOTOS` list in `_gatekeeper_build.py`, filtered to whatever files actually
+exist) and **dedicated placements** (hero, why-choose-us, residential/
+commercial section, vinyl service page) that are hardcoded to a specific
+file and are not optional.
+
+After adding or changing anything here, rebuild:
 
 ```
 python3 _gatekeeper_build.py
 ```
 
-The gallery appears on the home page between the services grid and the
-"The owner is on your job" section.
+## Dedicated placements — already live
 
-## Expected files
+These 5 came from a client-supplied asset package and are already in the repo
+as optimized JPEG + WebP derivatives (the multi-MB source PNGs are not
+committed — see the main `gatekeeper/README.md` "Brand" section):
+
+| File(s) | Used on |
+|---|---|
+| `hero-driveway-gate-{640,960,1280,1920}.{jpg,webp}` | Home hero (responsive `srcset`) |
+| `services-overview.{jpg,webp}` | Also in the "Recent work" gallery |
+| `craftsmanship-hardware.{jpg,webp}` | Home "Why Gatekeeper" photo-split |
+| `vinyl-privacy-fence.{jpg,webp}` | Vinyl service page artband + gallery |
+| `commercial-sliding-gate.{jpg,webp}` | Home residential/commercial section + `services.html#commercial` + gallery |
+
+## "Recent work" gallery — 7 files still pending
+
+The gallery (`PHOTOS` in the builder) currently has 4 entries fulfilled by the
+dedicated-placement files above, plus these 7 casual jobsite photos that are
+**not yet in the repo** — the files themselves still need to be added here
+under these exact names, then rebuilt:
 
 | Filename | What it shows | Caption used on the site |
 |---|---|---|
@@ -20,31 +42,34 @@ The gallery appears on the home page between the services grid and the
 | `new-rails-lakefront.jpg` | New pressure-treated posts and rails up along the lake | "New pressure-treated posts and rails up on a lakefront run." |
 | `finished-gate-corner.jpg` | Finished gate and post at a house corner, yard cleared and raked | "Finished gate and post, with the site cleaned up after." |
 | `finished-corner-run.jpg` | Completed fence turning the corner of the house into open lawn | "The completed fence turning the corner of the house." |
-| `aluminum-estate-gate.jpg` | Black aluminum driveway gate and picket fence along a paver drive | "Powder-coated aluminum driveway gate and matching perimeter fence." |
-| `aluminum-pool-fence.jpg` | Black aluminum pool fence and gate beside a paver pool deck | "Aluminum pool fence and gate, set beside the paver deck." |
-| `aluminum-gate-hardware.jpg` | Close-up of gate hinge and handle hardware on a stucco post | "Gate hardware on a powder-coated aluminum gate." |
 
-The first entry in `PHOTOS` (currently `existing-fence-gate.jpg`) renders wide
-across the top of the gallery; the rest tile beneath it. Reorder the `PHOTOS`
-list in `_gatekeeper_build.py` to change which one leads.
+The first *present* entry in `PHOTOS` renders wide across the top of the
+gallery; the rest tile beneath it. Right now that's `services-overview.jpg`.
+Once `existing-fence-gate.jpg` (first in list order) exists, it takes over the
+lead spot automatically — no code change needed. Reorder `PHOTOS` in the
+builder to change that behavior.
 
 ## Missing files are skipped, not broken
 
-`available_photos()` filters to files that actually exist. A photo with no file
-is silently dropped, and if none are present the entire gallery section is
-omitted from the page. **The site can never ship a broken image**, so it is safe
-to add the photos one at a time.
+`available_photos()` filters `PHOTOS` to files that actually exist. A photo
+with no file is silently dropped; if literally none were present the entire
+gallery section would be omitted from the page (that's why it's safe to add
+these 7 one at a time — the gallery already renders correctly with just the
+4 dedicated-placement photos live today).
 
-## Before committing
+## Before committing new photos
 
-- **Resize to about 1600px wide and save at JPEG quality ~80.** Phone photos run
-  4–8 MB each; five of those would make the home page brutally slow on cellular.
-  Target under ~400 KB per file.
-- Images are already `loading="lazy"` and `decoding="async"`, and are cropped by
-  CSS (`object-fit: cover`), so aspect ratio does not need to be uniform.
-- Optional: generate WebP alongside the JPEGs with `sharp` the way
-  `assets/wws/` does, and switch the gallery to `<picture>`. Not wired up —
-  properly sized JPEGs are fine at this scale.
+- **Resize to about 1600px wide and save at JPEG quality ~80.** Phone photos
+  run 4–8 MB each. Target under ~400 KB per file. The 5 already in the repo
+  were processed with Pillow: `im.resize(..., Image.LANCZOS)` to the target
+  width, then `.save(path, "JPEG", quality=82, optimize=True, progressive=True)`
+  and a matching `.save(path, "WEBP", quality=80, method=6)`.
+- Gallery images are already `loading="lazy"` and `decoding="async"`, and are
+  cropped by CSS (`object-fit: cover`), so aspect ratio does not need to be
+  uniform.
+- A single JPEG per gallery photo is enough at this scale — no need to build
+  a full responsive `srcset` for anything except the hero (which already has
+  one).
 
 ## Captions
 

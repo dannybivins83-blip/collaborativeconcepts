@@ -143,15 +143,23 @@ The startup hook will pick it up automatically on the next session.
   service area, about, contact. **Generated** — run `python3
   _gatekeeper_build.py`; edit the builder, not the `.html`. `gatekeeper/assets/`
   (gk.css, gk.js, logo.svg) is hand-written and NOT generated. Fence
-  illustrations are inline SVG from the builder's `art_*` functions, so there
-  are no image assets. **Live at `collaborativeconceptsfl.com/gatekeeper`** —
-  an apex subfolder, no host rewrite needed (nothing in `vercel.json` intercepts
-  `/gatekeeper`); `robots.txt` lists `/gatekeeper/sitemap.xml`. Leads go to the
-  repo-default FormSubmit address, which must be confirmed once via FormSubmit's
-  emailed link or nothing is delivered. All copy is restricted to publicly verifiable
-  business facts — no invented reviews, job counts, or staff. Two CSS traps
-  documented in the README: no `backdrop-filter` on `.hdr` (breaks the mobile
-  nav drawer), and `--brass` vs `--brass-lite` for light vs dark backgrounds.
+  illustrations for services without a real photo are inline SVG from the
+  builder's `art_*` functions. **Live at `collaborativeconceptsfl.com/gatekeeper`**
+  — an apex subfolder, no host rewrite needed (nothing in `vercel.json`
+  intercepts `/gatekeeper`); `robots.txt` lists `/gatekeeper/sitemap.xml`.
+  Leads go to the repo-default FormSubmit address, which must be confirmed once
+  via FormSubmit's emailed link or nothing is delivered. All copy is restricted
+  to publicly verifiable business facts — no invented reviews, job counts, or
+  staff; owner-confirmed real job photos are the one deliberate exception, not
+  a loophole (see `gatekeeper/README.md`). Palette is forest green / brass gold
+  / cream / charcoal, from an owner-supplied brand brief — logo, 8 service
+  icons, and 5 trust badges were rebuilt as original inline SVG rather than
+  shipping the brief's raster concept art. Contrast is tuned against both
+  light backgrounds (`--cream` AND the darker `--cream-2`), not just one — a
+  token passing on one can still fail the other. Two more CSS traps documented
+  in the README: no `backdrop-filter` on `.hdr` (breaks the mobile nav
+  drawer), and `--brass` vs `--brass-dk` vs `--brass-lite` depending on
+  background and text size.
 
 ## Local tooling
 
