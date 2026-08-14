@@ -50,6 +50,77 @@ AREAS = [
     "Loxahatchee", "Singer Island",
 ]
 
+# --------------------------------------------------------------------------
+# Job photos
+#
+# Drop the image files in gatekeeper/assets/photos/ using the `file` names
+# below and rebuild. Any photo whose file is missing is skipped, and if none
+# are present the whole gallery section is omitted -- so the site never ships
+# a broken image. See gatekeeper/assets/photos/README.md.
+#
+# Captions describe only what is visible in each frame. Do not add a city,
+# a footage count, or a customer name unless the owner confirms it.
+# --------------------------------------------------------------------------
+PHOTOS = [
+    {
+        "file": "existing-fence-gate.jpg",
+        "caption": "The existing fence and gate, before replacement.",
+        "alt": "Weathered stained wood privacy fence and gate alongside a townhouse unit",
+    },
+    {
+        "file": "clearing-fence-line.jpg",
+        "caption": "Clearing the fence line before any posts go in.",
+        "alt": "Gatekeeper Fence crew member clearing overgrowth along a fence line with a chainsaw",
+    },
+    {
+        "file": "site-prep.jpg",
+        "caption": "Old root ball dug out of the line so the new posts sit where they should.",
+        "alt": "Root ball excavated from a fence line with pressure-treated lumber staged on the grass",
+    },
+    {
+        "file": "setting-posts.jpg",
+        "caption": "Setting posts and laying out rails.",
+        "alt": "Two crew members setting a pressure-treated fence post beside a townhouse patio",
+    },
+    {
+        "file": "new-rails-lakefront.jpg",
+        "caption": "New pressure-treated posts and rails up on a lakefront run.",
+        "alt": "Newly installed pressure-treated fence posts and rails running along a lakefront lawn",
+    },
+    {
+        "file": "finished-gate-corner.jpg",
+        "caption": "Finished gate and post, with the site cleaned up after.",
+        "alt": "Completed pressure-treated wood fence gate at a house corner, with the yard cleared and raked",
+    },
+    {
+        "file": "finished-corner-run.jpg",
+        "caption": "The completed fence turning the corner of the house.",
+        "alt": "Completed pressure-treated wood fence running along a stucco house corner into an open lawn",
+    },
+    {
+        "file": "aluminum-estate-gate.jpg",
+        "caption": "Powder-coated aluminum driveway gate and matching perimeter fence.",
+        "alt": "Black powder-coated aluminum driveway gate and picket fence along a paver driveway",
+    },
+    {
+        "file": "aluminum-pool-fence.jpg",
+        "caption": "Aluminum pool fence and gate, set beside the paver deck.",
+        "alt": "Black aluminum pool safety fence and self-closing gate beside a backyard pool deck",
+    },
+    {
+        "file": "aluminum-gate-hardware.jpg",
+        "caption": "Gate hardware on a powder-coated aluminum gate.",
+        "alt": "Close-up of black powder-coated aluminum gate hinge and handle hardware on a stucco post",
+    },
+]
+
+
+def available_photos():
+    """Only the photos whose files actually exist on disk."""
+    d = os.path.join(OUT, "assets", "photos")
+    return [p for p in PHOTOS if os.path.exists(os.path.join(d, p["file"]))]
+
+
 PHONE_SVG = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
              'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 '
              '19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 '
@@ -613,6 +684,39 @@ def quote_form(heading="Request a free estimate", sub="Tell us what you need. We
 </form>"""
 
 
+def gallery(heading="Recent work", lede=None, sand=True):
+    """Job-photo gallery. Returns '' when no photo files are present."""
+    photos = available_photos()
+    if not photos:
+        return ""
+    if lede is None:
+        lede = ("Real jobs, photographed as they were built — not stock images. "
+                "The unglamorous parts are the parts that decide whether a fence lasts.")
+    # first photo runs wide, the rest tile beneath it
+    lead, rest = photos[0], photos[1:]
+
+    def fig(p, wide=False):
+        return (f'<figure class="shot{" shot-wide" if wide else ""}">'
+                f'<img src="/gatekeeper/assets/photos/{p["file"]}" alt="{p["alt"]}" '
+                f'loading="lazy" decoding="async">'
+                f'<figcaption>{p["caption"]}</figcaption></figure>')
+
+    tiles = "".join(fig(p) for p in rest)
+    return f"""<section class="{'sec-sand' if sand else ''}">
+  <div class="wrap">
+    <div class="sec-head center">
+      <span class="kicker">Our work</span>
+      <h2 class="big">{heading}</h2>
+      <p class="lede">{lede}</p>
+    </div>
+    <div class="shots">
+      {fig(lead, wide=True)}
+      {tiles}
+    </div>
+  </div>
+</section>"""
+
+
 def cta_band():
     return f"""<section class="ctaband">
   <div class="wrap">
@@ -821,6 +925,8 @@ def page_index():
     <div class="grid3">{cards}</div>
   </div>
 </section>
+
+{gallery(sand=True)}
 
 <section class="sec-ink">
   <div class="wrap">
