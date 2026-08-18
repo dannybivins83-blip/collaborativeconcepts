@@ -280,6 +280,46 @@
       ],
       "destination": "https://adometr.com/:path*",
       "permanent": true
+    },
+    {
+      "source": "/properties",
+      "destination": "/development/projects",
+      "permanent": true
+    },
+    {
+      "source": "/pipeline",
+      "destination": "/development/projects",
+      "permanent": true
+    },
+    {
+      "source": "/pipeline-100",
+      "destination": "/development/projects",
+      "permanent": true
+    },
+    {
+      "source": "/invest",
+      "destination": "/development/investor-inquiries",
+      "permanent": true
+    },
+    {
+      "source": "/ops",
+      "destination": "/solutions/systems-automation",
+      "permanent": true
+    },
+    {
+      "source": "/outreach",
+      "destination": "/solutions/revenue-recovery",
+      "permanent": true
+    },
+    {
+      "source": "/team",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/projects/:slug*",
+      "destination": "/work",
+      "permanent": false
     }
   ],
   "functions": {
