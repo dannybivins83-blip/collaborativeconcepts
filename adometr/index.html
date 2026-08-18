@@ -159,7 +159,7 @@ button{font-family:inherit}
 .stats span{margin-top:8px;color:#64817e;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
 
 /* ---------- media story ---------- */
-.mediaStory{display:grid;grid-template-columns:1.08fr .92fr;gap:76px;align-items:center;padding:110px 0}
+.mediaStory{display:grid;grid-template-columns:.92fr 1.08fr;gap:76px;align-items:center;padding:110px 0}
 .lifestyleImage{position:relative;min-height:470px;overflow:hidden;background:#e9f3f1}
 .lifestyleImage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .imageCaption{position:absolute;left:0;bottom:0;background:#fff;padding:18px 24px;display:grid;gap:4px}
@@ -577,10 +577,6 @@ footer{background:var(--ink);color:#fff;padding:60px 0 34px}
 
 <!-- ================= 4. LIFESTYLE + VIDEO ================= -->
 <section class="mediaStory shell" aria-label="How Adometr works">
-  <div class="lifestyleImage">
-    <img src="/adometr/assets/concepts/adometr-driver-lifestyle.webp" alt="South Florida driver standing beside a professionally wrapped vehicle" width="1400" height="788" loading="lazy">
-    <div class="imageCaption"><span>Drive your normal route</span><b>Miami → West Palm Beach</b></div>
-  </div>
   <div class="videoIntro">
     <span class="kicker">Watch: how Adometr works</span>
     <h2>Two minutes to understand the opportunity.</h2>
@@ -592,6 +588,10 @@ footer{background:var(--ink);color:#fff;padding:60px 0 34px}
         <small>Video coming soon · about 2:00</small>
       </div>
     </div>
+  </div>
+  <div class="lifestyleImage">
+    <img src="/adometr/assets/concepts/adometr-driver-lifestyle.webp" alt="South Florida driver standing beside a professionally wrapped vehicle" width="1400" height="788" loading="lazy">
+    <div class="imageCaption"><span>Drive your normal route</span><b>Miami → West Palm Beach</b></div>
   </div>
 </section>
 
