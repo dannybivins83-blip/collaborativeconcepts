@@ -6,3 +6,7 @@ __pycache__/
 .env*.local
 
 node_modules
+
+# Raw wrap mockup sources (converted via _adometr_import_wraps.py)
+adometr/assets/concepts/incoming/*
+!adometr/assets/concepts/incoming/README.md

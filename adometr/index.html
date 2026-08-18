@@ -114,7 +114,7 @@ button{font-family:inherit}
 .heroCampaignImage{position:relative;min-width:0;overflow:hidden}
 .conceptShot{position:absolute;inset:0;margin:0;opacity:0;visibility:hidden;transition:opacity .5s ease}
 .conceptShot.is-active{opacity:1;visibility:visible}
-.conceptShot img{width:100%;height:100%;object-fit:cover;aspect-ratio:1400/933}
+.conceptShot img{width:100%;height:100%;object-fit:cover;aspect-ratio:1400/788}
 .conceptShot figcaption{
   position:absolute;left:0;right:0;top:0;padding:9px 14px;text-align:center;
   background:rgba(11,53,56,.74);color:#fff;font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
@@ -505,23 +505,35 @@ footer{background:var(--ink);color:#fff;padding:60px 0 34px}
           <a class="btn btn-teal" href="#apply">Apply to drive <span aria-hidden="true">↗</span></a>
           <a class="textLink" href="#sponsor-roi">Advertise with us <span aria-hidden="true">↗</span></a>
         </div>
-        <small class="ficNote">Fictional campaign concepts · Not actual sponsors</small>
+        <small class="ficNote">Concept mockups · Not actual sponsors or endorsements</small>
       </div>
     </div>
 
-    <div class="heroCampaign" id="sponsor-concepts" role="region" aria-roledescription="carousel" aria-label="Fictional sponsor campaign concepts">
+    <div class="heroCampaign" id="sponsor-concepts" role="region" aria-roledescription="carousel" aria-label="Sponsor campaign concept mockups">
       <div class="heroCampaignImage">
         <figure class="conceptShot is-active" data-index="0">
-          <img src="/adometr/assets/concepts/adometr-sponsor-attorney.webp" alt="Concept mockup of a car wrapped for a local injury law firm" width="1400" height="933">
-          <figcaption>Fictional concept — not an actual sponsor</figcaption>
+          <img src="/adometr/assets/concepts/adometr-sponsor-morgan-morgan.webp" alt="Concept mockup of a black SUV wrapped for a personal injury law firm, parked on a South Florida waterfront" width="1400" height="788">
+          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
         </figure>
         <figure class="conceptShot" data-index="1">
-          <img src="/adometr/assets/concepts/adometr-sponsor-hvac.webp" alt="Concept mockup of a car wrapped for a local HVAC company" width="1400" height="933">
-          <figcaption>Fictional concept — not an actual sponsor</figcaption>
+          <img src="/adometr/assets/concepts/adometr-sponsor-swift-air.webp" alt="Concept mockup of a service van wrapped for an air conditioning company in a residential street" width="1400" height="788" loading="lazy">
+          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
         </figure>
         <figure class="conceptShot" data-index="2">
-          <img src="/adometr/assets/concepts/adometr-sponsor-roofing.webp" alt="Concept mockup of a car wrapped for a local roofing company" width="1400" height="933">
-          <figcaption>Fictional concept — not an actual sponsor</figcaption>
+          <img src="/adometr/assets/concepts/adometr-sponsor-warner-fitzmartin.webp" alt="Concept mockup of a white sedan wrapped for a personal injury law firm on a downtown Lake Worth street" width="1400" height="788" loading="lazy">
+          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
+        </figure>
+        <figure class="conceptShot" data-index="3">
+          <img src="/adometr/assets/concepts/adometr-sponsor-florida-coast.webp" alt="Concept mockup of a contractor pickup truck wrapped for a roofing company outside a tile-roof home" width="1400" height="788" loading="lazy">
+          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
+        </figure>
+        <figure class="conceptShot" data-index="4">
+          <img src="/adometr/assets/concepts/adometr-sponsor-horowitz.webp" alt="Concept mockup of a dark SUV wrapped for an injury law firm on a Palm Beach waterfront road" width="1400" height="788" loading="lazy">
+          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
+        </figure>
+        <figure class="conceptShot" data-index="5">
+          <img src="/adometr/assets/concepts/adometr-sponsor-morgan-morgan-dial.webp" alt="Concept mockup of a blue SUV wrapped for a national injury law firm with a call-to-action banner" width="1400" height="788" loading="lazy">
+          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
         </figure>
         <div class="heroPayout">
           <span>Driver estimate</span>
@@ -532,23 +544,41 @@ footer{background:var(--ink);color:#fff;padding:60px 0 34px}
       <div class="heroCampaignPanel">
         <div class="conceptCopy is-active" data-index="0">
           <span>Legal services</span>
-          <h2>Injury Law</h2>
+          <h2>Morgan &amp; Morgan</h2>
           <p>Own the commute before the next billboard does.</p>
         </div>
         <div class="conceptCopy" data-index="1">
           <span>Home services</span>
-          <h2>Cool Air</h2>
+          <h2>Swift Air Conditioning</h2>
           <p>Stay visible in the neighborhoods you already serve.</p>
         </div>
         <div class="conceptCopy" data-index="2">
+          <span>Legal services</span>
+          <h2>Warner &amp; Fitzmartin</h2>
+          <p>Show up on the streets your clients already drive.</p>
+        </div>
+        <div class="conceptCopy" data-index="3">
           <span>Construction</span>
-          <h2>Roofing Pro</h2>
+          <h2>Florida Coast Contracting</h2>
           <p>Turn local traffic into local brand recognition.</p>
         </div>
+        <div class="conceptCopy" data-index="4">
+          <span>Legal services</span>
+          <h2>Horowitz Injury Lawyers</h2>
+          <p>Coverage that follows the corridor, not one fixed sign.</p>
+        </div>
+        <div class="conceptCopy" data-index="5">
+          <span>Legal services</span>
+          <h2>Morgan &amp; Morgan</h2>
+          <p>One wrap, every commute, all month long.</p>
+        </div>
         <div class="heroCampaignTabs" id="concept-tabs">
-          <button type="button" class="is-active" data-index="0" aria-label="Show concept 1 of 3: Injury Law, legal services"><b>01</b><span>Injury Law</span></button>
-          <button type="button" data-index="1" aria-label="Show concept 2 of 3: Cool Air, home services"><b>02</b><span>Cool Air</span></button>
-          <button type="button" data-index="2" aria-label="Show concept 3 of 3: Roofing Pro, construction"><b>03</b><span>Roofing Pro</span></button>
+          <button type="button" class="is-active" data-index="0" aria-label="Show concept 1 of 6: Morgan and Morgan, legal services"><b>01</b><span>Morgan &amp; Morgan</span></button>
+          <button type="button" data-index="1" aria-label="Show concept 2 of 6: Swift Air, home services"><b>02</b><span>Swift Air</span></button>
+          <button type="button" data-index="2" aria-label="Show concept 3 of 6: Warner and Fitzmartin, legal services"><b>03</b><span>Warner &amp; Fitzmartin</span></button>
+          <button type="button" data-index="3" aria-label="Show concept 4 of 6: Florida Coast, construction"><b>04</b><span>Florida Coast</span></button>
+          <button type="button" data-index="4" aria-label="Show concept 5 of 6: Horowitz, legal services"><b>05</b><span>Horowitz</span></button>
+          <button type="button" data-index="5" aria-label="Show concept 6 of 6: Morgan and Morgan, dial number LAW, legal services"><b>06</b><span>M&amp;M · Dial #LAW</span></button>
         </div>
       </div>
     </div>
