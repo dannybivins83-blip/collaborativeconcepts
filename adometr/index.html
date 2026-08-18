@@ -110,14 +110,15 @@ button{font-family:inherit}
 .campaignHeroSide>p{max-width:470px;margin:0 0 28px;color:#567472;font-size:17px;line-height:1.7}
 .heroActions{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
 .ficNote{display:block;margin-top:25px;color:var(--faint);font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-.heroCampaign{display:grid;grid-template-columns:1.5fr .5fr;min-height:520px;background:var(--ink)}
+.heroCampaign{display:grid;grid-template-columns:1.42fr .58fr;min-height:520px;background:var(--ink)}
 .heroCampaignImage{position:relative;min-width:0;overflow:hidden}
 .conceptShot{position:absolute;inset:0;margin:0;opacity:0;visibility:hidden;transition:opacity .5s ease}
 .conceptShot.is-active{opacity:1;visibility:visible}
 .conceptShot img{width:100%;height:100%;object-fit:cover;aspect-ratio:1400/788}
 .conceptShot figcaption{
-  position:absolute;left:0;right:0;top:0;padding:9px 14px;text-align:center;
-  background:rgba(11,53,56,.74);color:#fff;font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+  position:absolute;right:14px;bottom:14px;z-index:2;padding:5px 10px;
+  background:rgba(11,53,56,.42);color:rgba(255,255,255,.82);
+  font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
 }
 .heroPayout{
   position:absolute;left:26px;bottom:26px;z-index:3;min-width:230px;
@@ -131,7 +132,7 @@ button{font-family:inherit}
 .conceptCopy{display:none}
 .conceptCopy.is-active{display:block}
 .conceptCopy>span{display:block;color:var(--teal-lt);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
-.conceptCopy h2{margin:11px 0 15px;font-size:clamp(34px,3.4vw,44px);font-weight:700;letter-spacing:-.05em}
+.conceptCopy h2{margin:11px 0 15px;font-size:clamp(24px,2.5vw,34px);font-weight:700;letter-spacing:-.04em;line-height:1.12;overflow-wrap:break-word;hyphens:auto}
 .conceptCopy p{color:#b0c9c6;font-size:14px;line-height:1.7}
 .heroCampaignTabs{margin-top:auto;padding-top:30px}
 .heroCampaignTabs button{
@@ -505,7 +506,6 @@ footer{background:var(--ink);color:#fff;padding:60px 0 34px}
           <a class="btn btn-teal" href="#apply">Apply to drive <span aria-hidden="true">↗</span></a>
           <a class="textLink" href="#sponsor-roi">Advertise with us <span aria-hidden="true">↗</span></a>
         </div>
-        <small class="ficNote">Concept mockups · Not actual sponsors or endorsements</small>
       </div>
     </div>
 
@@ -513,27 +513,27 @@ footer{background:var(--ink);color:#fff;padding:60px 0 34px}
       <div class="heroCampaignImage">
         <figure class="conceptShot is-active" data-index="0">
           <img src="/adometr/assets/concepts/adometr-sponsor-morgan-morgan.webp" alt="Concept mockup of a black SUV wrapped for a personal injury law firm, parked on a South Florida waterfront" width="1400" height="788">
-          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
+          <figcaption>Concept mockup · not an actual sponsor</figcaption>
         </figure>
         <figure class="conceptShot" data-index="1">
           <img src="/adometr/assets/concepts/adometr-sponsor-swift-air.webp" alt="Concept mockup of a service van wrapped for an air conditioning company in a residential street" width="1400" height="788" loading="lazy">
-          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
+          <figcaption>Concept mockup · not an actual sponsor</figcaption>
         </figure>
         <figure class="conceptShot" data-index="2">
           <img src="/adometr/assets/concepts/adometr-sponsor-warner-fitzmartin.webp" alt="Concept mockup of a white sedan wrapped for a personal injury law firm on a downtown Lake Worth street" width="1400" height="788" loading="lazy">
-          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
+          <figcaption>Concept mockup · not an actual sponsor</figcaption>
         </figure>
         <figure class="conceptShot" data-index="3">
           <img src="/adometr/assets/concepts/adometr-sponsor-florida-coast.webp" alt="Concept mockup of a contractor pickup truck wrapped for a roofing company outside a tile-roof home" width="1400" height="788" loading="lazy">
-          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
+          <figcaption>Concept mockup · not an actual sponsor</figcaption>
         </figure>
         <figure class="conceptShot" data-index="4">
           <img src="/adometr/assets/concepts/adometr-sponsor-horowitz.webp" alt="Concept mockup of a dark SUV wrapped for an injury law firm on a Palm Beach waterfront road" width="1400" height="788" loading="lazy">
-          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
+          <figcaption>Concept mockup · not an actual sponsor</figcaption>
         </figure>
         <figure class="conceptShot" data-index="5">
           <img src="/adometr/assets/concepts/adometr-sponsor-morgan-morgan-dial.webp" alt="Concept mockup of a blue SUV wrapped for a national injury law firm with a call-to-action banner" width="1400" height="788" loading="lazy">
-          <figcaption>Concept mockup — not an actual sponsor or endorsement</figcaption>
+          <figcaption>Concept mockup · not an actual sponsor</figcaption>
         </figure>
         <div class="heroPayout">
           <span>Driver estimate</span>
