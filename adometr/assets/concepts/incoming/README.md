@@ -4,7 +4,7 @@ Put the full-resolution wrap renders here (PNG/JPG, any size), then run:
 
     python3 _adometr_import_wraps.py --auto
 
-That crops + resizes them to the 1400x933 WebP the landing page carousel
+That crops + resizes them to the 1400x788 WebP the landing page carousel
 expects and writes them one level up as `adometr-sponsor-<slug>.webp`.
 
 `--auto` pairs files with slugs by sorted filename order, which is a guess —

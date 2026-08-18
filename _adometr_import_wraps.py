@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Convert raw wrap mockup renders into site-ready concept images.
 
-The landing page carousel (adometr/index.html) serves 1400x933 WebP files out
+The landing page carousel (adometr/index.html) serves 1400x788 WebP files out
 of adometr/assets/concepts/. Image generators hand back multi-megabyte PNGs at
 whatever aspect ratio they feel like, so every new mockup has to be cropped,
 resized and re-encoded before it goes near the page.
@@ -33,15 +33,17 @@ REPO = os.path.dirname(os.path.abspath(__file__))
 CONCEPTS = os.path.join(REPO, "adometr", "assets", "concepts")
 INCOMING = os.path.join(CONCEPTS, "incoming")
 
-TARGET_W, TARGET_H = 1400, 933
+TARGET_W, TARGET_H = 1400, 788
 QUALITY = 82
 
 # Carousel order on the landing page.
 SLUGS = [
-    "warner-fitzmartin",
-    "horowitz",
+    "morgan-morgan",
     "swift-air",
+    "warner-fitzmartin",
     "florida-coast",
+    "horowitz",
+    "morgan-morgan-dial",
 ]
 
 

@@ -1,64 +1,45 @@
 ---
-status: new
+status: done — no action needed, resolved in-session
 to: overlord
 from: collaborativeconcepts-build
 date: 2026-08-18
-subject: ACTION — pull 4 wrap mockup PNGs from Drive into the repo and convert
+subject: RESOLVED — new Adometr wrap mockups are already in the repo
 ---
 
-# Get the new Adometr wrap mockups into the repo
+# Resolved — do not action
 
-Owner approved four new sponsor wrap mockups for the adometr.com landing page
-carousel. They exist only in his Google Drive. **This cloud session cannot
-fetch them** — the container's network policy 403s every non-registry host
-(confirmed: `CONNECT drive.google.com:443` rejected), and the Drive MCP hands
-back base64 inline, which at 2.4–2.6 MB per file is far too large to come
-through a tool result intact. So the copy has to happen from the local machine.
+This asked OVERLORD to copy four wrap mockup PNGs out of Danny's Drive because
+the cloud session could not reach them. **That is no longer needed.** Danny
+pasted the images directly into the session, and they were recovered from the
+session transcript JSONL (pasted images are stored there as base64), decoded
+straight to disk, and converted. Left here as a record of the workaround.
 
-## The four files
+For future reference, since this will come up again: a cloud session cannot
+fetch Drive files. The container's network policy 403s every non-registry host,
+and the Drive MCP returns base64 inline, which for a multi-megabyte image
+exceeds any context window — so retrying that path never works. But anything
+the owner **pastes into chat** is recoverable from
+`~/.claude/projects/<project>/<session>.jsonl` by walking the JSON for
+`{"type":"image","source":{"data":...}}` blocks and base64-decoding them to
+files. That keeps the bytes out of context entirely.
 
-All in Drive folder `1Y8zr6X2BgyY0luUa3uIPw0O_RquvABHT`, created 2026-08-18:
+Six mockups are now committed at `adometr/assets/concepts/` (1400x788 WebP,
+140-185 KB each) and wired into the landing page carousel:
+`morgan-morgan`, `swift-air`, `warner-fitzmartin`, `florida-coast`,
+`horowitz`, `morgan-morgan-dial`.
 
-| Drive file ID | Title | Size |
-|---|---|---|
-| `1OreT-l9g_qlUeb17o70VdEZidOmSZkz2` | ChatGPT Image Aug 17, 2026, 10_13_29 PM (1).png | 2.40 MB |
-| `1BwGNpbOPP_OxbHNGEqST9Nvt_0rikzra` | ChatGPT Image Aug 17, 2026, 10_13_29 PM (2).png | 2.41 MB |
-| `1HNbg71fU6jYruy5d9ry9UU6QYIRaqLNF` | ChatGPT Image Aug 17, 2026, 10_13_29 PM (3).png | 2.62 MB |
-| `1mc25sp9olD2Ek2zBcn8Zf7oVZoJ5NXrS` | ChatGPT Image Aug 17, 2026, 10_13_29 PM (4).png | 2.46 MB |
+## Standing flag (owner decision already made — logged, not for re-litigation)
 
-## Do this
+Every one of these wraps carries the name of a **real** business: Morgan &
+Morgan (national firm; "For The People" is their slogan), Warner & Fitzmartin
+PLLC and Horowitz Injury Lawyers (real Lake Worth area injury firms), Swift Air
+Conditioning LLC (real West Palm Beach HVAC, lic. CAC1820211), and Florida
+Coast Contracting & Roofing. The `morgan-morgan-dial` slide additionally
+carries a photorealistic **likeness of John Morgan**, a real identifiable
+person — that one raises Fla. Stat. § 540.08 (right of publicity) on top of the
+false-association exposure the others carry.
 
-1. Download all four into `adometr/assets/concepts/incoming/` in the repo
-   working copy. (That folder is gitignored for raw sources — only the
-   converted WebP files get committed.)
-2. Run `python3 _adometr_import_wraps.py --auto` from the repo root. It
-   center-crops to 1400x933, encodes WebP q82, and writes
-   `adometr/assets/concepts/adometr-sponsor-<slug>.webp`.
-3. **Verify the mapping.** `--auto` pairs files to slugs by sorted filename
-   order and cannot read the artwork, so it is a guess. Open each output and
-   confirm the wrap text matches the slug:
-
-   | Slug | Wrap should read |
-   |---|---|
-   | `warner-fitzmartin` | Warner & Fitzmartin, PLLC (car in front of the Lake Worth theater) |
-   | `horowitz` | Horowitz Injury Lawyers |
-   | `swift-air` | Swift Air Conditioning |
-   | `florida-coast` | Florida Coast Contracting & Roofing |
-
-   If any landed wrong, re-run with explicit pairs:
-   `python3 _adometr_import_wraps.py --slug swift-air incoming/<right-file>.png`
-4. Commit the four WebP files to `claude/car-wrap-sponsorship-marketplace-dvro59`
-   and push. Reply into `.claude/bus-inbox/collaborativeconcepts/` confirming
-   the final slug→artwork mapping so the carousel labels and alt text can be
-   written correctly.
-
-## Flag for the owner (already raised, he approved anyway)
-
-Three of the four wraps carry names of **real South Florida businesses** —
-Warner & Fitzmartin PLLC and Horowitz Injury Lawyers (both real Lake Worth
-area injury firms) and Swift Air Conditioning LLC (real West Palm Beach HVAC,
-lic. CAC1820211). Only Florida Coast Contracting & Roofing appears invented.
-Danny was told this implies sponsor relationships that do not exist and said
-to use them regardless — logged here so the decision is on the record, not so
-it gets re-litigated. Keep the existing "Fictional concept — not an actual
-sponsor" captions on every slide; do not remove them.
+Danny was told this and directed that they be used anyway. Every slide carries
+a "Concept mockup — not an actual sponsor or endorsement" caption plus the
+generator's own watermark. **Do not remove those captions.** If any of these
+businesses makes contact, escalate to Danny immediately rather than replying.
