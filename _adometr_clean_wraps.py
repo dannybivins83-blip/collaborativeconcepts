@@ -51,6 +51,7 @@ JOBS = [
     ("warner-fitzmartin",  "paste-2279-acc16f848f8f.webp", (0,    875,  420, 941)),
     ("florida-coast",      "paste-2279-a59dfe6ddff1.webp", (0,    845,  440, 925)),
     ("swift-air",          "paste-2279-e118b019af48.webp", (1290, 615, 1640, 675)),
+    ("wpb-dda",            "paste-2743-edcbc47523ab.webp", (1380, 860, 1672, 941)),
 ]
 
 

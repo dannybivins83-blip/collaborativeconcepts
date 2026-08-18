@@ -44,6 +44,7 @@ SLUGS = [
     "florida-coast",
     "horowitz",
     "morgan-morgan-dial",
+    "wpb-dda",
 ]
 
 
