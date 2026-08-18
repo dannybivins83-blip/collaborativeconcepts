@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- deploy-head -->
+<link rel="canonical" href="https://collaborativeconceptsfl.com/solutions/systems-automation" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="google-site-verification" content="xaip6S72cB-bpCgb1Drm-xEiX8-roe432PXgV8HEHmg" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Collaborative Concept" />
+<meta property="og:title" content="Systems, Software &amp;amp; Automation — Collaborative Concept" />
+<meta property="og:description" content="How we build operating systems and internal tools: mapping the process as it runs, writing a spec you approve, building in visible stages, and handing over something you own." />
+<meta property="og:url" content="https://collaborativeconceptsfl.com/solutions/systems-automation" />
+<meta property="og:image" content="https://collaborativeconceptsfl.com/og/default.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Systems, Software &amp;amp; Automation — Collaborative Concept" />
+<meta name="twitter:description" content="How we build operating systems and internal tools: mapping the process as it runs, writing a spec you approve, building in visible stages, and handing over something you own." />
+<meta name="twitter:image" content="https://collaborativeconceptsfl.com/og/default.png" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Collaborative Concept LLC","url":"https://collaborativeconceptsfl.com","logo":"https://collaborativeconceptsfl.com/og/default.png","telephone":"+15614758615","address":{"@type":"PostalAddress","streetAddress":"513 W Drew Street","addressLocality":"Lantana","addressRegion":"FL","postalCode":"33462","addressCountry":"US"},"areaServed":{"@type":"State","name":"Florida"},"founder":{"@type":"Person","name":"Daniel Bivins"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://collaborativeconceptsfl.com/"},{"@type":"ListItem","position":2,"name":"Solutions","item":"https://collaborativeconceptsfl.com/solutions"},{"@type":"ListItem","position":3,"name":"Systems Automation","item":"https://collaborativeconceptsfl.com/solutions/systems-automation"}]}</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K9ZEXRRMCK"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-K9ZEXRRMCK');</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+<!-- /deploy-head -->
+<title>Systems, Software &amp; Automation — Collaborative Concept</title>
+<meta name="description" content="How we build operating systems and internal tools: mapping the process as it runs, writing a spec you approve, building in visible stages, and handing over something you own." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/redesign/site.css" />
+<style>
+/* Page-unique layout — systems, software & automation */
+.sys-meta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3)}
+.sys-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.55rem}
+.sys-list li{position:relative;padding-left:1.15rem;font-size:var(--text-sm);color:var(--color-muted);line-height:1.5}
+.sys-list li::before{content:"";position:absolute;left:0;top:.68em;width:9px;height:1px;background:var(--color-copper)}
+.art-panel{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--color-copper-soft);
+  border:1px solid var(--color-line);border-radius:var(--radius-sm)}
+.art-panel svg{position:absolute;inset:0;width:100%;height:100%}
+.rows .row:nth-child(even) .row-art{order:-1}
+@media (max-width:720px){ .art-panel{aspect-ratio:5/4} }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="container hdr">
+    <a class="wordmark" href="index.html">Collaborative Concept</a>
+    <nav class="nav" aria-label="Primary">
+      <a href="development.html">Development</a>
+      <a href="solutions.html">Solutions</a>
+      <a href="work.html">Selected Work</a>
+      <a href="about.html">About</a>
+      <a href="insights.html">Insights</a>
+    </nav>
+    <a class="btn btn-navy" href="contact.html">Start a Conversation</a>
+    <button class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M0 1h20M0 7h20M0 13h20"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="mm" id="mobileMenu">
+  <div class="container">
+    <div class="mm-top">
+      <span class="wordmark">Collaborative Concept</span>
+      <button class="menu-btn mm-close" aria-label="Close menu" style="display:inline-flex">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M1 1l16 16M17 1L1 17"/></svg>
+      </button>
+    </div>
+    <nav aria-label="Mobile">
+      <a href="development.html">Development</a>
+      <a href="solutions.html">Solutions</a>
+      <a href="work.html">Selected Work</a>
+      <a href="about.html">About</a>
+      <a href="insights.html">Insights</a>
+    </nav>
+    <a class="btn btn-navy" href="contact.html">Start a Conversation</a>
+  </div>
+</div>
+
+<main id="main">
+
+  <section class="page-hero">
+    <div class="page-hero-copy">
+      <div class="crumbs"><a href="solutions.html">Solutions</a><span>|</span>Systems, Software &amp; Automation</div>
+      <hr class="tick t-sol" style="margin:var(--space-6) 0 0" />
+      <h1>Technology built around the way your business actually works.</h1>
+      <p>Once the workflow problem is clear, we build only what the process requires — and nothing beyond it. No oversized platform, no surface area nobody asked for.</p>
+      <a class="btn btn-copper" href="contact.html">Start a Conversation</a>
+    </div>
+    <div class="page-hero-art sol-art-bg">
+      <img src="/assets/redesign/img/sys-hero.jpg" alt="Hand-drawn contractor workflow flowchart on graph paper laid over an architectural elevation drawing" width="167" height="110" decoding="async" />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow sol">Systems</p>
+      <h2 style="margin-top:var(--space-4)">Three system types, and exactly what they are</h2>
+      <p class="lead" style="margin:0 0 var(--space-12)">Three shapes of build we scope, described plainly. Each is a kind of system this practice takes through the process below — not a product on a shelf, and not a claim about anything running anywhere.</p>
+
+      <div class="grid g-3">
+        <article class="card">
+          <div class="card-art sol-bg">
+            <img src="/assets/redesign/img/sys-crm.jpg" alt="Laptop on a desk displaying a software interface with a sidebar and card panels" width="152" height="114" loading="lazy" decoding="async" />
+          </div>
+          <div class="card-body">
+            <div class="sys-meta"><span class="status">Operations System</span></div>
+            <h3>Roofing Operating System</h3>
+            <p>An operating layer for a contractor's day-to-day: intake, qualification, job records, documents, and follow-up held in one place instead of scattered across inboxes and spreadsheets. Described here as a scope — the views on this page are drafting linework, not finished screens.</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-art sol-bg">
+            <img src="/assets/redesign/img/sys-permit.jpg" alt="Rolled and flat construction drawings, the roll labelled Permit Set" width="152" height="114" loading="lazy" decoding="async" />
+          </div>
+          <div class="card-body">
+            <div class="sys-meta"><span class="status">Document Workflow</span></div>
+            <h3>Permit Packet Assembly</h3>
+            <p>Assembling a submittal from one structured record: information entered once, laid out into the sheets and forms a packet needs, with a standing checklist of what is still missing. Assembling paperwork is administrative work — the submittal itself is signed and sealed by the licensed professional of record, never by us.</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-art sol-bg">
+            <img src="/assets/redesign/img/sys-portal.jpg" alt="Paved walkway between palms and planting leading down to a beach" width="152" height="114" loading="lazy" decoding="async" />
+          </div>
+          <div class="card-body">
+            <div class="sys-meta"><span class="status">Owner-Facing Portal</span></div>
+            <h3>Owner / HOA Portal</h3>
+            <p>One place for owners and boards to see status, documents, requests, and approvals rather than a thread of forwarded email. What it does and does not do is settled in the spec: who can see, who can request, who can approve.</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="disclosure" style="margin-top:var(--space-12)">
+        <p><strong>Read these as scopes, not inventory.</strong> Each of the three above names a kind of system and what it is scoped to do. None is a commercial product, none is licensed software, and none is offered for sale as-is.</p>
+        <p>Nothing on this page is presented as delivered to a client, operating for a client, or endorsed by one. Every interface view here is drafting linework standing in for screens that have not been approved for publication. What we sell is the build engagement described below.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-paper">
+    <div class="container">
+      <p class="eyebrow sol">Method</p>
+      <h2 style="margin-top:var(--space-4)">Representative workflows and interfaces</h2>
+      <p class="lead" style="margin:0 0 var(--space-12)">Drafting-stage views of how the work is done: mapping a process as it actually runs, turning an approved spec into screens, and structuring information once so it stops being re-entered. Linework, not screenshots.</p>
+
+      <div class="rows">
+        <article class="row">
+          <div>
+            <p class="eyebrow sol">Discovery</p>
+            <h3>Mapping the process as it actually runs</h3>
+            <p>We sit with the people doing the work and draw the process the way it really happens — including the handoffs, the waiting, and the steps that only exist because some earlier system made them necessary. The map is the first deliverable, and often the first argument.</p>
+            <ul class="sys-list">
+              <li>Every hand-off named, with who owns it on each side</li>
+              <li>The points where work stops moving, marked and dated in the map</li>
+              <li>Steps that exist only to feed a tool, flagged for removal</li>
+            </ul>
+          </div>
+          <div class="row-art sol-bg">
+            <img src="/assets/redesign/img/sys-workflow.jpg" alt="Hand-drawn flowchart branching from a permit-required decision to schedule work or submit permit" width="167" height="108" loading="lazy" decoding="async" />
+          </div>
+        </article>
+
+        <article class="row">
+          <div>
+            <p class="eyebrow sol">Specification</p>
+            <h3>Turning the spec into interfaces</h3>
+            <p>Before anything is coded, the screens exist as frames: what appears on each one, what a person can do there, and what happens when they do it. You review the flow while it is still cheap to change — redrawing a frame is cheap, rebuilding a working screen is not.</p>
+            <ul class="sys-list">
+              <li>One frame per screen, with the fields and actions named</li>
+              <li>Roles decided up front: who sees it, who can change it</li>
+              <li>The definition of &ldquo;done&rdquo; written down and signed off</li>
+            </ul>
+          </div>
+          <div class="row-art sol-bg">
+            <img src="/assets/redesign/img/sol-dashboard.jpg" alt="Laptop showing an operations dashboard with pipeline and revenue panels" width="301" height="214" loading="lazy" decoding="async" />
+          </div>
+        </article>
+
+        <article class="row">
+          <div>
+            <p class="eyebrow sol">Structure</p>
+            <h3>Structuring the information once</h3>
+            <p>One record, defined once, feeding every view that needs it — the job screen, the packet, the summary a board reads. Fields get named and agreed during the spec, so the same fact never gets typed into three places and disagreed with in two of them.</p>
+            <ul class="sys-list">
+              <li>A single agreed vocabulary for records, statuses, and roles</li>
+              <li>Every output traced back to the field it reads from</li>
+              <li>Nothing re-keyed by hand between one view and the next</li>
+            </ul>
+          </div>
+          <div class="row-art sol-bg">
+            <img src="/assets/redesign/img/sol-panel.png" alt="Workflow step diagram above a permit packet and an operations report" width="272" height="214" loading="lazy" decoding="async" />
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow sol">Engagement</p>
+      <h2 style="margin-top:var(--space-4)">How a build engagement runs</h2>
+      <p class="lead" style="margin:0 0 var(--space-12)">Four stages, each with a gate you can stop at. Nothing is built before the process is understood, and nothing is understood in a meeting we did not attend.</p>
+
+      <div class="process-strip">
+        <div class="step">
+          <svg viewBox="0 0 34 34" fill="none" stroke="#b76032" stroke-width="1.2" aria-hidden="true"><path d="M6 3h13l6 6v10"/><path d="M19 3v6h6"/><path d="M6 3v28h19"/><circle cx="19" cy="22" r="6"/><path d="M23.5 26.5L29 32"/></svg>
+          <div><h3 class="sol">Discovery</h3><p>Watch the process as it runs. Map it. Name where it breaks.</p></div>
+        </div>
+        <div class="step">
+          <svg viewBox="0 0 34 34" fill="none" stroke="#b76032" stroke-width="1.2" aria-hidden="true"><path d="M6 3h22v28H6z"/><path d="M11 11h12M11 17h12M11 23h7"/></svg>
+          <div><h3 class="sol">Specification</h3><p>Screens, fields, rules, roles, and the definition of done — approved by you.</p></div>
+        </div>
+        <div class="step">
+          <svg viewBox="0 0 34 34" fill="none" stroke="#b76032" stroke-width="1.2" aria-hidden="true"><path d="M3 6h28v22H3z"/><path d="M3 12h28"/><path d="M13 17l-4 4 4 4M21 17l4 4-4 4"/></svg>
+          <div><h3 class="sol">Build</h3><p>Visible increments on a fixed review cadence, measured against the spec.</p></div>
+        </div>
+        <div class="step">
+          <svg viewBox="0 0 34 34" fill="none" stroke="#b76032" stroke-width="1.2" aria-hidden="true"><path d="M4 15h26v16H4z"/><path d="M4 15L17 5l13 10"/><path d="M17 27v-9M13 22l4-4 4 4"/></svg>
+          <div><h3 class="sol">Handover</h3><p>Documentation, a walkthrough, and the source. You own what was built.</p></div>
+        </div>
+      </div>
+
+      <div class="split-2" style="margin-top:var(--space-16)">
+        <div>
+          <h3>What each stage produces</h3>
+          <p style="margin:0 0 var(--space-8)">Every stage ends with something you can hold, read, and decline. A gate you cannot fail is not a gate.</p>
+          <table class="facts">
+            <caption class="sr-only">Deliverable produced at the end of each engagement stage</caption>
+            <tbody>
+              <tr>
+                <th scope="row">Discovery</th>
+                <td>A written map of the process as it actually runs, the points where it stalls, and an honest recommendation on whether to build at all.</td>
+              </tr>
+              <tr>
+                <th scope="row">Specification</th>
+                <td>Screens, fields, rules, roles, and the definition of done. Approved before a line of code exists. The spec is what scope is measured against.</td>
+              </tr>
+              <tr>
+                <th scope="row">Build</th>
+                <td>Working increments reviewed on a fixed cadence. Changes are named and priced against the approved spec rather than absorbed quietly.</td>
+              </tr>
+              <tr>
+                <th scope="row">Handover</th>
+                <td>Documentation, an administrator walkthrough, and the source. Continued support is a separate agreement, never a dependency you inherit.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="art-panel">
+          <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="400" height="300" fill="#f1e1d5"/>
+            <g stroke="#b76032" stroke-width=".9" fill="none" opacity=".6">
+              <path d="M64 48v206"/>
+              <circle cx="64" cy="70" r="7"/><circle cx="64" cy="130" r="7"/>
+              <circle cx="64" cy="190" r="7"/><circle cx="64" cy="250" r="7"/>
+            </g>
+            <g stroke="#b76032" stroke-width=".7" fill="none" opacity=".45">
+              <path d="M84 70h122M84 130h150M84 190h134M84 250h108"/>
+              <rect x="232" y="62" width="16" height="16"/><rect x="262" y="122" width="16" height="16"/>
+              <rect x="244" y="182" width="16" height="16"/><rect x="218" y="242" width="16" height="16"/>
+              <path d="M235 70l3 4 6-8M265 130l3 4 6-8"/>
+            </g>
+            <g stroke="#b76032" stroke-width=".6" fill="none" opacity=".3">
+              <path d="M300 48v206M300 44h0M40 100h330M40 160h330M40 220h330"/>
+            </g>
+            <g fill="#162a39" font-family="Inter,sans-serif" font-size="7" letter-spacing=".09em" opacity=".65">
+              <text x="40" y="34">ENGAGEMENT GATES</text>
+              <text x="84" y="62">DISCOVERY</text>
+              <text x="84" y="122">SPECIFICATION</text>
+              <text x="84" y="182">BUILD</text>
+              <text x="84" y="242">HANDOVER</text>
+            </g>
+          </svg>
+          <span class="ph-note">Image slot</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-paper">
+    <div class="container">
+      <p class="eyebrow sol">Scoping</p>
+      <h2 style="margin-top:var(--space-4)">Two ways to scope the work</h2>
+      <p class="lead" style="margin:0 0 var(--space-12)">Which one fits depends on how settled the process is. A stable process can be priced whole. A moving one should be bought a stage at a time.</p>
+
+      <div class="grid g-2">
+        <div class="card">
+          <div class="card-body" style="padding:var(--space-8)">
+            <hr class="tick t-sol" style="margin:0 0 var(--space-4)" />
+            <h3 style="font-size:1.5rem">Fixed-Scope Build</h3>
+            <p style="margin-bottom:var(--space-4)">For a process that is already understood and stable. We write the spec, agree the scope and the price against it, and build to it. Changes stay visible and priced — never absorbed and never a surprise at the end.</p>
+            <ul class="sys-list">
+              <li>Written spec approved before the build begins</li>
+              <li>One agreed scope, one agreed schedule</li>
+              <li>Deliverables defined at handover, in writing</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body" style="padding:var(--space-8)">
+            <hr class="tick t-sol" style="margin:0 0 var(--space-4)" />
+            <h3 style="font-size:1.5rem">Staged Build</h3>
+            <p style="margin-bottom:var(--space-4)">For a process still changing shape. We scope one stage at a time, review at the end of each, and decide together whether the next one earns its cost. Stopping early is a normal outcome, not a failure.</p>
+            <ul class="sys-list">
+              <li>Scope set one stage at a time</li>
+              <li>A review gate between every stage</li>
+              <li>Continue, re-scope, or stop — your call at each gate</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="disclosure" style="margin-top:var(--space-12)">
+        <p><strong>What we do not do.</strong> We do not resell software and we do not represent any platform. We are not a licensed software vendor, and we do not present ourselves as your architect, engineer, or contractor of record.</p>
+        <p>If discovery says the process needs fixing rather than a new system, that is the recommendation you will get — and the engagement can end there.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow sol">Continue</p>
+      <h2 style="margin-top:var(--space-4)">Where this fits</h2>
+      <div class="grid g-3">
+        <a class="card" href="solutions.html">
+          <div class="card-body" style="padding:var(--space-8)">
+            <p class="eyebrow sol">Solutions</p>
+            <h3>Recover revenue. Fix the process. Build the system.</h3>
+            <p>The full picture of the Solutions practice and how the three pieces feed one another.</p>
+            <span class="link-arrow sol">Solutions Overview <span aria-hidden="true">&rarr;</span></span>
+          </div>
+        </a>
+        <a class="card" href="solutions-revenue-recovery.html">
+          <div class="card-body" style="padding:var(--space-8)">
+            <p class="eyebrow sol">Solutions</p>
+            <h3>Revenue Recovery Sprint</h3>
+            <p>You already paid for the leads. We help you make them pay you back.</p>
+            <span class="link-arrow sol">Solution Detail <span aria-hidden="true">&rarr;</span></span>
+          </div>
+        </a>
+        <a class="card" href="work.html">
+          <div class="card-body" style="padding:var(--space-8)">
+            <p class="eyebrow">Selected Work</p>
+            <h3>Proof in Practice</h3>
+            <p>Development opportunities and business solutions, clearly organized.</p>
+            <span class="link-arrow">Selected Work <span aria-hidden="true">&rarr;</span></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="bg" aria-hidden="true">
+      <svg viewBox="0 0 1400 200" preserveAspectRatio="xMidYMid slice">
+        <g stroke="#ffffff" stroke-width=".8" fill="none">
+          <path d="M40 150h180v-60H40zM80 90v60M140 90v60M40 120h180"/>
+          <path d="M40 90l90-40 90 40"/>
+          <path d="M1180 150h180v-60h-180zM1220 90v60M1280 90v60M1180 120h180"/>
+          <path d="M1180 90l90-40 90 40"/>
+          <path d="M262 150c-8-14-10-30-8-44M262 150c8-14 10-30 8-44M262 150V80"/>
+          <path d="M1140 150c-8-14-10-30-8-44M1140 150c8-14 10-30 8-44M1140 150V80"/>
+        </g>
+      </svg>
+    </div>
+    <div class="container cta-inner">
+      <h2>Have a property opportunity or operating problem?</h2>
+      <a class="btn btn-ghost" href="contact.html">Start a Conversation <span aria-hidden="true">&rarr;</span></a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container ftr">
+    <nav aria-label="Footer">
+      <a href="development.html">Development</a>
+      <a href="solutions.html">Solutions</a>
+      <a href="work.html">Selected Work</a>
+      <a href="about.html">About</a>
+      <a href="insights.html">Insights</a>
+      <a href="ventures.html" class="ftr-ventures">Selected Ventures</a>
+    </nav>
+    <div class="meta">
+      <a href="tel:+15614758615">(561) 475-8615</a>
+      <span>Lantana, Florida</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/redesign/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "wws-static",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8321"],
+      "port": 8321
+    },
+    {
+      "name": "repo-static",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8322", "--directory", "C:/Users/kjburnz/collaborativeconcepts-repo"],
+      "port": 8322
+    }
+  ]
+}

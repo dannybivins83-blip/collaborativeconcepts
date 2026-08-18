@@ -692,6 +692,147 @@ def create_lead():
     return redirect("/?submitted=1#assessment")
 
 
+# ---- Collaborative Concept website inquiry (public) ----
+# Sibling of /api/lead. Kept separate on purpose: CC website inquiries must not
+# land in the WWS roof-anchor pipeline (different list, different notification).
+CC_INQUIRIES_KEY = "cc:inquiries"        # Redis LIST; each item = JSON inquiry
+CC_NOTIFY_EMAIL = os.environ.get("CC_NOTIFY_EMAIL", WWS_NOTIFY_EMAIL)
+
+
+def _cc_notify(subject, text):
+    """Best-effort notification to the Collaborative Concept inbox. Same
+    Resend-then-FormSubmit pattern as _notify(). Never raises — inquiry capture
+    must not depend on the email going through."""
+    api_key = os.environ.get("RESEND_API_KEY", "")
+    sender = os.environ.get("RESEND_FROM_EMAIL", "")
+    if api_key and sender:
+        try:
+            r = requests.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": "Bearer " + api_key,
+                         "Content-Type": "application/json"},
+                json={"from": sender, "to": [CC_NOTIFY_EMAIL],
+                      "subject": subject, "text": text},
+                timeout=10,
+            )
+            if r.status_code < 300:
+                return
+        except Exception:
+            pass
+    try:
+        requests.post(
+            "https://formsubmit.co/ajax/" + CC_NOTIFY_EMAIL,
+            json={"_subject": subject, "_template": "table", "message": text},
+            headers={"Content-Type": "application/json", "Accept": "application/json"},
+            timeout=8,
+        )
+    except Exception:
+        pass
+
+
+@app.post("/api/inquiry")
+def create_inquiry():
+    """Public — the collaborativeconceptsfl.com contact and investor-inquiries
+    forms post here. Division-aware. Stores to its own KV list and emails a
+    notification. Accepts JSON (fetch) or form-encoded (works without JS)."""
+    allowed, retry = _rate_limit("inquiry:ip:" + _client_ip(), 20, 3600)
+    if not allowed:
+        return _rate_limited_response(retry)
+
+    if request.is_json:
+        body = request.get_json(force=True, silent=True) or {}
+        fields = body.get("fields") or {
+            k: v for k, v in body.items() if not isinstance(v, (dict, list))
+        }
+    else:
+        body = {}
+        fields = request.form.to_dict()
+
+    # honeypot — silently accept and drop bots
+    if (fields.get("_honey") or fields.get("_gotcha")
+            or fields.get("website") or fields.get("cc_website") or "").strip():
+        return jsonify({"ok": True}), 200
+
+    # The site form namespaces inputs per division (dev_/sol_/gen_/inv_) because
+    # all fieldsets share one <form>. Only the active fieldset submits, so
+    # flattening the prefix is unambiguous.
+    for k, v in list(fields.items()):
+        for pre in ("dev_", "sol_", "gen_", "inv_"):
+            if k.startswith(pre):
+                fields.setdefault(k[len(pre):], v)
+                break
+
+    def g(*names):
+        for n in names:
+            for src in (body, fields):
+                v = src.get(n)
+                if v:
+                    return str(v).strip()
+        return ""
+
+    division = (g("division", "interest", "path") or "unspecified").lower()[:40]
+    name = g("name", "Name")[:200]
+    email = g("email", "Email")[:200]
+    phone = g("phone", "Phone")[:60]
+    company = g("company", "Company")[:200]
+    message = g("message", "Message", "detail", "problem", "outcome")[:5000]
+    prop = g("property", "location", "Property Location", "address")[:300]
+
+    if not (email or phone):
+        return jsonify({"ok": False, "error": "email or phone required"}), 400
+
+    clean = {}
+    for k, v in fields.items():
+        if len(clean) >= 40:
+            break
+        if k and not k.startswith("_") and str(v).strip():
+            clean[k[:60]] = str(v)[:2000]
+
+    inquiry = {
+        "id": _gen_id(), "ts": _now_ms(), "division": division,
+        "name": name, "email": email, "phone": phone, "company": company,
+        "property": prop, "message": message, "fields": clean,
+        "source": (g("source") or request.headers.get("Referer", ""))[:300],
+        "ua": request.headers.get("User-Agent", "")[:300],
+    }
+    try:
+        _, configured = _kv_cmd(["RPUSH", CC_INQUIRIES_KEY, json.dumps(inquiry)])
+    except Exception:
+        configured = False
+
+    label = {"development": "Development", "solutions": "Solutions",
+             "investor": "Investor"}.get(division, "General")
+    _cc_notify(
+        "New {} inquiry — {}".format(label, name or company or email or phone),
+        "New inquiry from collaborativeconceptsfl.com\n\nDivision: {}\n\n{}".format(
+            label, _lead_summary(inquiry)),
+    )
+
+    if request.is_json:
+        return jsonify({"ok": True, "stored": bool(configured)}), 200
+    return redirect("/contact?submitted=1#inquiry-form")
+
+
+@app.get("/api/admin/inquiries")
+def list_inquiries():
+    """Admin-gated read of the CC website inquiry list."""
+    if not _is_admin():
+        return jsonify({"error": "forbidden"}), 403
+    try:
+        vals, configured = _kv_cmd(["LRANGE", CC_INQUIRIES_KEY, 0, -1])
+        if not configured:
+            return jsonify({"configured": False, "inquiries": []})
+        items = []
+        for v in (vals or []):
+            try:
+                items.append(json.loads(v))
+            except Exception:
+                pass
+        items.reverse()   # newest first
+        return jsonify({"configured": True, "count": len(items), "inquiries": items})
+    except Exception as e:
+        return jsonify({"configured": True, "inquiries": [], "status": str(e)}), 200
+
 # ---- Building compliance check (public lead magnet) ----
 # Server-side match of a visitor's building against the harvested enforcement
 # dataset (public-records-derived). The dataset stays server-side so the full
