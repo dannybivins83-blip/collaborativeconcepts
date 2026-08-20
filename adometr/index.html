@@ -109,16 +109,11 @@ button{font-family:inherit}
 .campaignHeroSide{padding-bottom:8px}
 .campaignHeroSide>p{max-width:470px;margin:0 0 28px;color:#567472;font-size:17px;line-height:1.7}
 .heroActions{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
-.ficNote{display:block;margin-top:25px;color:var(--faint);font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-.heroCampaign{display:grid;grid-template-columns:1.5fr .5fr;min-height:520px;background:var(--ink)}
+.heroCampaign{display:grid;grid-template-columns:1.42fr .58fr;min-height:520px;background:var(--ink)}
 .heroCampaignImage{position:relative;min-width:0;overflow:hidden}
 .conceptShot{position:absolute;inset:0;margin:0;opacity:0;visibility:hidden;transition:opacity .5s ease}
 .conceptShot.is-active{opacity:1;visibility:visible}
-.conceptShot img{width:100%;height:100%;object-fit:cover;aspect-ratio:1400/933}
-.conceptShot figcaption{
-  position:absolute;left:0;right:0;top:0;padding:9px 14px;text-align:center;
-  background:rgba(11,53,56,.74);color:#fff;font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
-}
+.conceptShot img{width:100%;height:100%;object-fit:cover;aspect-ratio:1400/788}
 .heroPayout{
   position:absolute;left:26px;bottom:26px;z-index:3;min-width:230px;
   background:#fff;color:var(--ink);padding:18px 22px;box-shadow:0 18px 45px rgba(0,0,0,.18);
@@ -131,7 +126,7 @@ button{font-family:inherit}
 .conceptCopy{display:none}
 .conceptCopy.is-active{display:block}
 .conceptCopy>span{display:block;color:var(--teal-lt);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
-.conceptCopy h2{margin:11px 0 15px;font-size:clamp(34px,3.4vw,44px);font-weight:700;letter-spacing:-.05em}
+.conceptCopy h2{margin:11px 0 15px;font-size:clamp(24px,2.5vw,34px);font-weight:700;letter-spacing:-.04em;line-height:1.12;overflow-wrap:break-word;hyphens:auto}
 .conceptCopy p{color:#b0c9c6;font-size:14px;line-height:1.7}
 .heroCampaignTabs{margin-top:auto;padding-top:30px}
 .heroCampaignTabs button{
@@ -505,23 +500,31 @@ footer{background:var(--ink);color:#fff;padding:60px 0 34px}
           <a class="btn btn-teal" href="#apply">Apply to drive <span aria-hidden="true">↗</span></a>
           <a class="textLink" href="#sponsor-roi">Advertise with us <span aria-hidden="true">↗</span></a>
         </div>
-        <small class="ficNote">Fictional campaign concepts · Not actual sponsors</small>
       </div>
     </div>
 
-    <div class="heroCampaign" id="sponsor-concepts" role="region" aria-roledescription="carousel" aria-label="Fictional sponsor campaign concepts">
+    <div class="heroCampaign" id="sponsor-concepts" role="region" aria-roledescription="carousel" aria-label="Sponsor campaign examples">
       <div class="heroCampaignImage">
         <figure class="conceptShot is-active" data-index="0">
-          <img src="/adometr/assets/concepts/adometr-sponsor-attorney.webp" alt="Concept mockup of a car wrapped for a local injury law firm" width="1400" height="933">
-          <figcaption>Fictional concept — not an actual sponsor</figcaption>
+          <img src="/adometr/assets/concepts/adometr-sponsor-morgan-morgan.webp" alt="Black SUV wrapped for a personal injury law firm on a South Florida waterfront road" width="1400" height="788">
         </figure>
         <figure class="conceptShot" data-index="1">
-          <img src="/adometr/assets/concepts/adometr-sponsor-hvac.webp" alt="Concept mockup of a car wrapped for a local HVAC company" width="1400" height="933">
-          <figcaption>Fictional concept — not an actual sponsor</figcaption>
+          <img src="/adometr/assets/concepts/adometr-sponsor-swift-air.webp" alt="Service van wrapped for an air conditioning company on a residential street" width="1400" height="788" loading="lazy">
         </figure>
         <figure class="conceptShot" data-index="2">
-          <img src="/adometr/assets/concepts/adometr-sponsor-roofing.webp" alt="Concept mockup of a car wrapped for a local roofing company" width="1400" height="933">
-          <figcaption>Fictional concept — not an actual sponsor</figcaption>
+          <img src="/adometr/assets/concepts/adometr-sponsor-warner-fitzmartin.webp" alt="White sedan wrapped for a personal injury law firm in downtown Lake Worth" width="1400" height="788" loading="lazy">
+        </figure>
+        <figure class="conceptShot" data-index="3">
+          <img src="/adometr/assets/concepts/adometr-sponsor-florida-coast.webp" alt="Contractor pickup truck wrapped for a roofing company outside a tile-roof home" width="1400" height="788" loading="lazy">
+        </figure>
+        <figure class="conceptShot" data-index="4">
+          <img src="/adometr/assets/concepts/adometr-sponsor-horowitz.webp" alt="Dark SUV wrapped for an injury law firm on a Palm Beach waterfront road" width="1400" height="788" loading="lazy">
+        </figure>
+        <figure class="conceptShot" data-index="5">
+          <img src="/adometr/assets/concepts/adometr-sponsor-morgan-morgan-dial.webp" alt="Blue SUV wrapped for an injury law firm with a call-to-action banner" width="1400" height="788" loading="lazy">
+        </figure>
+        <figure class="conceptShot" data-index="6">
+          <img src="/adometr/assets/concepts/adometr-sponsor-wpb-dda.webp" alt="Electric SUV wrapped for the Downtown West Palm Beach Development Authority on Clematis Street at night" width="1400" height="788" loading="lazy">
         </figure>
         <div class="heroPayout">
           <span>Driver estimate</span>
@@ -532,23 +535,47 @@ footer{background:var(--ink);color:#fff;padding:60px 0 34px}
       <div class="heroCampaignPanel">
         <div class="conceptCopy is-active" data-index="0">
           <span>Legal services</span>
-          <h2>Injury Law</h2>
+          <h2>Morgan &amp; Morgan</h2>
           <p>Own the commute before the next billboard does.</p>
         </div>
         <div class="conceptCopy" data-index="1">
           <span>Home services</span>
-          <h2>Cool Air</h2>
+          <h2>Swift Air Conditioning</h2>
           <p>Stay visible in the neighborhoods you already serve.</p>
         </div>
         <div class="conceptCopy" data-index="2">
+          <span>Legal services</span>
+          <h2>Warner &amp; Fitzmartin</h2>
+          <p>Show up on the streets your clients already drive.</p>
+        </div>
+        <div class="conceptCopy" data-index="3">
           <span>Construction</span>
-          <h2>Roofing Pro</h2>
+          <h2>Florida Coast Contracting</h2>
           <p>Turn local traffic into local brand recognition.</p>
         </div>
+        <div class="conceptCopy" data-index="4">
+          <span>Legal services</span>
+          <h2>Horowitz Injury Lawyers</h2>
+          <p>Coverage that follows the corridor, not one fixed sign.</p>
+        </div>
+        <div class="conceptCopy" data-index="5">
+          <span>Legal services</span>
+          <h2>Morgan &amp; Morgan</h2>
+          <p>One wrap, every commute, all month long.</p>
+        </div>
+        <div class="conceptCopy" data-index="6">
+          <span>Destination marketing</span>
+          <h2>Downtown West Palm Beach</h2>
+          <p>Carry the district into the neighborhoods it wants to reach.</p>
+        </div>
         <div class="heroCampaignTabs" id="concept-tabs">
-          <button type="button" class="is-active" data-index="0" aria-label="Show concept 1 of 3: Injury Law, legal services"><b>01</b><span>Injury Law</span></button>
-          <button type="button" data-index="1" aria-label="Show concept 2 of 3: Cool Air, home services"><b>02</b><span>Cool Air</span></button>
-          <button type="button" data-index="2" aria-label="Show concept 3 of 3: Roofing Pro, construction"><b>03</b><span>Roofing Pro</span></button>
+          <button type="button" class="is-active" data-index="0" aria-label="Show concept 1 of 7: Morgan and Morgan, legal services"><b>01</b><span>Morgan &amp; Morgan</span></button>
+          <button type="button" data-index="1" aria-label="Show concept 2 of 7: Swift Air, home services"><b>02</b><span>Swift Air</span></button>
+          <button type="button" data-index="2" aria-label="Show concept 3 of 7: Warner and Fitzmartin, legal services"><b>03</b><span>Warner &amp; Fitzmartin</span></button>
+          <button type="button" data-index="3" aria-label="Show concept 4 of 7: Florida Coast, construction"><b>04</b><span>Florida Coast</span></button>
+          <button type="button" data-index="4" aria-label="Show concept 5 of 7: Horowitz, legal services"><b>05</b><span>Horowitz</span></button>
+          <button type="button" data-index="5" aria-label="Show concept 6 of 7: Morgan and Morgan, dial number LAW, legal services"><b>06</b><span>M&amp;M · Dial #LAW</span></button>
+          <button type="button" data-index="6" aria-label="Show concept 7 of 7: Downtown West Palm Beach, destination marketing"><b>07</b><span>Downtown WPB</span></button>
         </div>
       </div>
     </div>
@@ -1089,7 +1116,7 @@ footer{background:var(--ink);color:#fff;padding:60px 0 34px}
       <a href="/adometr/legal/privacy/">Privacy</a>
       <a href="/adometr/legal/terms/">Terms</a>
     </div>
-    <p class="fine-row">© <span id="yr">2026</span> Collaborative Concepts LLC · South Florida · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a> · Sponsor campaigns shown on this page are fictional concepts. Earnings, impressions and CPM figures are illustrative estimates, not guarantees.</p>
+    <p class="fine-row">© <span id="yr">2026</span> Collaborative Concepts LLC · South Florida · <a href="mailto:dannybivins83@gmail.com">dannybivins83@gmail.com</a> · Earnings, impressions and CPM figures are illustrative estimates, not guarantees.</p>
   </div>
 </footer>
 
