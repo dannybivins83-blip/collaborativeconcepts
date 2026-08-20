@@ -10,13 +10,13 @@
 <link rel="icon" href="/favicon.ico" sizes="any" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Collaborative Concept" />
-<meta property="og:title" content="Projects &amp;amp; Pipeline — Collaborative Concept" />
-<meta property="og:description" content="What Collaborative Concept can describe publicly today, the criteria every new development opportunity is screened against, and how to bring one to us." />
+<meta property="og:title" content="Projects &amp; Pipeline — Collaborative Concept" />
+<meta property="og:description" content="The Madeira Beach double-lot, The Range House concept in Pensacola, and the completed South Florida record built by La Gala Construction — plus the 10-deal coastal pipeline." />
 <meta property="og:url" content="https://collaborativeconceptsfl.com/development/projects" />
 <meta property="og:image" content="https://collaborativeconceptsfl.com/og/default.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Projects &amp;amp; Pipeline — Collaborative Concept" />
-<meta name="twitter:description" content="What Collaborative Concept can describe publicly today, the criteria every new development opportunity is screened against, and how to bring one to us." />
+<meta name="twitter:title" content="Projects &amp; Pipeline — Collaborative Concept" />
+<meta name="twitter:description" content="The Madeira Beach double-lot, The Range House concept in Pensacola, and the completed South Florida record built by La Gala Construction — plus the 10-deal coastal pipeline." />
 <meta name="twitter:image" content="https://collaborativeconceptsfl.com/og/default.png" />
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Collaborative Concept LLC","url":"https://collaborativeconceptsfl.com","logo":"https://collaborativeconceptsfl.com/og/default.png","telephone":"+15614758615","address":{"@type":"PostalAddress","streetAddress":"513 W Drew Street","addressLocality":"Lantana","addressRegion":"FL","postalCode":"33462","addressCountry":"US"},"areaServed":{"@type":"State","name":"Florida"},"founder":{"@type":"Person","name":"Daniel Bivins"}}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://collaborativeconceptsfl.com/"},{"@type":"ListItem","position":2,"name":"Development","item":"https://collaborativeconceptsfl.com/development"},{"@type":"ListItem","position":3,"name":"Projects","item":"https://collaborativeconceptsfl.com/development/projects"}]}</script>
@@ -26,22 +26,60 @@
 <script defer src="/_vercel/speed-insights/script.js"></script>
 <!-- /deploy-head -->
 <title>Projects &amp; Pipeline — Collaborative Concept</title>
-<meta name="description" content="What Collaborative Concept can describe publicly today, the criteria every new development opportunity is screened against, and how to bring one to us." />
+<meta name="description" content="Madeira Beach double-lot, The Range House adaptive-reuse concept in Pensacola, and the completed Drift Hotel, Springbrook Gardens and Hyatt Fort Lauderdale projects built by La Gala Construction." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/assets/redesign/site.css" />
 <style>
 /* Projects & Pipeline — page-unique layout only */
-.proj-grid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.28fr);gap:var(--space-8);align-items:stretch}
-.pipe{display:flex;flex-direction:column;gap:var(--space-4);background:var(--color-paper);
-  border:1px solid var(--color-line);border-radius:var(--radius-sm);padding:clamp(1.5rem,3vw,2.5rem)}
-.pipe p{margin:0;font-size:var(--text-sm)}
-.pipe ul{margin:0;padding-left:1.1rem;font-size:var(--text-sm);color:var(--color-muted)}
-.pipe li{margin-bottom:.5rem}
-.pipe .link-arrow{margin-top:auto;padding-top:var(--space-4);min-height:44px}
-.proj-empty{margin:var(--space-8) 0 0;font-size:var(--text-sm)}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-8)}
+.hero-ctas .btn{margin-top:0}
+
+/* figure strip (project-level numbers) */
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:1px;
+  background:var(--color-line);border:1px solid var(--color-line);border-radius:var(--radius-sm);
+  margin:var(--space-8) 0 var(--space-4)}
+.fig{background:var(--color-paper);padding:var(--space-4)}
+.fig b{display:block;font-family:var(--font-display);font-weight:500;line-height:1;
+  letter-spacing:-.02em;color:var(--color-navy);font-size:clamp(1.25rem,1rem + .8vw,1.75rem)}
+.fig span{display:block;margin-top:.45rem;font-size:var(--text-xs);font-weight:700;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--color-muted)}
+.fig-note{font-size:var(--text-xs);color:var(--color-muted);margin:0}
+
+/* pipeline promo */
+.promo{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--space-8);
+  align-items:center;border:1px solid var(--color-line);background:var(--color-paper);
+  border-radius:var(--radius-sm);padding:clamp(1.25rem,3vw,2.5rem)}
+.promo h2{margin-bottom:var(--space-4)}
+.promo p{font-size:var(--text-sm);margin:0 0 var(--space-4);max-width:52ch}
+.promo-art{position:relative;aspect-ratio:16/10;overflow:hidden;border:1px solid var(--color-line);
+  background:var(--color-teal-soft)}
+.promo-art svg{position:absolute;inset:0;width:100%;height:100%}
+
+/* project cards */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:var(--space-6)}
+.card[hidden]{display:none}
 .proj-grid .card[hidden]{display:none}
+.pills{display:flex;flex-wrap:wrap;gap:.4rem}
+.card-meta{font-size:var(--text-xs);font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--color-muted);margin:0}
+.proj-empty{margin:var(--space-8) 0 0;font-size:var(--text-sm)}
+
+/* wide record table — scrolls inside its own box, never the page */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;
+  border:1px solid var(--color-line);background:var(--color-paper);border-radius:var(--radius-sm)}
+.rec{width:100%;min-width:46rem;border-collapse:collapse;font-size:var(--text-sm)}
+.rec th,.rec td{text-align:left;padding:.85rem 1rem;border-bottom:1px solid var(--color-line);
+  vertical-align:top}
+.rec thead th{font-size:var(--text-xs);font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--color-navy);white-space:nowrap}
+.rec tbody th{font-weight:600;color:var(--color-navy);white-space:nowrap}
+.rec td{color:var(--color-muted)}
+.rec tbody tr:last-child th,.rec tbody tr:last-child td{border-bottom:0}
+
+/* concept detail + closing blocks */
+.stack-col{display:flex;flex-direction:column;gap:var(--space-6)}
 .bring-list{list-style:none;margin:0;padding:0;counter-reset:step}
 .bring-list li{counter-increment:step;position:relative;padding-left:2.6rem;margin-bottom:var(--space-8)}
 .bring-list li:last-child{margin-bottom:0}
@@ -50,8 +88,7 @@
 .bring-list strong{display:block;font-family:var(--font-display);font-weight:500;font-size:1.25rem;
   letter-spacing:-.015em;color:var(--color-navy);margin-bottom:.3rem}
 .bring-list p{margin:0;font-size:var(--text-sm)}
-.stack-col{display:flex;flex-direction:column;gap:var(--space-6)}
-@media (max-width:900px){ .proj-grid{grid-template-columns:1fr} }
+@media (max-width:900px){ .promo{grid-template-columns:1fr} }
 </style>
 </head>
 <body>
@@ -61,7 +98,7 @@
   <div class="container hdr">
     <a class="wordmark" href="/">Collaborative Concept</a>
     <nav class="nav" aria-label="Primary">
-      <a href="/development">Development</a>
+      <a href="/development" aria-current="page">Development</a>
       <a href="/solutions">Solutions</a>
       <a href="/work">Selected Work</a>
       <a href="/about">About</a>
@@ -83,7 +120,7 @@
       </button>
     </div>
     <nav aria-label="Mobile">
-      <a href="/development">Development</a>
+      <a href="/development" aria-current="page">Development</a>
       <a href="/solutions">Solutions</a>
       <a href="/work">Selected Work</a>
       <a href="/about">About</a>
@@ -103,9 +140,12 @@
         <span class="muted">Projects &amp; Pipeline</span>
       </div>
       <p class="eyebrow dev" style="margin:var(--space-8) 0 0">Development</p>
-      <h1>Projects we're shaping and the criteria behind them.</h1>
-      <p>What we can describe publicly is below. The rest of this page is criteria and process — what we look for, how an opportunity gets evaluated, and how to bring us one.</p>
-      <a class="btn btn-teal" href="/contact">Bring Us an Opportunity</a>
+      <h1>The deals we're building and the record behind them.</h1>
+      <p>One active raise, one adaptive-reuse concept under feasibility, and the completed South Florida projects delivered by our GC partner La Gala Construction.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-teal" href="/development/pipeline">View the 10-Deal Pipeline</a>
+        <a class="btn btn-outline" href="/contact">Bring Us an Opportunity</a>
+      </div>
     </div>
     <div class="page-hero-art">
       <img src="/assets/redesign/img/proj-hero.jpg" alt="Aerial view of beachfront houses along a sandy shoreline, with an inland waterway beyond" width="524" height="365" decoding="async" />
@@ -114,12 +154,96 @@
 
   <section class="section">
     <div class="container">
-      <h2>Current projects</h2>
+      <p class="eyebrow dev">Flagship Project</p>
+      <hr class="tick t-dev" style="margin-top:.6rem" />
+      <h2>Madeira Beach Double-Lot.</h2>
+
+      <div class="rows">
+        <article class="row" style="border-top:1px solid var(--color-line)">
+          <div>
+            <p class="lead" style="margin:0 0 var(--space-6)">Two adjacent lots on Florida's Gulf Coast. Two new coastal homes &mdash; elevated, FEMA-compliant, built with a split-schedule to control capital exposure and enable sequential exits. Our first JV investor deal.</p>
+            <p style="margin:0"><span class="status">Active &mdash; Raising Capital</span></p>
+
+            <div class="figs">
+              <div class="fig"><b>$1.9M&ndash;$2.2M</b><span>Total cost</span></div>
+              <div class="fig"><b>$600K&ndash;$1M+</b><span>Profit</span></div>
+              <div class="fig"><b>$1.3M&ndash;$1.6M</b><span>Per-home exit</span></div>
+              <div class="fig"><b>9&ndash;14 mo</b><span>Timeline</span></div>
+            </div>
+            <p class="fig-note">Projected figures under active underwriting &mdash; a live raise, not a closed or guaranteed return.</p>
+
+            <p style="margin-top:var(--space-8)">
+              <a class="link-arrow dev" href="/development/madeira-beach">View the Project <span aria-hidden="true">&rarr;</span></a>
+            </p>
+          </div>
+          <div class="row-art">
+            <img src="/assets/redesign/img/dev-lot-aerial.jpg" alt="Aerial view of a vacant grass corner lot outlined in white, surrounded by streets and single-storey houses in a coastal block" width="428" height="268" loading="lazy" decoding="async" />
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-paper">
+    <div class="container">
+      <div class="promo">
+        <div>
+          <p class="eyebrow dev">Sourced Pipeline</p>
+          <hr class="tick t-dev" style="margin-top:.6rem" />
+          <h2>The 10-deal coastal pipeline.</h2>
+          <p>Ten ground-up residential opportunities sourced across the Pinellas barrier islands &mdash; the deal flow behind Madeira Beach, listed lot by lot with the case for each one.</p>
+          <p><a class="btn btn-teal" href="/development/pipeline">See All 10 Deals</a></p>
+        </div>
+        <div class="promo-art">
+          <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="480" height="300" fill="#dcebea"/>
+            <g stroke="#247d84" stroke-width=".6" fill="none" opacity=".3">
+              <path d="M0 40h480M0 90h480M0 140h480M0 190h480M0 240h480"/>
+            </g>
+            <g stroke="#0c2942" stroke-width="1" fill="none" opacity=".45">
+              <path d="M96 0c-14 44 10 70 2 108s-22 62-6 100 6 62-2 92"/>
+              <path d="M372 0c16 46-8 74 0 112s20 60 4 96-4 64 4 92"/>
+            </g>
+            <g stroke="#247d84" stroke-width=".5" fill="none" opacity=".28">
+              <path d="M18 24h56M10 56h56M24 88h56M12 120h56M22 152h56M10 184h56M24 216h56M14 248h56M20 280h56"/>
+              <path d="M404 24h56M414 56h56M400 88h56M412 120h56M402 152h56M416 184h56M400 216h56M410 248h56M404 280h56"/>
+            </g>
+            <g stroke="#247d84" stroke-width=".9" fill="none" opacity=".65">
+              <path d="M126 26h60v34h-60zM214 26h60v34h-60zM302 26h60v34h-60z"/>
+              <path d="M126 86h60v34h-60zM214 86h60v34h-60zM302 86h60v34h-60z"/>
+              <path d="M126 146h60v34h-60zM214 146h60v34h-60zM302 146h60v34h-60z"/>
+              <path d="M214 206h60v34h-60z"/>
+            </g>
+            <g fill="#162a39" font-family="Inter,sans-serif" font-size="9" font-weight="600" letter-spacing=".06em" opacity=".72">
+              <text x="150" y="48">01</text><text x="238" y="48">02</text><text x="326" y="48">03</text>
+              <text x="150" y="108">04</text><text x="238" y="108">05</text><text x="326" y="108">06</text>
+              <text x="150" y="168">07</text><text x="238" y="168">08</text><text x="326" y="168">09</text>
+              <text x="238" y="228">10</text>
+            </g>
+            <g fill="#162a39" font-family="Inter,sans-serif" font-size="8" letter-spacing=".1em" opacity=".65">
+              <text x="126" y="272">PINELLAS BARRIER ISLANDS</text>
+              <text x="126" y="286">10 SITES SOURCED</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow dev">The Record</p>
+      <hr class="tick t-dev" style="margin-top:.6rem" />
+      <h2>Projects, concepts, and completed work.</h2>
+      <p class="lead" style="margin-bottom:var(--space-8)">One active development, one concept under feasibility, and three completed South Florida projects delivered by our GC partner.</p>
+
       <div class="filters" role="group" aria-label="Filter projects by status">
         <button type="button" data-filter="all" aria-current="true">All</button>
         <button type="button" data-filter="active">Active</button>
-        <button type="button" data-filter="diligence">In Diligence</button>
+        <button type="button" data-filter="completed">Completed</button>
+        <button type="button" data-filter="concept">Concept</button>
       </div>
+
       <div class="proj-grid">
 
         <a class="card" href="/development/madeira-beach" data-status="active">
@@ -127,29 +251,255 @@
             <img src="/assets/redesign/img/work-madeira.jpg" alt="Two-storey coastal residence with covered balconies, framed by palms" width="190" height="110" loading="lazy" decoding="async" />
           </div>
           <div class="card-body">
-            <p class="eyebrow dev">Development</p>
-            <h3>Madeira Beach Double-Lot Development</h3>
-            <p style="margin:0"><span class="status">Active — Raising Capital</span></p>
-            <p>A non-conforming double-lot assembled and entitled for residential development.</p>
-            <span class="link-arrow dev">View Project <span aria-hidden="true">&rarr;</span></span>
+            <p class="card-meta">Madeira Beach, FL &middot; Two elevated coastal homes</p>
+            <h3>Madeira Beach Double-Lot</h3>
+            <div class="pills"><span class="status">Active &mdash; Raising Capital</span></div>
+            <p>Two adjacent Gulf Coast lots developed as two new elevated, FEMA-compliant homes on a split schedule, so capital exposure stays controlled and the exits can run sequentially. Our first JV investor deal.</p>
+            <span class="link-arrow dev">View the Project <span aria-hidden="true">&rarr;</span></span>
           </div>
         </a>
 
-        <div class="pipe">
-          <h3>The rest of the pipeline stays private until it can be described honestly.</h3>
-          <p>A project appears on this page only when we control enough of it to describe it accurately and everyone involved has agreed it can be described at all. We would rather show real work than a page of concepts.</p>
-          <p>The kinds of opportunity we actively look at:</p>
-          <ul>
-            <li>Infill and non-conforming lots where the binding constraint is the approvals path, not the price.</li>
-            <li>Small-scale residential development we can manage directly, start to finish.</li>
-            <li>Underused parcels that need a plan before they need a buyer.</li>
-            <li>Joint ventures where we carry the entitlement work and the execution accountability.</li>
-          </ul>
-          <a class="link-arrow dev" href="/contact">Discuss an Opportunity <span aria-hidden="true">&rarr;</span></a>
+        <div class="card" data-status="concept">
+          <div class="card-art">
+            <svg viewBox="0 0 480 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <rect width="480" height="320" fill="#dcebea"/>
+              <g stroke="#0c2942" stroke-width=".5" fill="none" opacity=".18">
+                <path d="M0 64h480M0 128h480M0 192h480M0 256h480M80 0v320M160 0v320M240 0v320M320 0v320M400 0v320"/>
+              </g>
+              <g stroke="#247d84" stroke-width="1" fill="none" opacity=".62">
+                <path d="M74 252h332v-88H74z"/>
+                <path d="M58 164l182-58 182 58"/>
+                <path d="M222 106h36v-24h-36zM216 82l24-18 24 18"/>
+                <path d="M86 252v-64M124 252v-64M162 252v-64M318 252v-64M356 252v-64M394 252v-64"/>
+                <path d="M74 188h332"/>
+                <path d="M196 200h88v52h-88zM240 200v52"/>
+                <path d="M108 202h30v26h-30zM152 202h30v26h-30zM298 202h30v26h-30zM342 202h30v26h-30z"/>
+              </g>
+              <g stroke="#0c2942" stroke-width=".7" fill="none" opacity=".42">
+                <path d="M74 276h332M74 271v10M406 271v10"/>
+                <path d="M46 164v88M41 164h10M41 252h10"/>
+              </g>
+              <g fill="#162a39" font-family="Inter,sans-serif" font-size="8" letter-spacing=".1em" opacity=".7">
+                <text x="16" y="30">CONCEPT · ENTRY ELEVATION</text>
+                <text x="140" y="298">40,688 SF ADAPTIVE REUSE · 13.5 AC</text>
+              </g>
+            </svg>
+          </div>
+          <div class="card-body">
+            <p class="card-meta">Pensacola, FL &middot; Adaptive reuse &middot; 13.5 acres &middot; 40,688 SF</p>
+            <h3>The Range House</h3>
+            <div class="pills">
+              <span class="status">Golf-Sim Group Lodging &mdash; Concept</span>
+              <span class="status">Base case 10% IRR &middot; 1.58x</span>
+            </div>
+            <p>An all-weather group-getaway destination built around golf simulators &mdash; a private, bookable lodge of group suites wrapped around eight sim bays, a bar, and an event room, sold to the traveling groups this market already attracts. An adaptive reuse of an existing 40,688 SF building on 13.5 acres in Pensacola's growing I-110 corridor.</p>
+            <a class="link-arrow dev" href="#range-house">Read the Concept <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </div>
+
+        <div class="card" data-status="completed">
+          <div class="card-art">
+            <svg viewBox="0 0 480 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <rect width="480" height="320" fill="#dcebea"/>
+              <g stroke="#0c2942" stroke-width=".5" fill="none" opacity=".18">
+                <path d="M0 64h480M0 128h480M0 192h480M0 256h480M120 0v320M240 0v320M360 0v320"/>
+              </g>
+              <g stroke="#247d84" stroke-width="1" fill="none" opacity=".62">
+                <path d="M120 264h240V56H120z"/>
+                <path d="M104 96h272M104 138h272M104 180h272M104 222h272"/>
+                <path d="M104 96v14M148 96v14M192 96v14M236 96v14M280 96v14M324 96v14M368 96v14"/>
+                <path d="M104 138v14M148 138v14M192 138v14M236 138v14M280 138v14M324 138v14M368 138v14"/>
+                <path d="M104 180v14M148 180v14M192 180v14M236 180v14M280 180v14M324 180v14M368 180v14"/>
+                <path d="M104 222v14M148 222v14M192 222v14M236 222v14M280 222v14M324 222v14M368 222v14"/>
+                <path d="M120 56h240v-14H120z"/>
+                <path d="M204 264v-30h72v30"/>
+              </g>
+              <g stroke="#0c2942" stroke-width=".7" fill="none" opacity=".4">
+                <path d="M76 56v208M71 56h10M71 264h10"/>
+                <path d="M120 288h240M120 283v10M360 283v10"/>
+              </g>
+              <g fill="#162a39" font-family="Inter,sans-serif" font-size="8" letter-spacing=".1em" opacity=".7">
+                <text x="16" y="30">OCCUPIED RESTORATION</text>
+                <text x="118" y="308">BALCONY &amp; STRUCTURAL CONCRETE</text>
+              </g>
+            </svg>
+          </div>
+          <div class="card-body">
+            <p class="card-meta">Fort Lauderdale Beach, FL &middot; Occupied restoration</p>
+            <h3>Drift Hotel</h3>
+            <div class="pills">
+              <span class="status">Boutique Hotel &mdash; La Gala GC</span>
+              <span class="status">Completed 2018</span>
+            </div>
+            <p>Exterior concrete restoration of balconies and structural elements &mdash; including elevation changes &mdash; on a boutique hotel that stayed open to guests throughout the work. Built by La Gala Construction (FL CGC 059211).</p>
+          </div>
+        </div>
+
+        <div class="card" data-status="completed">
+          <div class="card-art">
+            <svg viewBox="0 0 480 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <rect width="480" height="320" fill="#dcebea"/>
+              <g stroke="#0c2942" stroke-width=".5" fill="none" opacity=".18">
+                <path d="M0 64h480M0 128h480M0 192h480M0 256h480M96 0v320M192 0v320M288 0v320M384 0v320"/>
+              </g>
+              <g stroke="#247d84" stroke-width="1" fill="none" opacity=".62">
+                <path d="M60 260h360V128H60z"/>
+                <path d="M44 194h392M44 128h392"/>
+                <path d="M84 200v60M124 200v60M164 200v60M204 200v60M244 200v60M284 200v60M324 200v60M364 200v60"/>
+                <path d="M84 134v56M124 134v56M164 134v56M204 134v56M244 134v56M284 134v56M324 134v56M364 134v56"/>
+                <path d="M60 164h360M60 230h360"/>
+              </g>
+              <g stroke="#0c2942" stroke-width=".7" fill="none" opacity=".4">
+                <path d="M60 284h360M60 279v10M420 279v10"/>
+                <path d="M28 128v132M23 128h10M23 260h10"/>
+              </g>
+              <g fill="#162a39" font-family="Inter,sans-serif" font-size="8" letter-spacing=".1em" opacity=".7">
+                <text x="16" y="30">MID-CENTURY MODERN · SLAB EDGE</text>
+                <text x="60" y="306">18 UNITS · HORIZONTAL SIGHT LINES</text>
+              </g>
+            </svg>
+          </div>
+          <div class="card-body">
+            <p class="card-meta">Fort Lauderdale, FL &middot; 18-unit Mid-Century</p>
+            <h3>Springbrook Gardens</h3>
+            <div class="pills">
+              <span class="status">Condominium &mdash; La Gala GC</span>
+              <span class="status">Completed 2016</span>
+            </div>
+            <p>Restoration of an 18-unit mid-century modern condominium &mdash; slab edges, railings and waterproofing restored without compromising the original proportions, sequenced around the board and the residents. Built by La Gala Construction (FL CGC 059211).</p>
+          </div>
+        </div>
+
+        <div class="card" data-status="completed">
+          <div class="card-art">
+            <svg viewBox="0 0 480 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <rect width="480" height="320" fill="#dcebea"/>
+              <g stroke="#0c2942" stroke-width=".5" fill="none" opacity=".18">
+                <path d="M0 64h480M0 128h480M0 192h480M0 256h480M120 0v320M240 0v320M360 0v320"/>
+              </g>
+              <g stroke="#247d84" stroke-width="1" fill="none" opacity=".62">
+                <path d="M150 268h150V44H150z"/>
+                <path d="M150 76h150M150 108h150M150 140h150M150 172h150M150 204h150M150 236h150"/>
+                <path d="M187 44v224M225 44v224M263 44v224"/>
+                <path d="M204 268v-32h42v32"/>
+              </g>
+              <g stroke="#0c2942" stroke-width=".8" fill="none" opacity=".5">
+                <path d="M360 268V60M360 60h-96M264 60v26M348 268h24M352 250h16M352 220h16M352 190h16"/>
+                <path d="M360 60l-14 22h28z"/>
+              </g>
+              <g stroke="#0c2942" stroke-width=".7" fill="none" opacity=".4">
+                <path d="M110 44v224M105 44h10M105 268h10"/>
+                <path d="M150 290h150M150 285v10M300 285v10"/>
+              </g>
+              <g fill="#162a39" font-family="Inter,sans-serif" font-size="8" letter-spacing=".1em" opacity=".7">
+                <text x="16" y="30">CONSTRUCTION MANAGEMENT</text>
+                <text x="150" y="310">SCHEDULE &amp; MILESTONE TRACKING</text>
+              </g>
+            </svg>
+          </div>
+          <div class="card-body">
+            <p class="card-meta">Fort Lauderdale, FL &middot; Construction management</p>
+            <h3>Hyatt Fort Lauderdale</h3>
+            <div class="pills">
+              <span class="status">National-Brand Hotel &mdash; La Gala GC</span>
+              <span class="status">Completed 2018</span>
+            </div>
+            <p>Construction management and concrete work on a national-brand hotel &mdash; strict schedule accountability, detailed daily reporting, and protection of the guest experience throughout. Built by La Gala Construction (FL CGC 059211).</p>
+          </div>
         </div>
 
       </div>
       <p class="proj-empty" id="projEmpty" hidden>Nothing at that stage can be described publicly right now.</p>
+    </div>
+  </section>
+
+  <section class="section section-paper" id="range-house">
+    <div class="container">
+      <p class="eyebrow dev">Development Concept</p>
+      <hr class="tick t-dev" style="margin-top:.6rem" />
+      <h2>The Range House &mdash; Pensacola, FL.</h2>
+
+      <div class="split-2">
+        <div>
+          <p class="lead">Three businesses under one roof. Part lodging, part entertainment venue, part corporate retreat &mdash; sold to groups who want one roof, an all-weather activity, and a buy-the-whole-place experience.</p>
+          <p>An adaptive reuse of an existing 40,688 SF building on 13.5 acres in Pensacola's growing I-110 corridor: roughly 24 group suites wrapped around eight golf-simulator bays, a bar and lounge, catering-ready event space, and an outdoor skate park on the balance of the site. Adaptive reuse gives the project a lower-cost basis than ground-up.</p>
+          <p>The demand already drives here &mdash; golf trips, NAS Pensacola and its 53,000+ jobs, aerospace growth in the corridor including ST Engineering's MRO expansion and the 1,700 jobs it adds, and Navy Federal's roughly 10,000 employees minutes away.</p>
+          <p>Collaborative Concept sources, underwrites, and structures the deal. Construction is carried by our licensed GC partner, Legally Construction.</p>
+          <p style="margin-top:var(--space-8)"><a class="link-arrow dev" href="/development/investor-inquiries">Investor Inquiries <span aria-hidden="true">&rarr;</span></a></p>
+        </div>
+        <div class="stack-col">
+          <table class="facts">
+            <caption class="sr-only">The Range House — concept base case and feasibility status</caption>
+            <tbody>
+              <tr><th scope="row">Site</th><td>13.5 acres, Pensacola I-110 corridor</td></tr>
+              <tr><th scope="row">Existing building</th><td>40,688 SF adaptive reuse</td></tr>
+              <tr><th scope="row">Program</th><td>~24 group suites (sleeps ~112 at full buyout), 8 golf-simulator bays, bar, lounge and event space</td></tr>
+              <tr><th scope="row">Annual revenue</th><td>$2.06M</td></tr>
+              <tr><th scope="row">Net operating income</th><td>$825K</td></tr>
+              <tr><th scope="row">Total development cost</th><td>$10.4M</td></tr>
+              <tr><th scope="row">Yield on cost</th><td>7.9%</td></tr>
+              <tr><th scope="row">5-year levered IRR</th><td>10.0%</td></tr>
+              <tr><th scope="row">Equity multiple</th><td>1.58x</td></tr>
+              <tr><th scope="row">Timeline</th><td>28&ndash;44 months &mdash; 28&ndash;32 if conditional-use only, 38&ndash;44 if a comprehensive-plan amendment is required</td></tr>
+              <tr><th scope="row">Feasibility package</th><td>Complete &mdash; market study, 5-year pro forma, 11-sheet drawing set, 171-task master plan, 30-analyst peer review</td></tr>
+              <tr><th scope="row">Open gates</th><td>G1 Zoning &middot; G2 Environmental &middot; G3 Site &middot; G4 Use</td></tr>
+            </tbody>
+          </table>
+          <p class="fig-note">Concept base case from the completed feasibility package. Concept-stage projections; the full model and sensitivities are in the investor packet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow dev">GC Partner Track Record</p>
+      <hr class="tick t-dev" style="margin-top:.6rem" />
+      <h2>Construction track record.</h2>
+      <p class="lead" style="margin-bottom:var(--space-8)">Every Collaborative Concept build is executed by our GC partner <strong>La Gala Construction (FL CGC 059211)</strong>. Below are representative projects from their 25+ year South Florida track record &mdash; the field experience, subcontractor relationships, and inspection history behind our development deals.</p>
+
+      <div class="table-scroll">
+        <table class="rec">
+          <caption class="sr-only">Completed projects delivered by La Gala Construction</caption>
+          <thead>
+            <tr>
+              <th scope="col">Project</th>
+              <th scope="col">Location</th>
+              <th scope="col">Type</th>
+              <th scope="col">Scope</th>
+              <th scope="col">Completed</th>
+              <th scope="col">Built by</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Drift Hotel</th>
+              <td>Fort Lauderdale Beach, FL</td>
+              <td>Boutique hotel &mdash; occupied restoration</td>
+              <td>Exterior concrete restoration, balcony structural repair, elevation changes, occupied-building protocols, coastal salt-air finishes</td>
+              <td>2018</td>
+              <td>La Gala Construction (FL CGC 059211)</td>
+            </tr>
+            <tr>
+              <th scope="row">Springbrook Gardens</th>
+              <td>Fort Lauderdale, FL</td>
+              <td>18-unit mid-century modern condominium</td>
+              <td>Exterior concrete restoration, slab edge &amp; railing repair, waterproofing &amp; caulking, board &amp; resident coordination, mid-century detail preservation</td>
+              <td>2016</td>
+              <td>La Gala Construction (FL CGC 059211)</td>
+            </tr>
+            <tr>
+              <th scope="row">Hyatt Fort Lauderdale</th>
+              <td>Fort Lauderdale, FL</td>
+              <td>National-brand hotel &mdash; construction management</td>
+              <td>Construction management, concrete / structural work, national-brand compliance, schedule &amp; milestone tracking, guest-experience protection</td>
+              <td>2018</td>
+              <td>La Gala Construction (FL CGC 059211)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fig-note" style="margin-top:var(--space-4)">Collaborative Concept sources and structures. Our licensed GC partner builds.</p>
     </div>
   </section>
 
@@ -159,7 +509,7 @@
       <div class="split-2">
         <div>
           <p class="lead">Status describes where a project stands inside our own process. It is not a marketing stage and it is not a prediction.</p>
-          <p>We do not label a project acquired, closed, or completed on this page, and we do not publish a project we cannot stand behind sentence by sentence. Status changes when the work changes, not when it would be convenient.</p>
+          <p>Completed work is listed with the year it was delivered and the licensed contractor that built it. A concept is labelled a concept, and its numbers are the base case out of its feasibility package rather than a result.</p>
           <p>If a filter above returns nothing, that is the honest answer: there is no project at that stage we can describe publicly right now.</p>
         </div>
         <div>
@@ -167,12 +517,16 @@
             <caption class="sr-only">Status labels used on this page and what each one means</caption>
             <tbody>
               <tr>
-                <th scope="row">Active — Raising Capital</th>
+                <th scope="row">Active &mdash; Raising Capital</th>
                 <td>The plan is set and we are assembling the capital to execute it. This is the stage where partner conversations happen.</td>
               </tr>
               <tr>
-                <th scope="row">In Diligence</th>
-                <td>Under evaluation. We are testing the assumptions — site constraints, approvals path, cost to carry, and what a realistic outcome looks like — before anyone commits.</td>
+                <th scope="row">Concept</th>
+                <td>Feasibility, market, and cost analysis complete or underway. Base-case numbers come from that work, and the open diligence gates are named.</td>
+              </tr>
+              <tr>
+                <th scope="row">Completed</th>
+                <td>Delivered work, listed with the year it was completed and the licensed contractor that built it.</td>
               </tr>
               <tr>
                 <th scope="row">Not listed</th>
@@ -188,13 +542,13 @@
   <section class="section">
     <div class="container">
       <h2>What we evaluate</h2>
-      <p class="lead" style="margin-bottom:var(--space-12)">Every opportunity is screened against the same questions. They are deliberately unglamorous — most of what goes wrong on a project this size is visible before anyone signs anything.</p>
+      <p class="lead" style="margin-bottom:var(--space-12)">Every opportunity is screened against the same questions. They are deliberately unglamorous &mdash; most of what goes wrong on a project this size is visible before anyone signs anything.</p>
       <div class="grid g-3">
         <div class="card">
           <div class="card-body">
             <hr class="tick t-dev" />
             <h3>Geography</h3>
-            <p>We work where we can be on site the same day. On projects this size, concentration beats reach — proximity is what makes direct management possible.</p>
+            <p>We work where we can be on site the same day. On projects this size, concentration beats reach &mdash; proximity is what makes direct management possible.</p>
           </div>
         </div>
         <div class="card">
@@ -215,7 +569,7 @@
           <div class="card-body">
             <hr class="tick t-dev" />
             <h3>Approvals path</h3>
-            <p>What the property is allowed to become, what it would take to get there, and who has to say yes. Those determinations are made with the licensed professionals whose judgment governs them — we do not make them ourselves.</p>
+            <p>What the property is allowed to become, what it would take to get there, and who has to say yes. Those determinations are made with the licensed professionals whose judgment governs them &mdash; we do not make them ourselves.</p>
           </div>
         </div>
         <div class="card">
@@ -239,7 +593,7 @@
   <section class="section section-paper">
     <div class="container">
       <h2>How an opportunity moves through review</h2>
-      <p class="lead" style="margin-bottom:var(--space-12)">Four stages. Any one of them can end the conversation — that is the point of running them in this order.</p>
+      <p class="lead" style="margin-bottom:var(--space-12)">Four stages. Any one of them can end the conversation &mdash; that is the point of running them in this order.</p>
       <div class="process-strip">
         <div class="step">
           <svg viewBox="0 0 34 34" fill="none" stroke="#247d84" stroke-width="1.2" aria-hidden="true"><circle cx="15" cy="15" r="9"/><path d="M22 22l8 8"/></svg>
@@ -291,7 +645,7 @@
             <img src="/assets/redesign/img/proj-sketch.png" alt="Hand-drawn perspective sketch of two adjacent two-storey houses with porches, palms and a landscaped drive" width="171" height="107" loading="lazy" decoding="async" />
           </div>
           <div class="disclosure">
-            <p>Collaborative Concept is a developer and operating partner. We are not a broker, architect, engineer, contractor, attorney, appraiser, or inspector, and we do not perform work that requires those licenses.</p>
+            <p>Collaborative Concept is a developer and operating partner. We are not a broker, architect, engineer, contractor, attorney, appraiser, or inspector, and we do not perform work that requires those licenses. Construction is performed by our licensed GC partners.</p>
             <p>Nothing on this page is an offer to sell or a solicitation of an offer to buy any security or interest in any project. Project status reflects where the work stands at the time of writing and can change.</p>
           </div>
         </div>
@@ -353,7 +707,8 @@
     b.setAttribute('aria-current', 'true');
     var shown = 0;
     for (var j = 0; j < cards.length; j++) {
-      var match = (f === 'all' || cards[j].getAttribute('data-status') === f);
+      var states = (cards[j].getAttribute('data-status') || '').split(' ');
+      var match = (f === 'all' || states.indexOf(f) > -1);
       cards[j].hidden = !match;
       if (match) shown++;
     }

@@ -1,2 +1,12 @@
 adometr/pipeline/
 .claude/
+node_modules/
+__pycache__/
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+previews/
+*.zip
+.pytest_cache/
+.vercel/cache/

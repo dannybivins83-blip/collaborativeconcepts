@@ -288,12 +288,12 @@
     },
     {
       "source": "/pipeline",
-      "destination": "/development/projects",
+      "destination": "/development/pipeline",
       "permanent": true
     },
     {
       "source": "/pipeline-100",
-      "destination": "/development/projects",
+      "destination": "/development/pipeline-100",
       "permanent": true
     },
     {

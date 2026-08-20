@@ -1,0 +1,29 @@
+{
+  "colors": {
+    "ivory": "#F7F4ED",
+    "paper": "#FFFDF8",
+    "navy": "#0C2942",
+    "navySoft": "#183A53",
+    "developmentTeal": "#247D84",
+    "developmentTealSoft": "#DCEBEA",
+    "solutionsCopper": "#B76032",
+    "solutionsCopperSoft": "#F1E1D5",
+    "ink": "#162A39",
+    "muted": "#637078",
+    "line": "#D6D3CA",
+    "white": "#FFFFFF"
+  },
+  "typography": {
+    "display": "Cormorant Garamond, Iowan Old Style, Baskerville, serif",
+    "body": "Inter, Avenir Next, Helvetica Neue, Arial, sans-serif"
+  },
+  "layout": {
+    "maxContainer": "1280px",
+    "readingWidth": "736px",
+    "minimumTarget": "44px"
+  },
+  "radii": {
+    "small": "2px",
+    "medium": "4px"
+  }
+}
