@@ -32,14 +32,78 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/assets/redesign/site.css" />
 <style>
-/* Contact-page-unique layout */
+/* ============================================================
+   Contact — structural rebuild to page-concepts/11_Contact.
+   Bands, in concept order: centred hero, division-first intake,
+   direct line, what happens next, assurance strip, closing image.
+   Heights tuned to the concept's proportions at 1440px
+   (concept 864x1821 -> 3035px target). Padding is explicit per
+   band rather than --section-space: this page is denser than the
+   shared interior rhythm.
+   ============================================================ */
+
+/* 1 - HERO (centred, no art: the concept opens on type) */
+.ct-hero{background:var(--color-ivory);border-bottom:1px solid var(--color-line);
+  padding:4.5rem 0 4.7rem;text-align:center}
+.ct-hero .tick{margin:.9rem auto var(--space-6)}
+.ct-hero h1{font-family:var(--font-display);font-weight:500;
+  font-size:clamp(2.5rem,1.15rem + 3.5vw,4.6rem);line-height:1.02;letter-spacing:-.028em;
+  color:var(--color-navy);margin:0 auto var(--space-6);max-width:15ch}
+.ct-hero .lede{font-size:var(--text-lg);color:var(--color-muted);margin:0 auto;max-width:44ch}
+
+/* 2 - DIVISION-FIRST INTAKE */
+.ct-form{background:var(--color-paper);border-bottom:1px solid var(--color-line);
+  padding:3.5rem 0 3.7rem}
 .form-shell{background:var(--color-paper);border:1px solid var(--color-line);
-  border-radius:var(--radius-sm);padding:clamp(1.25rem,3.2vw,3rem)}
-.form-shell .form-grid{margin-top:var(--space-2)}
-.path-hint{margin:0 0 var(--space-4);font-size:var(--text-xs);color:var(--color-muted)}
-.path-empty{margin:0 0 var(--space-6);padding:var(--space-6);border:1px dashed var(--color-line);
-  border-radius:var(--radius-sm);background:var(--color-ivory);font-size:var(--text-sm);
+  border-radius:var(--radius-sm);padding:clamp(1.4rem,3vw,2.9rem)}
+.form-shell > fieldset:first-of-type{border:0;padding:0;margin-bottom:0}
+.form-shell > fieldset:first-of-type > legend{padding:0}
+.path-hint{margin:.55rem 0 var(--space-6);font-size:var(--text-xs);color:var(--color-muted)}
+
+/* the concept's two coloured intake headers, extended to the third path */
+.path-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+.path-tile{display:flex;align-items:flex-start;gap:.85rem;padding:1.95rem 1.25rem 2.05rem;
+  min-height:44px;cursor:pointer;font-weight:400;letter-spacing:0;text-transform:none;
+  transition:filter var(--transition)}
+.path-tile input{flex:0 0 auto;width:1.05rem;height:1.05rem;margin:.28rem 0 0;accent-color:#fff}
+.pt-ico{flex:0 0 34px;width:34px;height:34px;fill:none;stroke-width:1.15}
+.path-tile b{display:block;font-size:var(--text-base);font-weight:600;line-height:1.2;
+  margin-bottom:.28rem}
+.path-tile em{display:block;font-style:normal;font-size:var(--text-xs);line-height:1.5}
+.pt-dev{background:var(--color-teal);color:#fff}
+.pt-dev .pt-ico{stroke:rgb(255 255 255 / .9)}
+.pt-dev em{color:rgb(255 255 255 / .85)}
+.pt-sol{background:var(--color-copper);color:#fff}
+.pt-sol .pt-ico{stroke:rgb(255 255 255 / .9)}
+.pt-sol em{color:rgb(255 255 255 / .85)}
+.pt-gen{background:var(--color-ivory);color:var(--color-navy);
+  border:1px solid var(--color-line);border-left:0}
+.pt-gen input{accent-color:var(--color-navy)}
+.pt-gen .pt-ico{stroke:var(--color-copper)}
+.pt-gen em{color:var(--color-muted)}
+.path-tile:hover{filter:brightness(.96)}
+.path-tile:has(input:checked){box-shadow:inset 0 0 0 3px var(--color-navy)}
+.pt-gen:has(input:checked){box-shadow:inset 0 0 0 2px var(--color-navy)}
+
+/* Empty state. The coloured tiles above act as the column headers and this panel
+   lists the questions that sit under each of them — the concept's two-column form
+   block, in preview form, until a path is chosen and the real fields replace it. */
+.path-preview{margin:0 0 var(--space-6);border:1px solid var(--color-line);border-top:0;
+  background:var(--color-ivory)}
+.pp-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.pp-col{padding:1.9rem 1.3rem 2.05rem;min-width:0}
+.pp-col + .pp-col{border-left:1px solid var(--color-line)}
+.pp-col .pp-h{font-size:var(--text-xs);font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+  margin:0 0 1rem;font-family:var(--font-body)}
+.pp-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1.2rem}
+.pp-col li{font-size:var(--text-xs);font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--color-navy);padding-bottom:1rem;border-bottom:1px solid var(--color-line);
+  line-height:1.4}
+.pp-col li .opt{font-weight:400;letter-spacing:.02em;text-transform:none;
   color:var(--color-muted)}
+.pp-note{margin:0;padding:.9rem 1.25rem;border-top:1px solid var(--color-line);
+  font-size:var(--text-xs);color:var(--color-muted)}
+
 .panel-note{margin:var(--space-6) 0 0;font-size:var(--text-sm);color:var(--color-muted)}
 .panel-note a{text-decoration:underline}
 .consent-row{display:flex;align-items:flex-start;gap:.75rem;min-height:44px;
@@ -47,47 +111,97 @@
 .consent-row input{flex:0 0 auto;width:1.15rem;height:1.15rem;margin-top:.25rem}
 .consent-note{margin:var(--space-4) 0 0;font-size:var(--text-xs);color:var(--color-muted)}
 .form-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-6);
-  margin-top:var(--space-8)}
+  margin-top:var(--space-6)}
 .form-actions .btn{min-width:15rem}
-.form-actions p{margin:0;font-size:var(--text-xs);max-width:34ch}
+.form-actions p{margin:0;font-size:var(--text-xs);color:var(--color-muted);max-width:34ch}
 .privacy-line{margin:var(--space-6) 0 0;font-size:var(--text-xs);color:var(--color-muted)}
 .privacy-line a{text-decoration:underline}
 .form-confirm{border:1px solid var(--color-line);border-left:3px solid var(--color-teal);
-  background:var(--color-teal-soft);padding:clamp(1.25rem,3.2vw,3rem);
+  background:var(--color-teal-soft);padding:clamp(1.25rem,2.6vw,2.4rem);
   border-radius:0 var(--radius-sm) var(--radius-sm) 0}
-.form-confirm h3{font-size:1.6rem;margin:0 0 var(--space-4)}
+.form-confirm h2{font-family:var(--font-display);font-weight:500;font-size:1.6rem;
+  line-height:1.14;letter-spacing:-.018em;color:var(--color-navy);margin:0 0 var(--space-4)}
 .form-confirm p{color:var(--color-ink);font-size:var(--text-sm);margin:0 0 var(--space-4)}
-.form-confirm p:last-of-type{margin-bottom:var(--space-6)}
 .form-confirm p.muted{color:var(--color-muted)}
-.next-step{border-top:2px solid var(--color-line);padding-top:var(--space-6)}
-.next-step .num{display:block;font-family:var(--font-display);font-weight:500;font-size:2.6rem;
-  line-height:1;letter-spacing:-.02em;color:var(--color-navy);margin-bottom:var(--space-3)}
-.next-step .num.dev{color:var(--color-teal)}
-.next-step .num.sol{color:var(--color-copper)}
-.next-step p{font-size:var(--text-sm);margin:0}
-.trust-strip{display:flex;gap:var(--space-6);align-items:flex-start;margin-top:var(--space-12);
-  border:1px solid var(--color-line);background:var(--color-paper);
-  border-radius:var(--radius-sm);padding:var(--space-6)}
-.trust-strip svg{flex:0 0 34px;width:34px;height:34px}
-.trust-strip h3{margin-bottom:var(--space-2)}
-.trust-strip p{margin:0;font-size:var(--text-sm)}
-.phone-link{display:inline-flex;align-items:center;gap:.75rem;min-height:44px;
+
+/* 3 - DIRECT LINE */
+.ct-direct{background:var(--color-ivory);border-bottom:1px solid var(--color-line);
+  padding:2.55rem 0 2.7rem;text-align:center}
+.phone-link{display:inline-flex;align-items:center;gap:.8rem;min-height:44px;
   font-family:var(--font-display);font-weight:500;
-  font-size:clamp(1.9rem,1.2rem + 1.5vw,2.6rem);line-height:1.1;letter-spacing:-.02em;
+  font-size:clamp(1.85rem,1.15rem + 1.5vw,2.6rem);line-height:1.12;letter-spacing:-.02em;
   color:var(--color-navy)}
 .phone-link:hover{text-decoration:underline}
-.phone-link svg{flex:0 0 24px;width:24px;height:24px}
-.contact-meta{list-style:none;margin:var(--space-6) 0 0;padding:0;display:grid;gap:var(--space-4);
-  font-size:var(--text-sm);color:var(--color-muted)}
-.contact-meta li{display:flex;align-items:flex-start;gap:.75rem}
-.contact-meta svg{flex:0 0 20px;width:20px;height:20px;margin-top:.15rem}
-.contact-panel{position:relative;overflow:hidden;aspect-ratio:4/3;background:var(--color-ivory);
-  border:1px solid var(--color-line);border-radius:var(--radius-sm)}
-.contact-panel svg{position:absolute;inset:0;width:100%;height:100%}
-.contact-panel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.phone-link svg{flex:0 0 28px;width:28px;height:28px;stroke:var(--color-teal);fill:none;
+  stroke-width:1.3}
+.phone-link .num{color:var(--color-teal)}
+.ct-place{display:inline-flex;align-items:center;gap:.7rem;margin:.85rem 0 0;
+  font-family:var(--font-display);font-weight:500;font-size:1.55rem;line-height:1.2;
+  letter-spacing:-.015em;color:var(--color-navy)}
+.ct-place svg{flex:0 0 22px;width:22px;height:22px;stroke:var(--color-copper);fill:none;
+  stroke-width:1.3}
+.ct-direct .sub{margin:var(--space-4) 0 0;font-size:var(--text-sm);color:var(--color-muted)}
+
+/* 4 - WHAT HAPPENS NEXT */
+.ct-next{background:var(--color-paper);border-bottom:1px solid var(--color-line);
+  padding:3.7rem 0 3.9rem;text-align:center}
+.ct-next h2{font-family:var(--font-display);font-weight:500;
+  font-size:clamp(1.75rem,1.2rem + 1.5vw,2.7rem);line-height:1.06;letter-spacing:-.022em;
+  color:var(--color-navy);margin:0 0 var(--space-8)}
+.hn-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.hn{padding:0 clamp(1rem,2.4vw,2.4rem);min-width:0}
+.hn + .hn{border-left:1px solid var(--color-line)}
+.hn .num{display:block;font-family:var(--font-display);font-weight:500;font-size:3.2rem;
+  line-height:1;letter-spacing:-.02em;color:var(--color-navy)}
+.hn .num.dev{color:var(--color-teal)}
+.hn .num.sol{color:var(--color-copper)}
+.hn hr{width:58px;height:1px;border:0;background:var(--color-line);margin:.7rem auto 1rem}
+.hn h3{font-size:var(--text-xs);font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--color-navy);margin:0 0 var(--space-3);font-family:var(--font-body)}
+.hn h3.dev{color:var(--color-teal)} .hn h3.sol{color:var(--color-copper)}
+.hn p{font-size:var(--text-sm);line-height:1.55;color:var(--color-muted);margin:0}
+
+/* 5 - ASSURANCE STRIP */
+.ct-assure{background:var(--color-ivory);border-bottom:1px solid var(--color-line);
+  padding:1.95rem 0 2.1rem}
+.assure-box{display:flex;align-items:center;justify-content:center;gap:var(--space-6);
+  border:1px solid var(--color-line);background:var(--color-paper);
+  border-radius:var(--radius-sm);padding:var(--space-6) var(--space-8);
+  width:min(100%,54rem);margin-inline:auto}
+.assure-box svg{flex:0 0 40px;width:40px;height:40px;stroke:var(--color-copper);fill:none;
+  stroke-width:1.15}
+.assure-box h2{font-family:var(--font-display);font-weight:500;font-size:1.55rem;line-height:1.16;
+  letter-spacing:-.018em;color:var(--color-navy);margin:0 0 .35rem}
+.assure-box p{margin:0;font-size:var(--text-sm);color:var(--color-muted)}
+
+/* 6 - CLOSING IMAGE BAND */
+.ct-band{position:relative;overflow:hidden;background:var(--color-teal-soft);
+  height:clamp(240px,30vw,460px)}
+.ct-band img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:1024px){
+  .ct-hero{padding:3.2rem 0 3.4rem}
+  .path-tiles{grid-template-columns:1fr}
+  .pt-gen{border-left:1px solid var(--color-line);border-top:0}
+  .pp-cols{grid-template-columns:1fr 1fr}
+  .pp-col:nth-child(3){grid-column:1 / -1;border-left:0;border-top:1px solid var(--color-line)}
+  .hn-grid{grid-template-columns:1fr 1fr;row-gap:var(--space-8)}
+  .hn:nth-child(3){grid-column:1 / -1;border-left:0;border-top:1px solid var(--color-line);
+    padding-top:var(--space-8)}
+  .hn{padding:0 var(--space-4)}
+}
 @media (max-width:720px){
+  .ct-hero{padding:2.6rem 0 2.8rem}
+  .pp-cols{grid-template-columns:1fr}
+  .pp-col + .pp-col{border-left:0;border-top:1px solid var(--color-line)}
+  .pp-col:nth-child(3){grid-column:auto}
+  .hn-grid{grid-template-columns:1fr;gap:var(--space-8)}
+  .hn:nth-child(3){grid-column:auto}
+  .hn + .hn{border-left:0;border-top:1px solid var(--color-line);padding-top:var(--space-8)}
   .form-actions .btn{flex:1 1 100%;min-width:0}
-  .trust-strip{flex-direction:column;gap:var(--space-4)}
+  .assure-box{flex-direction:column;text-align:center;gap:var(--space-4)}
+  .ct-place{font-size:1.3rem}
 }
 </style>
 </head>
@@ -132,97 +246,111 @@
 
 <main id="main">
 
-  <section class="page-hero">
-    <div class="page-hero-copy">
-      <p class="eyebrow dev">Start a Conversation</p>
-      <h1>What are you trying to move forward?</h1>
-      <p>Pick the path that fits your situation and you will only be asked the questions that path actually needs. Property questions for property. Operating questions for operations.</p>
-      <a class="btn btn-outline" href="tel:+15614758615">Call (561) 475-8615</a>
-    </div>
-    <div class="page-hero-art">
-      <img src="/assets/redesign/img/ct-hero.jpg" alt="Two-storey waterfront houses behind palm trees, with a seawall and calm water in front of them" width="492" height="197" decoding="async" />
-    </div>
-  </section>
-
-  <section class="section">
+  <!-- ============ 1. HERO ============ -->
+  <section class="ct-hero">
     <div class="container">
-      <h2>Three paths. Pick one.</h2>
-      <p class="lead" style="margin-bottom:var(--space-12)">The two divisions are handled differently from the first message onward, so the intake is split before anything else happens. If your situation sits between them, the third path is a legitimate answer — not a fallback.</p>
-      <div class="grid g-3">
-        <a class="card" href="#inquiry" data-path="development">
-          <div class="card-art">
-            <img src="/assets/redesign/img/work-madeira.jpg" alt="Two-storey coastal house with a covered porch, framed by palm trees" width="190" height="110" loading="lazy" decoding="async" />
-          </div>
-          <div class="card-body">
-            <p class="eyebrow dev">Development</p>
-            <h3>A property or project opportunity</h3>
-            <p>A parcel, an assemblage, a site with a constraint on it, or a project that needs a plan proved before anyone commits capital to it.</p>
-            <p class="muted" style="font-size:var(--text-xs)">Asks about: location, opportunity type, control, capital need, timing, and any documents you already have.</p>
-            <span class="link-arrow dev">Route to Development <span aria-hidden="true">&rarr;</span></span>
-          </div>
-        </a>
-        <a class="card" href="#inquiry" data-path="solutions">
-          <div class="card-art sol-bg">
-            <img src="/assets/redesign/img/sol-dashboard.jpg" alt="Laptop on a desk showing an operations dashboard with pipeline, task and chart panels" width="301" height="214" loading="lazy" decoding="async" />
-          </div>
-          <div class="card-body">
-            <p class="eyebrow sol">Solutions</p>
-            <h3>An operating or revenue problem</h3>
-            <p>Leads that go cold, a process that only works when someone remembers it, or disconnected tools that no longer tell you what is actually happening.</p>
-            <p class="muted" style="font-size:var(--text-xs)">Asks about: business type, the primary problem, current tools, how work moves today, cost, and the outcome you want.</p>
-            <span class="link-arrow sol">Route to Solutions <span aria-hidden="true">&rarr;</span></span>
-          </div>
-        </a>
-        <a class="card" href="#inquiry" data-path="general">
-          <div class="card-art" style="background:var(--color-ivory)">
-            <img src="/assets/redesign/img/about-desk.jpg" alt="Rolled and unrolled drawings, material samples, a notebook and a mug on a desk" width="422" height="158" loading="lazy" decoding="async" />
-          </div>
-          <div class="card-body">
-            <p class="eyebrow muted">Not sure yet</p>
-            <h3>Somewhere in between</h3>
-            <p>Plenty of situations are both at once — a property that only works if the operating side works. Describe it in plain language and we will sort the routing.</p>
-            <p class="muted" style="font-size:var(--text-xs)">Asks for: how to reach you and a plain description. Nothing else until the path is clear.</p>
-            <span class="link-arrow">Send it anyway <span aria-hidden="true">&rarr;</span></span>
-          </div>
-        </a>
-      </div>
+      <p class="eyebrow dev">Start a Conversation</p>
+      <hr class="tick t-sol" />
+      <h1>What are you trying to move forward?</h1>
+      <p class="lede">Choose the path that fits your opportunity. Your message goes to one person, not a shared queue.</p>
     </div>
   </section>
 
-  <section class="section section-paper" id="inquiry">
-    <div class="narrow">
-      <p class="eyebrow dev">Division-First Intake</p>
-      <hr class="tick t-dev" style="margin-top:.6rem" />
-      <h2>Tell us what you are working on.</h2>
-      <p class="lead" style="margin-bottom:var(--space-12)">Choose a path, answer the questions that appear, and send it once. Short answers are fine — the point is to make the first conversation useful, not to fill in every box.</p>
+  <!-- ============ 2. DIVISION-FIRST INTAKE ============ -->
+  <!--
+    NOTE: posts to /api/inquiry (api/index.py). Stores to the cc:inquiries KV list and
+    recipient address / form endpoint is NOT configured yet. Before launch, point action
+    at a real handler (POST), add server-side validation, server-side spam filtering,
+    file-upload handling and size/type limits, and a real success response. The honeypot
+    below is a first filter only.
 
-      <!--
-        NOTE: posts to /api/inquiry (api/index.py). Stores to the cc:inquiries KV list and
-        recipient address / form endpoint is NOT configured yet. Before launch, point action
-        at a real handler (POST), add server-side validation, server-side spam filtering,
-        file-upload handling and size/type limits, and a real success response. The honeypot
-        below is a first filter only.
-
-        PROGRESSIVE ENHANCEMENT: all three path fieldsets ship in the markup un-hidden and
-        enabled, so the form is fully usable with JavaScript off (every question is simply
-        visible at once). The script at the bottom of this page takes over on load: it hides
-        every panel with the [hidden] attribute and sets `disabled` on that panel's controls,
-        so hidden questions leave the tab order and are never submitted. Choosing a path
-        reveals exactly one panel and re-enables only its controls.
-      -->
+    PROGRESSIVE ENHANCEMENT: all three path fieldsets ship in the markup un-hidden and
+    enabled, so the form is fully usable with JavaScript off (every question is simply
+    visible at once). The script at the bottom of this page takes over on load: it hides
+    every panel with the [hidden] attribute and sets `disabled` on that panel's controls,
+    so hidden questions leave the tab order and are never submitted. Choosing a path
+    reveals exactly one panel and re-enables only its controls.
+  -->
+  <section class="ct-form" id="inquiry">
+    <div class="container">
       <form class="form-shell" id="inquiryForm" action="/api/inquiry" method="post" enctype="multipart/form-data">
 
         <fieldset>
-          <legend>Step 1 — What are you trying to move forward?</legend>
+          <legend>Step 1 — Choose your path</legend>
           <p class="path-hint" id="path-hint">Required. This chooses the division and decides which questions you are asked next.</p>
-          <div class="radio-row">
-            <label for="path-development"><input type="radio" id="path-development" name="path" value="development" required aria-describedby="path-hint" /> A property or project</label>
-            <label for="path-solutions"><input type="radio" id="path-solutions" name="path" value="solutions" required aria-describedby="path-hint" /> An operating or revenue problem</label>
-            <label for="path-general"><input type="radio" id="path-general" name="path" value="general" required aria-describedby="path-hint" /> Not sure yet</label>
+          <div class="path-tiles">
+            <label class="path-tile pt-dev" for="path-development">
+              <input type="radio" id="path-development" name="path" value="development" required aria-describedby="path-hint" />
+              <svg class="pt-ico" viewBox="0 0 34 34" aria-hidden="true">
+                <path d="M4 30h26"/><path d="M7 30V13l8-5v22"/><path d="M15 30V16l12-4v18"/>
+                <path d="M10 17h2M10 21h2M10 25h2M19 19h2M19 23h2M19 27h2M23 19h2M23 23h2M23 27h2"/>
+              </svg>
+              <span><b>Development Inquiry</b><em>A property, project, site constraint or development opportunity.</em></span>
+            </label>
+            <label class="path-tile pt-sol" for="path-solutions">
+              <input type="radio" id="path-solutions" name="path" value="solutions" required aria-describedby="path-hint" />
+              <svg class="pt-ico" viewBox="0 0 34 34" aria-hidden="true">
+                <path d="M4 29h26"/><path d="M8 29V19M14 29V14M20 29V22M26 29V9"/>
+                <path d="M6 15l7-6 6 5 9-9"/><path d="M22 5h6v6"/>
+              </svg>
+              <span><b>Solutions Inquiry</b><em>Revenue, sales process, workflow or operating-system problem.</em></span>
+            </label>
+            <label class="path-tile pt-gen" for="path-general">
+              <input type="radio" id="path-general" name="path" value="general" required aria-describedby="path-hint" />
+              <svg class="pt-ico" viewBox="0 0 34 34" aria-hidden="true">
+                <circle cx="17" cy="17" r="12"/><path d="M23 11l-3.5 8.5L11 23l3.5-8.5z"/>
+                <circle cx="17" cy="17" r="1.6"/>
+              </svg>
+              <span><b>Not Sure Yet</b><em>Somewhere in between, or both at once. Describe it plainly.</em></span>
+            </label>
           </div>
         </fieldset>
 
-        <p class="path-empty" id="pathPrompt">Choose one of the three options above. The questions for that path — and the send button — will appear here.</p>
+        <div class="path-preview" id="pathPrompt">
+          <div class="pp-cols">
+            <div class="pp-col">
+              <p class="pp-h dev">The Development path asks</p>
+              <ul>
+                <li>Full name</li>
+                <li>Email address</li>
+                <li>Phone number <span class="opt">optional</span></li>
+                <li>Property or location</li>
+                <li>Opportunity type</li>
+                <li>Control or status</li>
+                <li>Capital need</li>
+                <li>Timing</li>
+                <li>Documents <span class="opt">optional</span></li>
+                <li>The opportunity in your words</li>
+              </ul>
+            </div>
+            <div class="pp-col">
+              <p class="pp-h sol">The Solutions path asks</p>
+              <ul>
+                <li>Full name</li>
+                <li>Email address</li>
+                <li>Phone number <span class="opt">optional</span></li>
+                <li>Company</li>
+                <li>Business type</li>
+                <li>Current CRM or tools</li>
+                <li>Lead volume or workflow</li>
+                <li>Monthly cost of those tools</li>
+                <li>Primary problem</li>
+                <li>Desired outcome</li>
+              </ul>
+            </div>
+            <div class="pp-col">
+              <p class="pp-h muted">Not sure yet asks</p>
+              <ul>
+                <li>Full name</li>
+                <li>Email address</li>
+                <li>Phone number <span class="opt">optional</span></li>
+                <li>Company <span class="opt">optional</span></li>
+                <li>What you are trying to move forward</li>
+              </ul>
+            </div>
+          </div>
+          <p class="pp-note">Choose one of the three options above. The questions for that path — and the send button — appear here. Short answers are fine.</p>
+        </div>
 
         <fieldset id="panel-development" data-path-panel="development">
           <legend>Step 2 — Development inquiry</legend>
@@ -301,7 +429,7 @@
               <span class="hint" id="dev-detail-hint">Required. A few sentences is plenty. Please leave out account numbers, passwords, or other sensitive details.</span>
             </div>
           </div>
-          <p class="panel-note">Looking to place capital rather than bring a project? That is a different conversation with different questions, and it starts on the <a href="/development/investor-inquiries">investor inquiries</a> page. Nothing on this form asks about your investor status.</p>
+          <p class="panel-note">Looking to place capital rather than bring a project? That starts on the <a href="/development/investor-inquiries">investor inquiries</a> page. Nothing on this form asks about your investor status.</p>
         </fieldset>
 
         <fieldset id="panel-solutions" data-path-panel="solutions">
@@ -414,7 +542,7 @@
 
           <div class="form-actions">
             <button class="btn btn-navy" type="submit">Send Inquiry</button>
-            <p class="muted">Or call <a href="tel:+15614758615" style="text-decoration:underline">(561) 475-8615</a> and skip the form entirely.</p>
+            <p>Or call <a href="tel:+15614758615" style="text-decoration:underline">(561) 475-8615</a> and skip the form entirely.</p>
           </div>
 
           <p class="privacy-line"><strong>Privacy.</strong> What you send is used only to respond to this inquiry. It is not sold and not added to a mailing list. See the <a href="/privacy">Privacy Policy</a>.</p>
@@ -428,100 +556,82 @@
       </form>
 
       <div class="form-confirm" id="formConfirm" role="status" aria-live="polite" hidden>
-        <h3>Thank you — your inquiry has been received.</h3>
+        <h2>Thank you — your inquiry has been received.</h2>
         <p>It was routed to the division you selected, and it goes to one person rather than a shared queue. That person reads it, replies directly, and tells you plainly whether this is work we should take on.</p>
         <p><strong>Expected response time: to be confirmed.</strong> A specific window will be published here once it is set. If your situation is time-sensitive, call <a href="tel:+15614758615" style="text-decoration:underline">(561) 475-8615</a> instead of waiting.</p>
         <p class="muted">Preview note: this page is a design preview with no recipient configured, so nothing was actually transmitted.</p>
         <button class="btn btn-outline" type="button" id="formReset" disabled>Send another inquiry</button>
       </div>
+    </div>
+  </section>
 
-      <div class="disclosure" style="margin-top:var(--space-8)">
-        <p><strong>Why the questions differ.</strong> A property opportunity and an operating problem need different information to be worth a first conversation. Splitting the intake means you answer only the questions relevant to your path instead of a long generic list, and the reply comes back with something in it.</p>
-        <p><strong>Spam protection.</strong> This form includes a hidden field that automated submissions tend to fill in. Anything that fills it is discarded, and no tracking or advertising script is used to make that decision.</p>
+  <!-- ============ 3. DIRECT LINE ============ -->
+  <section class="ct-direct" aria-label="Direct contact">
+    <div class="container">
+      <p style="margin:0">
+        <a class="phone-link" href="tel:+15614758615">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 3h4l2 5-3 2c1 3 3 5 6 6l2-3 5 2v4c0 1-1 2-2 2C11 21 3 13 3 5c0-1 1-2 2-2z"/>
+          </svg>
+          Call Danny directly <span aria-hidden="true">·</span> <span class="num">(561) 475-8615</span>
+        </a>
+      </p>
+      <p class="ct-place">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/>
+        </svg>
+        Lantana, Florida
+      </p>
+      <p class="sub">If the call is missed, leave a message — it reaches the same person the form reaches, not an answering service.</p>
+    </div>
+  </section>
+
+  <!-- ============ 4. WHAT HAPPENS NEXT ============ -->
+  <section class="ct-next" aria-labelledby="nextH">
+    <div class="container">
+      <h2 id="nextH">What happens next</h2>
+      <div class="hn-grid">
+        <div class="hn">
+          <span class="num dev">01</span>
+          <hr />
+          <h3 class="dev">Review</h3>
+          <p>Your inquiry is read by the person who would run the engagement, not sorted by a coordinator and summarised secondhand.</p>
+        </div>
+        <div class="hn">
+          <span class="num sol">02</span>
+          <hr />
+          <h3 class="sol">Direct Conversation</h3>
+          <p>A real conversation about what you have, what is in the way, and what you want the end state to be. Questions in both directions.</p>
+        </div>
+        <div class="hn">
+          <span class="num">03</span>
+          <hr />
+          <h3>Clear Next Step</h3>
+          <p>You leave with a defined next step and a straight answer about fit — including when the honest answer is no.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <!-- ============ 5. ASSURANCE STRIP ============ -->
+  <section class="ct-assure" aria-labelledby="assureH">
     <div class="container">
-      <h2>What happens next.</h2>
-      <p class="lead" style="margin-bottom:var(--space-12)">Three steps, in order, with no queue in between them.</p>
-      <div class="grid g-3">
-        <div class="next-step">
-          <span class="num dev">01</span>
-          <h3>Routed and Read</h3>
-          <p>Your inquiry lands on the division you chose and is read by the person who would actually run the engagement — not sorted by a coordinator and summarized secondhand.</p>
-        </div>
-        <div class="next-step">
-          <span class="num sol">02</span>
-          <h3>Direct Conversation</h3>
-          <p>A real conversation about what you have, what is in the way, and what you want the end state to be. Questions in both directions.</p>
-        </div>
-        <div class="next-step">
-          <span class="num">03</span>
-          <h3>Clear Next Step</h3>
-          <p>You leave with a defined next step and a straight answer about fit — including when the honest answer is that this is not work we should take on.</p>
-        </div>
-      </div>
-      <div class="disclosure" style="margin-top:var(--space-12)">
-        <p><span class="status">Response time — to be confirmed</span></p>
-        <p><strong>An expected response window will be stated here once it is confirmed.</strong> We are not publishing a number before we can stand behind it every time. What is committed today: one person reads the inquiry, that same person replies, and no inquiry is answered by an automated sequence.</p>
-      </div>
-      <div class="trust-strip">
-        <svg viewBox="0 0 34 34" fill="none" stroke="#b76032" stroke-width="1.2" aria-hidden="true">
-          <path d="M17 3l12 5v9c0 8-5 12-12 14-7-2-12-6-12-14V8z"/>
-          <path d="M11 17l4 4 8-8"/>
+      <div class="assure-box">
+        <svg viewBox="0 0 40 40" aria-hidden="true">
+          <path d="M20 4l14 5.5v10.5c0 9-6 14-14 16-8-2-14-7-14-16V9.5z"/>
+          <path d="M13 20l5 5 9-9"/>
         </svg>
         <div>
-          <h3>No account managers. No automated sales maze.</h3>
+          <h2 id="assureH">No account managers. No automated sales maze.</h2>
           <p>One accountable point of contact, a straightforward path to find out whether we can help, and no pressure to decide on the first call.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section section-paper">
-    <div class="container">
-      <div class="split-2">
-        <div>
-          <p class="eyebrow sol">Direct Contact</p>
-          <hr class="tick t-sol" style="margin-top:.6rem" />
-          <h2>Call the direct line.</h2>
-          <p>If a conversation is faster than a form, use the phone. It reaches the same person the form reaches, on either path.</p>
-          <p style="margin-top:var(--space-6)">
-            <a class="phone-link" href="tel:+15614758615">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-                <path d="M6 3h4l2 5-3 2c1 3 3 5 6 6l2-3 5 2v4c0 1-1 2-2 2C11 21 3 13 3 5c0-1 1-2 2-2z"/>
-              </svg>
-              (561) 475-8615
-            </a>
-          </p>
-          <ul class="contact-meta">
-            <li>
-              <svg viewBox="0 0 20 20" fill="none" stroke="#b76032" stroke-width="1.2" aria-hidden="true">
-                <path d="M10 18s6-6 6-10a6 6 0 1 0-12 0c0 4 6 10 6 10z"/><circle cx="10" cy="8" r="2.3"/>
-              </svg>
-              <span>Lantana, Florida. Site visits and working sessions are scheduled directly.</span>
-            </li>
-            <li>
-              <svg viewBox="0 0 20 20" fill="none" stroke="#247d84" stroke-width="1.2" aria-hidden="true">
-                <circle cx="10" cy="10" r="7.5"/><path d="M10 5.5V10l3 2"/>
-              </svg>
-              <span>If the call is missed, leave a message — it reaches the same person the form reaches, not a call centre or an answering service.</span>
-            </li>
-            <li>
-              <svg viewBox="0 0 20 20" fill="none" stroke="#0c2942" stroke-width="1.2" aria-hidden="true">
-                <path d="M3 5h14v10H3z"/><path d="M3 5l7 6 7-6"/>
-              </svg>
-              <span>Placing capital rather than bringing a project? Start on the <a href="/development/investor-inquiries" style="text-decoration:underline">investor inquiries</a> page instead.</span>
-            </li>
-          </ul>
-        </div>
-        <div class="contact-panel">
-          <img src="/assets/redesign/img/ct-marina.jpg" alt="Motorboats moored beside a wooden dock with pilings on calm water under a cloudy sky" width="304" height="197" loading="lazy" decoding="async" />
-        </div>
-      </div>
-    </div>
+  <!-- ============ 6. CLOSING IMAGE BAND ============ -->
+  <section class="ct-band" aria-hidden="true">
+    <img src="/assets/redesign/img/ct-hero.jpg" alt="" width="492" height="197" loading="lazy" decoding="async" />
   </section>
 
 </main>
@@ -593,8 +703,8 @@
     radios[i].addEventListener('change', function () { apply(true); });
   }
 
-  /* The three cards above the form pre-select a path, then the anchor jump lands the
-     visitor on the matching questions. */
+  /* Any in-page link carrying data-path (from other pages or future entry points)
+     pre-selects that path before the anchor jump lands on the questions. */
   var cards = document.querySelectorAll('a[data-path]');
   for (var c = 0; c < cards.length; c++) {
     cards[c].addEventListener('click', function () {
