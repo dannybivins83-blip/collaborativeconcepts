@@ -267,21 +267,21 @@ function checkPw(e){e.preventDefault();if(document.getElementById('pw-input').va
       <p class="lead" style="margin-bottom:var(--space-12)">100 investment opportunities across Madeira Beach, Treasure Island, St Pete Beach, Indian Rocks Beach, and the Pinellas barrier islands — carried here exactly as sourced, with the brokerage, phone, zoning, exit strategy and margin fields intact.</p>
 
       <div class="stat-grid">
-        <div class="stat"><b>100</b><span>Total Deals</span></div>
-        <div class="stat"><b>8</b><span>Beach Towns</span></div>
-        <div class="stat"><b>7</b><span>Property Types</span></div>
-        <div class="stat"><b class="sm">$195K&ndash;$43M</b><span>Price Range</span></div>
+        <div class="stat"><b data-stat="count">&mdash;</b><span>Total Deals</span></div>
+        <div class="stat"><b data-stat="cities">&mdash;</b><span>Beach Towns</span></div>
+        <div class="stat"><b data-stat="types">&mdash;</b><span>Property Types</span></div>
+        <div class="stat"><b class="sm" data-stat="range">&mdash;</b><span>Price Range</span></div>
       </div>
 
       <h3 style="font-family:var(--font-display);font-weight:500;font-size:1.4rem;letter-spacing:-.015em;color:var(--color-navy);margin:0 0 var(--space-6)">Breakdown by segment</h3>
       <div class="seg-grid">
-        <div class="seg"><b>35</b><span>Vacant Lots</span></div>
-        <div class="seg"><b>27</b><span>Homes &amp; Condos</span></div>
-        <div class="seg"><b>15</b><span>Multi-Family</span></div>
-        <div class="seg"><b>10</b><span>Commercial</span></div>
-        <div class="seg"><b>3</b><span>Hotels/Motels</span></div>
-        <div class="seg"><b>5</b><span>Distressed</span></div>
-        <div class="seg wf"><b>37</b><span>Waterfront</span></div>
+        <div class="seg"><b data-seg="Residential Land">&mdash;</b><span>Vacant Lots</span></div>
+        <div class="seg"><b data-seg="Residential">&mdash;</b><span>Homes &amp; Condos</span></div>
+        <div class="seg"><b data-seg="Multi-Family">&mdash;</b><span>Multi-Family</span></div>
+        <div class="seg"><b data-seg="Commercial">&mdash;</b><span>Commercial</span></div>
+        <div class="seg"><b data-seg="Hospitality">&mdash;</b><span>Hotels/Motels</span></div>
+        <div class="seg"><b data-seg="Distressed">&mdash;</b><span>Distressed</span></div>
+        <div class="seg wf"><b data-seg-wf="1">&mdash;</b><span>Waterfront</span></div>
       </div>
     </div>
   </section>
@@ -610,7 +610,36 @@ function sortTable(col){
 }
 
 // Initial render
-document.addEventListener('DOMContentLoaded', () => renderTable(deals));
+/* ------------------------------------------------------------------
+   Stat + segment bands are DERIVED from `deals` so they can never drift
+   out of sync with the data again. Previously hardcoded: the band read
+   35/27/15/10/37 while the array actually held 37/35/11/9/40.
+   ------------------------------------------------------------------ */
+function shortMoney(v){
+  if(!isFinite(v)) return '';
+  if(v >= 1e6){ const m = v/1e6; return '$' + (m >= 10 ? Math.round(m) : (Math.round(m*10)/10)).toString().replace(/\.0$/,'') + 'M'; }
+  return '$' + Math.round(v/1000) + 'K';
+}
+function computeBands(data){
+  if(!Array.isArray(data) || !data.length) return;
+  document.querySelectorAll('[data-seg]').forEach(el => {
+    el.textContent = data.filter(d => d.cat === el.dataset.seg).length;
+  });
+  document.querySelectorAll('[data-seg-wf]').forEach(el => {
+    el.textContent = data.filter(d => d.wf).length;
+  });
+  const prices = data.map(d => d.price).filter(v => typeof v === 'number' && isFinite(v));
+  const set = (k, v) => { const el = document.querySelector('[data-stat="' + k + '"]'); if(el) el.textContent = v; };
+  set('count',  data.length);
+  set('cities', new Set(data.map(d => d.city).filter(Boolean)).size);
+  /* count curated categories (d.cat), not free-text d.type variants — keeps this
+     stat consistent with the segment band directly below it */
+  set('types',  new Set(data.map(d => d.cat).filter(Boolean)).size);
+  if(prices.length) set('range', shortMoney(Math.min(...prices)) + '–' + shortMoney(Math.max(...prices)));
+  const all = document.querySelector('[data-filter="all"]');
+  if(all) all.textContent = 'All (' + data.length + ')';
+}
+document.addEventListener('DOMContentLoaded', () => { computeBands(deals); renderTable(deals); });
 </script>
 
 <script src="/assets/redesign/site.js"></script>
