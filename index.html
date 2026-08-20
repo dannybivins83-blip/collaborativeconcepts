@@ -32,23 +32,23 @@
 <link rel="stylesheet" href="/assets/redesign/site.css" />
 <style>
 /* Homepage-unique layout */
-.hero{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,1fr);align-items:stretch;border-bottom:1px solid var(--color-line)}
+.hero{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1.18fr);align-items:stretch;border-bottom:1px solid var(--color-line)}
 .hero-copy{display:flex;flex-direction:column;justify-content:center;padding:var(--section-space) clamp(1.5rem,3.5vw,3.5rem) var(--section-space) max(1rem,calc((100vw - var(--container))/2 + 1rem))}
-.hero h1{font-family:var(--font-display);font-weight:500;font-size:clamp(2.5rem,1.2rem + 3.1vw,4.6rem);line-height:1;letter-spacing:-.026em;color:var(--color-navy);margin:0 0 var(--space-6);max-width:15ch}
-.hero p{font-size:var(--text-lg);color:var(--color-muted);margin:0 0 var(--space-8);max-width:32ch}
+.hero h1{font-family:var(--font-display);font-weight:500;font-size:clamp(2.4rem,1.15rem + 2.45vw,3.5rem);line-height:1.03;letter-spacing:-.026em;color:var(--color-navy);margin:0 0 var(--space-6);max-width:22ch}
+.hero p{font-size:var(--text-lg);color:var(--color-muted);margin:0 0 var(--space-8);max-width:38ch}
 .hero-cta{display:flex;flex-wrap:wrap;gap:var(--space-3)}
 .hero-art{position:relative;background:var(--color-teal-soft);min-height:clamp(320px,42vw,560px);overflow:hidden}
 .hero-art svg{position:absolute;inset:0;width:100%;height:100%}
 .split{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--color-line)}
-.split > div{position:relative;padding:var(--section-space) clamp(1.25rem,3vw,3rem);overflow:hidden}
+.split > div{position:relative;padding:clamp(1.4rem,2.3vw,2.25rem) clamp(1.25rem,3vw,3rem);overflow:hidden}
 .split > div:first-child{border-right:1px solid var(--color-line)}
-.split .inner{position:relative;z-index:1;max-width:26ch}
+.split .inner{position:relative;z-index:1;max-width:29rem}
 .split h2{font-family:var(--font-display);font-weight:500;font-size:var(--text-xl);line-height:1.05;letter-spacing:-.02em;color:var(--color-navy);margin:var(--space-4) 0 0}
 .split-art{position:absolute;inset:0;opacity:.5;pointer-events:none}
 .split-art svg{width:100%;height:100%}
 .feature{display:grid;border-bottom:1px solid var(--color-line);background:var(--color-paper)}
 .feature.dev-row{grid-template-columns:minmax(0,.85fr) minmax(0,1.35fr) minmax(0,.8fr)}
-.feature.sol-row{grid-template-columns:minmax(0,.85fr) minmax(0,2fr)}
+.feature.sol-row{grid-template-columns:minmax(0,.92fr) minmax(0,1.72fr)}
 .feature-copy{padding:var(--section-space) clamp(1.25rem,3vw,3rem) var(--section-space) max(1rem,calc((100vw - var(--container))/2 + 1rem));display:flex;flex-direction:column;justify-content:center}
 .feature-copy h2{font-family:var(--font-display);font-weight:500;font-size:clamp(1.6rem,1.1rem + 1.4vw,2.6rem);line-height:1.04;letter-spacing:-.022em;color:var(--color-navy);margin:var(--space-3) 0 var(--space-4)}
 .feature-copy p{font-size:var(--text-sm);color:var(--color-muted);margin:0;max-width:34ch}
@@ -60,22 +60,22 @@
 .stack > *{position:relative;min-height:170px}
 .stack > *:first-child{border-bottom:1px solid var(--color-line)}
 .stack svg{position:absolute;inset:0;width:100%;height:100%}
-.sol-art{display:grid;grid-template-columns:1.5fr 1fr;background:var(--color-ivory);border-left:1px solid var(--color-line)}
-.sol-art > *{position:relative;min-height:300px}
+.sol-art{display:grid;grid-template-columns:1.28fr 1fr;background:var(--color-ivory);border-left:1px solid var(--color-line)}
+.sol-art > *{position:relative;min-height:250px}
 .sol-art > *:first-child{border-right:1px solid var(--color-line)}
 .sol-art svg{position:absolute;inset:0;width:100%;height:100%}
-.work-home{padding:var(--section-space) 0;border-bottom:1px solid var(--color-line)}
+.work-home{padding:clamp(1.6rem,2.7vw,2.6rem) 0;border-bottom:1px solid var(--color-line)}
 .work-home h2{font-family:var(--font-display);font-weight:500;font-size:clamp(1.9rem,1.3rem + 1.6vw,2.9rem);letter-spacing:-.02em;color:var(--color-navy);text-align:center;margin:0 0 var(--space-12)}
 .about-home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);border-top:1px solid var(--color-line);border-bottom:1px solid var(--color-line);background:var(--color-paper)}
-.about-art{position:relative;min-height:clamp(280px,30vw,420px);background:var(--color-ivory);border-right:1px solid var(--color-line)}
+.about-art{position:relative;min-height:clamp(210px,18vw,275px);background:var(--color-ivory);border-right:1px solid var(--color-line)}
 .about-art svg{position:absolute;inset:0;width:100%;height:100%}
-.about-copy{display:flex;flex-direction:column;justify-content:center;padding:var(--section-space) max(1rem,calc((100vw - var(--container))/2 + 1rem)) var(--section-space) clamp(1.5rem,4vw,4.5rem)}
-.about-copy h2{font-family:var(--font-display);font-weight:500;font-size:clamp(1.7rem,1.1rem + 1.7vw,2.8rem);line-height:1.06;letter-spacing:-.022em;color:var(--color-navy);margin:0 0 var(--space-6);max-width:20ch}
+.about-copy{display:flex;flex-direction:column;justify-content:center;padding:clamp(1.5rem,2.4vw,2.5rem) max(1rem,calc((100vw - var(--container))/2 + 1rem)) clamp(1.5rem,2.4vw,2.5rem) clamp(1.5rem,4vw,4.5rem)}
+.about-copy h2{font-family:var(--font-display);font-weight:500;font-size:clamp(1.7rem,1.1rem + 1.7vw,2.8rem);line-height:1.06;letter-spacing:-.022em;color:var(--color-navy);margin:0 0 var(--space-6);max-width:26ch}
 .about-copy p{font-size:var(--text-sm);color:var(--color-muted);margin:0;max-width:52ch}
-.insights-home{padding:var(--section-space) 0}
+.insights-home{padding:clamp(1.4rem,2.3vw,2.25rem) 0}
 .insights-home h2{font-family:var(--font-display);font-weight:500;font-size:clamp(1.6rem,1.2rem + 1.2vw,2.4rem);letter-spacing:-.02em;color:var(--color-navy);text-align:center;margin:0 0 var(--space-12)}
-.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-12)}
-.insight{display:grid;grid-template-columns:150px 1fr;gap:var(--space-6);align-items:center}
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8)}
+.insight{display:grid;grid-template-columns:118px 1fr;gap:var(--space-4);align-items:center}
 .insight-art{position:relative;aspect-ratio:4/3;border:1px solid var(--color-line);border-radius:var(--radius-sm);overflow:hidden}
 .insight-art svg{position:absolute;inset:0;width:100%;height:100%}
 .insight h3{font-family:var(--font-display);font-weight:500;font-size:1.25rem;line-height:1.2;letter-spacing:-.015em;color:var(--color-navy);margin:.4rem 0 .6rem}
@@ -188,7 +188,6 @@
       <h2>Madeira Beach Double-Lot Development</h2>
       <div class="crumbs"><a href="/development">Development</a><span>|</span><a href="/development/madeira-beach">Project Detail</a></div>
       <p>A non-conforming double-lot assembled and entitled for residential development.</p>
-      <p style="margin-top:var(--space-4)"><span class="status">Active — Raising Capital</span></p>
     </div>
     <div class="plan-art">
       <img src="/assets/redesign/img/madeira-plan.png" alt="Site plan showing two lots with front, side and rear setbacks" width="334" height="246" loading="lazy" decoding="async" />
@@ -360,7 +359,6 @@
       <a href="/work">Selected Work</a>
       <a href="/about">About</a>
       <a href="/insights">Insights</a>
-      <a href="/ventures" class="ftr-ventures">Selected Ventures</a>
     </nav>
     <div class="meta">
       <a href="tel:+15614758615">(561) 475-8615</a>
