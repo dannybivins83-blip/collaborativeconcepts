@@ -5244,3 +5244,74 @@ except ImportError:  # when imported as a package (local tests)
     from api.adometr import register_adometr_routes
 
 register_adometr_routes(app)
+
+
+# ==========================================================================
+# Candy's Cake Pops MERCH — real order capture (cakepopsmerch.com checkout)
+# No payment rails yet: customer submits, we email + store the order, Candice
+# confirms + invoices/fulfills via Printful. Same "order request" model as the
+# cake-pop site. CORS-open (static origin differs).
+# ==========================================================================
+CANDYS_MERCH_ORDERS_KEY = "candys:merch_orders"
+
+
+@app.post("/api/candys/merch-order")
+def candys_merch_order():
+    b = request.get_json(force=True, silent=True) or {}
+    email = (b.get("email") or "").strip()[:200]
+    items = b.get("items") or []
+    if "@" not in email:
+        return _candys_resp({"ok": False, "error": "valid email required"}, 400)
+    if not isinstance(items, list) or not items:
+        return _candys_resp({"ok": False, "error": "cart is empty"}, 400)
+
+    rid = "CCM-" + secrets.token_hex(3).upper()
+    ship = b.get("address") or {}
+
+    def s(v, n=200):
+        return str(v or "").strip()[:n]
+
+    lines, computed_total = [], 0.0
+    for it in items[:50]:
+        name = s(it.get("name"), 160)
+        qty = max(1, min(99, int(it.get("qty") or 1)))
+        price = float(it.get("price") or 0)
+        props = it.get("props") or {}
+        propstr = "; ".join("{}: {}".format(s(k, 40), s(v, 80)) for k, v in props.items()) if isinstance(props, dict) else ""
+        computed_total += price * qty
+        lines.append("  - {} x{} @ ${:.2f}{}".format(name, qty, price, (" (" + propstr + ")") if propstr else ""))
+
+    order = {
+        "id": rid, "ts": _now_ms(),
+        "name": s(b.get("name")), "email": email, "phone": s(b.get("phone"), 60),
+        "address": {k: s(ship.get(k), 120) for k in ("line1", "line2", "city", "state", "zip", "country")},
+        "items": items[:50], "total": round(computed_total, 2),
+        "source": s(b.get("source") or "cakepopsmerch.com", 120),
+    }
+    try:
+        _kv_cmd(["RPUSH", CANDYS_MERCH_ORDERS_KEY, json.dumps(order)])
+    except Exception:
+        pass
+
+    a = order["address"]
+    addr = "\n".join(x for x in [
+        a.get("line1"), a.get("line2"),
+        " ".join(y for y in [a.get("city"), a.get("state"), a.get("zip")] if y),
+        a.get("country"),
+    ] if x)
+    body = (
+        "NEW MERCH ORDER from cakepopsmerch.com (no payment taken — confirm & fulfill via Printful).\n\n"
+        "Order: {rid}\nName: {name}\nEmail: {email}\nPhone: {phone}\n\n"
+        "SHIP TO:\n{addr}\n\nITEMS:\n{items}\n\nOrder total (item prices, excl. tax/ship): ${total:.2f}\n"
+    ).format(rid=rid, name=order["name"], email=email, phone=order["phone"],
+             addr=addr or "(none provided)", items="\n".join(lines), total=order["total"])
+    _notify("[CANDYS-MERCH] Order {} — {} ({} item{})".format(
+        rid, order["name"] or email, len(items), "" if len(items) == 1 else "s"), body)
+
+    if b.get("subscribe"):
+        try:
+            _notify("[CANDYS] Sweet List signup (merch checkout) — " + email,
+                    "Opted in during merch checkout.\nEmail: " + email)
+        except Exception:
+            pass
+    return _candys_resp({"ok": True, "order_id": rid, "total": order["total"]})
