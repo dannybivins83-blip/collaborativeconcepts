@@ -5315,3 +5315,24 @@ def candys_merch_order():
         except Exception:
             pass
     return _candys_resp({"ok": True, "order_id": rid, "total": order["total"]})
+
+
+# ==========================================================================
+# CORS for the Candy's static storefronts. The per-route auto-OPTIONS handler
+# answered preflights with NO CORS headers, so browsers blocked every POST
+# (direct/no-preflight calls still worked, which hid the bug). This hook adds
+# the headers to EVERY /api/candys/* response — preflight included. Scoped to
+# candys only so the cookie-authenticated /api/admin/* endpoints are untouched
+# (ACAO:* is incompatible with credentialed requests).
+# ==========================================================================
+@app.after_request
+def _candys_cors_headers(resp):
+    try:
+        if (request.path or "").startswith("/api/candys/"):
+            resp.headers["Access-Control-Allow-Origin"] = "*"
+            resp.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+            resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
+            resp.headers["Access-Control-Max-Age"] = "86400"
+    except Exception:
+        pass
+    return resp
