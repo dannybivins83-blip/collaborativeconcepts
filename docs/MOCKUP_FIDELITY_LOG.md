@@ -96,6 +96,24 @@ The page carries three mandated disclosure blocks (informational-only, not-an-of
 and licensed-services attribution) that the concept does not show. Trimmed band padding to
 1.043 rather than cutting required disclosure text. **Accepted.**
 
+### 8. Accent tokens darkened for WCAG 2.2 AA
+
+`design-tokens.css` fails AA contrast at normal text sizes on the ivory ground:
+
+| Token | Approved | Measured | Now |
+|---|---|---|---|
+| `--color-teal` | `#247d84` | 4.40:1 on ivory (need 4.5) | `#21737a` |
+| `--color-copper` | `#b76032` | 4.04:1 on ivory; white-on-copper 4.44 | `#9c522b` |
+| `--color-muted` | `#637078` | 4.15:1 on teal-soft | `#5b676f` |
+
+`BUILD_SPEC.md` mandates WCAG 2.2 AA, so accessibility wins over the exact palette.
+Each is the **minimum** darkening that clears 4.5:1 on the worst surface the colour is
+actually used on, with hue preserved. Measured after: **0 contrast failures across 19 routes.**
+
+Also fixed, and a real bug rather than a token issue: the current-page label in breadcrumbs
+rendered in `--color-line` at **1.36:1** — effectively invisible text. `.crumbs span` now uses
+`--color-muted`; only `aria-hidden` separators keep the hairline colour.
+
 ## Corrections applied to Home
 
 | Item | Was | Now | Basis |
@@ -138,10 +156,9 @@ software-startup page — #2dd4bf turquoise, Fraunces, IBM Plex Mono. Moved to `
 
 ## Still open
 
-- **High-resolution imagery.** Every image is a 142–524px crop taken from an 864px-wide page
-  mockup, upscaled 3× with LANCZOS + unsharp. The handoff contains no original assets. This
-  is the site's weakest remaining element and needs the design-agent package or the original
-  source photography.
-- Accessibility audit (keyboard, screen reader, contrast) beyond the structural checks.
+- **High-resolution imagery.** Every image is a 142–524px crop from an 864px-wide page mockup,
+  upscaled 3×. Real detail is ~1/3 of the stated file size. Buy list with per-slot targets:
+  `docs/PHOTOGRAPHY_NEEDS.md` (13 P1 slots, 10 drawing slots that should be redrawn as SVG).
+- Keyboard and screen-reader walkthrough (contrast + structure are now verified clean).
 - Owner ruling on `/development/pipeline`'s stale "$4.8M Total Acquisition" hero figure,
   which contradicts its own table total of $8.37M. Currently showing $8.37M.
