@@ -10,3 +10,4 @@ previews/
 *.zip
 .pytest_cache/
 .vercel/cache/
+archive/          # superseded pages kept in git for history, never deployed

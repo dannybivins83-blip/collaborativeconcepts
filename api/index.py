@@ -1209,6 +1209,36 @@ def wws_building_check():
 WWS_RESEARCH_DONE_KEY = "wws:research_done"   # SET of resolved job ids
 
 
+@app.post("/api/admin/inquiries/delete")
+def admin_inquiries_delete():
+    """Delete website inquiries by id. The cc:inquiries Redis LIST is otherwise
+    append-only, so a test submission or a spam burst could never be removed and
+    would sit in the lead list forever. Body: {ids:[...]}. Mirrors
+    /api/admin/leads/delete — LREM on the exact stored JSON value, atomic per
+    element and safe against concurrent RPUSH from the public form. Admin-gated."""
+    if not _is_admin():
+        return jsonify({"ok": False, "error": "forbidden"}), 403
+    b = request.get_json(force=True, silent=True) or {}
+    ids = b.get("ids") or []
+    if not isinstance(ids, list) or not ids:
+        return jsonify({"ok": False, "error": "no ids provided"}), 400
+    want = {str(i) for i in ids[:5000]}
+    raw, configured = _kv_cmd(["LRANGE", CC_INQUIRIES_KEY, "0", "-1"])
+    if not configured:
+        return jsonify({"ok": False, "error": "store not configured"}), 200
+    removed = 0
+    for item in (raw or []):
+        try:
+            inq = json.loads(item)
+        except Exception:
+            continue
+        if str(inq.get("id")) in want:
+            _kv_cmd(["LREM", CC_INQUIRIES_KEY, "1", item])
+            removed += 1
+    _log_activity("inquiries_delete", "Deleted {} inquiry(ies)".format(removed))
+    return jsonify({"ok": True, "removed": removed})
+
+
 @app.get("/api/admin/research")
 def admin_research_list():
     if not _is_admin():
