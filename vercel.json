@@ -4,6 +4,11 @@
   "trailingSlash": false,
   "redirects": [
     {
+      "source": "/archive/:path*",
+      "destination": "/",
+      "permanent": false
+    },
+    {
       "source": "/",
       "has": [
         {
