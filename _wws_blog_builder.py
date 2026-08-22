@@ -148,7 +148,7 @@ TOPICS = [
   "Why an inspector can open a fall-protection case on your building with no complaint and no advance notice.",
   "OSHA runs a National Emphasis Program on falls (CPL 03-00-025) plus regional programs that direct inspectors to prioritize fall hazards. Fall protection is the most-cited area on OSHA's Top 10 list year after year, and it applies in general industry, not just construction. Under an emphasis program, fall hazards are a programmed inspection target, not just something OSHA reacts to after a complaint or an accident.",
   "It means an inspector doesn't need a worker complaint or an injury to open a case. If a compliance officer is on site for any reason &mdash; or even observes a hazard in plain view, like an unguarded roof edge or workers without tie-offs &mdash; fall protection is fair game. The first many owners hear of it is the citation, with an abatement deadline already attached.",
-  "You can't control when OSHA shows up &mdash; only what they find. A proactive PE-sealed inspection closes the gaps before they're cited and puts documentation on file. Our PE partner certifies it and our crews fix it, under one contract. Get a comprehensive assessment to find out where you stand.",
+  "You can't control when OSHA shows up &mdash; only what they find. A proactive PE-sealed inspection closes the gaps before they're cited and puts documentation on file. Our PE partner certifies it, we inspect it, and La Gala Construction fixes it &mdash; under one contract. Get a comprehensive assessment to find out where you stand.",
   "",(("gavel","What the emphasis program is"),("visibility_off","Why there's no heads-up"),("shield","How to stay ahead of it"))),
  ("osha-fall-protection-fines","OSHA Fall-Protection Fines in 2026","Penalties","Hot",
   "What an unprotected edge or missing tie-off actually costs.",
@@ -309,7 +309,7 @@ HEAD = """<!DOCTYPE html>
 {marker}
 <link rel="canonical" href="{canonical}"/>
 <meta property="og:type" content="article"/>
-<meta property="og:title" content="{title_plain} | La Gala Construction"/>
+<meta property="og:title" content="{title_plain} | Collaborative Concept"/>
 <meta property="og:description" content="{meta}"/>
 <meta property="og:image" content="https://roofanchorcert.com/assets/wws/{img}.jpg"/>
 <meta property="og:url" content="{canonical}"/>
@@ -333,7 +333,7 @@ HEAD = """<!DOCTYPE html>
 <div class="h-1 w-full bg-gradient-to-r from-secondary via-secondary-fixed to-secondary"></div>
 <nav class="w-full sticky top-0 z-50 bg-[#f8f7f5]/80 backdrop-blur-md border-b border-outline-variant/20">
 <div class="flex justify-between items-center px-6 sm:px-8 py-4 max-w-7xl mx-auto">
-<a href="/" class="flex items-center" aria-label="La Gala Construction"><img src="/assets/lagala-logo.png" alt="La Gala Construction" class="h-10 sm:h-12 w-auto"/></a>
+<a href="/" class="flex items-center" aria-label="Collaborative Concept"><span class="text-2xl font-extrabold text-primary tracking-tight">Collaborative Concept</span></a>
 <div class="hidden md:flex items-center space-x-8">
 <a class="text-primary opacity-80 hover:text-secondary transition-colors" href="/roof-anchor-certification">Roof Anchors</a>
 <a class="text-primary opacity-80 hover:text-secondary transition-colors" href="/#schedule">Deadlines</a>
@@ -359,12 +359,12 @@ HEAD = """<!DOCTYPE html>
 """
 
 FOOTER = """<footer class="w-full py-12 px-6 sm:px-8 flex flex-col items-center text-center space-y-5 bg-[#1a1a2e] text-[#f8f7f5]">
-<a href="/" class="inline-block"><img src="/assets/lagala-logo.png" alt="La Gala Construction" class="h-11 w-auto" style="filter:brightness(0) invert(1)"/></a>
-<p class="text-sm text-[#f8f7f5]/70 max-w-xl">Concrete Restoration &middot; Waterproofing &middot; Fall-Protection &amp; Compliance &mdash; South Florida.</p>
+<a href="/" class="inline-block text-2xl font-extrabold tracking-tight text-[#f8f7f5]">Collaborative Concept</a>
+<p class="text-sm text-[#f8f7f5]/70 max-w-xl">Roof Consultant &middot; Anchor &amp; Davit Inspection &middot; OSHA Fall-Protection Compliance &mdash; South Florida.</p>
 <div class="flex flex-wrap justify-center gap-6 text-sm"><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/guides">All guides</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#plans">Build a plan</a><a class="text-[#f8f7f5]/60 hover:text-[#e8c547]" href="/#assessment">Comprehensive assessment</a></div>
-<p class="text-xs text-[#f8f7f5]/50">25 SE 7th Street, Ste 12 &middot; Deerfield Beach, FL 33441 &middot; (561) 475-8615 &middot; danny@lagalacon.com</p>
-<p class="text-xs text-[#f8f7f5]/40 max-w-3xl">La Gala Construction is a Florida State Certified General Contractor (CGC 059211). Engineering certifications referenced are performed and sealed by an independent, licensed Florida professional engineer; La Gala does not provide engineering services.{credit}</p>
-<p class="text-sm text-[#f8f7f5]/60">&copy; 2026 La Gala Construction (Tilt Patchers, Inc.). Licensed &middot; Bonded &middot; Insured.</p>
+<p class="text-xs text-[#f8f7f5]/50">513 W Drew Street &middot; Lantana, FL 33462 &middot; (561) 475-8615 &middot; dannybivins83@gmail.com</p>
+<p class="text-xs text-[#f8f7f5]/40 max-w-3xl">Collaborative Concept LLC is an independent roof consultant and inspection company. Corrective and construction work is performed by our licensed contractor partner, <a class="text-[#e8c547] font-semibold hover:underline" href="https://lagalacon.com" rel="noopener">La Gala Construction</a> (FL CGC 059211). Engineering certifications referenced are performed and sealed by an independent, licensed Florida professional engineer; Collaborative Concept does not provide engineering or contracting services.{credit}</p>
+<p class="text-sm text-[#f8f7f5]/60">&copy; 2026 Collaborative Concept LLC &middot; Lantana, Florida. Corrective work by La Gala Construction &mdash; Licensed &middot; Bonded &middot; Insured.</p>
 </footer>
 <script>(function(){function ev(n,p){try{if(typeof gtag==='function')gtag('event',n,p||{});}catch(e){}}document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a,button');if(!a)return;var h=a.getAttribute('href')||'';if(h.indexOf('tel:')===0)ev('phone_click',{});else if(h.indexOf('mailto:')===0)ev('email_click',{});else if(h.indexOf('#assessment')!==-1)ev('cta_click',{cta:'assessment'});else if(h.indexOf('#plans')!==-1)ev('cta_click',{cta:'plans'});else if(h.indexOf('/guides/')!==-1)ev('guide_open',{guide:h.split('/').pop()});},true);})();</script>
 <script>(function(){try{document.querySelectorAll('.material-symbols-outlined').forEach(function(s){if(!s.hasAttribute('aria-hidden'))s.setAttribute('aria-hidden','true');});}catch(e){}})();</script>
@@ -374,7 +374,7 @@ FOOTER = """<footer class="w-full py-12 px-6 sm:px-8 flex flex-col items-center 
 def cta():
     return """<div class="bg-primary text-on-primary rounded-2xl p-8 sm:p-10 mt-12 text-center">
 <h2 class="text-2xl sm:text-3xl font-extrabold">Got this on a citation — or want to get ahead of it?</h2>
-<p class="text-on-primary/75 mt-3 max-w-2xl mx-auto">Our PE partner certifies it and our crews fix it, under one contract. Start with a comprehensive, no-obligation assessment, or build a custom compliance plan in two minutes.</p>
+<p class="text-on-primary/75 mt-3 max-w-2xl mx-auto">Our PE partner certifies it, we inspect it, and La Gala Construction fixes it &mdash; under one contract. Start with a comprehensive, no-obligation assessment, or build a custom compliance plan in two minutes.</p>
 <div class="flex flex-wrap gap-4 justify-center mt-7">
 <a href="/#assessment" class="bg-secondary text-white px-7 py-3.5 rounded-xl font-bold hover:bg-secondary-container hover:text-on-secondary-fixed transition-colors">Get a comprehensive assessment</a>
 <a href="/swing-stage-osha-training" class="border-2 border-secondary-fixed text-secondary-fixed px-7 py-3.5 rounded-xl font-bold hover:bg-secondary-fixed hover:text-on-secondary-fixed transition-colors inline-flex items-center gap-2"><span class="material-symbols-outlined">school</span>Schedule Certified Training</a>
@@ -384,7 +384,7 @@ def cta():
 
 def build_post(p):
     slug,title,std,temp,short,why,how,fix,credit = p[:9]
-    secs = p[9] if len(p) > 9 and p[9] else (("priority_high","Why it matters"),("event_repeat","How often it's checked"),("construction","How La Gala fixes it"))
+    secs = p[9] if len(p) > 9 and p[9] else (("priority_high","Why it matters"),("event_repeat","How often it's checked"),("construction","How we fix it (with La Gala Construction)"))
     img = p[10] if len(p) > 10 and p[10] else slug
     title_plain = title.replace("&amp;","&")
     import re as _re, json as _json
@@ -392,7 +392,7 @@ def build_post(p):
     canon = f"https://roofanchorcert.com/guides/{slug}"
     head = HEAD.format(title_plain=title_plain, meta=meta, marker=MARKER, canonical=canon, img=img)
     _img = f"https://roofanchorcert.com/assets/wws/{img}.jpg"
-    _ld = {"@context":"https://schema.org","@type":"Article","headline":title_plain,"description":meta,"image":_img,"author":{"@type":"Organization","name":"La Gala Construction"},"publisher":{"@type":"Organization","name":"La Gala Construction"},"mainEntityOfPage":canon}
+    _ld = {"@context":"https://schema.org","@type":"Article","headline":title_plain,"description":meta,"image":_img,"author":{"@type":"Organization","name":"Collaborative Concept LLC"},"publisher":{"@type":"Organization","name":"Collaborative Concept LLC"},"mainEntityOfPage":canon}
     _bc = {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Compliance guides","item":"https://roofanchorcert.com/guides"},{"@type":"ListItem","position":2,"name":title_plain,"item":canon}]}
     head = head.replace("</head>", '<script type="application/ld+json">'+_json.dumps(_ld)+'</script>\n<script type="application/ld+json">'+_json.dumps(_bc)+'</script>\n</head>')
     credit_html = f'<p class="text-xs text-on-surface-variant/60 mt-3 italic">{credit}.</p>' if credit else ""
