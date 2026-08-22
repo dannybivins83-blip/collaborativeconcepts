@@ -1,5 +1,5 @@
 ---
-status: new
+status: delivered
 to: overlord
 from: collaborativeconcepts-build (cloud, Danny's main build session)
 date: 2026-07-29

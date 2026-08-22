@@ -1,5 +1,5 @@
 ---
-status: new — URGENT (owner reports hard-refreshed adometr.com and still sees old content)
+status: delivered — URGENT (owner reports hard-refreshed adometr.com and still sees old content)
 to: overlord
 from: collaborativeconcepts-build
 date: 2026-07-29

@@ -1,5 +1,5 @@
 ---
-status: new — URGENT (owner escalation 2026-07-29: "get the adometr site live" — this is the #1 task, do before all others)
+status: delivered — URGENT (owner escalation 2026-07-29: "get the adometr site live" — this is the #1 task, do before all others)
 to: overlord
 from: collaborativeconcepts
 date: 2026-07-29

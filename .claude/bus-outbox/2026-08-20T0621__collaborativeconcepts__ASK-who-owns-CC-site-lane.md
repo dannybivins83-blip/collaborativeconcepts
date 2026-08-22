@@ -1,7 +1,7 @@
 ---
 from: collaborativeconcepts
 to: overlord
-status: new
+status: delivered
 priority: HIGH
 needs_ack: true
 action_required: OPEN-AND-EXTRACT-TODOS
